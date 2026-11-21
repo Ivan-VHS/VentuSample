@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Anatidae Quality Remediation Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "entries",
+    "limitations"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.quality-remediation.v1"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "scope"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "terms",
+          "target",
+          "acceptance",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "terms": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "correction",
+              "coverage",
+              "defect"
+            ],
+            "properties": {
+              "correction": {
+                "type": "string",
+                "enum": [
+                  "Исправление",
+                  "Корректировка",
+                  "Устранение",
+                  "Поправка",
+                  "Налаживание",
+                  "Отладка",
+                  "Доработка",
+                  "Оптимизация",
+                  "Реконструкция",
+                  "Модернизация",
+                  "Обновление",
+                  "Ревизия",
+                  "Восстановление",
+                  "Регулировка",
+                  "Совершенствование",
+                  "Рефакторинг",
+                  "Стабилизация",
+                  "Согласование",
+                  "Унификация",
+                  "Безошибочность"
+                ]
+              },
+              "coverage": {
+                "type": "string",
+                "enum": [
+                  "Всеобъемлемость",
+                  "Всесторонность",
+                  "Комплексность",
+                  "Полнота",
+                  "Исчерпывающесть",
+                  "Универсальность",
+                  "Многогранность",
+                  "Масштабность",
+                  "Охватность",
+                  "Многоаспектность",
+                  "Многопрофильность",
+                  "Разносторонность",
+                  "Всеохватность",
+                  "Целостность",
+                  "Совокупность",
+                  "Глобальность",
+                  "Безграничность",
+                  "Исчерпывающесть",
+                  "Фундаментальность",
+                  "Энциклопедичность"
+                ]
+              },
+              "defect": {
+                "type": "string",
+                "enum": [
+                  "Ошибки",
+                  "Погрешности",
+                  "Неточности",
+                  "Недочёты",
+                  "Просчёты",
+                  "Отклонения",
+                  "Дефекты",
+                  "Изъяны",
+                  "Недостатки",
+                  "Оплошности",
+                  "Промахи",
+                  "Сбои",
+                  "Нарушения",
+                  "Упущения",
+                  "Несоответствия",
+                  "Дисфункции",
+                  "Неисправности",
+                  "Оговорки",
+                  "Ляпы",
+                  "Деформации"
+                ]
+              }
+            }
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "acceptance": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

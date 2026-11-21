@@ -1,0 +1,63 @@
+name: Verified Mainline Auto-Merge
+
+on:
+  workflow_run:
+    workflows: ["VentuSample CI"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ventusample-verified-auto-merge-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  enable-auto-merge:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository
+    name: Enable squash auto-merge after complete CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Verify the tested PR head and enable native auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TESTED_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          PULL_REQUESTS_JSON: ${{ toJSON(github.event.workflow_run.pull_requests) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          numbers="$(jq -r '.[].number // empty' <<< "$PULL_REQUESTS_JSON")"
+          if [[ -z "$numbers" ]]; then
+            echo "No associated pull request; nothing to merge."
+            exit 0
+          fi
+
+          while IFS= read -r number; do
+            [[ -n "$number" ]] || continue
+            pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number")"
+            head_sha="$(jq -r '.head.sha' <<< "$pr")"
+            head_repo="$(jq -r '.head.repo.full_name // ""' <<< "$pr")"
+            base_ref="$(jq -r '.base.ref' <<< "$pr")"
+            draft="$(jq -r '.draft' <<< "$pr")"
+            url="$(jq -r '.html_url' <<< "$pr")"
+            auto_merge="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$pr")"
+
+            if [[ "$head_repo" != "$GITHUB_REPOSITORY" || "$base_ref" != "main" || "$draft" != "false" ]]; then
+              echo "SKIP PR #$number: not an eligible same-repository, non-draft main PR."
+              continue
+            fi
+            if [[ "$head_sha" != "$TESTED_HEAD_SHA" ]]; then
+              echo "SKIP PR #$number: CI result is for an older commit."
+              continue
+            fi
+            if [[ "$auto_merge" == "true" ]]; then
+              echo "OK PR #$number: native auto-merge is already enabled."
+              continue
+            fi
+
+            echo "Enable squash auto-merge for fully validated PR #$number."
+            gh pr merge "$url" --auto --squash --delete-branch
+          done <<< "$numbers"
