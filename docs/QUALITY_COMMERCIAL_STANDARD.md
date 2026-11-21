@@ -51,3 +51,18 @@ A commercial maturity score is not revenue, profit, valuation or investment read
 ## Market-development alignment
 
 The dedicated [market-development standard](MARKET_DEVELOPMENT_STANDARD.md) and root [versioned profile](../market-development.v1.json) make the marketing, customer, promotion, distribution and monetization dimensions actionable. The profile complements the 20 × 3 quality/execution/commercial matrix; it does not replace evidence checks. Market validation, pricing and unit economics remain unassessed or unset until supported by observed producer workflows, rights review and measured costs.
+
+## Operational cohesion and prioritized next steps
+
+The second axis (**Execution**) measures the cohesion of the end-to-end operating model: consistent module ownership, bounded workflows, aligned interfaces, reproducible release steps and synchronized documentation. “Monolithic” means a consistent product journey and a single source of truth; it does not mean collapsing independent modules into one source file or removing project boundaries.
+
+The evaluator now emits a prioritized action plan derived from the declared commercial controls:
+
+| Priority | Required next step | Acceptance evidence |
+|---|---|---|
+| P0 | Complete license and third-party rights review | License compatibility, notices, bundled dependencies and asset permissions are reviewed before commercial redistribution claims. |
+| P1 | Define support ownership and release delivery | Maintenance owner, supported versions, issue route, release artifacts and reproducible installation are documented; no SLA is implied. |
+| P2 | Validate user demand and unit economics | Actual user workflows and delivery/support costs are recorded before market-fit or margin claims. |
+| P3 | Consider pricing only after evidence | User value, rights, operating costs and support scope are assessed; no willingness-to-pay is invented. |
+
+Run `python tools/quality_commercial.py` for the text report or `python tools/quality_commercial.py --format json` for structured output. The action plan is advisory; declared statuses do not prove sales, revenue, profitability or investment readiness.
