@@ -119,6 +119,17 @@ def main() -> int:
         if token not in workflow_text:
             fail(f"automation roadmap workflow is missing required control: {token}")
 
+    gate_relative = (
+        ".github/workflows/ci.yml"
+        if project["id"] == "ventusample"
+        else ".github/workflows/verified-auto-merge.yml"
+    )
+    gate = ROOT / gate_relative
+    if not gate.is_file():
+        fail(f"existing merge/CI gate is missing: {gate_relative}")
+    if "python scripts/validate_automation_roadmap.py --strict" not in gate.read_text(encoding="utf-8"):
+        fail(f"roadmap validation is not wired into the existing merge/CI gate: {gate_relative}")
+
     print(
         f"Validated {len(tasks)} workstreams for {project['repository']}: "
         f"{states['active']} active, {states['extend']} to extend, "
