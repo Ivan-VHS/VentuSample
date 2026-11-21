@@ -6,7 +6,7 @@ VentuSample contains 19 first-party built-in plugins and a public C++20 SDK for 
 
 | Capability | Implementation |
 |---|---|
-| Built-in registry | 19 first-party plugins registered by the core |
+| Built-in registry | 18 first-party plugins registered by the core |
 | Public SDK | PluginDescriptor, PluginContext, PluginHandler and lifecycle callbacks |
 | Manifest discovery | metadata-only recursive discovery from the desktop manager |
 | Compatibility | plugin API version 1, host ID ventu and semantic plugin versions |
@@ -14,20 +14,6 @@ VentuSample contains 19 first-party built-in plugins and a public C++20 SDK for 
 | Handler attachment | reviewed C++ handler registration through registerPlugin or attachHandler |
 | Diagnostics | source, manifest path, enabled/initialized state, handler attachment and last error |
 | Safety | discovered metadata defaults disabled; no automatic DLL/SO loading or manifest-driven code execution |
-
-## Stochastic Router (built-in)
-
-The **Stochastic Router** is a first-party offline DSP processor, not a wrapper around arbitrary third-party DLLs. It has eight weighted pool entries: low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Each entry can be enabled or excluded from the pool in the generator UI.
-
-- **Topologies:** hybrid, serial or parallel (2–4 branches when enough effects are selected).
-- **Triggers:** one route per file, one route per bar, or one route per scheduled generator event. The onset mode uses event frames from the procedural renderer; imported WAVs are not independently transient-detected.
-- **Macros:** intensity 0–100%; aggression, space, dirt and chaos follow grit, stereo, saturation and density controls.
-- **Safety:** wet ≤65%, effect feedback ≤72%, 5–20 ms dry/wet fades at segment boundaries, RMS gain compensation limited to 0.5–2×, sample-peak output guard ≤−0.3 dBFS.
-- **Determinism:** generator seed, variation, topology, trigger and enabled pool mask determine route selection.
-
-The generator checkbox is off by default. When enabled, this engine processes the rendered float buffer before PCM16 WAV encoding. Manifest v2 stores the settings and each output file's selected route names. Running the module from Plugin Manager performs a one-bar in-memory preview and reports its measurements; it does not write files.
-
-This path is **offline**. There is no real-time callback, live playback, hot swapping during playback, or arbitrary third-party audio-plugin loading.
 
 ## Desktop usage
 
@@ -52,6 +38,28 @@ manager.registerPlugin(
 ```
 
 A discovered manifest can receive a reviewed handler with attachHandler(id, handler, onInitialize, onShutdown). A metadata-only entry cannot be enabled or executed until a handler is attached. Initialization is lazy and occurs before the first successful dispatch. Disabling an initialized module invokes its shutdown callback.
+
+## Quantum Audio Engine — 133 DSP modules
+
+The audio laboratory is opened independently from **Плагины → Quantum Audio Engine — 133 DSP**. It has 133 stable DSP module identities in five families: Quarks & Hadron (23), Quantum Mechanics (23), Atoms & Orbitals (23), Fields & Relativity (23), and Experimental Instruments (41).
+
+The lab loads supported WAV files, offers Amount / Tone / Rate / Wet-Dry controls for each module, builds an ordered processing chain, processes interleaved float samples offline and exports stereo PCM16 WAV. Module settings and chain order are persisted locally with QSettings. The catalogue uses 21 reusable DSP kernels with controlled per-module variants, rather than claiming 133 unrelated low-level algorithms. Each entry has a stable ID, description, category, visual concept and tested dispatch path.
+
+The audio processor is deliberately offline: it does not introduce a real-time callback, device routing, VST/AU hosting or arbitrary native-library loading. Quantum and particle terminology describes creative signal-processing models, not physical quantum computation. The complete catalogue, DSP mapping and audio limitations are in [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md).
+
+## Stochastic Router
+
+The **Stochastic Router** is a first-party offline DSP processor. It does not load or randomly instantiate arbitrary third-party DLLs. Its weighted pool contains eight processors: low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Each entry can be enabled or excluded from the generator UI.
+
+- **Topologies:** hybrid, serial or parallel (2–4 branches when enough effects are selected).
+- **Triggers:** one route per file, one route per bar, or a route per scheduled generator event. Onset mode uses event frames from the procedural renderer; imported WAVs are not independently transient-detected.
+- **Macros:** intensity 0–100%; aggression, space, dirt and chaos follow grit, stereo, saturation and density controls.
+- **Safety:** wet ≤65%, effect feedback ≤72%, 5–20 ms dry/wet fades at segment boundaries, RMS compensation limited to 0.5–2×, sample-peak output guard ≤−0.3 dBFS.
+- **Determinism:** generator seed, variation, topology, trigger and enabled pool mask determine route selection.
+
+The generator checkbox is off by default. When enabled, the engine processes the rendered float buffer before PCM16 WAV encoding. Manifest v2 stores the settings and each output file's selected route names. Running the module from Plugin Manager performs a one-bar in-memory preview; it does not write files.
+
+This path is **offline**. It does not provide a real-time callback, playback hot-swapping, VST/AU hosting or arbitrary third-party audio-plugin loading.
 
 ## Manifest contract
 

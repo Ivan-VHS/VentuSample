@@ -8,6 +8,10 @@ Native workstation for deterministic procedural hip-hop sample packs. The scalar
 
 The 19 shared internal products are built-in plugins in the native PluginManager. Open **Плагины → Менеджер плагинов** to inspect, enable/disable and run tools, or discover local extension manifests. The C++20 SDK provides reviewed handler registration, lazy initialization, shutdown and diagnostics. Manifest discovery is metadata-only; arbitrary DLL/SO loading remains disabled. See [Plugin platform and SDK](docs/PLUGINS.md) and the [shared manifest schema](schemas/ivan-vhs.plugin.v1.schema.json).
 
+## Quantum Audio Engine — 133 DSP modules
+
+A native C++ audio lab is available from **Плагины → Quantum Audio Engine — 133 DSP**. It loads PCM16 WAV, builds an ordered processing chain from five families, processes float audio offline, displays signal measurements and exports stereo WAV. The 133 module identities use 21 reusable, tested DSP kernels. This is a local offline processor, not a live DAW or third-party plugin loader. See [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) for the complete catalogue and audio contract.
+
 ## Stochastic routing
 
 The optional **Stochastic Router** processes rendered stereo buffers before WAV export. Its weighted pool contains low/high-pass filters, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Choose active effects, hybrid/serial/parallel topology, file/bar/scheduled-onset triggers and intensity. Fixed seed + settings produce repeatable routes; manifest v2 records the selected route names per file. Wet is bounded to 65%, feedback to 72%, transitions fade over 5–20 ms, RMS gain compensation is bounded, and output is clamped to a −0.3 dBFS sample-peak ceiling. This is offline DSP, not a real-time DAW host.
@@ -63,6 +67,6 @@ If Qt is unavailable, portable DSP core and tests can still build; the desktop t
 
 The Windows CI workflow captures the actual 1920×1080 Qt app and uploads `ventusample-live-windows-screenshot`. Open the [CI workflow](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml), choose a successful run and download the artifact. GitHub retains it for 30 days; it is not a permanent repository image.
 
-[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
+[Features](docs/FEATURES.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)

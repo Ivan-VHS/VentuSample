@@ -10,14 +10,27 @@
 | Variation | fixed/derived seeds, phrase turns every 4 bars |
 | Timing | shared drum/melody swing, snare offset, micro-humanization |
 | Processing | filters, saturation, linked stereo bus compression |
-| Stochastic Router | 8 weighted DSP effects; serial/parallel/hybrid; file/bar/onset triggers |
-| Stochastic safety | wet ≤65%, feedback ≤72%, 5–20 ms transition fades, bounded RMS gain, −0.3 dBFS sample peak |
-| Stochastic UI | enable/disable, intensity, effect-pool selection, topology and trigger controls |
-| Reproducibility | fixed seed + settings + variation produce stable routing decisions |
 | Export | PCM16 WAV + manifest v2; v1 compatibility retained |
-| Analysis | peak, RMS, crest per file; route names in manifest v2 |
+| Analysis | peak, RMS, crest per file |
 | Key labels | key/mode on pitched material; no fabricated drum key |
 | Reaper | v1 manifest metrics/comparison; JSON only, no waveform audit |
 | QMR-20 | 20 quality × cohesion × rhythm controls and regression gates |
 
-The stochastic engine is offline DSP; it is not a real-time plugin host. Profiles are original procedural patterns, not artist or recording emulations.
+Profiles are original procedural patterns, not artist or recording emulations.
+
+## Stochastic Router
+
+- 8 weighted DSP effects, each independently selectable in the pool.
+- Serial, parallel and hybrid graphs; file, bar and generator-onset triggers.
+- Deterministic routing by seed and variation; manifest v2 route summaries.
+- Wet ≤65%, feedback ≤72%, 5–20 ms fades, bounded RMS compensation and −0.3 dBFS sample-peak protection.
+- Integrated into offline WAV export and exposed as the 19th built-in plugin.
+
+## Quantum Audio Engine
+
+- 133 named audio DSP modules across five scientific/conceptual families.
+- 21 reusable C++ DSP kernels with individual module IDs and parameter defaults.
+- Ordered offline WAV processing chain with per-module Amount, Tone, Rate and Wet/Dry controls.
+- Local chain and module-control persistence, signal scope and PCM16 WAV export.
+- Independent native test target exercises every catalogue entry and invalid-input guards.
+

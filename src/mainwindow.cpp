@@ -1,4 +1,5 @@
 #include "mainwindow.hpp"
+#include "quantum_audio_lab.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -35,6 +36,7 @@
 #include <QDir>
 #include <QMetaObject>
 #include <algorithm>
+#include <array>
 
 namespace {
 QString q(const std::string& value) { return QString::fromUtf8(value.c_str()); }
@@ -117,6 +119,10 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 
 void MainWindow::buildUi() {
     auto* pluginsMenu = menuBar()->addMenu("Плагины");
+    pluginsMenu->addAction("Quantum Audio Engine — 133 DSP", this, [this] {
+        ventu::showQuantumAudioLab(this);
+    });
+    pluginsMenu->addSeparator();
     pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
     pluginsMenu->addSeparator();
     for (const auto& plugin : pluginManager_.plugins()) {
