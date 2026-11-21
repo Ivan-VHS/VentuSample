@@ -1,0 +1,55 @@
+{
+  "schema": "clife.recovery-contract.v1",
+  "purpose": "bounded_software_state_checkpoint_and_recovery",
+  "payload_limit_bytes": 67108864,
+  "snapshot_fields": [
+    "project_id",
+    "generation",
+    "payload",
+    "checksum_algorithm",
+    "checksum"
+  ],
+  "fault_types": [
+    "storage_io",
+    "artifact_integrity",
+    "resource_pressure",
+    "execution_interruption"
+  ],
+  "recovery_branches": [
+    "normal_resume",
+    "verified_restore",
+    "partial_hold",
+    "emergency_safe_stop"
+  ],
+  "thresholds": {
+    "emergency_safe_stop": {
+      "external_threat_gt": 0.85,
+      "viability_lt": 0.7
+    },
+    "normal_resume": {
+      "viability_gte": 0.95,
+      "execution_health_gte": 0.95
+    },
+    "verified_restore": {
+      "snapshot_verified": true,
+      "project_id_match": true,
+      "snapshot_generation_lte_current": true,
+      "viability_gte": 0.55
+    },
+    "fallback": "partial_hold"
+  },
+  "trust_boundary": {
+    "checksum_is_authentication": false,
+    "code_execution_on_restore": false,
+    "caller_authorization_required": true,
+    "credentials_and_secrets_in_payloads": false
+  },
+  "adapter": {
+    "adapter": "native_cpp20",
+    "checksum": "fnv1a64",
+    "persistence": "caller_managed",
+    "scope": "offline_render_and_manifest_bytes",
+    "realtime_path": false,
+    "plugin_code_loading": false
+  }
+}
