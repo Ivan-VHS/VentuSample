@@ -1,0 +1,23 @@
+name: Quality and commercial readiness
+
+on:
+  push:
+    branches: [main]
+    paths: ["quality-commercial.v1.json", "tools/quality_commercial.py", "tests/test_quality_commercial.py", "docs/QUALITY_COMMERCIAL_STANDARD.md", ".github/workflows/quality-commercial.yml"]
+  pull_request:
+    branches: [main]
+    paths: ["quality-commercial.v1.json", "tools/quality_commercial.py", "tests/test_quality_commercial.py", "docs/QUALITY_COMMERCIAL_STANDARD.md", ".github/workflows/quality-commercial.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m unittest discover -s tests -p test_quality_commercial.py -v
+      - run: python tools/quality_commercial.py --format json
