@@ -4,10 +4,11 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "schema", "version", "project", "catalytic_model", "lambda_window",
+    "$schema", "schema", "version", "project", "catalytic_model", "lambda_window",
     "diagnostics", "mega_projection", "safety", "adoption", "evidence_paths"
   ],
   "properties": {
+    "$schema": { "const": "https://json-schema.org/draft/2020-12/schema" },
     "schema": { "const": "clife.catalytic-resynthesis.v1" },
     "version": { "const": 1 },
     "project": {
