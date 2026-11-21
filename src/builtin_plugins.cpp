@@ -99,7 +99,9 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
         const auto files = collectFiles(context.workspaceRoot, 5000u);
         std::size_t source = 0, tests = 0, docs = 0, readmes = 0, workflows = 0;
         std::size_t owners = 0, dependencies = 0, recovery = 0, learning = 0;
-        std::size_t scanned = 0, largeUnits = 0;
+        std::size_t scanned = 0, largeUnits = 0, sourceBytes = 0;
+        bool sourceScanTruncated = false;
+        constexpr std::size_t maxSourceBytesTotal = 32u * 1024u * 1024u;
         std::size_t todo = 0, fixme = 0, hack = 0, xxx = 0;
         const std::regex testPath(R"((^|/)(tests?|testing|specs?)/|(^|/)test_[^/]*$|(^|/)[^/]*[.]test[.])", std::regex::icase);
         const std::regex workflowPath(R"((^|/)[.]github/workflows/|(^|/)[.]gitlab-ci[.]yml$|(^|/)azure-pipelines[.]yml$)", std::regex::icase);
@@ -121,7 +123,13 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
                 ++source;
                 if (std::regex_search(rel, testPath)) ++tests;
                 std::string content;
-                if (readBounded(file, content, 1024u * 1024u)) {
+                std::error_code sizeError;
+                const auto fileBytes = fs::file_size(file, sizeError);
+                if (sizeError || fileBytes > 1024u * 1024u
+                    || fileBytes > maxSourceBytesTotal - sourceBytes) {
+                    sourceScanTruncated = true;
+                } else if (readBounded(file, content, 1024u * 1024u)) {
+                    sourceBytes += content.size();
                     ++scanned;
                     const auto lines = static_cast<std::size_t>(std::count(content.begin(), content.end(), '\n')) + 1u;
                     if (lines > 1000u) ++largeUnits;
@@ -157,7 +165,9 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
                 + ", large source units (>1000 lines)=" + std::to_string(largeUnits),
             "No aggregate wellbeing score: missing evidence is a review prompt, not a diagnosis or quality verdict.",
             "No contributor ranking, commit-time analysis, audio processing, mood inference or device telemetry.",
-            "Presence of tests, CI, docs or runbooks does not prove their quality, freshness or effectiveness."
+            "Presence of tests, CI, docs or runbooks does not prove their quality, freshness or effectiveness.",
+            "Source text bytes inspected: " + std::to_string(sourceBytes) + " / 33554432 maximum.",
+            std::string("Source text scan capped: ") + (sourceScanTruncated ? "yes" : "no")
         };
         return ok("Code Mental Health / Codebase Wellbeing inventory completed.", std::move(details));
     }
