@@ -170,7 +170,9 @@ def inspect_infrastructure(file_texts,findings):
             if "pull_request_target" in low and re.search(r"head\.(?:sha|ref)|pull_request\.head",low):add(findings,"N02","critical",path,1,"Privileged pull_request_target workflow checks out untrusted head content.","high")
             for number,line in enumerate(text.splitlines(),1):
                 if "run:" in line and re.search(r"\$\{\{\s*github\.event\.",line):add(findings,"N03","high",path,number,"Untrusted event data is interpolated directly into a shell run command.","high")
-                if re.search(r"^\s*uses:\s*[^#\s]+@v?\d",line):add(findings,"N04","medium",path,number,"Action reference is tag-based rather than pinned to a full commit SHA.","high")
+                action_ref=re.search(r"^\s*uses:\s*[^#\s]+@([^\s#]+)",line)
+                if action_ref and not re.fullmatch(r"[0-9a-fA-F]{40}",action_ref.group(1)):
+                    add(findings,"N04","medium",path,number,"Action reference is tag-based rather than pinned to a full commit SHA.","high")
                 if "persist-credentials: true" in line.lower():add(findings,"N07","medium",path,number,"Checkout persists credentials beyond the checkout step.","high")
             if re.search(r"\b(?:curl|wget)\b[\s\S]{0,180}\|\s*(?:ba)?sh\b",text,re.I):add(findings,"N05","critical",path,1,"Remote content is piped directly to a shell.","high")
             if "timeout-minutes:" not in text:add(findings,"N06","low",path,1,"Workflow has no explicit job timeout.","high")
@@ -212,7 +214,14 @@ def scan_history(root,base_ref,findings):
         if SECRET_ASSIGNMENT.search(added) and not any(p in added.lower() for p in PLACEHOLDERS):add(findings,"A01","high",current_path or "__history__",number,"Credential-like value was added in commit history; value redacted.","high")
         if AWS_KEY.search(added):add(findings,"A02","critical",current_path or "__history__",number,"Cloud access-key identifier was added in commit history; value redacted.","high")
         if PRIVATE_KEY.search(added):add(findings,"A03","critical",current_path or "__history__",number,"Private-key material was added in commit history; content redacted.","high")
-def correlate(findings,file_texts):
+def correlate(findings,file_texts,focus_paths=None):
+    # Never correlate the policy catalogue, scanner implementation, or its tests as target application code.
+    # When evaluating a PR, restrict correlations to files changed in that PR.
+    file_texts={path:text for path,text in file_texts.items()
+                if not path.startswith('.beelzebul/')
+                and not path.startswith('security/beelzebul/')
+                and not path.startswith('tests/')
+                and (focus_paths is None or path in focus_paths)}
     by_path={}
     for finding in findings:by_path.setdefault(finding["path"],[]).append(finding)
     for path,text in sorted(file_texts.items()):
