@@ -1,5 +1,7 @@
 # VentuSample — procedural sample workstation
 
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+
 [CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · Offline · Apache-2.0
 
 VentuSample is a native workstation for deterministic procedural hip-hop sample packs. Its scalar renderer exports PCM16 stereo WAV files and versioned JSON manifests without requiring a DAW, audio device or network connection.
@@ -7,11 +9,36 @@ VentuSample is a native workstation for deterministic procedural hip-hop sample 
 ## Live Windows desktop
 
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample running on Windows 11" width="100%"></p>
-<sub>Actual 1920×1080 Windows 11 desktop capture from the Qt CI build. The screenshot shows the generator workbench; plugin discovery and the DSP laboratory are separate menu actions.</sub>
+<sub>Actual application capture · 1920×1080 source image · original pixels retained; no artificial upscaling.</sub>
 
-## UI motion and accessibility
+## Audio generation and processing flow
 
-VentuSample provides **View → Motion Settings** with persisted **Reduce Motion**, **Eco / Low-CPU Visuals** and **Sync to BPM** preferences. The internal project BPM drives a restrained beat indicator; this is project-tempo feedback, not an external DAW transport link. Reduce Motion and Eco suspend that indicator and cap retained transitions at 80 ms. Qt animations and the beat timer stay on the UI thread, outside DSP callbacks, audio buffers, generator workers and stochastic-routing code. See the [UI motion contract](docs/UI_MOTION.md).
+The first flow shows the current offline path from seeded generation through optional stochastic routing to WAV and manifest output.
+
+```mermaid
+flowchart TD
+    A[Seed and generator settings] --> B[Procedural renderer]
+    B --> C[Generated audio buffer]
+    C --> D{Stochastic routing enabled?}
+    D -- No --> E[PCM16 stereo WAV]
+    D -- Yes --> F[Offline stochastic router]
+    F --> E
+    E --> G[Versioned JSON manifest]
+    H[Imported supported WAV] --> I[Quantum Audio Engine]
+    I --> J[Processed PCM16 WAV]
+```
+
+## Plugin discovery and execution boundary
+
+Plugin manifests are inspected as metadata. A discovered entry is not executable until an explicitly reviewed native handler is attached.
+
+```mermaid
+flowchart LR
+    A[Local plugin.json] --> B[Metadata-only discovery]
+    B --> C[Entry stays disabled]
+    C --> D[Reviewed native handler attached]
+    D --> E[Bounded dispatch or one-bar preview]
+```
 
 ## Generator matrix
 
@@ -90,31 +117,4 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 - No network telemetry, background audio capture, real-time callback or implicit native-library loading.
 - Import/export requires appropriate source rights. A hash proves byte identity, not ownership.
 
-[Features](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Anatidae design](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [Docs index](docs/README.md)
-
 [Apache-2.0](LICENSE)
-
-## DUCK CORE // README & Motion Suite
-
-The shared visual reference for interactive demos and UI documentation defines three palettes: **Pond Noir** (default dark canvas), **Golden Reed** (warm high-contrast accents) and **Arctic Glacier** (cool cyan/blue accents). Use semantic tokens for canvas, surfaces, borders, text, accents and focus states instead of unrelated hard-coded component colors.
-
-Motion follows a clear hierarchy: restrained spring easing for intentional entrances and feedback, smooth easing for routine transitions, and optional Zen / Hyper intensity presets only where the application exposes them. Parallax, floating geometry and ripple effects are decorative, nonessential and must never carry information or block input. The `reduced-motion` preference overrides every preset and suppresses decorative movement.
-
-**Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
-
-This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
-
-## Documentation system and visual assets
-
-This repository follows the [README and visual documentation standard](docs/README_VISUAL_STANDARD.md) for Markdown/MDX structure, diagrams, screenshots, SVG and raster assets, accessibility, localization and documentation quality gates.
-
-
-## Motion Constitution v2026
-
-The shared interface contract is [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md). It standardizes spring/snappy easing, the 0.4×–2.2× motion-scale envelope, reduced-motion precedence, light/dark parity, the 2×2/focus-scene showcase and data-bound SVG/Canvas telemetry. The [native Qt motion contract](docs/UI_MOTION.md) defines the current implementation: bounded UI-thread transitions, persisted motion preferences and the optional project-BPM indicator. VentuSample is an offline sample-generation/DSP workstation, not a real-time DAW or external mixer; meters and waveforms must be derived from actual preview/render buffers and must never run inside DSP callbacks or generator workers.
-
-## Shared motion architecture map
-
-<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026: four-domain architecture map" width="100%"></p>
-
-This is the shared 2×2 architecture reference, not a live application screenshot. It distinguishes shipped product scope from unavailable or planned capabilities.
