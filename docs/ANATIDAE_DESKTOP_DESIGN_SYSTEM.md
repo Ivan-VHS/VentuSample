@@ -103,3 +103,22 @@ At narrow widths, stack the identity/structure and groove/master groups rather t
 - [ ] Generation remains offline, bounded and responsive; no live-audio claim is made.
 - [ ] PCM16 import/export and manifest compatibility tests pass.
 - [ ] Real Windows/Linux Qt 6 captures are labelled by platform and are not replaced by mockups.
+
+## 10. Anatidae naming and companion layer
+
+The shared vocabulary and guardrails are defined in [the federation naming canon](../federation/ANATIDAE_NAMING_CANON.md). For VentuSample, **Утёнок** may be used for optional first-pack guidance and **Крякуша** for non-critical help around the existing variation workflow. **Пёрышко** may serve as a small file-summary decoration only while filenames, PCM format, sample rate, key, scale, seed and measurements remain explicit.
+
+Do not add a genre, sound profile, sample format, generator mode or audio behavior merely to consume a vocabulary word. Existing style names and DSP parameters remain the canonical musical vocabulary. Keep confirmation before pack generation, bounded input validation, local-only processing, explicit errors and the −0.3 dBFS sample-peak statement unchanged.
+
+The Anatidae layer must use the existing white-blue-red visual language and the application's current theme behavior. Feather/wing details are secondary; they must not reduce the contrast or readability of controls, numeric parameters, progress or render status. Reduced-motion behavior and worker-thread responsiveness remain mandatory.
+
+## 11. Additional release review
+
+- [ ] Both themes use the documented semantic palette.
+- [ ] Parameters remain labeled and values remain visible.
+- [ ] Generation confirmation identifies the output location.
+- [ ] Busy, success and failure states are readable without relying on color or animation.
+- [ ] Worker-thread responsiveness and orderly shutdown are preserved.
+- [ ] Source import and output limits are communicated accurately.
+- [ ] Optional Anatidae copy does not replace technical labels or imply new behavior.
+- [ ] Keyboard focus, traversal and reduced-motion behavior are checked.

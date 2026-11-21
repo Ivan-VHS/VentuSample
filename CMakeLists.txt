@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(VentuSample VERSION 0.1.0 LANGUAGES CXX)
+project(VentuSample VERSION 0.2.0 LANGUAGES CXX)
 
 option(VENTU_BUILD_DESKTOP "Build the native Qt desktop workstation when Qt 6 is available" ON)
 option(VENTU_BUILD_TESTS "Build deterministic generator tests" ON)

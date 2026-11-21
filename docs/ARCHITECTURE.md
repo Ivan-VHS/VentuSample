@@ -1,6 +1,6 @@
 # VentuSample — architecture and audio contract
 
-**Version:** 0.1.0 · **Status:** functional C++20 reference generator; Qt 6 desktop target
+**Version:** 0.2.0 · **Status:** functional C++20 reference generator; Qt 6 desktop target
 
 ## 1. Product boundary
 
@@ -11,7 +11,7 @@ The application is split into five independently testable layers:
 1. **Desktop shell (`src/main.cpp`, `src/mainwindow.*`)** — native Qt 6 Widgets window, parameter controls, folder dialogs, results, diagnostics and persisted preferences.
 2. **Control plane (`ventu::Parameters`, `validate`)** — typed settings, bounded ranges, input format validation and deterministic seed selection.
 3. **Audio engine (`src/generator.cpp`)** — scalar C++20 render pipeline with per-generation random state and independent style/target profiles.
-4. **Asset I/O** — PCM16 WAV import, slicing and pitch resampling; PCM16 WAV export without silent overwrite of an existing pack; versioned `ventusample.pack.v1` manifest containing the full effective settings snapshot and per-file measurements.
+4. **Asset I/O** — PCM16 WAV import, slicing and pitch resampling; PCM16 WAV export without silent overwrite of an existing pack; versioned `ventusample.pack.v2` manifest containing the full effective settings snapshot, readable musical key/mode labels and per-file measurements. The v1 schema remains available for existing packs.
 5. **Verification** — deterministic tests for parameter validation, repeatability, variation, peak limits, WAV round trips, sample-chop input and pack export.
 
 The UI delegates pack generation to a worker thread. The audio renderer itself is an offline renderer: it does not claim real-time callback guarantees and it does not access audio hardware.
@@ -47,7 +47,7 @@ The profiles are procedural starting points, not recordings, MIDI transcriptions
 - **Melody:** chord stabs and seeded note variations.
 - **Drums:** kick, snare, hats, percussion and optional triplet rolls.
 - **Bass:** generated bass pattern with optional glide behavior according to profile.
-- **One-Shot Kit:** eight individual hits (kick, snare, hat, clap, rim, perc, bass and pluck) per variation.
+- **One-Shot Kit:** eight individual hits (kick, snare, hat, clap, rim, perc, bass and pluck) per variation. Pitched bass/pluck hits carry a root-note tag; unpitched drum hits do not receive a fabricated key label.
 
 ## 3. Parameter contract
 
@@ -87,6 +87,8 @@ An imported PCM16 WAV is divided into four source regions. Each bar places those
 - Input file size is bounded before parsing; chunk lengths and sample dimensions are checked before allocation.
 - Non-finite samples are sanitized before export. Output file size is checked against RIFF's 32-bit chunk limit.
 - Peak, RMS and crest measurements are included in the generated pack manifest per output file.
+- Tonal loop, melody and bass WAV names include the selected root/mode (for example `A_Minor`). The v2 manifest records `musical_key`, `mode_family` and exact `scale` at pack and file level. Drum-only exports use null per-file tonal fields; individual pitched one-shots use note-only metadata.
+- Tonal metadata represents the generator's selected musical settings. Imported source audio is mixed as supplied and is not automatically key-detected.
 
 ## 6. Desktop behavior
 
@@ -111,4 +113,4 @@ VentuSample applies the three-axis framework described in [QUALITY_MONOLITH_RHYT
 - **Cohesion:** a single validated parameter snapshot and seeded render flow govern scheduling, processing, export and manifest evidence.
 - **Rhythm:** drum and melodic accents use the same swing mapping. A deterministic four-bar turnaround can add a pickup kick, a density-gated ghost snare and a short hi-hat fill. Micro-humanization remains separate from the metric grid.
 
-The QMR-20 regression test covers repeatability, phrase duration, swing response and the sample-peak ceiling. The pack contract remains `ventusample.pack.v1`.
+The QMR-20 regression test covers repeatability, phrase duration, swing response and the sample-peak ceiling. The current export contract is `ventusample.pack.v2`; the v1 schema is retained for existing packs.

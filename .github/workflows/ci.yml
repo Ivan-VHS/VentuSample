@@ -29,7 +29,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile Python verification tools
-        run: python -m py_compile tools/validate_project_contract.py tools/validate_generated_fixture.py
+        run: |
+          python -m py_compile tools/validate_project_contract.py tools/validate_generated_fixture.py tools/validate_visual_canon.py
+          python tools/validate_visual_canon.py src/mainwindow.cpp
       - name: Validate project contract and OCTA-8 federation
         run: python tools/validate_project_contract.py
       - name: Parse versioned pack schema and project contract
@@ -90,3 +92,13 @@ jobs:
         run: cmake --build build --config Release --parallel 2
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
+      - name: Capture live desktop screenshot
+        shell: pwsh
+        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "artifacts/ventusample-studio.png" -StartupSeconds 15
+      - name: Upload live desktop screenshot artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ventusample-live-windows-screenshot
+          path: artifacts/ventusample-studio.png
+          if-no-files-found: error
+          retention-days: 30
