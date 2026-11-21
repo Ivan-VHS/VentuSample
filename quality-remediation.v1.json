@@ -1,0 +1,295 @@
+{
+  "schema": "anatidae.quality-remediation.v1",
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "scope": "Offline C++20/Qt workstation for deterministic hip-hop sample generation and PCM16 WAV sample-pack export."
+  },
+  "entries": [
+    {
+      "id": "root-cause-correction",
+      "terms": {
+        "correction": "Исправление",
+        "coverage": "Всеобъемлемость",
+        "defect": "Ошибки"
+      },
+      "target": "Generator failure handling and invalid render inputs",
+      "acceptance": "Reproduce the defect, isolate its root cause, add a regression check, and verify the corrected behavior at the affected entry point.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "tolerance-calibration",
+      "terms": {
+        "correction": "Корректировка",
+        "coverage": "Всесторонность",
+        "defect": "Погрешности"
+      },
+      "target": "Generator parameter contracts and user-controlled limits",
+      "acceptance": "Check boundaries, units, tolerances, rounding and measurement assumptions from more than one independent path.",
+      "evidence": [
+        "src/generator.hpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "subsystem-removal",
+      "terms": {
+        "correction": "Устранение",
+        "coverage": "Комплексность",
+        "defect": "Неточности"
+      },
+      "target": "Qt desktop controls and validation feedback",
+      "acceptance": "Remove the underlying cause across dependent components; do not hide symptoms with local workarounds.",
+      "evidence": [
+        "src/mainwindow.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "acceptance-completeness",
+      "terms": {
+        "correction": "Поправка",
+        "coverage": "Полнота",
+        "defect": "Недочёты"
+      },
+      "target": "Versioned sample-pack manifest and WAV export integrity",
+      "acceptance": "Close missing acceptance conditions across implementation, tests, documentation, configuration and distribution artifacts.",
+      "evidence": [
+        "schemas/ventusample.pack.v1.schema.json",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "end-to-end-workflows",
+      "terms": {
+        "correction": "Налаживание",
+        "coverage": "Исчерпывающесть",
+        "defect": "Просчёты"
+      },
+      "target": "Musical key and mode selection and serialization",
+      "acceptance": "Exercise the complete user workflow, including invalid input, cancellation, failure and recovery branches.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "cross-platform-diagnostics",
+      "terms": {
+        "correction": "Отладка",
+        "coverage": "Универсальность",
+        "defect": "Отклонения"
+      },
+      "target": "Deterministic variation and seed handling",
+      "acceptance": "Run deterministic diagnostics for supported platforms and configurations; report unsupported combinations explicitly.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "multidimensional-review",
+      "terms": {
+        "correction": "Доработка",
+        "coverage": "Многогранность",
+        "defect": "Дефекты"
+      },
+      "target": "Loop, kit, drum and melody generation paths",
+      "acceptance": "Review functional behavior, security, resource use, accessibility, compatibility and documentation as one change set.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "measured-optimization",
+      "terms": {
+        "correction": "Оптимизация",
+        "coverage": "Масштабность",
+        "defect": "Изъяны"
+      },
+      "target": "Renderer output measurements and audio-quality checks",
+      "acceptance": "Measure a reproducible baseline before optimizing and prove that correctness, safety and output quality do not regress.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "contract-safe-reconstruction",
+      "terms": {
+        "correction": "Реконструкция",
+        "coverage": "Охватность",
+        "defect": "Недостатки"
+      },
+      "target": "CMake targets and CI build variants",
+      "acceptance": "Restructure components only with explicit interface contracts, migration notes and compatibility regression checks.",
+      "evidence": [
+        "CMakeLists.txt",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "toolchain-modernization",
+      "terms": {
+        "correction": "Модернизация",
+        "coverage": "Многоаспектность",
+        "defect": "Оплошности"
+      },
+      "target": "Main-window state, controls and export workflow",
+      "acceptance": "Update toolchains, platforms and dependencies deliberately, then run the affected build and regression matrix.",
+      "evidence": [
+        "src/mainwindow.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "profile-synchronization",
+      "terms": {
+        "correction": "Обновление",
+        "coverage": "Многопрофильность",
+        "defect": "Промахи"
+      },
+      "target": "User guides, architecture and documented capabilities",
+      "acceptance": "Synchronize supported profiles, operating modes, locales and configurations so they do not drift independently.",
+      "evidence": [
+        "docs/USER_GUIDE_RU.md",
+        "README.md"
+      ]
+    },
+    {
+      "id": "evidence-audit",
+      "terms": {
+        "correction": "Ревизия",
+        "coverage": "Разносторонность",
+        "defect": "Сбои"
+      },
+      "target": "Generated-fixture validation and output regression",
+      "acceptance": "Audit implementation, tests, diagnostics, release workflows and evidence links; record findings with reproducible references.",
+      "evidence": [
+        "tools/validate_generated_fixture.py",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "safe-recovery",
+      "terms": {
+        "correction": "Восстановление",
+        "coverage": "Всеохватность",
+        "defect": "Нарушения"
+      },
+      "target": "Desktop application entry point and startup lifecycle",
+      "acceptance": "Recover from partial failures without corrupting existing data; verify idempotency and atomicity where relevant.",
+      "evidence": [
+        "src/main.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "bounded-configuration",
+      "terms": {
+        "correction": "Регулировка",
+        "coverage": "Целостность",
+        "defect": "Упущения"
+      },
+      "target": "Project-contract and configuration validation",
+      "acceptance": "Keep defaults, thresholds, quotas, timeouts and policy boundaries consistent with the documented operating envelope.",
+      "evidence": [
+        "tools/validate_project_contract.py",
+        "project-contract.json"
+      ]
+    },
+    {
+      "id": "cross-layer-conformance",
+      "terms": {
+        "correction": "Совершенствование",
+        "coverage": "Совокупность",
+        "defect": "Несоответствия"
+      },
+      "target": "Quality, monolithic cohesion and rhythm acceptance",
+      "acceptance": "Verify end-to-end conformance from the public interface through implementation and persisted/exported results.",
+      "evidence": [
+        "docs/QUALITY_MONOLITH_RHYTHM.md",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "dependency-aware-refactoring",
+      "terms": {
+        "correction": "Рефакторинг",
+        "coverage": "Глобальность",
+        "defect": "Дисфункции"
+      },
+      "target": "Native C++ generator implementation and interfaces",
+      "acceptance": "Remove harmful duplication and dependency cycles while preserving public contracts and observable behavior.",
+      "evidence": [
+        "src/generator.cpp",
+        "src/generator.hpp"
+      ]
+    },
+    {
+      "id": "fault-containment",
+      "terms": {
+        "correction": "Стабилизация",
+        "coverage": "Безграничность",
+        "defect": "Неисправности"
+      },
+      "target": "CI regression matrix for native build and tests",
+      "acceptance": "Contain failures with explicit upper bounds for memory, CPU, retries, input sizes and execution time.",
+      "evidence": [
+        ".github/workflows/ci.yml",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "specification-alignment",
+      "terms": {
+        "correction": "Согласование",
+        "coverage": "Исчерпывающесть",
+        "defect": "Оговорки"
+      },
+      "target": "Reaper pack-audit compatibility boundary",
+      "acceptance": "Resolve mismatches between source code, schemas, APIs, specifications, tests and user-facing documentation.",
+      "evidence": [
+        "docs/REAPER_PACK_AUDIT.md",
+        "schemas/ventusample.pack.v1.schema.json"
+      ]
+    },
+    {
+      "id": "canonical-unification",
+      "terms": {
+        "correction": "Унификация",
+        "coverage": "Фундаментальность",
+        "defect": "Ляпы"
+      },
+      "target": "Federation metadata and inter-project schema compatibility",
+      "acceptance": "Use canonical data formats and versioned interfaces for shared capabilities without erasing project-specific boundaries.",
+      "evidence": [
+        "tests/test_octa_pyramid.py",
+        "federation/octa-pyramid.v1.json"
+      ]
+    },
+    {
+      "id": "release-readiness",
+      "terms": {
+        "correction": "Безошибочность",
+        "coverage": "Энциклопедичность",
+        "defect": "Деформации"
+      },
+      "target": "Architecture, package export and release acceptance",
+      "acceptance": "Gate releases on relevant regression checks, clean build artifacts, synchronized documentation and reviewable evidence.",
+      "evidence": [
+        "docs/ARCHITECTURE.md",
+        "tests/test_generator.cpp"
+      ]
+    }
+  ],
+  "limitations": [
+    "Evidence checks verify repository-relative file presence only; they do not execute or semantically validate the referenced implementation.",
+    "Passing this profile does not certify zero defects, security, hardware compatibility, language parity, audio fidelity or commercial readiness.",
+    "The project's existing permissions, licensing, interoperability and safety boundaries remain authoritative."
+  ]
+}
