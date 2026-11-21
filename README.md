@@ -132,3 +132,14 @@ An illustrative 500 UAH budget model with a versioned JSON contract and an offli
 ## Cross-repository plugin federation
 
 This repository's host adapter, shared 18-plugin catalog and compatibility rules are documented in [Plugin Federation](docs/PLUGIN_FEDERATION.md). The machine-readable host declaration is `federation/plugins/host.v1.json`.
+
+
+## CareGuard v1 — engineering support and language safety
+
+The native C++20 core adds bounded project-load assessment, non-destructive language review, valid help-request handling, manual support-path selection, evidence references, clinical-action boundaries and a deterministic maintenance reserve. It does not monitor or diagnose people.
+
+See [CareGuard v1 contract and safety boundaries](docs/CARE_GUARD_V1.md).
+
+## Beelzebul repository protection
+
+This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
