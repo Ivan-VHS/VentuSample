@@ -6,7 +6,7 @@ Native workstation for deterministic procedural hip-hop sample packs. The scalar
 
 ## Internal plugin suite
 
-The 18 shared internal products are built-in plugins in the native PluginManager. Open the **Плагины** menu to inspect capabilities, enable/disable modules and run read-only tools. See [Plugin host and SDK](docs/PLUGINS.md). The C++ SDK supports registering reviewed in-process handlers; arbitrary DLL/SO loading is intentionally not enabled.
+The 18 shared internal products are built-in plugins in the native PluginManager. Open **Плагины → Менеджер плагинов** to inspect, enable/disable and run tools, or discover local extension manifests. The C++20 SDK provides reviewed handler registration, lazy initialization, shutdown and diagnostics. Manifest discovery is metadata-only; arbitrary DLL/SO loading remains disabled. See [Plugin platform and SDK](docs/PLUGINS.md) and the [shared manifest schema](schemas/ivan-vhs.plugin.v1.schema.json).
 
 ## AETHER-ANAS // CINEFORGE QUANTUM
 
