@@ -225,6 +225,12 @@ Result generate(const Settings& s, const std::filesystem::path& outputDirectory)
     std::error_code ec;
     std::filesystem::create_directories(outputDirectory, ec);
     if (ec) { result.error = "Cannot create output directory: " + ec.message(); return result; }
+    const std::string packStem = "CINEFORGE_" + std::to_string(s.bpm) + "bpm_" + keyName(s.rootNote) + "_seed" + std::to_string(s.seed);
+    std::filesystem::path packDirectory = outputDirectory / packStem;
+    for (int suffix = 2; std::filesystem::exists(packDirectory) && suffix < 10000; ++suffix)
+        packDirectory = outputDirectory / (packStem + "_" + std::to_string(suffix));
+    std::filesystem::create_directory(packDirectory, ec);
+    if (ec) { result.error = "Cannot create unique pack directory: " + ec.message(); return result; }
     const double root = midiHz(48 + s.rootNote);
     const double beat = 60.0 / s.bpm;
     const double seconds = std::clamp(beat * 2.0, 0.65, 3.0);
@@ -244,8 +250,8 @@ Result generate(const Settings& s, const std::filesystem::path& outputDirectory)
         AudioBuffer wet = wetVersion(dry, s.space);
         normalize(wet);
         const std::string stem = "CF_" + std::to_string(s.bpm) + "bpm_" + keyName(s.rootNote) + "_" + name + "_";
-        const auto dryPath = outputDirectory / (stem + "Dry.wav");
-        const auto wetPath = outputDirectory / (stem + "Wet.wav");
+        const auto dryPath = packDirectory / (stem + "Dry.wav");
+        const auto wetPath = packDirectory / (stem + "Wet.wav");
         if (!write24(dryPath, dry, result.error) || !write24(wetPath, wet, result.error)) return result;
         result.assets.push_back({name, dryPath, wetPath, measure(dry)});
         if (i < 3) {
@@ -257,13 +263,13 @@ Result generate(const Settings& s, const std::filesystem::path& outputDirectory)
                  << (i + 1 == s.packSize ? "\n" : ",\n");
     }
     normalize(preview);
-    result.previewPath = outputDirectory / ("CF_" + std::to_string(s.bpm) + "bpm_" + keyName(s.rootNote) + "_Preview.wav");
+    result.previewPath = packDirectory / ("CF_" + std::to_string(s.bpm) + "bpm_" + keyName(s.rootNote) + "_Preview.wav");
     if (!write24(result.previewPath, preview, result.error)) return result;
     manifest << "  ],\n  \"preview\": \"" << result.previewPath.filename().string()
              << "\",\n  \"processing\": {\"mood\": " << s.mood << ", \"space\": " << s.space
              << ", \"punch\": " << s.punch << ", \"variations\": " << s.variations
              << ", \"headroom_dbfs\": -1.0, \"low_end_mono\": true}\n}\n";
-    result.manifestPath = outputDirectory / "cineforge_manifest.json";
+    result.manifestPath = packDirectory / "cineforge_manifest.json";
     std::ofstream json(result.manifestPath, std::ios::binary);
     json << manifest.str();
     if (!json) { result.error = "Cannot write CINEFORGE manifest."; return result; }
