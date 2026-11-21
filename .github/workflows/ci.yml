@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "assets/screenshots/**"
 
 permissions:
   contents: read
@@ -73,9 +75,13 @@ jobs:
   windows-native-desktop:
     name: Windows 11 native Qt desktop build
     runs-on: windows-2022
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
       - name: Install Qt 6 Widgets
@@ -94,11 +100,29 @@ jobs:
         run: ctest --test-dir build -C Release --output-on-failure
       - name: Capture live desktop screenshot
         shell: pwsh
-        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "artifacts/ventusample-studio.png" -StartupSeconds 15
+        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "assets/screenshots/ventusample-studio.png" -StartupSeconds 15
+      - name: Commit screenshot to same-repository pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        shell: pwsh
+        env:
+          TARGET_BRANCH: ${{ github.head_ref }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "assets/screenshots/ventusample-studio.png"
+          git diff --cached --quiet
+          if ($LASTEXITCODE -ne 0) {
+            git commit -m "docs: refresh live VentuSample screenshot"
+            git fetch origin "$env:TARGET_BRANCH"
+            git rebase "origin/$env:TARGET_BRANCH"
+            git push origin "HEAD:$env:TARGET_BRANCH"
+          } else {
+            Write-Host "Screenshot is unchanged; no repository commit is needed."
+          }
       - name: Upload live desktop screenshot artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ventusample-live-windows-screenshot
-          path: artifacts/ventusample-studio.png
+          path: assets/screenshots/ventusample-studio.png
           if-no-files-found: error
           retention-days: 30
