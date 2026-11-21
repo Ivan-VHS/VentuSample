@@ -92,7 +92,7 @@ Reference: [OPlague repository](https://github.com/Ivan-VHS/OPlague).
 | Real-time playback / DAW plugin | Not implemented |
 | Time-preserving pitch shift | Not implemented |
 | GPU / SIMD dispatch | Not implemented; scalar baseline is authoritative |
-| Optional Pytyliki native DSP bridge | Specified as a future explicit adapter; not loaded |
+| Direct VentuSample-to-Pytyliki native DSP bridge | Planned; current scalar audio renderer remains the authoritative path |
 | Reaper pack consumer | Implemented in Reaper: bounded manifest validation, 22 normalized descriptors and read-only two-pack comparison; WAV assets are not opened |
 
 This ledger prevents a specification, source document or sibling project's capability from being presented as a working VentuSample feature without implementation and test evidence.
