@@ -67,3 +67,7 @@ ctest --test-dir build --output-on-failure
 **无障碍：**确保对比度、可见的键盘焦点、适合触控的控件和响应式布局。动效不得妨碍输入或导致内容跳动。
 
 本节是视觉参考，不代表应用已实现所有效果。实际行为以[界面动效规范](docs/UI_MOTION.md)为准。
+
+## 文档体系与视觉素材
+
+Markdown/MDX、图表、截图、SVG 与栅格素材、无障碍、语言同步和链接检查统一遵循 [README 与视觉文档规范](docs/README_VISUAL_STANDARD.md)。
