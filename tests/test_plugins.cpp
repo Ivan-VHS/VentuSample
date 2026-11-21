@@ -54,10 +54,10 @@ void testEnableDisableAndDispatch() {
     fs::create_directories(workspace / "tests", workspaceError);
     fs::create_directories(workspace / ".github" / "workflows", workspaceError);
     require(!workspaceError, "Code Wellbeing fixture directories should be created");
-    { std::ofstream readme(workspace / "README.md"); readme << "# Fixture\\n"; }
-    { std::ofstream source(workspace / "src" / "main.cpp"); source << "// TODO: revisit\\nint main() { return 0; }\\n"; }
-    { std::ofstream testFile(workspace / "tests" / "test_main.cpp"); testFile << "int test_main() { return 0; }\\n"; }
-    { std::ofstream workflow(workspace / ".github" / "workflows" / "ci.yml"); workflow << "name: CI\\n"; }
+    { std::ofstream readme(workspace / "README.md"); readme << "# Fixture\n"; }
+    { std::ofstream source(workspace / "src" / "main.cpp"); source << "// TODO: revisit\nint main() { return 0; }\n"; }
+    { std::ofstream testFile(workspace / "tests" / "test_main.cpp"); testFile << "int test_main() { return 0; }\n"; }
+    { std::ofstream workflow(workspace / ".github" / "workflows" / "ci.yml"); workflow << "name: CI\n"; }
     ventu::PluginContext wellbeingContext;
     wellbeingContext.workspaceRoot = workspace;
     const auto wellbeing = manager.execute("code-wellbeing", wellbeingContext);
