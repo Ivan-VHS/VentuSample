@@ -71,3 +71,14 @@ ctest --test-dir build --output-on-failure
 ## 文档体系与视觉素材
 
 Markdown/MDX、图表、截图、SVG 与栅格素材、无障碍、语言同步和链接检查统一遵循 [README 与视觉文档规范](docs/README_VISUAL_STANDARD.md)。
+
+
+## Motion Constitution v2026
+
+统一界面规范见 [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md)。它统一弹簧/快速缓动、0.4×–2.2× 动效缩放范围、Reduce Motion 优先级、浅色/深色主题、2×2/焦点场景布局，以及基于真实数据的 SVG/Canvas 遥测。[Qt 原生动效规范](docs/UI_MOTION.md)说明当前实现：有界 UI 线程过渡、持久化动效偏好和可选的项目 BPM 指示器。VentuSample 是离线采样生成/DSP 工作站，并非实时 DAW 或外部混音器；电平和波形必须来自真实预览/渲染缓冲区，不得在 DSP 回调或生成器工作线程中执行动画。
+
+## 统一动效架构图
+
+<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026 四领域架构图" width="100%"></p>
+
+这是共享的 2×2 架构示意图，并非应用运行截图。它将已交付功能与不可用或规划中的能力明确区分。
