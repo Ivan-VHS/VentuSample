@@ -179,7 +179,7 @@ def create_checkpoint(root: Path, label: str) -> str:
         raise ValueError("label must contain 1-40 lowercase letters, digits or hyphens")
     state = inspect_git(root)
     if not state["worktree_clean"]:
-        raise RuntimeError("checkpoint refused: commit or safely set aside all tracked and untracked changes first")
+        raise RuntimeError("checkpoint refused: clean worktree required; commit or safely set aside all tracked and untracked changes first")
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     tag = f"clife/checkpoint-{label}-{stamp}"
     if _git(root, "rev-parse", "--verify", f"refs/tags/{tag}").returncode == 0:
