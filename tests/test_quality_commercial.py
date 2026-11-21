@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json, tempfile, unittest
 from pathlib import Path
-from tools.quality_commercial import QualityProfileError, assess_profile
+from tools.quality_commercial import QualityProfileError, assess_profile, build_commercial_action_plan
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE = ROOT / "quality-commercial.v1.json"
@@ -41,6 +41,34 @@ class QualityCommercialTests(unittest.TestCase):
         fields = {item["field"] for item in report["commercial_open_items"]}
         self.assertTrue({"market_validation", "pricing", "unit_economics"}.issubset(fields))
         self.assertLess(report["axes"]["commercial"]["maturity_percent"], 100.0)
+
+
+    def test_commercial_action_plan_is_prioritized_and_evidence_oriented(self):
+        actions = build_commercial_action_plan({
+            "license_review": "manual_required",
+            "support_model": "planned",
+            "distribution": "implemented",
+            "market_validation": "not_assessed",
+            "unit_economics": "not_assessed",
+            "pricing": "not_set",
+        })
+        self.assertEqual([item["priority"] for item in actions], ["P0", "P1", "P2", "P2", "P3"])
+        fields = {item["field"] for item in actions}
+        self.assertNotIn("distribution", fields)
+        self.assertEqual({item["field"] for item in actions if item["priority"] == "P2"},
+                         {"market_validation", "unit_economics"})
+        self.assertTrue(all(item["acceptance"] for item in actions))
+
+    def test_no_actions_when_commercial_controls_are_closed(self):
+        actions = build_commercial_action_plan({
+            "license_review": "implemented",
+            "support_model": "implemented",
+            "distribution": "implemented",
+            "market_validation": "implemented",
+            "unit_economics": "implemented",
+            "pricing": "published",
+        })
+        self.assertEqual(actions, [])
 
 
 if __name__ == "__main__":
