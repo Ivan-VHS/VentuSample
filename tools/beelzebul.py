@@ -135,6 +135,9 @@ def load_policy(path: Path = POLICY_PATH) -> dict[str, Any]:
             raise PolicyError(f"invalid severity in {rule.get('id')}")
         if rule.get("enforcement") not in {"block", "review", "governance", "observe"}:
             raise PolicyError(f"invalid enforcement in {rule.get('id')}")
+    fail_on = policy.get("policy", {}).get("fail_on", ["critical"])
+    if not isinstance(fail_on, list) or any(value not in SEVERITY_WEIGHT for value in fail_on):
+        raise PolicyError("policy.fail_on must contain valid severity names")
     _validate_exceptions(policy)
     return policy
 
@@ -516,7 +519,8 @@ def scan_repository(root: Path, policy_path: Path, base_ref: str | None = None) 
     if changed_files:
         risk += min(10, len(changed_files) // 10)
     risk = min(int(limits["max_risk_score"]), risk)
-    blocked = [f for f in findings if f.enforcement == "block"]
+    fail_on = set(policy.get("policy", {}).get("fail_on", ["critical"]))
+    blocked = [f for f in findings if f.enforcement == "block" or f.severity in fail_on]
     review = [f for f in findings if f.enforcement in {"review", "governance"}]
     verdict = "blocked" if blocked else ("review" if review else "clear")
     return {
