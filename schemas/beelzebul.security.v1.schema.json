@@ -1,0 +1,243 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ivan-vhs.github.io/security/beelzebul.security.v1.schema.json",
+  "title": "Beelzebul Repository Security Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "version",
+    "rule_count",
+    "levels",
+    "policy",
+    "limits",
+    "excluded_directories",
+    "exceptions",
+    "rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "beelzebul.security.v1"
+    },
+    "id": {
+      "const": "beelzebul"
+    },
+    "name": {
+      "const": "Веельзевул"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "rule_count": {
+      "const": 66
+    },
+    "levels": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "rules"
+        ],
+        "properties": {
+          "id": {
+            "enum": [
+              "atomic",
+              "atom",
+              "nuclear",
+              "quantum",
+              "general"
+            ]
+          },
+          "label": {
+            "type": "string"
+          },
+          "rules": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": [
+        "fail_on",
+        "merge_states",
+        "scan_is_read_only",
+        "default_action",
+        "external_code_loading",
+        "secret_values_in_reports"
+      ],
+      "properties": {
+        "fail_on": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          }
+        },
+        "merge_states": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "blocked",
+              "review",
+              "clear"
+            ]
+          }
+        },
+        "scan_is_read_only": {
+          "const": true
+        },
+        "default_action": {
+          "const": "report"
+        },
+        "external_code_loading": {
+          "const": false
+        },
+        "secret_values_in_reports": {
+          "const": false
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "required": [
+        "max_files",
+        "max_file_bytes",
+        "max_total_bytes",
+        "max_line_length",
+        "entropy_min_length",
+        "entropy_threshold",
+        "max_risk_score",
+        "large_change_files"
+      ],
+      "additionalProperties": {
+        "type": [
+          "integer",
+          "number"
+        ]
+      }
+    },
+    "excluded_directories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "exceptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "rule_id",
+          "path",
+          "reason",
+          "owner",
+          "expires_at"
+        ],
+        "properties": {
+          "rule_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 10
+          },
+          "owner": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 66,
+      "maxItems": 66,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "number",
+          "id",
+          "level",
+          "title",
+          "description",
+          "severity",
+          "enforcement",
+          "check",
+          "remediation"
+        ],
+        "properties": {
+          "number": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 66
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z]+-[0-9]{2}$"
+          },
+          "level": {
+            "enum": [
+              "atomic",
+              "atom",
+              "nuclear",
+              "quantum",
+              "general"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "enforcement": {
+            "enum": [
+              "block",
+              "review",
+              "governance",
+              "observe"
+            ]
+          },
+          "check": {
+            "type": "string"
+          },
+          "remediation": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
