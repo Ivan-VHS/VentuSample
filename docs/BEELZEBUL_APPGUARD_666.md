@@ -2,6 +2,8 @@
 
 ## Purpose and status
 
+See also [Security and trust boundaries](SECURITY_AND_TRUST_BOUNDARIES.md) for the project-specific threat model, safe-failure requirements and evidence checklist. [Documentation control](DOCUMENTATION_CONTROL.md) defines the evidence and review gates for every published implementation claim.
+
 This repository carries the **AppGuard 666 control catalog** alongside its existing RepositoryGuard / resilience policy. The numbering is stable and partitioned into six echelons of 111 positions each. The catalog is a control inventory and conformance contract; it is **not** proof that all 666 protections are implemented or active.
 
 - Catalog state: `policy_catalog_only`
