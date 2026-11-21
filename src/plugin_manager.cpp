@@ -87,7 +87,7 @@ bool readFileBounded(const fs::path& path, std::string& output) {
     vee_guard guard{};
     vee_guard_init(&guard, static_cast<std::size_t>(kMaxManifestBytes),
                    kMaxManifests, 80u, 1024u, nullptr, nullptr);
-    if (vee_guard_check_payload(&guard, 505u, "Я-02", "plugin-manifest",
+    if (vee_guard_check_payload(&guard, 505u, "M-03", "plugin-manifest",
                                 static_cast<std::size_t>(size)) != VEEELZEVUL_ALLOW) return false;
     std::ifstream input(path, std::ios::binary);
     if (!input) return false;
