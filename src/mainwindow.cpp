@@ -7,6 +7,7 @@
 #include <QDialog>
 #include <QCoreApplication>
 #include <QMenu>
+#include <QMenuBar>
 #include <QDoubleSpinBox>
 #include <QFont>
 #include <QFileDialog>
