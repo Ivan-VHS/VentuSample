@@ -16,6 +16,7 @@ add_library(ventusample_core STATIC
     src/plugin_manager.hpp
     src/builtin_plugins.cpp
     src/audio_suite.cpp
+    src/stochastic_routing.cpp
     src/cineforge.cpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -38,6 +39,8 @@ if(VENTU_BUILD_DESKTOP)
             src/audio_suite_dialog.hpp
             src/cineforge_dialog.cpp
             src/cineforge_dialog.hpp
+            src/stochastic_dialog.cpp
+            src/stochastic_dialog.hpp
         )
         target_link_libraries(VentuSample PRIVATE ventusample_core Qt6::Widgets)
         target_include_directories(VentuSample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)

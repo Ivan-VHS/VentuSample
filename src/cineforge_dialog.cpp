@@ -153,7 +153,7 @@ void CineForgeDialog::generate() {
                 return;
             }
             status_->setText(QString("ГОТОВО · %1 объектов · %2 WAV-файлов стемов · %3")
-                .arg(result.assets.size()).arg(result.assets.size() * 5)
+                .arg(static_cast<qulonglong>(result.assets.size())).arg(static_cast<qulonglong>(result.assets.size() * 5u))
                 .arg(pathToQString(result.packDirectory)));
             QMessageBox::information(this, "CINEFORGE",
                 QString("Sample Pack создан.\n\nПапка: %1\nManifest: %2\nPreview: %3")

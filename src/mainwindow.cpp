@@ -1,6 +1,7 @@
 #include "mainwindow.hpp"
 #include "audio_suite_dialog.hpp"
 #include "cineforge_dialog.hpp"
+#include "stochastic_dialog.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -78,7 +79,7 @@ QWidget* makeCard(const QString& title, QLayout* content) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("VentuSample — рабочая станция аудиопаков");
+    setWindowTitle("Ventu // AETHER-ANAS Studio — CINEFORGE Quantum");
     setMinimumSize(980, 720);
     resize(1320, 900);
     buildUi();
@@ -124,6 +125,10 @@ void MainWindow::buildUi() {
         CineForgeDialog dialog(this);
         dialog.exec();
     });
+    pluginsMenu->addAction("Stochastic Routing Meta-Host…", this, [this] {
+        StochasticDialog dialog(this);
+        dialog.exec();
+    });
     pluginsMenu->addAction("Ventu Audio Suite — 66 DSP эффектов…", this, [this] {
         AudioSuiteDialog dialog(this);
         dialog.exec();
@@ -141,10 +146,10 @@ void MainWindow::buildUi() {
 
     auto* header = new QHBoxLayout();
     auto* brand = new QVBoxLayout();
-    auto* title = new QLabel("VENTUSAMPLE");
+    auto* title = new QLabel("VENTU // AETHER-ANAS");
     title->setFont(QFont("Georgia", 18, QFont::Bold));
     title->setObjectName("brandTitle");
-    auto* subtitle = new QLabel("ХИП-ХОП-СЭМПЛЫ  /  ЛОКАЛЬНАЯ DSP-СТАНЦИЯ");
+    auto* subtitle = new QLabel("CINEFORGE  /  HOLLYWOOD STEMS  /  OFFLINE DSP STUDIO");
     subtitle->setObjectName("brandSubtitle");
     brand->addWidget(title);
     brand->addWidget(subtitle);

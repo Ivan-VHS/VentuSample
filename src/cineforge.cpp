@@ -176,7 +176,7 @@ void normalizeLayer(StereoLayer& layer, float targetPeak = 0.68f) {
 
 StereoLayer makeLayer(std::size_t frames, int sampleRate, const Family& family,
                       std::uint64_t seed, int assetIndex, int layerKind,
-                      int bpm, bool rhythmic) {
+                      int bpm, bool rhythmic, int rootNote) {
     StereoLayer layer;
     layer.left.resize(frames);
     layer.right.resize(frames);
@@ -189,7 +189,8 @@ StereoLayer makeLayer(std::size_t frames, int sampleRate, const Family& family,
     const double sr = static_cast<double>(sampleRate);
     const double duration = static_cast<double>(frames) / sr;
     const double beatSeconds = 60.0 / static_cast<double>(bpm);
-    const double base = family.frequency * (1.0 + 0.035 * static_cast<double>(assetIndex % 5));
+    const double keyRatio = std::pow(2.0, static_cast<double>(rootNote) / 12.0);
+    const double base = family.frequency * keyRatio * (1.0 + 0.035 * static_cast<double>(assetIndex % 5));
     double phase = 0.0;
     float noiseStateL = 0.0f;
     float noiseStateR = 0.0f;
@@ -251,7 +252,7 @@ StereoLayer sumLayers(const StereoLayer& a, const StereoLayer& b, const StereoLa
         result.left[i] = a.left[i] * 0.72f + b.left[i] * 0.88f + c.left[i] * 0.62f;
         result.right[i] = a.right[i] * 0.72f + b.right[i] * 0.88f + c.right[i] * 0.62f;
     }
-    normalizeLayer(result, 0.72f);
+    normalizeLayer(result, 0.78f);
     return result;
 }
 
@@ -295,10 +296,10 @@ const char* encodingName(CineForgeEncoding encoding) {
 }
 
 StereoLayer renderFamily(const Family& family, std::size_t frames, int sampleRate,
-                         std::uint64_t seed, int index, int bpm) {
-    auto a = makeLayer(frames, sampleRate, family, seed, index, 0, bpm, family.rhythmic);
-    auto b = makeLayer(frames, sampleRate, family, seed, index, 1, bpm, family.rhythmic);
-    auto c = makeLayer(frames, sampleRate, family, seed, index, 2, bpm, family.rhythmic);
+                         std::uint64_t seed, int index, int bpm, int rootNote) {
+    auto a = makeLayer(frames, sampleRate, family, seed, index, 0, bpm, family.rhythmic, rootNote);
+    auto b = makeLayer(frames, sampleRate, family, seed, index, 1, bpm, family.rhythmic, rootNote);
+    auto c = makeLayer(frames, sampleRate, family, seed, index, 2, bpm, family.rhythmic, rootNote);
     normalizeLayer(a, 0.50f); normalizeLayer(b, 0.56f); normalizeLayer(c, 0.38f);
     return sumLayers(a, b, c);
 }
@@ -347,9 +348,9 @@ bool generateCineForgePack(const CineForgeSettings& s, CineForgeResult& result) 
         const auto seed = s.seed + static_cast<std::uint64_t>(index + 1)
             * 0x9e3779b97f4a7c15ULL;
 
-        auto attack = makeLayer(frames, s.sampleRate, family, seed, index, 0, s.bpm, family.rhythmic);
-        auto body = makeLayer(frames, s.sampleRate, family, seed, index, 1, s.bpm, family.rhythmic);
-        auto tail = makeLayer(frames, s.sampleRate, family, seed, index, 2, s.bpm, family.rhythmic);
+        auto attack = makeLayer(frames, s.sampleRate, family, seed, index, 0, s.bpm, family.rhythmic, s.rootNote);
+        auto body = makeLayer(frames, s.sampleRate, family, seed, index, 1, s.bpm, family.rhythmic, s.rootNote);
+        auto tail = makeLayer(frames, s.sampleRate, family, seed, index, 2, s.bpm, family.rhythmic, s.rootNote);
         normalizeLayer(attack, 0.50f);
         normalizeLayer(body, 0.56f);
         normalizeLayer(tail, 0.38f);
@@ -408,7 +409,7 @@ bool generateCineForgePack(const CineForgeSettings& s, CineForgeResult& result) 
         const auto frames = std::clamp<std::size_t>(
             static_cast<std::size_t>(std::ceil(duration * s.sampleRate)), 256u, kMaxFrames);
         const auto seed = s.seed + static_cast<std::uint64_t>(i + 1u) * 0x9e3779b97f4a7c15ULL;
-        previewParts.push_back(renderFamily(family, frames, s.sampleRate, seed, static_cast<int>(i), s.bpm));
+        previewParts.push_back(renderFamily(family, frames, s.sampleRate, seed, static_cast<int>(i), s.bpm, s.rootNote));
     }
     std::size_t previewFrames = 0u;
     for (const auto& part : previewParts) previewFrames = std::max(previewFrames, part.left.size());

@@ -114,7 +114,7 @@ Effects are deterministic for a fixed source and parameter set. Chains are appli
 
 The public API is in src/audio_suite.hpp:
 
-- AudioBuffer stores stereo float samples and a sample rate.
+- AudioSuiteBuffer stores stereo float samples and a sample rate.
 - AudioPluginDescriptor declares a stable ID, name, category, description, UI concept and version.
 - AudioPluginParameters provides normalized Amount, Wet, Rate, Tone and Width controls (0.0–1.0).
 - audioPluginCatalog() returns the immutable 66-effect catalogue.
@@ -126,7 +126,7 @@ The public API is in src/audio_suite.hpp:
 Example:
 
 ```cpp
-ventu::AudioBuffer audio;
+ventu::AudioSuiteBuffer audio;
 std::string error;
 
 if (!ventu::loadPcm16Wav("input.wav", audio, error)) {
