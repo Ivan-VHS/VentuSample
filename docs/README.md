@@ -18,3 +18,8 @@
 | [../schemas/ivan-vhs.plugin.v1.schema.json](../schemas/ivan-vhs.plugin.v1.schema.json) | shared plugin manifest schema |
 
 The root README contains the live Windows desktop capture and current build commands. Source and tests define actual behavior; a manifest digest does not prove sample ownership. Plugin discovery is metadata-only, and DSP processing is offline.
+
+
+## Motion and embedded graphics
+
+[Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md) is the shared source for timing/easing tokens, adaptive motion, reduced-motion precedence, themes, the 2×2/focus-scene lab layout, SVG/Canvas telemetry rules and the four-domain capability matrix. [UI_MOTION.md](UI_MOTION.md) records the native behavior implemented in this repository; planned showcase features are not reported as shipped.
