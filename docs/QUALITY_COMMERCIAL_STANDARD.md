@@ -48,6 +48,9 @@ The renderer is offline and deterministic for a fixed seed and parameters. WAV p
 
 A commercial maturity score is not revenue, profit, valuation or investment readiness. Progress requires independently reviewable user, rights, cost and distribution evidence.
 
+## Market-development alignment
+
+The dedicated [market-development standard](MARKET_DEVELOPMENT_STANDARD.md) and root [versioned profile](../market-development.v1.json) make the marketing, customer, promotion, distribution and monetization dimensions actionable. The profile complements the 20 × 3 quality/execution/commercial matrix; it does not replace evidence checks. Market validation, pricing and unit economics remain unassessed or unset until supported by observed producer workflows, rights review and measured costs.
 
 ## Operational cohesion and prioritized next steps
 

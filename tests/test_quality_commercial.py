@@ -24,7 +24,8 @@ class QualityCommercialTests(unittest.TestCase):
     def test_missing_evidence_is_reported(self):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["missing/evidence.txt"]
-        report = assess_profile(profile, root=ROOT)
+        with tempfile.TemporaryDirectory() as directory:
+            report = assess_profile(profile, root=ROOT)
         self.assertTrue(report["issues"])
         self.assertEqual(report["evidence"]["files_missing"], 1)
 
@@ -40,6 +41,7 @@ class QualityCommercialTests(unittest.TestCase):
         fields = {item["field"] for item in report["commercial_open_items"]}
         self.assertTrue({"market_validation", "pricing", "unit_economics"}.issubset(fields))
         self.assertLess(report["axes"]["commercial"]["maturity_percent"], 100.0)
+
 
 
     def test_commercial_action_plan_is_prioritized_and_evidence_oriented(self):

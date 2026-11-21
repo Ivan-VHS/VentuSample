@@ -83,6 +83,38 @@ void testPhraseGridAndSwing() {
             "phrase rendering must retain the master sample-peak ceiling");
 }
 
+
+void testCadenceGridAudit() {
+    ventu::AudioBuffer audio;
+    audio.sampleRate = 48000;
+    audio.channels = 2;
+    audio.samples.assign(48000u * 2u, 0.0F);
+    // At 120 BPM the sixteenth-note grid is 6,000 frames; step 2 is swung
+    // by 32% of one beat at 58% swing.
+    audio.eventFrames = {0u, 13920u, 18000u};
+    const auto aligned = ventu::analyzeCadence(audio, 120, 58);
+    require(aligned.valid && aligned.analyzed, "valid scheduled events should be analyzed");
+    require(aligned.eventCount == 3u && aligned.onGridCount == 3u,
+            "straight and swung events should match their shared grid");
+    require(aligned.offGridCount == 0u && aligned.gridAccuracyPercent == 100.0,
+            "fully aligned events should score 100 percent");
+
+    audio.eventFrames.push_back(19000u);
+    const auto displaced = ventu::analyzeCadence(audio, 120, 58);
+    require(displaced.valid && displaced.offGridCount == 1u,
+            "an event outside tolerance should be reported off-grid");
+    require(displaced.gridAccuracyPercent < 100.0 && displaced.maxDeviationMs > 0.0,
+            "off-grid events should lower grid accuracy and expose deviation");
+
+    audio.eventFrames = {audio.frames()};
+    const auto outOfBounds = ventu::analyzeCadence(audio, 120, 58);
+    require(!outOfBounds.valid, "events outside the audio buffer should be rejected");
+
+    audio.eventFrames.clear();
+    const auto empty = ventu::analyzeCadence(audio, 120, 58);
+    require(empty.valid && !empty.analyzed, "one-shot or event-free audio should report cadence as not applicable");
+}
+
 void testWaveAndPackExport() {
     const auto temp = std::filesystem::temp_directory_path() / "ventusample-tests";
     std::error_code ec;
@@ -121,6 +153,10 @@ void testWaveAndPackExport() {
     const auto pack = temp / "pack";
     const auto batch = ventu::generatePack(p, pack);
     require(static_cast<bool>(batch), "sample pack generation should succeed");
+    require(batch.cadence.size() == batch.files.size(), "every exported loop should carry a cadence report");
+    require(batch.cadence.front().valid && batch.cadence.front().analyzed &&
+            batch.cadence.front().gridAccuracyPercent >= 99.0,
+            "generated loops should expose high-accuracy event-grid diagnostics");
     require(batch.files.size() == 2, "two variations should export two loop files");
     require(std::filesystem::exists(pack / "ventusample_manifest.json"), "sample pack should include a manifest");
     std::ifstream manifest(pack / "ventusample_manifest.json", std::ios::binary);
@@ -153,6 +189,8 @@ void testWaveAndPackExport() {
     p.variations = 1;
     const auto kit = ventu::generatePack(p, temp / "kit");
     require(static_cast<bool>(kit), "one-shot kit generation should succeed");
+    require(kit.cadence.size() == kit.files.size() && !kit.cadence.front().analyzed,
+            "one-shot exports should mark loop cadence as not applicable");
     require(kit.files.size() == 8, "one-shot kit should contain eight separate hits");
     // Keep the deterministic pack fixture for the independent schema-shape test.
 }
@@ -162,6 +200,7 @@ int main() {
     testValidation();
     testDeterministicRender();
     testPhraseGridAndSwing();
+    testCadenceGridAudit();
     testWaveAndPackExport();
     std::cout << "VentuSample generator tests passed.\n";
     return 0;
