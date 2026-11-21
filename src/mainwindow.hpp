@@ -1,6 +1,7 @@
 #pragma once
 
 #include "generator.hpp"
+#include "plugin_manager.hpp"
 
 #include <QMainWindow>
 #include <QSettings>
@@ -33,6 +34,7 @@ protected:
 
 private:
     void buildUi();
+    void showPlugins(const QString& selected = {});
     void loadSettings();
     void saveSettings();
     void applyTheme();
@@ -87,6 +89,7 @@ private:
     QLabel* summaryLabel_{};
     QListWidget* filesList_{};
     QPlainTextEdit* log_{};
+    ventu::PluginManager pluginManager_;
     std::thread worker_;
     QString lastOutputDirectory_;
 };
