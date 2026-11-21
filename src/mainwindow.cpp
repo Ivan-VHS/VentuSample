@@ -122,7 +122,7 @@ void MainWindow::buildUi() {
     auto* title = new QLabel("VENTUSAMPLE");
     title->setFont(QFont("Georgia", 18, QFont::Bold));
     title->setObjectName("brandTitle");
-    auto* subtitle = new QLabel("HIP-HOP SAMPLE FOUNDRY  /  NATIVE DSP WORKSTATION");
+    auto* subtitle = new QLabel("ХИП-ХОП-СЭМПЛЫ  /  ЛОКАЛЬНАЯ DSP-СТАНЦИЯ");
     subtitle->setObjectName("brandSubtitle");
     brand->addWidget(title);
     brand->addWidget(subtitle);
@@ -138,13 +138,13 @@ void MainWindow::buildUi() {
     auto* heroTitle = new QLabel("Собери собственный звук.");
     heroTitle->setFont(QFont("Georgia", 18, QFont::Bold));
     heroTitle->setObjectName("heroTitle");
-    auto* heroSub = new QLabel("Генерируй лупы, мелодии, драм-паттерны, бас и наборы one-shots по точным параметрам.");
+    auto* heroSub = new QLabel("Создавайте лупы, мелодии, ударные паттерны, басовые партии и наборы одиночных сэмплов по точным параметрам.");
     heroSub->setObjectName("heroSubtitle");
     heroSub->setWordWrap(true);
     heroText->addWidget(heroTitle);
     heroText->addWidget(heroSub);
     hero->addLayout(heroText, 1);
-    auto* badge = new QLabel("OFFLINE  •  WAV PCM16  •  SEEDED");
+    auto* badge = new QLabel("ЛОКАЛЬНО  •  WAV PCM16  •  ПОВТОРЯЕМОЕ ЗЕРНО");
     badge->setObjectName("statusPill");
     badge->setAlignment(Qt::AlignCenter);
     hero->addWidget(badge, 0, Qt::AlignVCenter);
@@ -182,15 +182,15 @@ void MainWindow::buildUi() {
     addField(2, 1, "ТЕМБР МЕЛОДИИ", timbreBox_);
     addField(3, 0, "ЧАСТОТА ДИСКРЕТИЗАЦИИ", rateBox_);
 
-    upper->addWidget(makeCard("01  /  SOUND IDENTITY", musicalGrid), 3);
+    upper->addWidget(makeCard("01  /  ЗВУКОВОЙ ПРОФИЛЬ", musicalGrid), 3);
 
     auto* structureGrid = new QGridLayout();
     structureGrid->setVerticalSpacing(10);
     bpmSpin_ = new QSpinBox(); bpmSpin_->setRange(60, 190); bpmSpin_->setValue(93); bpmSpin_->setSuffix(" BPM");
-    barsSpin_ = new QSpinBox(); barsSpin_->setRange(1, 16); barsSpin_->setValue(4); barsSpin_->setSuffix(" bars");
+    barsSpin_ = new QSpinBox(); barsSpin_->setRange(1, 16); barsSpin_->setValue(4); barsSpin_->setSuffix(" тактов");
     variationsSpin_ = new QSpinBox(); variationsSpin_->setRange(1, 32); variationsSpin_->setValue(8);
     seedSpin_ = new QSpinBox(); seedSpin_->setRange(0, 2147483647); seedSpin_->setValue(2500);
-    snareOffsetSpin_ = new QSpinBox(); snareOffsetSpin_->setRange(-30, 30); snareOffsetSpin_->setValue(15); snareOffsetSpin_->setSuffix(" ms");
+    snareOffsetSpin_ = new QSpinBox(); snareOffsetSpin_->setRange(-30, 30); snareOffsetSpin_->setValue(15); snareOffsetSpin_->setSuffix(" мс");
     ratioSpin_ = new QDoubleSpinBox(); ratioSpin_->setRange(1.0, 12.0); ratioSpin_->setSingleStep(0.5); ratioSpin_->setValue(4.0); ratioSpin_->setSuffix(":1");
     const auto addSpin = [structureGrid](int row, int col, const QString& label, QWidget* field) {
         auto* text = new QLabel(label);
@@ -201,34 +201,34 @@ void MainWindow::buildUi() {
     addSpin(0, 0, "ТЕМП", bpmSpin_);
     addSpin(0, 1, "ДЛИНА", barsSpin_);
     addSpin(1, 0, "ВАРИАЦИИ", variationsSpin_);
-    addSpin(1, 1, "SEED", seedSpin_);
-    addSpin(2, 0, "СМЕЩЕНИЕ SNARE", snareOffsetSpin_);
-    addSpin(2, 1, "BUS COMP", ratioSpin_);
-    upper->addWidget(makeCard("02  /  GRID & STRUCTURE", structureGrid), 2);
+    addSpin(1, 1, "ЗЕРНО ВАРИАЦИИ", seedSpin_);
+    addSpin(2, 0, "СМЕЩЕНИЕ МАЛОГО БАРАБАНА", snareOffsetSpin_);
+    addSpin(2, 1, "КОЭФФИЦИЕНТ СЖАТИЯ ШИНЫ", ratioSpin_);
+    upper->addWidget(makeCard("02  /  СЕТКА И СТРУКТУРА", structureGrid), 2);
     studioLayout->addLayout(upper);
 
     auto* detailRow = new QHBoxLayout();
     detailRow->setSpacing(12);
     auto* motionGrid = new QGridLayout();
     motionGrid->setVerticalSpacing(4);
-    swingSlider_ = addSliderRow(motionGrid, 0, "Swing", 50, 68, 58, &swingValue_);
+    swingSlider_ = addSliderRow(motionGrid, 0, "Свинг", 50, 68, 58, &swingValue_);
     densitySlider_ = addSliderRow(motionGrid, 1, "Плотность", 0, 100, 64, &densityValue_);
-    gritSlider_ = addSliderRow(motionGrid, 2, "Sampler grit", 0, 100, 22, &gritValue_);
+    gritSlider_ = addSliderRow(motionGrid, 2, "Зернистость сэмплера", 0, 100, 22, &gritValue_);
     saturationSlider_ = addSliderRow(motionGrid, 3, "Сатурация", 0, 100, 24, &saturationValue_);
     stereoSlider_ = addSliderRow(motionGrid, 4, "Стерео", 0, 100, 72, &stereoValue_);
-    detailRow->addWidget(makeCard("03  /  GROOVE & TEXTURE", motionGrid), 1);
+    detailRow->addWidget(makeCard("03  /  РИТМ И ФАКТУРА", motionGrid), 1);
 
     auto* filterGrid = new QGridLayout();
     filterGrid->setVerticalSpacing(4);
-    hpSlider_ = addSliderRow(filterGrid, 0, "High-pass", 20, 300, 32, &hpValue_);
-    lpSlider_ = addSliderRow(filterGrid, 1, "Low-pass", 2000, 20000, 18000, &lpValue_);
-    tripletCheck_ = new QCheckBox("Triplet hat rolls"); tripletCheck_->setChecked(true);
-    humanizeCheck_ = new QCheckBox("Micro-humanize ±2 ms"); humanizeCheck_->setChecked(true);
-    dustCheck_ = new QCheckBox("Vinyl / transient dust"); dustCheck_->setChecked(false);
+    hpSlider_ = addSliderRow(filterGrid, 0, "Верхний фильтр", 20, 300, 32, &hpValue_);
+    lpSlider_ = addSliderRow(filterGrid, 1, "Нижний фильтр", 2000, 20000, 18000, &lpValue_);
+    tripletCheck_ = new QCheckBox("Тройные роллы хэтов"); tripletCheck_->setChecked(true);
+    humanizeCheck_ = new QCheckBox("Микрогуманизация ±2 мс"); humanizeCheck_->setChecked(true);
+    dustCheck_ = new QCheckBox("Виниловая фактура / шум транзиентов"); dustCheck_->setChecked(false);
     filterGrid->addWidget(tripletCheck_, 2, 0, 1, 2);
     filterGrid->addWidget(humanizeCheck_, 3, 0, 1, 2);
     filterGrid->addWidget(dustCheck_, 4, 0, 1, 2);
-    detailRow->addWidget(makeCard("04  /  MASTER & MOTION", filterGrid), 1);
+    detailRow->addWidget(makeCard("04  /  ОБРАБОТКА И ДВИЖЕНИЕ", filterGrid), 1);
     studioLayout->addLayout(detailRow);
 
     auto* sourceGrid = new QGridLayout();
@@ -243,15 +243,15 @@ void MainWindow::buildUi() {
     sourcePitchSpin_ = new QSpinBox();
     sourcePitchSpin_->setRange(-12, 12);
     sourcePitchSpin_->setValue(0);
-    sourcePitchSpin_->setSuffix(" st");
+    sourcePitchSpin_->setSuffix(" полутонов");
     sourceGrid->addWidget(sourceSamplePath_, 0, 0, 1, 3);
     sourceGrid->addWidget(sourceBrowse, 0, 3);
-    sourceGrid->addWidget(new QLabel("SOURCE MIX"), 1, 0);
+    sourceGrid->addWidget(new QLabel("ДОЛЯ ИСХОДНОГО СЭМПЛА"), 1, 0);
     sourceGrid->addWidget(sourceMixSlider_, 1, 1);
     sourceGrid->addWidget(sourceMixValue_, 1, 2);
-    sourceGrid->addWidget(new QLabel("PITCH SHIFT"), 1, 3);
+    sourceGrid->addWidget(new QLabel("СДВИГ ВЫСОТЫ"), 1, 3);
     sourceGrid->addWidget(sourcePitchSpin_, 1, 4);
-    studioLayout->addWidget(makeCard("05  /  OPTIONAL SAMPLE-CHOP SOURCE", sourceGrid));
+    studioLayout->addWidget(makeCard("05  /  ИСХОДНЫЙ СЭМПЛ ДЛЯ НАРЕЗКИ", sourceGrid));
 
     auto* exportCardLayout = new QVBoxLayout();
     auto* pathRow = new QHBoxLayout();
@@ -262,7 +262,7 @@ void MainWindow::buildUi() {
     pathRow->addWidget(browseButton);
     exportCardLayout->addLayout(pathRow);
     auto* actionRow = new QHBoxLayout();
-    generateButton_ = new QPushButton("СОЗДАТЬ SAMPLE PACK");
+    generateButton_ = new QPushButton("СОЗДАТЬ НАБОР СЭМПЛОВ");
     generateButton_->setObjectName("primaryButton");
     generateButton_->setMinimumHeight(48);
     openFolderButton_ = new QPushButton("Открыть папку");
@@ -279,7 +279,7 @@ void MainWindow::buildUi() {
     statusLabel_ = new QLabel("Готов к генерации · локальная обработка · без сетевых запросов");
     statusLabel_->setObjectName("mutedText");
     exportCardLayout->addWidget(statusLabel_);
-    studioLayout->addWidget(makeCard("06  /  EXPORT STATION", exportCardLayout));
+    studioLayout->addWidget(makeCard("06  /  ЭКСПОРТ И РЕЗУЛЬТАТ", exportCardLayout));
 
     auto* studioScroll = new QScrollArea();
     studioScroll->setWidgetResizable(true);
@@ -308,11 +308,11 @@ void MainWindow::buildUi() {
     auto* about = new QWidget();
     auto* aboutLayout = new QVBoxLayout(about);
     auto* aboutText = new QLabel(
-        "<h2>VentuSample Native DSP</h2>"
+        "<h2>VentuSample — локальная звуковая рабочая станция</h2>"
         "<p>Процедурный генератор хип-хоп-сэмплов с воспроизводимыми seed-вариациями."
         " Все вычисления выполняются локально, WAV экспортируется в PCM16.</p>"
         "<h3>Профили</h3><p>Boom Bap · East Coast · Harlem Dip-Trap · G-Unit · Modern Trap · Atlanta Trap · UK Drill · UK Grime · Memphis · Jazz Rap · G-Funk · Boom Trap · Cripple Trill.</p>"
-        "<h3>Что генерируется</h3><p>Полные лупы, мелодии, ударные, басовые партии и multi-one-shot kit."
+        "<h3>Что генерируется</h3><p>Полные лупы, мелодии, ударные, басовые партии и наборы одиночных сэмплов."
         " Каждая вариация получает независимый детерминированный seed.</p>"
         "<h3>Инженерные ограничения</h3><p>Офлайн-рендеринг; фиксированные диапазоны параметров; ограничение длительности и числа вариантов;"
         " отсутствие скрытой загрузки библиотек, сетевого телеметрирования и обращения к устройствам записи.</p>"
@@ -625,7 +625,7 @@ void MainWindow::startGeneration() {
         return;
     }
     const QString canonical = QDir::cleanPath(destination);
-    const auto reply = QMessageBox::question(this, "Создать sample pack",
+    const auto reply = QMessageBox::question(this, "Создать набор сэмплов",
         QString("Сгенерировать %1 вариаций профиля %2 и сохранить в:\n%3 ?")
             .arg(p.variations).arg(q(ventu::toString(p.style)), canonical),
         QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes);
@@ -683,7 +683,7 @@ void MainWindow::startGeneration() {
             const QString cadenceLabel = cadenceCount > 0
                 ? QString("grid %1%").arg(cadenceTotal / cadenceCount, 0, 'f', 1)
                 : QString("grid n/a");
-            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · %5 · peak ceiling −0.3 dBFS")
+            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · %5 · предел пика −0,3 dBFS")
                 .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style))).arg(p.seed).arg(cadenceLabel));
             appendLog(QString("QMR CADENCE  %1 analyzed loop exports · %2")
                 .arg(cadenceCount).arg(cadenceLabel));
