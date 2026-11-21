@@ -40,6 +40,8 @@ if(VENTU_BUILD_DESKTOP)
             src/mainwindow.hpp
             src/ui_motion.cpp
             src/ui_motion.hpp
+            src/ui_ux.cpp
+            src/ui_ux.hpp
             src/quantum_audio_lab.cpp
             src/quantum_audio_lab.hpp
         )
@@ -53,6 +55,13 @@ if(VENTU_BUILD_DESKTOP)
             )
             target_link_libraries(ventusample_ui_motion_tests PRIVATE Qt6::Widgets)
             target_include_directories(ventusample_ui_motion_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+            add_executable(ventusample_ui_ux_tests
+                tests/test_ui_ux_40026.cpp
+                src/ui_ux.cpp
+                src/ui_ux.hpp
+            )
+            target_link_libraries(ventusample_ui_ux_tests PRIVATE Qt6::Widgets)
+            target_include_directories(ventusample_ui_ux_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
         endif()
         if(WIN32)
             target_compile_definitions(VentuSample PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0A00 WINVER=0x0A00)
@@ -79,6 +88,7 @@ if(VENTU_BUILD_TESTS)
     enable_testing()
     if(VENTU_BUILD_DESKTOP AND Qt6Widgets_FOUND)
         add_test(NAME ventusample-ui-motion COMMAND ventusample_ui_motion_tests)
+        add_test(NAME ventusample-ui-ux-40026 COMMAND ventusample_ui_ux_tests)
     endif()
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
