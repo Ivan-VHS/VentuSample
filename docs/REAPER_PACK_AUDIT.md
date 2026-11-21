@@ -56,3 +56,6 @@ Reaper does not send render requests to VentuSample in this release. The reverse
 - [Reaper federation implementation](https://github.com/Ivan-VHS/Reaper/blob/main/reaper/ventusample.py)
 - [Reaper example](https://github.com/Ivan-VHS/Reaper/blob/main/examples/ventusample_pack_audit.rpr)
 - [Shared four-project matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md)
+
+
+Publication and privacy requirements follow the repository's [Documentation Control](DOCUMENTATION_CONTROL.md).
