@@ -18,3 +18,7 @@
 | [../schemas/ivan-vhs.plugin.v1.schema.json](../schemas/ivan-vhs.plugin.v1.schema.json) | shared plugin manifest schema |
 
 The root README contains the live Windows desktop capture and current build commands. Source and tests define actual behavior; a manifest digest does not prove sample ownership. Plugin discovery is metadata-only, and DSP processing is offline.
+
+## Publishing standard
+
+[README and visual documentation standard](README_VISUAL_STANDARD.md) — information architecture, Markdown/MDX, diagrams, screenshots, image formats, accessibility, localization and quality gates.
