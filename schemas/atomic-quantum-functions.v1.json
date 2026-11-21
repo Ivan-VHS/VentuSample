@@ -1,0 +1,714 @@
+{
+  "schema": "ivan-vhs.atomic-quantum-functions.v1",
+  "version": "1.0.0",
+  "title": "Atomic-Quantum Function Set",
+  "function_count": 133,
+  "execution_model": "bounded_classical_simulation",
+  "physical_hardware": false,
+  "groups": [
+    {
+      "id": "state",
+      "name": "Superposition and qubit/atom states",
+      "range": "001-022"
+    },
+    {
+      "id": "entanglement",
+      "name": "Entanglement and multipartite correlations",
+      "range": "023-044"
+    },
+    {
+      "id": "measurement",
+      "name": "Measurement, collapse and feedback",
+      "range": "045-066"
+    },
+    {
+      "id": "noise_ecc",
+      "name": "Decoherence, noise and error correction",
+      "range": "067-088"
+    },
+    {
+      "id": "atomic_dynamics",
+      "name": "Atomic dynamics, lattices and transport",
+      "range": "089-110"
+    },
+    {
+      "id": "algorithms_telemetry",
+      "name": "Quantum algorithms and telemetry",
+      "range": "111-133"
+    }
+  ],
+  "functions": [
+    {
+      "id": "atom_superpose_basis_01",
+      "ordinal": 1,
+      "family": "state"
+    },
+    {
+      "id": "qubit_phase_rotate_02",
+      "ordinal": 2,
+      "family": "state"
+    },
+    {
+      "id": "atom_ground_reset_03",
+      "ordinal": 3,
+      "family": "state"
+    },
+    {
+      "id": "state_amplitude_normalize_04",
+      "ordinal": 4,
+      "family": "state"
+    },
+    {
+      "id": "atom_rabi_pulse_05",
+      "ordinal": 5,
+      "family": "state"
+    },
+    {
+      "id": "qubit_bloch_project_06",
+      "ordinal": 6,
+      "family": "state"
+    },
+    {
+      "id": "atom_stark_shift_07",
+      "ordinal": 7,
+      "family": "state"
+    },
+    {
+      "id": "state_coherent_blend_08",
+      "ordinal": 8,
+      "family": "state"
+    },
+    {
+      "id": "atom_zeeman_split_09",
+      "ordinal": 9,
+      "family": "state"
+    },
+    {
+      "id": "qubit_hadamard_twin_10",
+      "ordinal": 10,
+      "family": "state"
+    },
+    {
+      "id": "atom_metastable_hold_11",
+      "ordinal": 11,
+      "family": "state"
+    },
+    {
+      "id": "state_polar_encode_12",
+      "ordinal": 12,
+      "family": "state"
+    },
+    {
+      "id": "atom_hyperfin_lock_13",
+      "ordinal": 13,
+      "family": "state"
+    },
+    {
+      "id": "qubit_zx_twist_14",
+      "ordinal": 14,
+      "family": "state"
+    },
+    {
+      "id": "atom_optical_trap_15",
+      "ordinal": 15,
+      "family": "state"
+    },
+    {
+      "id": "state_phase_flip_mask_16",
+      "ordinal": 16,
+      "family": "state"
+    },
+    {
+      "id": "atom_level_detune_17",
+      "ordinal": 17,
+      "family": "state"
+    },
+    {
+      "id": "qubit_iswap_core_18",
+      "ordinal": 18,
+      "family": "state"
+    },
+    {
+      "id": "atom_recoil_damp_19",
+      "ordinal": 19,
+      "family": "state"
+    },
+    {
+      "id": "state_vacuum_seed_20",
+      "ordinal": 20,
+      "family": "state"
+    },
+    {
+      "id": "atom_quadrupole_tilt_21",
+      "ordinal": 21,
+      "family": "state"
+    },
+    {
+      "id": "qubit_sqrt_not_22",
+      "ordinal": 22,
+      "family": "state"
+    },
+    {
+      "id": "entangle_bell_pair_23",
+      "ordinal": 23,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_ghz_ring_24",
+      "ordinal": 24,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_w_chain_25",
+      "ordinal": 25,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_swap_gate_26",
+      "ordinal": 26,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_cluster_grid_27",
+      "ordinal": 27,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_concurrence_28",
+      "ordinal": 28,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_singlet_lock_29",
+      "ordinal": 29,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_triplet_mix_30",
+      "ordinal": 30,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_bell_witness_31",
+      "ordinal": 31,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_dicke_slice_32",
+      "ordinal": 32,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_mutual_info_33",
+      "ordinal": 33,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_star_hub_34",
+      "ordinal": 34,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_negativity_35",
+      "ordinal": 35,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_spin_squeeze_36",
+      "ordinal": 36,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_discord_flux_37",
+      "ordinal": 37,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_ladder_weave_38",
+      "ordinal": 38,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_purity_check_39",
+      "ordinal": 39,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_cat_super_40",
+      "ordinal": 40,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_schmidt_rank_41",
+      "ordinal": 41,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_braid_step_42",
+      "ordinal": 42,
+      "family": "entanglement"
+    },
+    {
+      "id": "correlate_trace_dist_43",
+      "ordinal": 43,
+      "family": "entanglement"
+    },
+    {
+      "id": "entangle_mesh_sync_44",
+      "ordinal": 44,
+      "family": "entanglement"
+    },
+    {
+      "id": "measure_projective_z_45",
+      "ordinal": 45,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_weak_probe_46",
+      "ordinal": 46,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_povm_frame_47",
+      "ordinal": 47,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_phase_steer_48",
+      "ordinal": 48,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_parity_check_49",
+      "ordinal": 49,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_homodyne_quad_50",
+      "ordinal": 50,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_error_synd_51",
+      "ordinal": 51,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_tomo_slice_52",
+      "ordinal": 52,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_bell_project_53",
+      "ordinal": 53,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_gain_adapt_54",
+      "ordinal": 54,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_arrival_tick_55",
+      "ordinal": 55,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_double_click_56",
+      "ordinal": 56,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_reset_gate_57",
+      "ordinal": 57,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_ramsey_fringe_58",
+      "ordinal": 58,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_fidelity_ref_59",
+      "ordinal": 59,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_drift_trim_60",
+      "ordinal": 60,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_count_bucket_61",
+      "ordinal": 61,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_threshold_hit_62",
+      "ordinal": 62,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_cooldown_hold_63",
+      "ordinal": 63,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_joint_moment_64",
+      "ordinal": 64,
+      "family": "measurement"
+    },
+    {
+      "id": "measure_null_result_65",
+      "ordinal": 65,
+      "family": "measurement"
+    },
+    {
+      "id": "feedback_loop_clamp_66",
+      "ordinal": 66,
+      "family": "measurement"
+    },
+    {
+      "id": "noise_depolarize_ch_67",
+      "ordinal": 67,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_dephase_markov_68",
+      "ordinal": 68,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_amplitude_damp_69",
+      "ordinal": 69,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_bitflip_code_70",
+      "ordinal": 70,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_phaseflip_code_71",
+      "ordinal": 71,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_surface_plaquette_72",
+      "ordinal": 72,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_vertex_star_73",
+      "ordinal": 73,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_thermal_bath_74",
+      "ordinal": 74,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_decoder_mwpm_75",
+      "ordinal": 75,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_crosstalk_leak_76",
+      "ordinal": 76,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_logical_x_77",
+      "ordinal": 77,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_logical_z_78",
+      "ordinal": 78,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_burst_spike_79",
+      "ordinal": 79,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_flag_qubit_80",
+      "ordinal": 80,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_1f_flicker_81",
+      "ordinal": 81,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_lattice_surgery_82",
+      "ordinal": 82,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_loss_erase_83",
+      "ordinal": 83,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_magic_distill_84",
+      "ordinal": 84,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_non_markov_back_85",
+      "ordinal": 85,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_steane_block_86",
+      "ordinal": 86,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "noise_gate_overrot_87",
+      "ordinal": 87,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "ecc_syndrome_history_88",
+      "ordinal": 88,
+      "family": "noise_ecc"
+    },
+    {
+      "id": "lattice_hop_tunnel_89",
+      "ordinal": 89,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_hubbard_onsite_90",
+      "ordinal": 90,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "atom_cool_sideband_91",
+      "ordinal": 91,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "transport_shuttle_move_92",
+      "ordinal": 92,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_peierls_flux_93",
+      "ordinal": 93,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "atom_recoil_kick_94",
+      "ordinal": 94,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_mott_gap_95",
+      "ordinal": 95,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "transport_junction_split_96",
+      "ordinal": 96,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_superfluid_phase_97",
+      "ordinal": 97,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "atom_dark_state_98",
+      "ordinal": 98,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_disorder_ramp_99",
+      "ordinal": 99,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "transport_merge_wells_100",
+      "ordinal": 100,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_rydberg_block_101",
+      "ordinal": 101,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "atom_raman_transfer_102",
+      "ordinal": 102,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_boundary_wrap_103",
+      "ordinal": 103,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "transport_adiabatic_ramp_104",
+      "ordinal": 104,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_dimer_pair_105",
+      "ordinal": 105,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "atom_doppler_shift_106",
+      "ordinal": 106,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_spin_exchange_107",
+      "ordinal": 107,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "transport_trap_handoff_108",
+      "ordinal": 108,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "lattice_anyon_braid_109",
+      "ordinal": 109,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "atom_sisyphus_step_110",
+      "ordinal": 110,
+      "family": "atomic_dynamics"
+    },
+    {
+      "id": "algo_qaoa_cost_111",
+      "ordinal": 111,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_qaoa_mixer_112",
+      "ordinal": 112,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_vqe_ansatz_113",
+      "ordinal": 113,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_qpe_phase_114",
+      "ordinal": 114,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_grover_oracle_115",
+      "ordinal": 115,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_grover_diffuser_116",
+      "ordinal": 116,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_hhl_invert_117",
+      "ordinal": 117,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_walk_coin_118",
+      "ordinal": 118,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_walk_shift_119",
+      "ordinal": 119,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_coherence_time_120",
+      "ordinal": 120,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_gate_error_121",
+      "ordinal": 121,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_readout_conf_122",
+      "ordinal": 122,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_temp_jitter_123",
+      "ordinal": 123,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_entangle_depth_124",
+      "ordinal": 124,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_flux_balance_125",
+      "ordinal": 125,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_anneal_schedule_126",
+      "ordinal": 126,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_fourier_qft_127",
+      "ordinal": 127,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_amplitude_est_128",
+      "ordinal": 128,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_spectral_gap_129",
+      "ordinal": 129,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_drift_rate_130",
+      "ordinal": 130,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "algo_teleport_link_131",
+      "ordinal": 131,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_packet_loss_132",
+      "ordinal": 132,
+      "family": "algorithms_telemetry"
+    },
+    {
+      "id": "telem_system_health_133",
+      "ordinal": 133,
+      "family": "algorithms_telemetry"
+    }
+  ],
+  "safety": {
+    "no_hardware_claims": true,
+    "deterministic_seed_supported": true,
+    "validate_finite_numeric_inputs": true,
+    "enforce_resource_limits": true,
+    "hardware_adapters": "optional and explicitly configured; no implicit device access"
+  }
+}
