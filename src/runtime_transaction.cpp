@@ -42,6 +42,7 @@ bool RuntimeTransaction::stage(const std::vector<std::uint8_t>& value) {
     staged_ = value;
     stagedCrc_ = checksum(staged_);
     lastError_.clear();
+    failed_ = false;
     return true;
 }
 
@@ -112,6 +113,7 @@ RuntimeStatus RuntimeTransaction::migrate(std::uint32_t targetSchema, const Migr
 RuntimeStatus RuntimeTransaction::commit(std::optional<std::uint64_t> expected,
                                          std::string_view event) {
     std::lock_guard lock(mutex_);
+    if (failed_) return RuntimeStatus::Thrown;
     if (expected && *expected != generation_) return RuntimeStatus::Conflict;
     if (stagedCrc_ != checksum(staged_)) {
         lastError_ = "staged payload checksum mismatch";
@@ -144,6 +146,7 @@ RuntimeStatus RuntimeTransaction::rollback() {
     stagedCrc_ = committedCrc_;
     schemaVersion_ = committedSchemaVersion_;
     lastError_.clear();
+    failed_ = false;
     if (events_) events_("ROLLBACK", generation_);
     return RuntimeStatus::Ok;
 }
@@ -200,6 +203,7 @@ RuntimeStatus RuntimeTransaction::await(std::future<RuntimeStatus>& task) {
     {
         std::lock_guard lock(mutex_);
         lastError_ = message;
+        failed_ = true;
     }
     throw RuntimeTransactionError(message);
 }
@@ -208,6 +212,7 @@ RuntimeStatus RuntimeTransaction::await(std::future<RuntimeStatus>& task) {
     {
         std::lock_guard lock(mutex_);
         lastError_ = "panic: " + message;
+        failed_ = true;
     }
     throw RuntimeTransactionError("panic: " + message);
 }
