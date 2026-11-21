@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Ivan-VHS/shared-contracts/codebase-wellbeing.v1.schema.json",
+  "$id": "urn:ivan-vhs:schema:codebase-wellbeing:v1",
   "title": "Codebase Wellbeing Contract v1",
   "type": "object",
   "additionalProperties": false,
