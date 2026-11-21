@@ -60,3 +60,5 @@ The [market-development standard](docs/MARKET_DEVELOPMENT_STANDARD.md) and [vers
 ## Correction and defect coverage
 
 The **20 × 3 correction / coverage / defect matrix** preserves all supplied terms and maps them to project-specific targets, acceptance criteria and repository-local evidence. Run `python tools/quality_remediation.py` or add `--format json`; the focused regression suite runs in CI. Evidence-path presence is a traceability check, not proof that behavior is correct or that all defects are gone. See [the remediation standard](docs/QUALITY_REMEDIATION_STANDARD.md).
+
+The repeated term «Исчерпывающесть» is intentionally retained in rows 5 and 18 as supplied; the matrix preserves the original vocabulary rather than silently normalizing it.
