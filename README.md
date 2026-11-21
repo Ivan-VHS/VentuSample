@@ -143,3 +143,11 @@ See [CareGuard v1 contract and safety boundaries](docs/CARE_GUARD_V1.md).
 ## Beelzebul repository protection
 
 This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
+
+
+## CLife — offline checkpoint and recovery
+
+The C++20 CLife adapter captures bounded render/project payloads, checks project identity and
+integrity, and exposes recovery decisions outside the real-time audio path. It does not load
+checkpoint bytes as plugin code. See [CLife contract](clife/contract.v1.json) and
+[adapter guide](docs/CLIFE_IMMORTALITY_POD.md).
