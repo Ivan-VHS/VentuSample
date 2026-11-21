@@ -9,6 +9,7 @@
 - Tempo, bars, key, scale, sampler character, timbre, swing, density, grit, saturation, stereo width, filters, snare timing, bus-compression ratio, triplet rolls, humanization and vinyl dust controls.
 - Optional PCM16 WAV chop import with four-slice beat placement and semitone resampling.
 - Deterministic variations, four-bar phrase turnarounds, shared drum/melody swing timing, stereo-linked bus compression, WAV export and peak/RMS/crest measurement.
+- Tonal export naming such as `A_Minor` and `C_Major`, plus per-file key/mode metadata in the `ventusample.pack.v2` manifest. Unpitched drum one-shots are intentionally left unlabelled.
 - QMR-20 quality/cohesion/rhythm framework with regression coverage; pack metadata remains compatible with `ventusample.pack.v1`.
 
 ## Build
@@ -25,7 +26,7 @@ When Qt 6 Widgets is unavailable, the portable DSP core and test executable stil
 
 ## Run
 
-Launch `VentuSample` from the build output. Choose a sound profile and output type, set the musical and sound-design parameters, select an export folder and press **Create Sample Pack**. Generation runs on a worker thread so the interface remains responsive. Optional source audio accepts PCM16 mono/stereo WAV up to 128 MiB; 24-bit/float/MP3/FLAC imports are not supported yet. The exported folder contains `.wav` files and `ventusample_manifest.json`.
+Launch `VentuSample` from the build output. Choose a sound profile and output type, set the musical and sound-design parameters, select an export folder and press **Create Sample Pack**. Generation runs on a worker thread so the interface remains responsive. Optional source audio accepts PCM16 mono/stereo WAV up to 128 MiB; 24-bit/float/MP3/FLAC imports are not supported yet. The exported folder contains `.wav` files and `ventusample_manifest.json`. Tonal loops, melodies and bass exports include the selected root and mode in the WAV filename (for example, `A_Minor` or `C_Major`). The manifest records the readable `musical_key`, `mode_family`, detailed scale and per-file metadata; unpitched drum-only files use null key fields. This is the generator's configured musical key, not automatic key detection of an imported source WAV.
 
 ## Engineering boundaries
 
