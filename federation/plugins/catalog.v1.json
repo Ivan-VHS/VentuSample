@@ -1,0 +1,198 @@
+{
+  "schema": "ivan-vhs.plugin-catalog.v1",
+  "catalog_version": "1.0.0",
+  "api_version": 1,
+  "generated_at": "2026-11-21",
+  "plugins": [
+    {
+      "id": "operandu",
+      "name": "Operandu",
+      "domain": "Data & logic",
+      "description": "Typed values, validation and safe transformation planning",
+      "capabilities": [
+        "value.validation",
+        "schema.inspection"
+      ]
+    },
+    {
+      "id": "dropaul",
+      "name": "Dropaul",
+      "domain": "Actions & workflows",
+      "description": "Deterministic dependency graphs and dry-run ordering",
+      "capabilities": [
+        "workflow.validation",
+        "dependency.ordering",
+        "dry_run"
+      ]
+    },
+    {
+      "id": "zdoro",
+      "name": "Zdoro",
+      "domain": "Integrity & diagnostics",
+      "description": "Workspace baselines and diagnostic summaries",
+      "capabilities": [
+        "workspace.inspection",
+        "baseline.check"
+      ]
+    },
+    {
+      "id": "pyemont",
+      "name": "Pyemont",
+      "domain": "Development",
+      "description": "Project inventory and source module mapping",
+      "capabilities": [
+        "source.inventory",
+        "module.discovery"
+      ]
+    },
+    {
+      "id": "dilly",
+      "name": "Dilly",
+      "domain": "Interface & experience",
+      "description": "Design-token and UI contract inspection",
+      "capabilities": [
+        "token.validation",
+        "duplicate.detection"
+      ]
+    },
+    {
+      "id": "baplap",
+      "name": "Baplap",
+      "domain": "Data infrastructure",
+      "description": "Bounded file indexing and content fingerprints",
+      "capabilities": [
+        "file.catalog",
+        "sha256.fingerprint"
+      ]
+    },
+    {
+      "id": "sretuo",
+      "name": "Sretuo",
+      "domain": "Quality engineering",
+      "description": "Test discovery and verification planning",
+      "capabilities": [
+        "test.discovery",
+        "verification.plan"
+      ]
+    },
+    {
+      "id": "kali",
+      "name": "Kali",
+      "domain": "Security",
+      "description": "Read-only static security hygiene checks",
+      "capabilities": [
+        "secret.pattern.scan",
+        "static.findings"
+      ]
+    },
+    {
+      "id": "zalam",
+      "name": "Zalam",
+      "domain": "Connectivity",
+      "description": "Versioned API contracts and schema inspection",
+      "capabilities": [
+        "contract.validation",
+        "version.check"
+      ]
+    },
+    {
+      "id": "liur",
+      "name": "Liur",
+      "domain": "Runtime resources",
+      "description": "Bounded storage and source-size estimates",
+      "capabilities": [
+        "source.size.metrics",
+        "resource.budget"
+      ]
+    },
+    {
+      "id": "keel-koh",
+      "name": "Keel Koh",
+      "domain": "Knowledge",
+      "description": "Local documentation headings and link indexing",
+      "capabilities": [
+        "documentation.index",
+        "heading.extraction"
+      ]
+    },
+    {
+      "id": "vorof",
+      "name": "Vorof",
+      "domain": "Reverse engineering",
+      "description": "Static source structure and dependency outlines",
+      "capabilities": [
+        "ast.inventory",
+        "symbol.discovery"
+      ]
+    },
+    {
+      "id": "vprof",
+      "name": "Vprof",
+      "domain": "Profiling & metrics",
+      "description": "Static complexity estimates, not runtime profiling",
+      "capabilities": [
+        "ast.metrics",
+        "complexity.estimate"
+      ]
+    },
+    {
+      "id": "profe",
+      "name": "Profe",
+      "domain": "Engineering standards",
+      "description": "Repository conventions and documentation baselines",
+      "capabilities": [
+        "repository.conventions",
+        "baseline.check"
+      ]
+    },
+    {
+      "id": "prossee",
+      "name": "Prossee",
+      "domain": "Project planning",
+      "description": "Task graphs and critical-path dry-run estimates",
+      "capabilities": [
+        "task.graph",
+        "critical.path.estimate"
+      ]
+    },
+    {
+      "id": "vprossee",
+      "name": "Vprossee",
+      "domain": "Verification & validation",
+      "description": "Evidence matrices and acceptance-check completeness",
+      "capabilities": [
+        "evidence.matrix",
+        "acceptance.check"
+      ]
+    },
+    {
+      "id": "professiya",
+      "name": "Professiya",
+      "domain": "Learning",
+      "description": "Repository-grounded learning paths and topic maps",
+      "capabilities": [
+        "learning.paths",
+        "topic.map"
+      ]
+    },
+    {
+      "id": "profevo",
+      "name": "Profevo",
+      "domain": "Evolution",
+      "description": "Version-aware migration planning",
+      "capabilities": [
+        "version.compare",
+        "migration.plan"
+      ]
+    }
+  ],
+  "policy": {
+    "canonical_ids": "lowercase-kebab-case",
+    "discovery": "metadata-only",
+    "external_code_loading": false,
+    "automatic_network_access": false,
+    "implicit_project_mutation": false,
+    "cross_repository_execution": "explicit host adapter only",
+    "capability_strings": "descriptive, not OS-enforced permissions"
+  }
+}
