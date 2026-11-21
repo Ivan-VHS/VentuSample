@@ -67,3 +67,11 @@ ctest --test-dir build --output-on-failure
 **无障碍：**确保对比度、可见的键盘焦点、适合触控的控件和响应式布局。动效不得妨碍输入或导致内容跳动。
 
 本节是视觉参考，不代表应用已实现所有效果。实际行为以[界面动效规范](docs/UI_MOTION.md)为准。
+
+<!-- VISUAL-DOCS:BEGIN -->
+## 架构可视化图
+
+![VentuSample 流程：基于种子的程序化生成、离线 DSP，以及 WAV 与清单导出](assets/visual-documentation-map.svg)
+
+此图为静态处理流程示意，并非实时音频波形或应用截图。上方真实 Qt 桌面截图仍是界面参考。请参阅[视觉文档规范](docs/VISUAL_DOCUMENTATION.md)。
+<!-- VISUAL-DOCS:END -->
