@@ -1,0 +1,36 @@
+name: Beelzebul AppGuard Catalog
+
+on:
+  push:
+    paths:
+      - ".beelzebul/**"
+      - "schemas/beelzebul-appguard.v1.schema.json"
+      - "scripts/validate_beelzebul_appguard.py"
+      - "tests/test_beelzebul_appguard.py"
+      - ".github/workflows/beelzebul-appguard.yml"
+  pull_request:
+    paths:
+      - ".beelzebul/**"
+      - "schemas/beelzebul-appguard.v1.schema.json"
+      - "scripts/validate_beelzebul_appguard.py"
+      - "tests/test_beelzebul_appguard.py"
+      - ".github/workflows/beelzebul-appguard.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-appguard-catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate 666-level catalog and 66-rule crosswalk
+        run: python scripts/validate_beelzebul_appguard.py
+      - name: Run AppGuard validator regression tests
+        run: python -m unittest discover -s tests -p "test_beelzebul_appguard.py" -v
