@@ -10,7 +10,6 @@ class CineforgeWindow final : public QDialog {
 public:
     explicit CineforgeWindow(QWidget* parent = nullptr);
 private:
-    void generatePack();
     void closeEvent(QCloseEvent* event) override;
     QThread* worker_{};
     bool generationPending_{false};
