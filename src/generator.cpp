@@ -579,19 +579,19 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                 const bool cadenceKick = phraseTurnaround && step == 14 && density >= 0.38 && p.style != Style::JazzRap;
                 const bool kick = baseKick || cadenceKick;
                 const bool baseSnare = step == spec.snareA || step == spec.snareB;
-                const bool ghostSnare = phraseTurnaround && step == 10 && density >= 0.68
+                const bool ghostSnare = drumsOn && phraseTurnaround && step == 10 && density >= 0.68
                     && uniform(rng, 0.0, 1.0) < 0.18;
                 const bool snare = baseSnare || ghostSnare;
 
-                if (drumsOn && kick) addKick(audio, at, cadenceKick ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08), rng, width);
+                if (drumsOn && kick) addKick(audio, at, (cadenceKick && !baseKick) ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08), rng, width);
                 if (drumsOn && snare) {
                     const auto offset = static_cast<long long>(p.snareOffsetMs) * p.sampleRate / 1000;
                     const auto shifted = static_cast<std::size_t>(std::max<long long>(0, static_cast<long long>(at) + offset));
                     addSnare(audio, shifted, ghostSnare ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07), rng, uniform(rng, -0.08, 0.08), width);
                 }
 
-                const bool regularHat = step % 2 == 0
-                    || uniform(rng, 0.0, 1.0) < density * spec.hatProbability;
+                const bool regularHat = drumsOn && (step % 2 == 0
+                    || uniform(rng, 0.0, 1.0) < density * spec.hatProbability);
                 const bool turnaroundHat = phraseTurnaround && step >= 13 && density >= 0.40;
                 if (drumsOn && (regularHat || turnaroundHat)) {
                     const double accent = (step % 4 == 0) ? 0.52 : (turnaroundHat ? 0.27 : 0.34);
