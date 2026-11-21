@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "concept": {
+    "id": "code-mental-health",
+    "name": "Code Mental Health / Codebase Wellbeing",
+    "definition": "A non-clinical engineering metaphor for the condition and sustainability of a software repository: whether maintainers can see problems, discuss them without blame, make safe changes, recover from regressions and receive enough time and peer support to maintain the system.",
+    "is_engineering_metaphor": true,
+    "clinical_equivalence": false
+  },
+  "source_inspiration": {
+    "channel": "ебаут",
+    "title": "Депресія — тема табу? Ознаки депресії, міфи довкола антидепресантів, як допомогти собі",
+    "video_url": "https://www.youtube.com/watch?v=brNbnipJ-i8",
+    "published_at": "2025-11-23",
+    "duration": "PT1H20M1S",
+    "transcript_coverage": "The supplied excerpts cover 00:00–00:07:55 and 01:17:16–01:19:53 only; most of the middle is unavailable.",
+    "adaptation_note": "The video discusses human mental health. This repository borrows only broad communication and support themes as an explicitly metaphorical prompt for software-maintenance culture. It does not convert clinical concepts, symptoms, diagnoses or medication into software metrics, and it does not claim that the video contains software-engineering advice."
+  },
+  "principles": [
+    {
+      "id": "no-blame-observability",
+      "principle": "Make it safe to say that something is wrong.",
+      "engineering_translation": "Treat failing tests, regressions, warnings and incidents as evidence to investigate, not as grounds for shaming the person who reported them. Preserve logs and reproducible steps."
+    },
+    {
+      "id": "visible-maintenance",
+      "principle": "Do not hide difficult topics or work.",
+      "engineering_translation": "Track technical debt, unsupported modules, flaky tests and unowned components in ordinary project workflows. Make the work visible without turning counts into personal performance scores."
+    },
+    {
+      "id": "maintainer-stories",
+      "principle": "Keep context and experience shareable.",
+      "engineering_translation": "Record architecture decisions, incident timelines, migration notes and postmortems so knowledge does not remain trapped with one contributor."
+    },
+    {
+      "id": "ask-for-review",
+      "principle": "Asking for help is a normal engineering action.",
+      "engineering_translation": "Provide code review, pair debugging, issue escalation and maintainer hand-off paths. Avoid making one person the only route to understanding critical code."
+    },
+    {
+      "id": "recovery-before-heroics",
+      "principle": "Build support before the system is in trouble.",
+      "engineering_translation": "Keep tests, backups, release notes, rollback procedures and reproducible development environments available before a high-risk change is shipped."
+    },
+    {
+      "id": "sustainable-change",
+      "principle": "Improvement needs room and time.",
+      "engineering_translation": "Reserve capacity for dependency updates, refactoring, documentation, flaky-test repair and removal of obsolete paths instead of treating feature throughput as the only measure of progress."
+    }
+  ],
+  "support_model": [
+    {
+      "layer": "people",
+      "purpose": "A repository needs reachable maintainers and more than one person who understands critical components.",
+      "examples": [
+        "CODEOWNERS or an ownership map",
+        "documented escalation and review routes",
+        "pair debugging and hand-off notes"
+      ]
+    },
+    {
+      "layer": "maintenance_capacity",
+      "purpose": "A team needs protected time and a planned budget for routine care.",
+      "examples": [
+        "scheduled dependency and toolchain updates",
+        "time for refactoring and flaky-test repair",
+        "small, reviewable maintenance issues"
+      ]
+    },
+    {
+      "layer": "engineering_practice",
+      "purpose": "Repeatable checks and clear documentation reduce avoidable uncertainty.",
+      "examples": [
+        "automated tests and CI",
+        "contribution and setup documentation",
+        "reproducible builds and local diagnostics"
+      ]
+    },
+    {
+      "layer": "expert_review",
+      "purpose": "High-impact changes need the right reviewers and explicit recovery plans.",
+      "examples": [
+        "architecture and security review",
+        "release approval for risky changes",
+        "rollback and incident follow-up"
+      ]
+    }
+  ],
+  "engineering_myths": [
+    {
+      "myth": "A green CI run proves that the software has no defects.",
+      "correction": "CI proves only that the configured checks passed for that run and environment. Coverage, design flaws, missing scenarios and production conditions remain outside that evidence."
+    },
+    {
+      "myth": "A larger test count automatically means better confidence.",
+      "correction": "Test relevance, determinism, failure diagnosis, boundary coverage and maintenance matter more than raw test count."
+    },
+    {
+      "myth": "A linter or static analyzer can replace code review.",
+      "correction": "Tools detect selected patterns. They do not fully assess intent, usability, architecture, threat models or operational context."
+    },
+    {
+      "myth": "An AI-generated patch means the root cause is fixed.",
+      "correction": "Generated changes still need a reproduced failure, causal explanation, focused tests, review and a rollback path."
+    },
+    {
+      "myth": "A complete rewrite is always healthier than incremental repair.",
+      "correction": "Rewrites can discard operational knowledge and introduce new failure modes. Compare migration risk, compatibility, testability and rollback options."
+    },
+    {
+      "myth": "TODO and FIXME markers are a reliable defect score.",
+      "correction": "Markers are prompts for triage. Their meaning, age, owner, context and impact must be reviewed by a maintainer."
+    }
+  ],
+  "assessment_contract": {
+    "dimensions": [
+      {
+        "id": "maintainability",
+        "signals": [
+          "source-file inventory",
+          "very large source units",
+          "maintenance markers TODO/FIXME/HACK/XXX"
+        ],
+        "interpretation_limit": "Heuristic review cues only; file size and marker count do not prove poor design or a defect."
+      },
+      {
+        "id": "verification",
+        "signals": [
+          "test directories and test files",
+          "CI workflow presence",
+          "documented test commands"
+        ],
+        "interpretation_limit": "Presence does not prove adequate coverage, test quality or passing status."
+      },
+      {
+        "id": "documentation",
+        "signals": [
+          "README presence",
+          "contribution guide",
+          "architecture and operations notes"
+        ],
+        "interpretation_limit": "File presence does not prove that documentation is accurate or current."
+      },
+      {
+        "id": "ownership-and-support",
+        "signals": [
+          "CODEOWNERS or explicit ownership map",
+          "maintainer and escalation guidance"
+        ],
+        "interpretation_limit": "A name in a file does not prove availability, capacity or healthy team dynamics."
+      },
+      {
+        "id": "change-safety",
+        "signals": [
+          "release workflow",
+          "migration notes",
+          "rollback or recovery guidance"
+        ],
+        "interpretation_limit": "A written process does not prove that rollback has been rehearsed or will succeed."
+      },
+      {
+        "id": "dependency-care",
+        "signals": [
+          "dependency manifests",
+          "lockfiles",
+          "update and security policy"
+        ],
+        "interpretation_limit": "Manifest presence does not prove dependencies are current, safe or supported."
+      },
+      {
+        "id": "incident-learning",
+        "signals": [
+          "postmortem or incident records",
+          "architecture decision records",
+          "changelog"
+        ],
+        "interpretation_limit": "Documents are evidence of a process, not proof that learning has been applied."
+      }
+    ],
+    "reporting_rules": [
+      "Report observed evidence and its source path; do not infer hidden project state.",
+      "Use observed, missing or unknown for each signal; avoid an overall mental-health score.",
+      "Treat TODO/FIXME/HACK/XXX and large-file counts as review prompts, never automatic defects.",
+      "Do not label a repository, contributor or team as depressed, sick, burned out or otherwise clinically described.",
+      "Keep scans read-only, bounded and local; do not upload source code or telemetry."
+    ],
+    "explicit_non_goals": [
+      "No human mental-health assessment, screening, diagnosis or risk prediction.",
+      "No inference about contributors from commit timing, activity, language, audio or device telemetry.",
+      "No productivity ranking, contributor scoring or individual blame.",
+      "No automatic rewrite, deletion, dependency update or remediation without human review.",
+      "No claim that a static repository scan proves code correctness, security or maintainability."
+    ]
+  }
+}
