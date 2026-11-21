@@ -1,0 +1,435 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/VentuSample/blob/main/schemas/market-development.v1.schema.json",
+  "title": "Anatidae Market Development Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "project",
+    "product",
+    "audiences",
+    "positioning",
+    "brand",
+    "go_to_market",
+    "channels",
+    "commercial_gates",
+    "metrics",
+    "governance",
+    "vocabulary_alignment"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.market-development.v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "project": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "repository"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "repository": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "product": {
+      "type": "object",
+      "required": [
+        "category",
+        "summary",
+        "proof_points",
+        "non_claims"
+      ],
+      "properties": {
+        "category": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "proof_points": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "non_claims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "audiences": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "audience",
+          "need",
+          "value"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string"
+          },
+          "need": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "positioning": {
+      "type": "object",
+      "required": [
+        "statement",
+        "differentiators"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string"
+        },
+        "differentiators": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "brand": {
+      "type": "object",
+      "required": [
+        "promise",
+        "voice",
+        "message_pillars"
+      ],
+      "properties": {
+        "promise": {
+          "type": "string"
+        },
+        "voice": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message_pillars": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "go_to_market": {
+      "type": "object",
+      "required": [
+        "stages"
+      ],
+      "properties": {
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "status",
+              "success_criteria"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "implemented",
+                  "planned",
+                  "not_assessed"
+                ]
+              },
+              "success_criteria": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "status",
+          "purpose",
+          "guardrail"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "implemented",
+              "planned",
+              "not_assessed"
+            ]
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "guardrail": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "commercial_gates": {
+      "type": "object",
+      "required": [
+        "market_validation",
+        "pricing",
+        "unit_economics",
+        "licensing",
+        "support",
+        "distribution"
+      ],
+      "properties": {
+        "market_validation": {
+          "type": "object",
+          "required": [
+            "status",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "implemented",
+                "planned",
+                "not_assessed",
+                "manual_review_required",
+                "not_set"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "pricing": {
+          "type": "object",
+          "required": [
+            "status",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "implemented",
+                "planned",
+                "not_assessed",
+                "manual_review_required",
+                "not_set"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "unit_economics": {
+          "type": "object",
+          "required": [
+            "status",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "implemented",
+                "planned",
+                "not_assessed",
+                "manual_review_required",
+                "not_set"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "licensing": {
+          "type": "object",
+          "required": [
+            "status",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "implemented",
+                "planned",
+                "not_assessed",
+                "manual_review_required",
+                "not_set"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "support": {
+          "type": "object",
+          "required": [
+            "status",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "implemented",
+                "planned",
+                "not_assessed",
+                "manual_review_required",
+                "not_set"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "distribution": {
+          "type": "object",
+          "required": [
+            "status",
+            "notes"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "implemented",
+                "planned",
+                "not_assessed",
+                "manual_review_required",
+                "not_set"
+              ]
+            },
+            "notes": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "definition",
+          "status",
+          "source",
+          "privacy_note"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "definition": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "implemented",
+              "planned",
+              "not_assessed"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "privacy_note": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "governance": {
+      "type": "object",
+      "required": [
+        "claims",
+        "promotion",
+        "privacy",
+        "rights"
+      ],
+      "properties": {
+        "claims": {
+          "type": "string"
+        },
+        "promotion": {
+          "type": "string"
+        },
+        "privacy": {
+          "type": "string"
+        },
+        "rights": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "vocabulary_alignment": {
+      "type": "string"
+    }
+  }
+}
