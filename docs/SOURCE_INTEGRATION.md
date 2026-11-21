@@ -25,6 +25,7 @@ The document contains a desktop-environment and language-architecture specificat
 | Backpressure / fault isolation | One bounded pack job at a time; rendering runs off the UI thread and reports a single result/error | `src/mainwindow.cpp` |
 | Transparency / audit | Export manifest records schema, musical parameters, source filename and per-file measurements | `src/generator.cpp` |
 | Platform adaptation | Qt 6 desktop target with CMake and portable scalar renderer | `CMakeLists.txt` |
+| Quality / cohesion / rhythm framework | Shared drum/melody swing grid, four-bar turnarounds and stereo-linked bus gain; one validated parameter snapshot remains the source of truth | `src/generator.cpp`, `tests/test_generator.cpp`, `docs/QUALITY_MONOLITH_RHYTHM.md` |
 | Open ecosystem / contract versioning | Versioned pack schema and a separate federation map | `schemas/ventusample.pack.v1.schema.json`, `federation/octa-pyramid.v1.json` |
 
 ### Adaptation of the 66 laws and 666 rules

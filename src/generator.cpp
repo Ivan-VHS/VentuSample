@@ -275,31 +275,44 @@ void applyMaster(AudioBuffer& audio, const Parameters& p) {
     const double lpAlpha = 1.0 - std::exp(-2.0 * kPi * p.lowPassHz / audio.sampleRate);
     std::array<double, 2> previousInput{0.0, 0.0};
     std::array<double, 2> previousLow{0.0, 0.0};
-    std::array<double, 2> envelope{0.0, 0.0};
+    double envelope = 0.0;
     const double threshold = 0.72;
     const double ratio = std::clamp(p.busCompressionRatio, 1.0, 12.0);
     const double attack = 1.0 - std::exp(-1.0 / (0.004 * audio.sampleRate));
     const double release = 1.0 - std::exp(-1.0 / (0.085 * audio.sampleRate));
     const double saturation = 1.0 + static_cast<double>(p.saturationPercent) / 45.0;
+
+    // A single detector and gain link both channels. This keeps stereo balance
+    // stable when one side contains a stronger transient than the other.
     for (std::size_t frame = 0; frame < audio.frames(); ++frame) {
+        std::array<double, 2> filtered{};
+        double detector = 0.0;
         for (int channel = 0; channel < 2; ++channel) {
-            auto& sample = audio.samples[frame * 2 + static_cast<std::size_t>(channel)];
-            const double input = sample;
-            const double high = input - hpAlpha * previousInput[static_cast<std::size_t>(channel)];
-            previousInput[static_cast<std::size_t>(channel)] = input;
-            previousLow[static_cast<std::size_t>(channel)] += lpAlpha * (high - previousLow[static_cast<std::size_t>(channel)]);
-            double x = previousLow[static_cast<std::size_t>(channel)];
-            const double absolute = std::abs(x);
-            const double coefficient = absolute > envelope[static_cast<std::size_t>(channel)] ? attack : release;
-            envelope[static_cast<std::size_t>(channel)] += coefficient * (absolute - envelope[static_cast<std::size_t>(channel)]);
-            if (envelope[static_cast<std::size_t>(channel)] > threshold) {
-                const double gain = std::pow(threshold / envelope[static_cast<std::size_t>(channel)], 1.0 - 1.0 / ratio);
-                x *= gain;
-            }
-            x = std::tanh(x * saturation) / std::tanh(saturation);
-            sample = static_cast<float>(x);
+            const auto index = static_cast<std::size_t>(channel);
+            const double input = audio.samples[frame * 2 + index];
+            const double high = input - hpAlpha * previousInput[index];
+            previousInput[index] = input;
+            previousLow[index] += lpAlpha * (high - previousLow[index]);
+            filtered[index] = previousLow[index];
+            detector = std::max(detector, std::abs(filtered[index]));
+        }
+
+        const double coefficient = detector > envelope ? attack : release;
+        envelope += coefficient * (detector - envelope);
+        double gain = 1.0;
+        if (envelope > threshold) {
+            gain = std::pow(threshold / envelope, 1.0 - 1.0 / ratio);
+        }
+
+        for (int channel = 0; channel < 2; ++channel) {
+            const auto index = static_cast<std::size_t>(channel);
+            const double compressed = filtered[index] * gain;
+            const double shaped = std::tanh(compressed * saturation) / std::tanh(saturation);
+            audio.samples[frame * 2 + index] = static_cast<float>(shaped);
         }
     }
+
+    // This is a sample-peak ceiling, not an oversampled true-peak limiter.
     const auto peak = measure(audio).peak;
     if (peak > kCeiling) {
         const double gain = kCeiling / peak;
@@ -548,25 +561,42 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
         const bool melodyOn = p.target == Target::FullLoop || p.target == Target::Melody;
         const bool bassOn = p.target == Target::FullLoop || p.target == Target::Bass;
         const double barFrames = stepFrames * 16.0;
+        const auto swingOffsetForStep = [&p, stepFrames](int step) {
+            return (step % 4) == 2
+                ? stepFrames * 4.0 * static_cast<double>(p.swingPercent - 50) / 100.0
+                : 0.0;
+        };
 
         for (int bar = 0; bar < p.bars; ++bar) {
+            const bool phraseTurnaround = ((bar + 1) % 4) == 0;
             for (int step = 0; step < 16; ++step) {
-                double onset = bar * barFrames + step * stepFrames;
-                if ((step % 4) == 2) onset += stepFrames * 4.0 * (p.swingPercent - 50) / 100.0;
+                double onset = bar * barFrames + step * stepFrames + swingOffsetForStep(step);
                 if (p.microHumanize) onset += uniform(rng, -0.002, 0.002) * p.sampleRate;
                 if (onset < 0.0) onset = 0.0;
                 const auto at = static_cast<std::size_t>(onset);
-                const bool kick = std::find(spec.kicks.begin(), spec.kicks.begin() + spec.kickCount, step) != spec.kicks.begin() + spec.kickCount;
-                const bool snare = step == spec.snareA || step == spec.snareB;
-                if (drumsOn && kick) addKick(audio, at, 0.74 + uniform(rng, -0.08, 0.08), rng, width);
+
+                const bool baseKick = std::find(spec.kicks.begin(), spec.kicks.begin() + spec.kickCount, step) != spec.kicks.begin() + spec.kickCount;
+                const bool cadenceKick = phraseTurnaround && step == 14 && density >= 0.38 && p.style != Style::JazzRap;
+                const bool kick = baseKick || cadenceKick;
+                const bool baseSnare = step == spec.snareA || step == spec.snareB;
+                const bool ghostSnare = drumsOn && phraseTurnaround && step == 10 && density >= 0.68
+                    && uniform(rng, 0.0, 1.0) < 0.18;
+                const bool snare = baseSnare || ghostSnare;
+
+                if (drumsOn && kick) addKick(audio, at, (cadenceKick && !baseKick) ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08), rng, width);
                 if (drumsOn && snare) {
                     const auto offset = static_cast<long long>(p.snareOffsetMs) * p.sampleRate / 1000;
                     const auto shifted = static_cast<std::size_t>(std::max<long long>(0, static_cast<long long>(at) + offset));
-                    addSnare(audio, shifted, 0.64 + uniform(rng, -0.07, 0.07), rng, uniform(rng, -0.08, 0.08), width);
+                    addSnare(audio, shifted, ghostSnare ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07), rng, uniform(rng, -0.08, 0.08), width);
                 }
-                if (drumsOn && (step % 2 == 0 || uniform(rng, 0.0, 1.0) < density * spec.hatProbability)) {
-                    const double accent = (step % 4 == 0) ? 0.52 : 0.34;
-                    addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, step % 4 == 0 ? 0.065 : 0.042);
+
+                const bool regularHat = drumsOn && (step % 2 == 0
+                    || uniform(rng, 0.0, 1.0) < density * spec.hatProbability);
+                const bool turnaroundHat = phraseTurnaround && step >= 13 && density >= 0.40;
+                if (drumsOn && (regularHat || turnaroundHat)) {
+                    const double accent = (step % 4 == 0) ? 0.52 : (turnaroundHat ? 0.27 : 0.34);
+                    const double decay = turnaroundHat ? 0.026 : (step % 4 == 0 ? 0.065 : 0.042);
+                    addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, decay);
                 }
                 if (drumsOn && step % 4 == 3 && uniform(rng, 0.0, 1.0) < density * 0.25)
                     addPerc(audio, at, 0.22, rng, uniform(rng, -0.85, 0.85), width);
@@ -596,7 +626,9 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const int step = (n * 16 / notesPerBar) + choose(rng, 0, 1);
                     const int degree = intervals[static_cast<std::size_t>(choose(rng, 0, static_cast<int>(intervals.size()) - 1))];
                     const int octave = choose(rng, 0, 1) * 12;
-                    const auto noteAt = static_cast<std::size_t>(bar * barFrames + step * stepFrames);
+                    double noteOnset = bar * barFrames + step * stepFrames + swingOffsetForStep(step);
+                    if (p.microHumanize) noteOnset += uniform(rng, -0.001, 0.001) * p.sampleRate;
+                    const auto noteAt = static_cast<std::size_t>(std::max(0.0, noteOnset));
                     addTone(audio, noteAt, midiHz(rootMidi + degree + octave), (60.0 / p.bpm) * uniform(rng, 0.12, 0.42),
                             uniform(rng, 0.12, 0.27), p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
                 }

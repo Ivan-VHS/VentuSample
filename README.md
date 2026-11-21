@@ -8,7 +8,8 @@
 - Boom Bap, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap and Cripple Trill profiles.
 - Tempo, bars, key, scale, sampler character, timbre, swing, density, grit, saturation, stereo width, filters, snare timing, bus-compression ratio, triplet rolls, humanization and vinyl dust controls.
 - Optional PCM16 WAV chop import with four-slice beat placement and semitone resampling.
-- Deterministic variations, WAV export, peak/RMS/crest measurement and complete `ventusample.pack.v1` metadata.
+- Deterministic variations, four-bar phrase turnarounds, shared drum/melody swing timing, stereo-linked bus compression, WAV export and peak/RMS/crest measurement.
+- QMR-20 quality/cohesion/rhythm framework with regression coverage; pack metadata remains compatible with `ventusample.pack.v1`.
 
 ## Build
 
@@ -35,4 +36,4 @@ Launch `VentuSample` from the build output. Choose a sound profile and output ty
 - Genre profiles are original procedural patterns, not copied artist recordings or proprietary sample libraries.
 - A generated pack's SHA-256, when calculated externally, identifies bytes; it does not authenticate a publisher.
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/SOURCE_INTEGRATION.md`](docs/SOURCE_INTEGRATION.md), and [`docs/USER_GUIDE_RU.md`](docs/USER_GUIDE_RU.md).
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/QUALITY_MONOLITH_RHYTHM.md`](docs/QUALITY_MONOLITH_RHYTHM.md), [`docs/SOURCE_INTEGRATION.md`](docs/SOURCE_INTEGRATION.md), and [`docs/USER_GUIDE_RU.md`](docs/USER_GUIDE_RU.md).

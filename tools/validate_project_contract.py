@@ -45,6 +45,10 @@ def validate_contract() -> None:
         if integration.get("peer") not in PEERS or integration.get("status") not in STATUSES:
             raise ValueError(f"invalid integration entry: {integration}")
     load_json("schemas/ventusample.pack.v1.schema.json")
+    if "quality_monolith_rhythm_pipeline" not in capability_ids:
+        raise ValueError("QMR-20 quality/cohesion/rhythm capability is missing")
+    if not (ROOT / "docs/QUALITY_MONOLITH_RHYTHM.md").is_file():
+        raise ValueError("QMR-20 framework documentation is missing")
 
 
 def validate_federation() -> None:

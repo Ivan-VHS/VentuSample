@@ -98,3 +98,14 @@ ctest --test-dir build --output-on-failure
 ```
 
 Qt 6 Widgets is required for the native desktop executable. The portable DSP core and tests can still be built without Qt by configuring `-DVENTU_BUILD_DESKTOP=OFF`.
+
+
+## 8. QMR-20 — quality, cohesion and rhythm
+
+VentuSample applies the three-axis framework described in [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md). “Monolithic” denotes coherent end-to-end behavior; implementation boundaries remain modular.
+
+- **Quality:** the stereo master uses a shared detector/gain across L/R, retains the −0.3 dBFS sample-peak ceiling and records peak/RMS/crest measurements. The ceiling is not represented as true-peak limiting.
+- **Cohesion:** a single validated parameter snapshot and seeded render flow govern scheduling, processing, export and manifest evidence.
+- **Rhythm:** drum and melodic accents use the same swing mapping. A deterministic four-bar turnaround can add a pickup kick, a density-gated ghost snare and a short hi-hat fill. Micro-humanization remains separate from the metric grid.
+
+The QMR-20 regression test covers repeatability, phrase duration, swing response and the sample-peak ceiling. The pack contract remains `ventusample.pack.v1`.

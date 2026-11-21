@@ -52,6 +52,37 @@ void testDeterministicRender() {
     require(std::isfinite(stats.rms) && stats.rms > 0.0, "rendered audio should have a finite non-zero RMS");
 }
 
+void testPhraseGridAndSwing() {
+    ventu::Parameters p;
+    p.style = ventu::Style::HarlemDipTrap;
+    p.target = ventu::Target::FullLoop;
+    p.sampleRate = 22050;
+    p.lowPassHz = 10000;
+    p.bpm = 93;
+    p.bars = 4;
+    p.variations = 2;
+    p.swingPercent = 62;
+    p.densityPercent = 85;
+    p.microHumanize = false;
+
+    const auto swung = ventu::render(p, 0);
+    const auto repeated = ventu::render(p, 0);
+    require(!swung.samples.empty(), "four-bar phrase should render audio");
+    require(swung.samples == repeated.samples, "phrase cadence and swing must remain seed-deterministic");
+
+    const auto expectedFrames = static_cast<std::size_t>(
+        std::ceil((60.0 / p.bpm) * 4.0 * p.bars * p.sampleRate));
+    require(swung.frames() == expectedFrames, "phrase grid must preserve exact bar duration");
+
+    p.swingPercent = 50;
+    const auto straight = ventu::render(p, 0);
+    require(swung.samples != straight.samples, "swing must move offbeat drum and melodic events");
+
+    const auto stats = ventu::measure(swung);
+    require(std::isfinite(stats.peak) && stats.peak <= 0.967,
+            "phrase rendering must retain the master sample-peak ceiling");
+}
+
 void testWaveAndPackExport() {
     const auto temp = std::filesystem::temp_directory_path() / "ventusample-tests";
     std::error_code ec;
@@ -130,6 +161,7 @@ void testWaveAndPackExport() {
 int main() {
     testValidation();
     testDeterministicRender();
+    testPhraseGridAndSwing();
     testWaveAndPackExport();
     std::cout << "VentuSample generator tests passed.\n";
     return 0;
