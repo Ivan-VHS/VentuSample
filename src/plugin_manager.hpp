@@ -2,6 +2,7 @@
 
 #include "generator.hpp"
 
+#include <cstddef>
 #include <filesystem>
 #include <functional>
 #include <string>
@@ -52,6 +53,7 @@ using PluginLifecycle = std::function<void(const PluginContext&)>;
 class PluginManager final {
 public:
     PluginManager();
+    ~PluginManager();
 
     bool registerPlugin(PluginDescriptor descriptor, PluginHandler handler,
                         bool enabledByDefault = true,
