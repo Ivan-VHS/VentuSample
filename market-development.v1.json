@@ -1,0 +1,181 @@
+{
+  "schema": "anatidae.market-development.v1",
+  "version": 1,
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "repository": "Ivan-VHS/VentuSample"
+  },
+  "product": {
+    "category": "Offline procedural hip-hop sample-pack workstation",
+    "summary": "A native C++20/Qt workstation for seeded procedural hip-hop sample generation, real stereo rendering and PCM16 WAV pack export with versioned manifests.",
+    "proof_points": [
+      "Offline deterministic generation from fixed seeds and parameters.",
+      "Stereo PCM16 WAV exports with versioned pack metadata.",
+      "Multiple production profiles and bounded WAV chop import/resampling workflows."
+    ],
+    "non_claims": [
+      "Procedural generation does not grant rights to imported or third-party source samples.",
+      "A generated pack is not automatically cleared for commercial redistribution.",
+      "Sales, audience demand, unique buyers and profitability are not established."
+    ]
+  },
+  "audiences": [
+    {
+      "id": "beatmakers",
+      "audience": "Independent beatmakers and hip-hop producers",
+      "need": "Create repeatable starting material and audition variations without an online dependency.",
+      "value": "Offline generation with reproducible settings and WAV export."
+    },
+    {
+      "id": "sample-creators",
+      "audience": "Sample-pack creators and sound designers",
+      "need": "Build, inspect and organize repeatable audio-pack drafts.",
+      "value": "Structured exports with manifests and measurable audio metadata."
+    },
+    {
+      "id": "production-educators",
+      "audience": "Music-production educators and technical creators",
+      "need": "Demonstrate rhythm, variation and sample-pack construction.",
+      "value": "Deterministic examples and inspectable parameter-to-render workflows."
+    }
+  ],
+  "positioning": {
+    "statement": "VentuSample is an offline, reproducible sample-pack workstation for producers who want controllable hip-hop material and direct WAV exports.",
+    "differentiators": [
+      "Seeded procedural generation supports repeatable results.",
+      "Native C++20/Qt desktop architecture with offline stereo rendering.",
+      "Versioned manifests and PCM16 WAV exports make generated packs inspectable."
+    ]
+  },
+  "brand": {
+    "promise": "Give producers repeatable control over the creation and export of original sample-pack material.",
+    "voice": [
+      "producer-aware",
+      "specific",
+      "creative but factual",
+      "transparent about source rights"
+    ],
+    "message_pillars": [
+      "Offline workflow",
+      "Repeatable generation",
+      "Audition-ready WAV output",
+      "Clear provenance and usage limits"
+    ]
+  },
+  "go_to_market": {
+    "stages": [
+      {
+        "name": "Problem discovery",
+        "status": "not_assessed",
+        "success_criteria": "Collect producer feedback on actual generation, audition and export workflows."
+      },
+      {
+        "name": "Message and documentation",
+        "status": "implemented",
+        "success_criteria": "README describes generated outputs, profiles, controls and engineering boundaries."
+      },
+      {
+        "name": "Distribution",
+        "status": "implemented",
+        "success_criteria": "The public repository documents source/build access; sample-pack sales are not established."
+      },
+      {
+        "name": "User validation",
+        "status": "not_assessed",
+        "success_criteria": "Evaluate whether producers reuse generated material and which controls matter."
+      },
+      {
+        "name": "Retention and support",
+        "status": "planned",
+        "success_criteria": "Maintain format compatibility, versioned manifests and a clear update policy."
+      }
+    ]
+  },
+  "channels": [
+    {
+      "name": "GitHub repository and technical documentation",
+      "kind": "owned documentation",
+      "status": "implemented",
+      "purpose": "Explain offline generation, controls, export formats and build path.",
+      "guardrail": "Do not imply a public sales channel where none is documented."
+    },
+    {
+      "name": "Demonstration packs and audio previews",
+      "kind": "product media",
+      "status": "planned",
+      "purpose": "Let producers audition representative outputs and compare settings.",
+      "guardrail": "Publish only content with cleared source rights and documented provenance."
+    },
+    {
+      "name": "Producer and sound-design communities",
+      "kind": "community",
+      "status": "planned",
+      "purpose": "Collect workflow feedback and evaluate repeat-use value.",
+      "guardrail": "No spam, fake testimonials or guaranteed commercial-success claims."
+    },
+    {
+      "name": "Versioned release notes",
+      "kind": "software distribution",
+      "status": "planned",
+      "purpose": "Explain generator changes, manifest versions and compatibility.",
+      "guardrail": "Keep WAV format and manifest compatibility statements testable."
+    }
+  ],
+  "commercial_gates": {
+    "market_validation": {
+      "status": "not_assessed",
+      "notes": "No structured producer-demand, conversion or repeat-use evidence is asserted."
+    },
+    "pricing": {
+      "status": "not_set",
+      "notes": "No price, subscription or paid pack strategy is defined."
+    },
+    "unit_economics": {
+      "status": "not_assessed",
+      "notes": "Generation, curation, hosting, platform fees and support costs require measurement."
+    },
+    "licensing": {
+      "status": "manual_review_required",
+      "notes": "Verify rights to every imported source sample and any third-party material before commercial distribution."
+    },
+    "support": {
+      "status": "planned",
+      "notes": "Define supported operating systems, Qt/runtime dependencies and format compatibility policy."
+    },
+    "distribution": {
+      "status": "implemented",
+      "notes": "The public source repository and pack-export workflow exist; a paid distribution channel is not established."
+    }
+  },
+  "metrics": [
+    {
+      "name": "First successful exported pack",
+      "definition": "Share of evaluators who generate and validate a WAV pack with a manifest.",
+      "status": "not_assessed",
+      "source": "Consent-based evaluation or explicit user feedback.",
+      "privacy_note": "No hidden audio collection or telemetry."
+    },
+    {
+      "name": "Repeat-use rate",
+      "definition": "Share of evaluators who return and create another pack under a new or reused configuration.",
+      "status": "not_assessed",
+      "source": "Voluntary feedback or a privacy-reviewed opt-in study.",
+      "privacy_note": "Do not infer repeat use from downloads."
+    },
+    {
+      "name": "Pack integrity",
+      "definition": "Share of exported packs passing manifest, file and audio-bound checks.",
+      "status": "implemented",
+      "source": "Existing automated tests and pack validation output.",
+      "privacy_note": "Integrity does not establish copyright clearance or market demand."
+    }
+  ],
+  "governance": {
+    "claims": "Describe deterministic generation and output formats precisely; disclose platform/build prerequisites and distinguish pack integrity from audio quality or rights clearance.",
+    "promotion": "Use representative audio previews and producer-focused demonstrations only after source rights and provenance are reviewed.",
+    "privacy": "Keep generation offline by default; do not upload user WAV files or collect listening history without explicit opt-in.",
+    "rights": "Manual rights review is mandatory for imported source samples, loops, recordings and third-party assets before paid or public redistribution."
+  },
+  "vocabulary_alignment": "docs/MARKET_DEVELOPMENT_STANDARD.md — 20-term Russian vocabulary-to-control crosswalk."
+}
