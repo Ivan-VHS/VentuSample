@@ -13,6 +13,10 @@ The 19 shared internal products are built-in plugins in the native PluginManager
 
 A native C++ audio lab is available from **Плагины → Quantum Audio Engine — 133 DSP**. It loads PCM16 WAV, builds an ordered processing chain from five families, processes float audio offline, displays signal measurements and exports stereo WAV. The 133 module identities use 21 reusable, tested DSP kernels. This is a local offline processor, not a live DAW or third-party plugin loader. See [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) for the complete catalogue and audio contract.
 
+## Atomic-Quantum 133 simulation layer
+
+A separate C++20 state-vector research library provides 133 canonical operation IDs plus bounded state preparation, Hadamard/phase/Pauli/CNOT/SWAP gates, Bell/GHZ states, seeded projective measurement, simple stochastic noise trajectories and fidelity checks. It is distinct from the 133-module audio DSP engine above; it does not claim access to physical quantum hardware. See [Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md).
+
 ## Stochastic routing
 
 The optional **Stochastic Router** processes rendered stereo buffers before WAV export. Its weighted pool contains low/high-pass filters, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Choose active effects, hybrid/serial/parallel topology, file/bar/scheduled-onset triggers and intensity. Fixed seed + settings produce repeatable routes; manifest v2 records the selected route names per file. Wet is bounded to 65%, feedback to 72%, transitions fade over 5–20 ms, RMS gain compensation is bounded, and output is clamped to a −0.3 dBFS sample-peak ceiling. This is offline DSP, not a real-time DAW host.
