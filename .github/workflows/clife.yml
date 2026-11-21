@@ -2,7 +2,7 @@ name: CLife recovery tests
 
 on:
   push:
-    branches: [main, feat/clife-savepoint-stitch-revival]
+    branches: [main, "feat/**"]
   pull_request:
   workflow_dispatch:
 
