@@ -10,7 +10,8 @@ namespace ventu {
 
 enum class Style {
     BoomBap, EastCoast, HarlemDipTrap, GUnit, ModernTrap, AtlantaTrap,
-    UKDrill, UKGrime, Memphis, JazzRap, Gfunk, BoomTrap, CrippleTrill
+    UKDrill, UKGrime, Memphis, JazzRap, Gfunk, BoomTrap, CrippleTrill,
+    BillionaireGoldenEra
 };
 enum class Target { FullLoop, Melody, Drums, Bass, OneShotKit };
 enum class Scale { NaturalMinor, HarmonicMinor, Dorian, Phrygian, Major, MinorPentatonic };
