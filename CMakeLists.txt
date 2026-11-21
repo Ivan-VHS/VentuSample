@@ -19,6 +19,8 @@ add_library(ventusample_core STATIC
     src/builtin_plugins.cpp
     src/quantum_audio.cpp
     src/quantum_audio.hpp
+    src/atomic_quantum.cpp
+    src/atomic_quantum.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -78,6 +80,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_quantum_audio_tests tests/test_quantum_audio.cpp)
     target_link_libraries(ventusample_quantum_audio_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-quantum-audio COMMAND ventusample_quantum_audio_tests)
+    add_executable(ventusample_atomic_quantum_tests tests/test_atomic_quantum.cpp)
+    target_link_libraries(ventusample_atomic_quantum_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-atomic-quantum COMMAND ventusample_atomic_quantum_tests)
     find_package(Python3 QUIET COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
         add_test(NAME ventusample-contract COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_project_contract.py)
