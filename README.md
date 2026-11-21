@@ -45,6 +45,8 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/QUALITY_MONOLITH_RHYT
 VentuSample now includes a 20 × 3 evidence-linked matrix for audio/product quality, operational repeatability and commercial pack release. Run **python tools/quality_commercial.py** or add **--format json**. The report does not certify source-sample rights, market demand, sales or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
 
 
+The readiness report also prints a prioritized commercial action plan. Open items stay explicit: license review, support ownership, release delivery, user validation, cost measurement and any future pricing decision. No revenue, profit or market-fit claim is inferred.
+
 ## Federation
 
 See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) and [Reaper pack audit guide](docs/REAPER_PACK_AUDIT.md). Direct VentuSample-to-Pytyliki ABI and Reaper render-request automation remain planned; OPlague device/driver diagnostics are not coupled to offline audio generation.
@@ -56,3 +58,8 @@ The shared [Anatidae naming canon](federation/ANATIDAE_NAMING_CANON.md) governs 
 ## Market development and positioning
 
 The [market-development standard](docs/MARKET_DEVELOPMENT_STANDARD.md) and [versioned profile](market-development.v1.json) define audience segments, evidence-backed positioning, promotion channels, commercialization gates and privacy-respecting measurement. They do not imply market demand, sales or profitability.
+
+
+## Improvement and conflict resolution
+
+The [20-control improvement, dissonance, and conflict standard](docs/IMPROVEMENT_CONFLICT_STANDARD.md) turns inconsistencies into evidence-led, testable changes while preserving VentuSample's offline deterministic-rendering, bounded-audio-input, source-rights, and versioned-pack boundaries. Run `python tools/improvement_conflict.py` to validate the machine-readable register. This validates the governance contract; it is not a source-code scanner and does not claim unassessed controls are resolved.
