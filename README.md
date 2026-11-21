@@ -86,6 +86,6 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 - No network telemetry, background audio capture, real-time callback or implicit native-library loading.
 - Import/export requires appropriate source rights. A hash proves byte identity, not ownership.
 
-[Features](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Anatidae design](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [Docs index](docs/README.md)
+[Features](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Anatidae design](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [Motion constitution](docs/ANATIDAE_MOTION_CONSTITUTION.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)
