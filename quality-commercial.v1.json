@@ -1,0 +1,628 @@
+{
+  "schema": "anatidae.quality-commercial.v1",
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "scope": "Offline C++20/Qt workstation for deterministic hip-hop sample generation and PCM16 WAV sample-pack export."
+  },
+  "scoring": {
+    "implemented": 1,
+    "planned": 0.25,
+    "not_assessed": 0,
+    "not_applicable": null
+  },
+  "commercial_operations": {
+    "market_validation": "not_assessed",
+    "pricing": "not_set",
+    "unit_economics": "not_assessed",
+    "license_review": "manual_required",
+    "support_model": "planned",
+    "distribution": "planned",
+    "boundary": "The generator exports deterministic WAV packs and manifests; paid distribution, demand, source-sample rights, support costs and profitability are not verified."
+  },
+  "criteria": [
+    {
+      "id": "acceptance-evidence",
+      "terms": {
+        "quality": "Качественность",
+        "execution": "Качество",
+        "commercial": "Коммерческий"
+      },
+      "intent": "Каждый сгенерированный продукт должен иметь измеряемые критерии приёмки и понятный результат.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp",
+            ".github/workflows/ci.yml"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "README.md",
+            "LICENSE"
+          ]
+        }
+      }
+    },
+    {
+      "id": "durable-delivery",
+      "terms": {
+        "quality": "Добротность",
+        "execution": "Добротность",
+        "commercial": "Торговый"
+      },
+      "intent": "Пак должен сохранять целостность при экспорте, повторном запуске и обработке ошибок.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/ARCHITECTURE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "defect-prevention",
+      "terms": {
+        "quality": "Безупречность",
+        "execution": "Безупречность",
+        "commercial": "Предпринимательский"
+      },
+      "intent": "Опасные значения параметров, повреждённые WAV и конфликты файлов должны безопасно отклоняться.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/SOURCE_INTEGRATION.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "release-excellence",
+      "terms": {
+        "quality": "Совершенство",
+        "execution": "Совершенство",
+        "commercial": "Рыночный"
+      },
+      "intent": "Рендеры должны быть повторяемыми, измеряемыми и регрессионно проверяемыми.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp",
+            ".github/workflows/ci.yml"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "product-cohesion",
+      "terms": {
+        "quality": "Цельность",
+        "execution": "Мастерство",
+        "commercial": "Деловой"
+      },
+      "intent": "Генератор, GUI, схема манифеста и экспорт образуют цельный рабочий процесс.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/mainwindow.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/ARCHITECTURE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "trust-governance",
+      "terms": {
+        "quality": "Целостность",
+        "execution": "Профессионализм",
+        "commercial": "Финансовый"
+      },
+      "intent": "Происхождение исходного сэмпла, параметры и технические показатели должны быть прослеживаемыми.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.hpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/SOURCE_INTEGRATION.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "operational-reliability",
+      "terms": {
+        "quality": "Монолитность",
+        "execution": "Надёжность",
+        "commercial": "Прибыльный"
+      },
+      "intent": "Паковая генерация должна соблюдать лимиты времени, памяти, объёма и целостности файлов.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "CMakeLists.txt"
+          ]
+        }
+      }
+    },
+    {
+      "id": "decision-foundation",
+      "terms": {
+        "quality": "Согласованность",
+        "execution": "Основательность",
+        "commercial": "Доходный"
+      },
+      "intent": "Качество результата должно подтверждаться измерениями, а не субъективной меткой.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_generated_fixture.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "schemas/ventusample.pack.v1.schema.json"
+          ]
+        }
+      }
+    },
+    {
+      "id": "repeatable-efficiency",
+      "terms": {
+        "quality": "Последовательность",
+        "execution": "Гармоничность",
+        "commercial": "Экономический"
+      },
+      "intent": "Одинаковые параметры и seed должны давать повторяемый результат.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/generator.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/QUALITY_MONOLITH_RHYTHM.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "system-control",
+      "terms": {
+        "quality": "Системность",
+        "execution": "Согласованность",
+        "commercial": "Хозяйственный"
+      },
+      "intent": "Параметры экспорта, схема и ограничения формируют согласованный профиль продукта.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "project-contract.json"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_project_contract.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/ARCHITECTURE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "product-structure",
+      "terms": {
+        "quality": "Структурированность",
+        "execution": "Цельность",
+        "commercial": "Бизнесовый"
+      },
+      "intent": "Манифест и структура пака должны быть машиночитаемыми и версионированными.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "schemas/ventusample.pack.v1.schema.json"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_generated_fixture.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/ARCHITECTURE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "market-presentation",
+      "terms": {
+        "quality": "Упорядоченность",
+        "execution": "Целостность",
+        "commercial": "Маркетинговый"
+      },
+      "intent": "Пользовательские названия, описания и метаданные должны помогать распознавать продукт.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "README.md"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "src/mainwindow.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/USER_GUIDE_RU.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "contract-consistency",
+      "terms": {
+        "quality": "Непротиворечивость",
+        "execution": "Монолитность",
+        "commercial": "Клиентский"
+      },
+      "intent": "Документация, параметры, манифест и поведение генератора должны совпадать.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_project_contract.py"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_generated_fixture.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/SOURCE_INTEGRATION.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "customer-continuity",
+      "terms": {
+        "quality": "Однородность",
+        "execution": "Нераздельность",
+        "commercial": "Сбытовой"
+      },
+      "intent": "Путь от настройки до пригодного к проверке пака должен быть последовательным.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "src/mainwindow.cpp"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "docs/USER_GUIDE_RU.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "standardized-integration",
+      "terms": {
+        "quality": "Унификация",
+        "execution": "Единство",
+        "commercial": "Промышленный"
+      },
+      "intent": "Формат WAV, схема пака и процедуры валидации должны быть единообразны.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "schemas/ventusample.pack.v1.schema.json"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_generated_fixture.py"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "release-governance",
+      "terms": {
+        "quality": "Стандартизация",
+        "execution": "Слаженность",
+        "commercial": "Корпоративный"
+      },
+      "intent": "Сборка, тесты и выпуск должны использовать согласованные контрольные процедуры.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            ".github/workflows/ci.yml"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "CMakeLists.txt"
+          ]
+        },
+        "commercial": {
+          "status": "planned",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "investment-diligence",
+      "terms": {
+        "quality": "Полнота",
+        "execution": "Ритмичность",
+        "commercial": "Инвестиционный"
+      },
+      "intent": "Каждый пак должен содержать достаточные данные для технической проверки.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "docs/QUALITY_MONOLITH_RHYTHM.md"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/SOURCE_INTEGRATION.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "monetization-readiness",
+      "terms": {
+        "quality": "Точность",
+        "execution": "Размеренность",
+        "commercial": "Монетизируемый"
+      },
+      "intent": "Продажа требует подтверждения прав на исходники, условий лицензии и ясной ценности набора.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "schemas/ventusample.pack.v1.schema.json"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tools/validate_generated_fixture.py"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "unit-economics",
+      "terms": {
+        "quality": "Выверенность",
+        "execution": "Синхронность",
+        "commercial": "Рентабельный"
+      },
+      "intent": "Доходность требует учёта производства, поддержки, комиссий и распространения.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "CMakeLists.txt"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "docs/ARCHITECTURE.md"
+          ]
+        }
+      }
+    },
+    {
+      "id": "asset-capitalization",
+      "terms": {
+        "quality": "Профессионализм",
+        "execution": "Упорядоченность",
+        "commercial": "Капитализированный"
+      },
+      "intent": "Метаданные, права, версия, хеши и релизные материалы должны образовывать полный комплект.",
+      "weight": 1,
+      "controls": {
+        "quality": {
+          "status": "implemented",
+          "evidence": [
+            "LICENSE"
+          ]
+        },
+        "execution": {
+          "status": "implemented",
+          "evidence": [
+            "tests/test_generator.cpp"
+          ]
+        },
+        "commercial": {
+          "status": "not_assessed",
+          "evidence": [
+            "README.md"
+          ]
+        }
+      }
+    }
+  ]
+}
