@@ -34,6 +34,10 @@ int main() {
     const std::string text((std::istreambuf_iterator<char>(json)),{});
     require(text.find("cineforge.pack.v1")!=std::string::npos, "CINEFORGE manifest schema present");
     require(text.find("SubBoom")!=std::string::npos, "manifest records generated family assets");
+    const auto second=ventu::cineforge::generate(s,dir);
+    require(static_cast<bool>(second), "repeat generation succeeds without replacing prior pack");
+    require(second.manifestPath!=result.manifestPath, "repeat generation receives a unique pack directory");
+    require(std::filesystem::exists(result.manifestPath), "first manifest remains intact after repeat generation");
     std::filesystem::remove_all(dir,ec);
     std::cout << "CINEFORGE MVP tests passed\n";
     return 0;
