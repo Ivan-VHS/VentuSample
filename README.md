@@ -93,3 +93,13 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 [Features](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Anatidae design](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)
+
+## DUCK CORE // README & Motion Suite
+
+The shared visual reference for interactive demos and UI documentation defines three palettes: **Pond Noir** (default dark canvas), **Golden Reed** (warm high-contrast accents) and **Arctic Glacier** (cool cyan/blue accents). Use semantic tokens for canvas, surfaces, borders, text, accents and focus states instead of unrelated hard-coded component colors.
+
+Motion follows a clear hierarchy: restrained spring easing for intentional entrances and feedback, smooth easing for routine transitions, and optional Zen / Hyper intensity presets only where the application exposes them. Parallax, floating geometry and ripple effects are decorative, nonessential and must never carry information or block input. The `reduced-motion` preference overrides every preset and suppresses decorative movement.
+
+**Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
+
+This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
