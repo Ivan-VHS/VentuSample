@@ -98,3 +98,10 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 ## Motion Constitution v2026
 
 The shared interface contract is [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md). It standardizes spring/snappy easing, the 0.4×–2.2× motion-scale envelope, reduced-motion precedence, light/dark parity, the 2×2/focus-scene showcase and data-bound SVG/Canvas telemetry. The [native Qt motion contract](docs/UI_MOTION.md) defines the current implementation: bounded UI-thread transitions, persisted motion preferences and the optional project-BPM indicator. VentuSample is an offline sample-generation/DSP workstation, not a real-time DAW or external mixer; meters and waveforms must be derived from actual preview/render buffers and must never run inside DSP callbacks or generator workers.
+
+
+## Shared motion architecture map
+
+<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026: four-domain architecture map" width="100%"></p>
+
+This is the shared 2×2 architecture reference, not a live application screenshot. It distinguishes shipped product scope from unavailable or planned capabilities.
