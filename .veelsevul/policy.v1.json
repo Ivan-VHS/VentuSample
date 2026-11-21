@@ -233,6 +233,7 @@
         "L467",
         "L502",
         "L509",
+        "L511",
         "L516"
       ]
     },
@@ -288,9 +289,12 @@
         "L017",
         "L024",
         "L031",
+        "L112",
+        "L152",
         "L160",
         "L167",
         "L174",
+        "L192",
         "L209",
         "L216",
         "L452",
@@ -348,6 +352,8 @@
         "L117",
         "L124",
         "L159",
+        "L162",
+        "L163",
         "L166",
         "L173",
         "L523",
@@ -414,6 +420,7 @@
         "L101",
         "L116",
         "L123",
+        "L194",
         "L473",
         "L480",
         "L487",
@@ -506,7 +513,8 @@
         "L397",
         "L411",
         "L437",
-        "L444"
+        "L444",
+        "L505"
       ]
     },
     {
@@ -741,7 +749,9 @@
         "L376",
         "L390",
         "L416",
-        "L430"
+        "L430",
+        "L505",
+        "L511"
       ]
     },
     {
@@ -757,6 +767,7 @@
         "L057",
         "L064",
         "L071",
+        "L152",
         "L200",
         "L207",
         "L214",
@@ -782,8 +793,11 @@
         "L038",
         "L045",
         "L052",
+        "L112",
+        "L167",
         "L181",
         "L188",
+        "L192",
         "L195",
         "L202",
         "L223",
@@ -3759,7 +3773,9 @@
       "on_failure": "degrade",
       "linked_rules": [
         "A-13",
-        "M-11"
+        "M-11",
+        "A-09",
+        "M-13"
       ]
     },
     {
@@ -4399,7 +4415,9 @@
       "on_failure": "degrade",
       "linked_rules": [
         "K-01",
-        "K-14"
+        "K-14",
+        "A-09",
+        "M-12"
       ]
     },
     {
@@ -4559,7 +4577,8 @@
       "on_failure": "quarantine",
       "linked_rules": [
         "A-10",
-        "M-08"
+        "M-08",
+        "A-12"
       ]
     },
     {
@@ -4575,7 +4594,8 @@
       "on_failure": "deny",
       "linked_rules": [
         "M-05",
-        "K-03"
+        "K-03",
+        "A-12"
       ]
     },
     {
@@ -4639,7 +4659,8 @@
       "on_failure": "degrade",
       "linked_rules": [
         "A-09",
-        "M-07"
+        "M-07",
+        "M-13"
       ]
     },
     {
@@ -5039,7 +5060,9 @@
       "on_failure": "degrade",
       "linked_rules": [
         "O-04",
-        "A-11"
+        "A-11",
+        "A-09",
+        "M-13"
       ]
     },
     {
@@ -5071,7 +5094,8 @@
       "on_failure": "deny",
       "linked_rules": [
         "M-03",
-        "K-01"
+        "K-01",
+        "A-15"
       ]
     },
     {
@@ -10053,7 +10077,9 @@
       "on_failure": "quarantine",
       "linked_rules": [
         "A-04",
-        "Я-02"
+        "Я-02",
+        "M-03",
+        "M-11"
       ]
     },
     {
@@ -10149,7 +10175,9 @@
       "on_failure": "quarantine",
       "linked_rules": [
         "A-13",
-        "Я-11"
+        "Я-11",
+        "A-06",
+        "M-11"
       ]
     },
     {
@@ -12653,6 +12681,28 @@
       "Does not configure OS sandboxing, TLS, cryptographic key storage, identity providers, databases or plugin process isolation by itself.",
       "Application call sites must invoke the controls and supply trustworthy identity, clock, filesystem and transport implementations.",
       "The 666-level registry is a coverage map; it must not be represented as 666 independently active enforcement mechanisms."
+    ],
+    "application_integrations": [
+      {
+        "area": "plugin identity",
+        "file": "src/plugin_manager.cpp",
+        "level": "L511",
+        "rules": [
+          "A-06",
+          "M-11"
+        ],
+        "status": "wired; CI verification pending"
+      },
+      {
+        "area": "plugin manifest size",
+        "file": "src/plugin_manager.cpp",
+        "level": "L505",
+        "rules": [
+          "M-03",
+          "M-11"
+        ],
+        "status": "wired; CI verification pending"
+      }
     ]
   }
 }
