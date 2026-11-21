@@ -1,8 +1,11 @@
 #include "plugin_manager.hpp"
 
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace {
 void require(bool condition, const char* message) {
@@ -69,6 +72,73 @@ void testExtensionRegistration() {
         "invalid plugin IDs must be rejected");
 }
 
+void testManifestDiscoveryAndLifecycle() {
+    namespace fs = std::filesystem;
+    const auto root = fs::temp_directory_path() / "ventusample-plugin-platform-test";
+    std::error_code ec;
+    fs::remove_all(root, ec);
+    fs::create_directories(root / "hello", ec);
+    require(!ec, "test extension package directory should be created");
+    const auto manifestPath = root / "hello" / "plugin.json";
+    {
+        std::ofstream manifest(manifestPath, std::ios::binary);
+        manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
+  "id": "hello-extension",
+  "name": "Hello Extension",
+  "version": "1.0.0",
+  "api_version": 1,
+  "host": { "id": "ventu" },
+  "domain": "examples",
+  "description": "Metadata-only extension discovery test.",
+  "capabilities": ["commands"],
+  "entrypoint": "plugin.cpp:register_plugin"
+})json";
+    }
+
+    ventu::PluginManager manager;
+    std::vector<std::string> diagnostics;
+    require(manager.discoverManifests(root, &diagnostics) == 1u,
+            "the host should discover a valid plugin manifest");
+    const auto* discovered = manager.find("hello-extension");
+    require(discovered != nullptr, "discovered metadata should enter the registry");
+    require(discovered->source == "manifest", "manifest records should be distinguishable from built-ins");
+    require(discovered->manifestPath == manifestPath.string(), "manifest source path should be retained");
+    require(!manager.isEnabled("hello-extension"), "manifest-only plugins must default to disabled");
+    require(!manager.setEnabled("hello-extension", true),
+            "metadata discovery must not enable code without a reviewed handler");
+    const auto pending = manager.execute("hello-extension", {});
+    require(!pending.success && pending.summary.find("no reviewed SDK handler") != std::string::npos,
+            "manifest discovery must not execute or load native code");
+
+    int initialized = 0;
+    int stopped = 0;
+    require(manager.attachHandler(
+        "hello-extension",
+        [](const ventu::PluginContext&) {
+            return ventu::PluginResult{true, "reviewed extension invoked", {"SDK handler"}};
+        },
+        [&](const ventu::PluginContext&) { ++initialized; },
+        [&](const ventu::PluginContext&) { ++stopped; }),
+        "reviewed host code should be attachable to discovered metadata");
+    require(manager.setEnabled("hello-extension", true), "attached extension should be enableable");
+    const auto result = manager.execute("hello-extension", {});
+    require(result.success && result.summary == "reviewed extension invoked",
+            "enabled extension should execute via the SDK handler");
+    require(initialized == 1, "plugin initialization hook should run once before first dispatch");
+    const auto statuses = manager.statuses();
+    bool activeFound = false;
+    for (const auto& status : statuses) {
+        if (status.descriptor.id == "hello-extension") {
+            activeFound = status.initialized && status.enabled && status.handlerAttached;
+        }
+    }
+    require(activeFound, "diagnostics should expose enabled and initialized state");
+    require(manager.setEnabled("hello-extension", false), "extension should disable cleanly");
+    require(stopped == 1, "shutdown hook should run on disable");
+    fs::remove_all(root, ec);
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -84,6 +154,7 @@ int main() {
     testBuiltinRegistry();
     testEnableDisableAndDispatch();
     testExtensionRegistration();
+    testManifestDiscoveryAndLifecycle();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;
