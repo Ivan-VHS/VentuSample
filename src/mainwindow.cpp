@@ -434,7 +434,7 @@ void MainWindow::applyTheme() {
     const QString accent = "#0039A6";
     const QString signal = "#B51A10";
     const QString signalBright = "#D52B1E";
-    const QString selection = dark ? "#B51A10" : "#0039A6";
+    const QString selection = "#0039A6";
 
     const QString style = QStringLiteral(R"QSS(
         QWidget {
