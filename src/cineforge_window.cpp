@@ -2,6 +2,7 @@
 #include "cineforge.hpp"
 
 #include <QComboBox>
+#include <QCloseEvent>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QFormLayout>
@@ -113,11 +114,13 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
         const auto dir=output->text().trimmed();
         if(dir.isEmpty()){QMessageBox::warning(this,"Output required","Choose an output folder.");return;}
         generate->setEnabled(false); preview->setEnabled(false); files->clear();
+        generationPending_ = true;
         progress->setVisible(true); status->setText("Rendering coherent dry/wet families and 24-bit preview…");
-        auto* worker=QThread::create([this,s,dir,generate,preview,files,status,progress]{
+        worker_=QThread::create([this,s,dir,generate,preview,files,status,progress]{
             const auto result=ventu::cineforge::generate(s,std::filesystem::u8path(dir.toUtf8().constData()));
             QMetaObject::invokeMethod(this,[=]{
                 progress->setVisible(false);
+                generationPending_ = false;
                 generate->setEnabled(true);
                 if(!result){status->setText("Generation failed: "+QString::fromStdString(result.error));return;}
                 for(const auto& asset:result.assets){
@@ -134,7 +137,17 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
                     .arg(result.assets.size()).arg(s.sampleRate/1000).arg(s.bpm).arg(keyName(s.rootNote)));
             },Qt::QueuedConnection);
         });
-        connect(worker,&QThread::finished,worker,&QObject::deleteLater);
-        worker->start();
+        connect(worker_,&QThread::finished,this,[this]{
+            if(worker_){worker_->deleteLater();worker_=nullptr;}
+        });
+        worker_->start();
     });
+}
+
+void CineforgeWindow::closeEvent(QCloseEvent* event) {
+    if (generationPending_) {
+        event->ignore();
+        return;
+    }
+    QDialog::closeEvent(event);
 }
