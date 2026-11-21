@@ -43,7 +43,7 @@ jobs:
             head_repo="$(jq -r '.head.repo.full_name // ""' <<< "$pr")"
             base_ref="$(jq -r '.base.ref' <<< "$pr")"
             draft="$(jq -r '.draft' <<< "$pr")"
-            url="$(jq -r '.html_url' <<< "$pr')"
+            url="$(jq -r '.html_url' <<< "$pr")"
             auto_merge="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$pr")"
 
             if [[ "$head_repo" != "$GITHUB_REPOSITORY" || "$base_ref" != "main" || "$draft" != "false" ]]; then
