@@ -1,0 +1,36 @@
+name: CodeQL Security Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - feat/mental-wellbeing-code-safety-v1
+  pull_request:
+  schedule:
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: CodeQL source analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: "c-cpp, actions"
+          build-mode: none
+          queries: security-extended
+
+      - name: Analyze source code and publish SARIF results
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:mixed"
