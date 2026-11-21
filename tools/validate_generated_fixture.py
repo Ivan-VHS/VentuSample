@@ -39,7 +39,7 @@ def main() -> int:
         assert entry["musical_key"] is None or isinstance(entry["musical_key"], str)
         assert entry["scale"] is None or isinstance(entry["scale"], str)
         assert entry["mode_family"] in (None, "major", "minor", "modal", "pitched_note")
-    print("Generated pack fixture matches ventusample.pack.v1 schema shape.")
+    print("Generated pack fixture matches ventusample.pack.v2 schema shape.")
     return 0
 
 
