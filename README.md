@@ -10,7 +10,7 @@
 - Optional PCM16 WAV chop import with four-slice beat placement and semitone resampling.
 - Deterministic variations, four-bar phrase turnarounds, shared drum/melody swing timing, stereo-linked bus compression, WAV export and peak/RMS/crest measurement.
 - Tonal export naming such as `A_Minor` and `C_Major`, plus per-file key/mode metadata in the `ventusample.pack.v2` manifest. Unpitched drum one-shots are intentionally left unlabelled.
-- QMR-20 quality/cohesion/rhythm framework with regression coverage; pack metadata remains compatible with `ventusample.pack.v1`.
+- QMR-20 quality/cohesion/rhythm framework with regression coverage; new exports use `ventusample.pack.v2`, while the v1 schema is retained for existing packs.
 
 ## Build
 
