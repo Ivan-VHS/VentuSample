@@ -1,4 +1,6 @@
 #include "mainwindow.hpp"
+#include "audio_suite_dialog.hpp"
+#include "cineforge_dialog.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -118,6 +120,14 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 void MainWindow::buildUi() {
     auto* pluginsMenu = menuBar()->addMenu("Плагины");
     pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
+    pluginsMenu->addAction("AETHER-ANAS // CINEFORGE Hollywood Stem Engine…", this, [this] {
+        CineForgeDialog dialog(this);
+        dialog.exec();
+    });
+    pluginsMenu->addAction("Ventu Audio Suite — 66 DSP эффектов…", this, [this] {
+        AudioSuiteDialog dialog(this);
+        dialog.exec();
+    });
     pluginsMenu->addSeparator();
     for (const auto& plugin : pluginManager_.plugins()) {
         const QString id = QString::fromStdString(plugin.id);

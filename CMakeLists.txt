@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(VentuSample VERSION 0.2.0 LANGUAGES CXX)
+project(VentuSample VERSION 0.3.0 LANGUAGES CXX)
 
 option(VENTU_BUILD_DESKTOP "Build the native Qt desktop workstation when Qt 6 is available" ON)
 option(VENTU_BUILD_TESTS "Build deterministic generator tests" ON)
@@ -15,6 +15,8 @@ add_library(ventusample_core STATIC
     src/plugin_manager.cpp
     src/plugin_manager.hpp
     src/builtin_plugins.cpp
+    src/audio_suite.cpp
+    src/cineforge.cpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -32,6 +34,10 @@ if(VENTU_BUILD_DESKTOP)
             src/main.cpp
             src/mainwindow.cpp
             src/mainwindow.hpp
+            src/audio_suite_dialog.cpp
+            src/audio_suite_dialog.hpp
+            src/cineforge_dialog.cpp
+            src/cineforge_dialog.hpp
         )
         target_link_libraries(VentuSample PRIVATE ventusample_core Qt6::Widgets)
         target_include_directories(VentuSample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -64,6 +70,15 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_plugin_tests tests/test_plugins.cpp)
     target_link_libraries(ventusample_plugin_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-plugin-host COMMAND ventusample_plugin_tests)
+    add_executable(ventusample_stochastic_tests tests/test_stochastic_routing.cpp)
+    target_link_libraries(ventusample_stochastic_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-stochastic-routing COMMAND ventusample_stochastic_tests)
+    add_executable(ventusample_cineforge_tests tests/test_cineforge.cpp)
+    target_link_libraries(ventusample_cineforge_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-cineforge COMMAND ventusample_cineforge_tests)
+    add_executable(ventusample_audio_suite_tests tests/test_audio_suite.cpp)
+    target_link_libraries(ventusample_audio_suite_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-audio-suite COMMAND ventusample_audio_suite_tests)
     find_package(Python3 QUIET COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
         add_test(NAME ventusample-contract COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_project_contract.py)

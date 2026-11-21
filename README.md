@@ -8,6 +8,22 @@ Native workstation for deterministic procedural hip-hop sample packs. The scalar
 
 The 18 shared internal products are built-in plugins in the native PluginManager. Open **Плагины → Менеджер плагинов** to inspect, enable/disable and run tools, or discover local extension manifests. The C++20 SDK provides reviewed handler registration, lazy initialization, shutdown and diagnostics. Manifest discovery is metadata-only; arbitrary DLL/SO loading remains disabled. See [Plugin platform and SDK](docs/PLUGINS.md) and the [shared manifest schema](schemas/ivan-vhs.plugin.v1.schema.json).
 
+## AETHER-ANAS // CINEFORGE QUANTUM
+
+The AETHER-ANAS direction unifies the native workstation, CINEFORGE cinematic pack generator, 66-effect Ventu Audio Suite and deterministic stochastic routing. Open **Плагины → AETHER-ANAS // CINEFORGE Hollywood Stem Engine** to generate scene-labelled packs of 8–12 assets. Every asset exports Dry, Wet, Attack, Body and Tail WAV files, plus a preview and cineforge.pack.v1 manifest. Formats: stereo 24-bit PCM or 32-bit float at 48/96 kHz. The scene prompt is metadata for this procedural MVP; it is not a neural text-to-audio model.
+
+The **Stochastic Router** provides seeded Micro-Variation, 4–8 Round-Robin candidate chains, Chaos One-Shot, locked plugin slots, and optional 2–4-way offline parallel processing with RMS, DC and sample-peak safety. It does not claim real-time PDC, zero-click live graph swaps or feedback routing.
+
+See [CINEFORGE](docs/CINEFORGE.md) and the [AETHER-ANAS implementation constitution](docs/AETHER_ANAS_CINEFORGE_QUANTUM.md).
+
+## Ventu Audio Suite — 66 DSP effects
+
+The native **Ventu Audio Suite** adds 66 separately addressable stereo processors in six families: space/acoustics, granular time, timbre/synthesis, dynamics/punch, frequency/phase, and generative/rhythm. Open **Плагины → Ventu Audio Suite — 66 DSP эффектов** to import a PCM16 WAV, assemble an ordered effect rack, edit per-effect Amount/Wet/Rate/Tone/Width controls, and export a new WAV.
+
+The effects are versioned built-in modules using the portable C++20 offline DSP API in src/audio_suite.hpp. They are processed left-to-right on a worker thread; the source file is never overwritten. The DSP models are deterministic algorithmic approximations, not neural inference or full physical room simulation. This release does not claim VST3/AU hosting, live input monitoring, or real-time playback.
+
+See [Audio Suite guide](docs/AUDIO_SUITE.md) for the full 66-effect catalogue, signal flow, supported WAV contract, and limitations.
+
 ## Generator matrix
 
 | Output | Content |
@@ -59,6 +75,6 @@ If Qt is unavailable, portable DSP core and tests can still build; the desktop t
 
 The Windows CI workflow captures the actual 1920×1080 Qt app and uploads `ventusample-live-windows-screenshot`. Open the [CI workflow](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml), choose a successful run and download the artifact. GitHub retains it for 30 days; it is not a permanent repository image.
 
-[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
+[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [CINEFORGE](docs/CINEFORGE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)

@@ -4,6 +4,9 @@
 |---|---|
 | [FEATURES.md](FEATURES.md) | generation and output matrix |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline and parameter limits |
+| [AUDIO_SUITE.md](AUDIO_SUITE.md) | 66 built-in audio effects, offline DSP API and rack workflow |
+| [CINEFORGE.md](CINEFORGE.md) | cinematic sample-family generator, stems, WAV formats and manifest |
+| [AETHER_ANAS_CINEFORGE_QUANTUM.md](AETHER_ANAS_CINEFORGE_QUANTUM.md) | unified product constitution, architecture, actual status and roadmap |
 | [USER_GUIDE_RU.md](USER_GUIDE_RU.md) | operation, profile and key labels |
 | [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md) | 20×3 QMR acceptance matrix |
 | [SOURCE_INTEGRATION.md](SOURCE_INTEGRATION.md) | WAV constraints and source rights |

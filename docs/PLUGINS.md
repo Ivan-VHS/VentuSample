@@ -49,6 +49,14 @@ Ventu handlers execute in-process and therefore share the workstation's OS privi
 
 The plugin manager catches handler and lifecycle exceptions, records the last error and prevents a disabled or handler-less manifest from dispatching. A plugin failure is returned as a bounded PluginResult; it is not a guarantee that memory corruption or process-level faults can be contained in-process.
 
+## Audio effect library
+
+The **Audio Suite** is a second, DSP-oriented catalogue and does not overload the existing 18 workspace-tool handlers. Its stable descriptors and offline processor API are defined in src/audio_suite.hpp; the 66 registered processors are implemented in src/audio_suite.cpp. Each descriptor publishes a stable kebab-case ID, display name, category, description, UI concept and semantic version.
+
+The Qt desktop opens the dedicated rack from **Плагины → Ventu Audio Suite — 66 DSP эффектов**. The user imports a bounded PCM16 mono/stereo WAV, adds effects in order, edits per-instance Amount/Wet/Rate/Tone/Width controls, and exports a new stereo PCM16 WAV. Processing runs on a worker thread and is transactional: a failed effect leaves the input buffer unchanged. The imported source is never overwritten.
+
+The SDK is intentionally offline. It does not yet expose a real-time audio callback, VST3/AU binaries, arbitrary third-party code loading, or hardware capture. Complex concepts such as room reconstruction, neural timbre morphing and true phase-coherent spectral decomposition are represented by deterministic scalar DSP models, not claimed as full physical or ML implementations.
+
 ## Build and tests
 
 ```sh

@@ -3,7 +3,7 @@
   "project": {
     "id": "ventusample",
     "name": "VentuSample",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "repository": "Ivan-VHS/VentuSample",
     "domain": "offline hip-hop sample-pack generation",
     "default_branch": "main"
@@ -105,6 +105,18 @@
         "schemas/ventusample.pack.v2.schema.json",
         "tests/test_generator.cpp"
       ]
+    },
+    {
+      "id": "audio_effect_catalog",
+      "status": "implemented",
+      "summary": "66 versioned deterministic stereo DSP processors, ordered offline effect chains, bounded PCM16 WAV import/export and Qt rack interface.",
+      "evidence": [
+        "src/audio_suite.hpp",
+        "src/audio_suite.cpp",
+        "src/audio_suite_dialog.cpp",
+        "tests/test_audio_suite.cpp",
+        "docs/AUDIO_SUITE.md"
+      ]
     }
   ],
   "interfaces": [
@@ -155,6 +167,7 @@
     "Versioned sample pack import/export adapters.",
     "Explicit opt-in Pytyliki C ABI measurements after differential tests.",
     "Additional independent style profiles and DSP kernels behind validated parameters.",
-    "Additional phrase strategies can extend the shared 16-step groove schedule without changing the pack v1 contract."
+    "Additional phrase strategies can extend the shared 16-step groove schedule without changing the pack v1 contract.",
+    "The 66-effect Audio Suite descriptor and offline stereo DSP API; new kernels must include catalogue metadata and processor tests."
   ]
 }
