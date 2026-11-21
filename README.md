@@ -8,6 +8,14 @@ Native workstation for deterministic procedural hip-hop sample packs. The scalar
 
 The 18 shared internal products are built-in plugins in the native PluginManager. Open the **Плагины** menu to inspect capabilities, enable/disable modules and run read-only tools. See [Plugin host and SDK](docs/PLUGINS.md). The C++ SDK supports registering reviewed in-process handlers; arbitrary DLL/SO loading is intentionally not enabled.
 
+## AETHER-ANAS // CINEFORGE QUANTUM
+
+The AETHER-ANAS direction unifies the native workstation, CINEFORGE cinematic pack generator, 66-effect Ventu Audio Suite and deterministic stochastic routing. Open **Плагины → AETHER-ANAS // CINEFORGE Hollywood Stem Engine** to generate scene-labelled packs of 8–12 assets. Every asset exports Dry, Wet, Attack, Body and Tail WAV files, plus a preview and cineforge.pack.v1 manifest. Formats: stereo 24-bit PCM or 32-bit float at 48/96 kHz. The scene prompt is metadata for this procedural MVP; it is not a neural text-to-audio model.
+
+The **Stochastic Router** provides seeded Micro-Variation, 4–8 Round-Robin candidate chains, Chaos One-Shot, locked plugin slots, and optional 2–4-way offline parallel processing with RMS, DC and sample-peak safety. It does not claim real-time PDC, zero-click live graph swaps or feedback routing.
+
+See [CINEFORGE](docs/CINEFORGE.md) and the [AETHER-ANAS implementation constitution](docs/AETHER_ANAS_CINEFORGE_QUANTUM.md).
+
 ## Ventu Audio Suite — 66 DSP effects
 
 The native **Ventu Audio Suite** adds 66 separately addressable stereo processors in six families: space/acoustics, granular time, timbre/synthesis, dynamics/punch, frequency/phase, and generative/rhythm. Open **Плагины → Ventu Audio Suite — 66 DSP эффектов** to import a PCM16 WAV, assemble an ordered effect rack, edit per-effect Amount/Wet/Rate/Tone/Width controls, and export a new WAV.
@@ -67,6 +75,6 @@ If Qt is unavailable, portable DSP core and tests can still build; the desktop t
 
 The Windows CI workflow captures the actual 1920×1080 Qt app and uploads `ventusample-live-windows-screenshot`. Open the [CI workflow](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml), choose a successful run and download the artifact. GitHub retains it for 30 days; it is not a permanent repository image.
 
-[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
+[Features](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md) · [CINEFORGE](docs/CINEFORGE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)
