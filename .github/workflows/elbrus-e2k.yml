@@ -1,0 +1,27 @@
+name: Elbrus E2K native validation
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_on_e2k_runner:
+        description: Run on a configured self-hosted Elbrus Linux runner
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  native-e2k:
+    if: ${{ inputs.run_on_e2k_runner }}
+    name: VentuSample C++20 core on native E2K
+    runs-on: [self-hosted, linux, e2k]
+    timeout-minutes: 60
+    env:
+      CC: ${{ vars.ELBRUS_CC || 'gcc' }}
+      CXX: ${{ vars.ELBRUS_CXX || 'g++' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify native E2K toolchain and run build/tests
+        run: bash scripts/elbrus/build-e2k.sh
