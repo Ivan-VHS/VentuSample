@@ -38,6 +38,10 @@ The local scanner reports evidence such as source/test/documentation/workflow in
 
 It deliberately does not create a single “mental health score”. A missing file is a prompt for human review, not a verdict. TODO/FIXME/HACK markers are context-dependent; a green CI run or a high test count does not prove correctness.
 
+## Scanner resource limits
+
+The repository scanners cap enumeration at 5,000 files and bound source-text inspection to 1 MiB per file and 32 MiB in aggregate. Generated trees such as `.git`, `build`, `vendor`, `node_modules` and virtual environments are excluded. When a cap is reached, the report exposes a truncation indicator; an incomplete scan is not interpreted as evidence that the repository is defective.
+
 ## Safety and privacy boundaries
 
 - No diagnosis, human screening, contributor risk score or productivity ranking.
