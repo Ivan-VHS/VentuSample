@@ -4,10 +4,29 @@ project(VentuSample VERSION 0.2.0 LANGUAGES CXX)
 option(VENTU_BUILD_DESKTOP "Build the native Qt desktop workstation when Qt 6 is available" ON)
 option(VENTU_BUILD_TESTS "Build deterministic generator tests" ON)
 option(VENTU_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer on GCC/Clang" OFF)
+set(REAPER_SOURCE_DIR "" CACHE PATH "Optional local Reaper source tree for native expression integration")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(REAPER_SOURCE_DIR)
+    if(NOT EXISTS "${REAPER_SOURCE_DIR}/CMakeLists.txt")
+        message(FATAL_ERROR "REAPER_SOURCE_DIR must point to a Reaper source checkout")
+    endif()
+    set(_VENTU_REAPER_BUILD_TESTS_WAS_DEFINED FALSE)
+    if(DEFINED REAPER_BUILD_TESTS)
+        set(_VENTU_REAPER_BUILD_TESTS_WAS_DEFINED TRUE)
+        set(_VENTU_REAPER_BUILD_TESTS_PREVIOUS "${REAPER_BUILD_TESTS}")
+    endif()
+    set(REAPER_BUILD_TESTS OFF)
+    add_subdirectory("${REAPER_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/_reaper" EXCLUDE_FROM_ALL)
+    if(_VENTU_REAPER_BUILD_TESTS_WAS_DEFINED)
+        set(REAPER_BUILD_TESTS "${_VENTU_REAPER_BUILD_TESTS_PREVIOUS}")
+    else()
+        unset(REAPER_BUILD_TESTS)
+    endif()
+endif()
 
 add_library(ventusample_core STATIC
     src/generator.cpp
@@ -25,9 +44,20 @@ add_library(ventusample_core STATIC
     src/atomic_quantum.hpp
     src/budget_planner.cpp
     src/budget_planner.hpp
+    src/reaper_expression.cpp
+    src/reaper_expression.hpp
+    src/careguard.cpp
+    src/careguard.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
+if(REAPER_SOURCE_DIR)
+    target_link_libraries(ventusample_core PUBLIC reaper_ffi)
+    target_compile_definitions(ventusample_core PUBLIC VENTU_HAS_REAPER=1)
+    message(STATUS "VentuSample: Reaper native C17 expression bridge enabled")
+else()
+    message(STATUS "VentuSample: Reaper bridge disabled (set REAPER_SOURCE_DIR to enable)")
+endif()
 if(MSVC)
     target_compile_options(ventusample_core PRIVATE /W4 /permissive- /EHsc)
 else()
@@ -117,10 +147,21 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_atomic_quantum_tests tests/test_atomic_quantum.cpp)
     target_link_libraries(ventusample_atomic_quantum_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-atomic-quantum COMMAND ventusample_atomic_quantum_tests)
+    add_executable(ventusample_reaper_expression_tests tests/test_reaper_expression.cpp)
+    target_link_libraries(ventusample_reaper_expression_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-reaper-expression-bridge COMMAND ventusample_reaper_expression_tests)
     find_package(Python3 QUIET COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
         add_test(NAME ventusample-contract COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_project_contract.py)
+        add_test(NAME ventusample-plugin-federation COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_plugin_federation.py)
         add_test(NAME ventusample-manifest-fixture COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_generated_fixture.py)
         set_tests_properties(ventusample-manifest-fixture PROPERTIES DEPENDS ventusample-generator)
     endif()
+endif()
+
+
+if(VENTU_BUILD_TESTS)
+    add_executable(ventusample_careguard_tests tests/test_careguard.cpp)
+    target_link_libraries(ventusample_careguard_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-careguard-v1 COMMAND ventusample_careguard_tests)
 endif()

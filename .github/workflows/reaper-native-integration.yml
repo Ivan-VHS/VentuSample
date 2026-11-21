@@ -1,0 +1,29 @@
+name: Reaper native C17 integration
+on:
+  pull_request:
+    paths:
+      - "CMakeLists.txt"
+      - "src/reaper_expression.*"
+      - "tests/test_reaper_expression.cpp"
+      - ".github/workflows/reaper-native-integration.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reaper-abi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/Reaper
+          ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
+          path: _deps/Reaper
+      - name: Configure linked C++20 + C17 build
+        run: cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DREAPER_SOURCE_DIR="$GITHUB_WORKSPACE/_deps/Reaper" -DCMAKE_BUILD_TYPE=Release
+      - name: Build the linked expression bridge
+        run: cmake --build build --parallel --target ventusample_reaper_expression_tests
+      - name: Test native evaluation and exact selfhood lookup
+        run: ctest --test-dir build --output-on-failure -R '^ventusample-reaper-expression-bridge$'
