@@ -249,7 +249,8 @@ def correlate(findings,file_texts,focus_paths=None):
         if sum(1 for x in items if x["severity"] in {"high","critical"})>=3:add(findings,"Q10","high",path,1,"Multiple independent high-risk signals are concentrated in one file.","medium")
     high_paths=sorted({f["path"] for f in findings if f["severity"] in {"high","critical"} and f["path"]!="__history__" and (focus_paths is None or f["path"] in focus_paths)})
     if len(high_paths)>=4:add(findings,"Q14","high","__repository__",1,"High-risk indicators are distributed across several repository files.","low",high_paths)
-    if any(f["rule_id"]=="N10" for f in findings):add(findings,"Q09","medium","__repository__",1,"Dependency manifests and repository lockfile inventory are inconsistent.","medium",[f["path"] for f in findings if f["rule_id"]=="N10"])
+    n10_findings=[f for f in findings if f.get("rule_id")=="N10"]
+    if n10_findings:add(findings,"Q09","medium","__repository__",1,"Dependency manifests and repository lockfile inventory are inconsistent.","medium",[f.get("path","__unknown__") for f in n10_findings])
 def score_findings(findings,policy):
     weights=policy.get("scoring",SEVERITY_WEIGHT)
     score=min(int(weights.get("cap",100)),sum(int(weights.get(x["severity"],0)) for x in findings))
