@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
+#include <QFont>
 #include <QFileDialog>
 #include <QFrame>
 #include <QFileInfo>
@@ -71,7 +72,7 @@ QWidget* makeCard(const QString& title, QLayout* content) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("VentuSample — Hip-Hop Sample Foundry");
+    setWindowTitle("VentuSample — рабочая станция аудиопаков");
     setMinimumSize(980, 720);
     resize(1320, 900);
     buildUi();
@@ -113,14 +114,15 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 void MainWindow::buildUi() {
     auto* central = new QWidget(this);
     auto* root = new QVBoxLayout(central);
-    root->setContentsMargins(24, 20, 24, 20);
-    root->setSpacing(16);
+    root->setContentsMargins(20, 18, 20, 18);
+    root->setSpacing(12);
 
     auto* header = new QHBoxLayout();
     auto* brand = new QVBoxLayout();
     auto* title = new QLabel("VENTUSAMPLE");
+    title->setFont(QFont("Georgia", 18, QFont::Bold));
     title->setObjectName("brandTitle");
-    auto* subtitle = new QLabel("HIP-HOP SAMPLE FOUNDRY  /  NATIVE DSP WORKSTATION");
+    auto* subtitle = new QLabel("ХИП-ХОП-СЭМПЛЫ  /  ЛОКАЛЬНАЯ DSP-СТАНЦИЯ");
     subtitle->setObjectName("brandSubtitle");
     brand->addWidget(title);
     brand->addWidget(subtitle);
@@ -134,14 +136,15 @@ void MainWindow::buildUi() {
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
     auto* heroTitle = new QLabel("Собери собственный звук.");
+    heroTitle->setFont(QFont("Georgia", 18, QFont::Bold));
     heroTitle->setObjectName("heroTitle");
-    auto* heroSub = new QLabel("Генерируй лупы, мелодии, драм-паттерны, бас и наборы one-shots по точным параметрам.");
+    auto* heroSub = new QLabel("Создавайте лупы, мелодии, ударные паттерны, басовые партии и наборы одиночных сэмплов по точным параметрам.");
     heroSub->setObjectName("heroSubtitle");
     heroSub->setWordWrap(true);
     heroText->addWidget(heroTitle);
     heroText->addWidget(heroSub);
     hero->addLayout(heroText, 1);
-    auto* badge = new QLabel("OFFLINE  •  WAV PCM16  •  SEEDED");
+    auto* badge = new QLabel("ЛОКАЛЬНО  •  WAV PCM16  •  ПОВТОРЯЕМОЕ ЗЕРНО");
     badge->setObjectName("statusPill");
     badge->setAlignment(Qt::AlignCenter);
     hero->addWidget(badge, 0, Qt::AlignVCenter);
@@ -153,7 +156,7 @@ void MainWindow::buildUi() {
     studioLayout->setContentsMargins(4, 10, 4, 4);
 
     auto* upper = new QHBoxLayout();
-    upper->setSpacing(14);
+    upper->setSpacing(12);
     auto* musicalGrid = new QGridLayout();
     musicalGrid->setHorizontalSpacing(14);
     musicalGrid->setVerticalSpacing(10);
@@ -179,15 +182,15 @@ void MainWindow::buildUi() {
     addField(2, 1, "ТЕМБР МЕЛОДИИ", timbreBox_);
     addField(3, 0, "ЧАСТОТА ДИСКРЕТИЗАЦИИ", rateBox_);
 
-    upper->addWidget(makeCard("01  /  SOUND IDENTITY", musicalGrid), 3);
+    upper->addWidget(makeCard("01  /  ЗВУКОВОЙ ПРОФИЛЬ", musicalGrid), 3);
 
     auto* structureGrid = new QGridLayout();
     structureGrid->setVerticalSpacing(10);
     bpmSpin_ = new QSpinBox(); bpmSpin_->setRange(60, 190); bpmSpin_->setValue(93); bpmSpin_->setSuffix(" BPM");
-    barsSpin_ = new QSpinBox(); barsSpin_->setRange(1, 16); barsSpin_->setValue(4); barsSpin_->setSuffix(" bars");
+    barsSpin_ = new QSpinBox(); barsSpin_->setRange(1, 16); barsSpin_->setValue(4); barsSpin_->setSuffix(" тактов");
     variationsSpin_ = new QSpinBox(); variationsSpin_->setRange(1, 32); variationsSpin_->setValue(8);
     seedSpin_ = new QSpinBox(); seedSpin_->setRange(0, 2147483647); seedSpin_->setValue(2500);
-    snareOffsetSpin_ = new QSpinBox(); snareOffsetSpin_->setRange(-30, 30); snareOffsetSpin_->setValue(15); snareOffsetSpin_->setSuffix(" ms");
+    snareOffsetSpin_ = new QSpinBox(); snareOffsetSpin_->setRange(-30, 30); snareOffsetSpin_->setValue(15); snareOffsetSpin_->setSuffix(" мс");
     ratioSpin_ = new QDoubleSpinBox(); ratioSpin_->setRange(1.0, 12.0); ratioSpin_->setSingleStep(0.5); ratioSpin_->setValue(4.0); ratioSpin_->setSuffix(":1");
     const auto addSpin = [structureGrid](int row, int col, const QString& label, QWidget* field) {
         auto* text = new QLabel(label);
@@ -198,34 +201,34 @@ void MainWindow::buildUi() {
     addSpin(0, 0, "ТЕМП", bpmSpin_);
     addSpin(0, 1, "ДЛИНА", barsSpin_);
     addSpin(1, 0, "ВАРИАЦИИ", variationsSpin_);
-    addSpin(1, 1, "SEED", seedSpin_);
-    addSpin(2, 0, "СМЕЩЕНИЕ SNARE", snareOffsetSpin_);
-    addSpin(2, 1, "BUS COMP", ratioSpin_);
-    upper->addWidget(makeCard("02  /  GRID & STRUCTURE", structureGrid), 2);
+    addSpin(1, 1, "ЗЕРНО ВАРИАЦИИ", seedSpin_);
+    addSpin(2, 0, "СМЕЩЕНИЕ МАЛОГО БАРАБАНА", snareOffsetSpin_);
+    addSpin(2, 1, "КОЭФФИЦИЕНТ СЖАТИЯ ШИНЫ", ratioSpin_);
+    upper->addWidget(makeCard("02  /  СЕТКА И СТРУКТУРА", structureGrid), 2);
     studioLayout->addLayout(upper);
 
     auto* detailRow = new QHBoxLayout();
-    detailRow->setSpacing(14);
+    detailRow->setSpacing(12);
     auto* motionGrid = new QGridLayout();
     motionGrid->setVerticalSpacing(4);
-    swingSlider_ = addSliderRow(motionGrid, 0, "Swing", 50, 68, 58, &swingValue_);
+    swingSlider_ = addSliderRow(motionGrid, 0, "Свинг", 50, 68, 58, &swingValue_);
     densitySlider_ = addSliderRow(motionGrid, 1, "Плотность", 0, 100, 64, &densityValue_);
-    gritSlider_ = addSliderRow(motionGrid, 2, "Sampler grit", 0, 100, 22, &gritValue_);
+    gritSlider_ = addSliderRow(motionGrid, 2, "Зернистость сэмплера", 0, 100, 22, &gritValue_);
     saturationSlider_ = addSliderRow(motionGrid, 3, "Сатурация", 0, 100, 24, &saturationValue_);
     stereoSlider_ = addSliderRow(motionGrid, 4, "Стерео", 0, 100, 72, &stereoValue_);
-    detailRow->addWidget(makeCard("03  /  GROOVE & TEXTURE", motionGrid), 1);
+    detailRow->addWidget(makeCard("03  /  РИТМ И ФАКТУРА", motionGrid), 1);
 
     auto* filterGrid = new QGridLayout();
     filterGrid->setVerticalSpacing(4);
-    hpSlider_ = addSliderRow(filterGrid, 0, "High-pass", 20, 300, 32, &hpValue_);
-    lpSlider_ = addSliderRow(filterGrid, 1, "Low-pass", 2000, 20000, 18000, &lpValue_);
-    tripletCheck_ = new QCheckBox("Triplet hat rolls"); tripletCheck_->setChecked(true);
-    humanizeCheck_ = new QCheckBox("Micro-humanize ±2 ms"); humanizeCheck_->setChecked(true);
-    dustCheck_ = new QCheckBox("Vinyl / transient dust"); dustCheck_->setChecked(false);
+    hpSlider_ = addSliderRow(filterGrid, 0, "Верхний фильтр", 20, 300, 32, &hpValue_);
+    lpSlider_ = addSliderRow(filterGrid, 1, "Нижний фильтр", 2000, 20000, 18000, &lpValue_);
+    tripletCheck_ = new QCheckBox("Тройные роллы хэтов"); tripletCheck_->setChecked(true);
+    humanizeCheck_ = new QCheckBox("Микрогуманизация ±2 мс"); humanizeCheck_->setChecked(true);
+    dustCheck_ = new QCheckBox("Виниловая фактура / шум транзиентов"); dustCheck_->setChecked(false);
     filterGrid->addWidget(tripletCheck_, 2, 0, 1, 2);
     filterGrid->addWidget(humanizeCheck_, 3, 0, 1, 2);
     filterGrid->addWidget(dustCheck_, 4, 0, 1, 2);
-    detailRow->addWidget(makeCard("04  /  MASTER & MOTION", filterGrid), 1);
+    detailRow->addWidget(makeCard("04  /  ОБРАБОТКА И ДВИЖЕНИЕ", filterGrid), 1);
     studioLayout->addLayout(detailRow);
 
     auto* sourceGrid = new QGridLayout();
@@ -240,15 +243,15 @@ void MainWindow::buildUi() {
     sourcePitchSpin_ = new QSpinBox();
     sourcePitchSpin_->setRange(-12, 12);
     sourcePitchSpin_->setValue(0);
-    sourcePitchSpin_->setSuffix(" st");
+    sourcePitchSpin_->setSuffix(" полутонов");
     sourceGrid->addWidget(sourceSamplePath_, 0, 0, 1, 3);
     sourceGrid->addWidget(sourceBrowse, 0, 3);
-    sourceGrid->addWidget(new QLabel("SOURCE MIX"), 1, 0);
+    sourceGrid->addWidget(new QLabel("ДОЛЯ ИСХОДНОГО СЭМПЛА"), 1, 0);
     sourceGrid->addWidget(sourceMixSlider_, 1, 1);
     sourceGrid->addWidget(sourceMixValue_, 1, 2);
-    sourceGrid->addWidget(new QLabel("PITCH SHIFT"), 1, 3);
+    sourceGrid->addWidget(new QLabel("СДВИГ ВЫСОТЫ"), 1, 3);
     sourceGrid->addWidget(sourcePitchSpin_, 1, 4);
-    studioLayout->addWidget(makeCard("05  /  OPTIONAL SAMPLE-CHOP SOURCE", sourceGrid));
+    studioLayout->addWidget(makeCard("05  /  ИСХОДНЫЙ СЭМПЛ ДЛЯ НАРЕЗКИ", sourceGrid));
 
     auto* exportCardLayout = new QVBoxLayout();
     auto* pathRow = new QHBoxLayout();
@@ -258,8 +261,12 @@ void MainWindow::buildUi() {
     pathRow->addWidget(outputPath_, 1);
     pathRow->addWidget(browseButton);
     exportCardLayout->addLayout(pathRow);
+    auto* tonalExportHint = new QLabel("Метки тональности и лада попадут в имена WAV и manifest (например, A_Minor или C_Major). У drum-only файлов тональность не указывается.");
+    tonalExportHint->setObjectName("mutedText");
+    tonalExportHint->setWordWrap(true);
+    exportCardLayout->addWidget(tonalExportHint);
     auto* actionRow = new QHBoxLayout();
-    generateButton_ = new QPushButton("СОЗДАТЬ SAMPLE PACK");
+    generateButton_ = new QPushButton("СОЗДАТЬ НАБОР СЭМПЛОВ");
     generateButton_->setObjectName("primaryButton");
     generateButton_->setMinimumHeight(48);
     openFolderButton_ = new QPushButton("Открыть папку");
@@ -276,7 +283,7 @@ void MainWindow::buildUi() {
     statusLabel_ = new QLabel("Готов к генерации · локальная обработка · без сетевых запросов");
     statusLabel_->setObjectName("mutedText");
     exportCardLayout->addWidget(statusLabel_);
-    studioLayout->addWidget(makeCard("06  /  EXPORT STATION", exportCardLayout));
+    studioLayout->addWidget(makeCard("06  /  ЭКСПОРТ И РЕЗУЛЬТАТ", exportCardLayout));
 
     auto* studioScroll = new QScrollArea();
     studioScroll->setWidgetResizable(true);
@@ -305,11 +312,11 @@ void MainWindow::buildUi() {
     auto* about = new QWidget();
     auto* aboutLayout = new QVBoxLayout(about);
     auto* aboutText = new QLabel(
-        "<h2>VentuSample Native DSP</h2>"
+        "<h2>VentuSample — локальная звуковая рабочая станция</h2>"
         "<p>Процедурный генератор хип-хоп-сэмплов с воспроизводимыми seed-вариациями."
         " Все вычисления выполняются локально, WAV экспортируется в PCM16.</p>"
         "<h3>Профили</h3><p>Boom Bap · East Coast · Harlem Dip-Trap · G-Unit · Modern Trap · Atlanta Trap · UK Drill · UK Grime · Memphis · Jazz Rap · G-Funk · Boom Trap · Cripple Trill.</p>"
-        "<h3>Что генерируется</h3><p>Полные лупы, мелодии, ударные, басовые партии и multi-one-shot kit."
+        "<h3>Что генерируется</h3><p>Полные лупы, мелодии, ударные, басовые партии и наборы одиночных сэмплов."
         " Каждая вариация получает независимый детерминированный seed.</p>"
         "<h3>Инженерные ограничения</h3><p>Офлайн-рендеринг; фиксированные диапазоны параметров; ограничение длительности и числа вариантов;"
         " отсутствие скрытой загрузки библиотек, сетевого телеметрирования и обращения к устройствам записи.</p>"
@@ -423,59 +430,146 @@ void MainWindow::saveSettings() {
 
 void MainWindow::applyTheme() {
     const bool dark = darkThemeCheck_->isChecked();
-    if (dark) {
-        setStyleSheet(R"QSS(
-            QMainWindow, QWidget { background: #071A2D; color: #E8EDF2; }
-            QGroupBox { background: #0F2A45; border: 1px solid #31516F; border-left: 3px solid #FF7B86; border-radius: 12px; margin-top: 14px; padding: 18px 12px 12px; font-weight: 650; }
-            QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 5px; color: #9FC3F3; }
-            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit { min-height: 36px; background: #0A223B; border: 1px solid #31516F; border-radius: 7px; padding: 8px; selection-background-color: #244F82; }
-            QPushButton { background: #173A5E; border: 1px solid #31516F; border-radius: 8px; padding: 10px 16px; min-height: 24px; color: #E8EDF2; }
-            QPushButton:hover { border-color: #8AB6FF; background: #204B75; }
-            QPushButton:disabled { color: #7C91A8; background: #102840; }
-            QPushButton#primaryButton { background: #70A5FF; color: #071A2D; border: none; font-weight: 750; letter-spacing: 1px; }
-            QPushButton#primaryButton:hover { background: #8AB6FF; }
-            QSlider::groove:horizontal { height: 5px; background: #31516F; border-radius: 2px; }
-            QSlider::sub-page:horizontal { background: #70A5FF; border-radius: 2px; }
-            QSlider::handle:horizontal { background: #E8EDF2; width: 15px; margin: -6px 0; border-radius: 7px; }
-            QProgressBar { background: #173A5E; border: 0; border-radius: 4px; }
-            QProgressBar::chunk { background: #70A5FF; border-radius: 4px; }
-            QLabel#brandTitle { color: #FFFFFF; font-size: 22px; font-weight: 850; letter-spacing: 3px; }
-            QLabel#brandSubtitle, QLabel#fieldLabel { color: #9FB4C9; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-            QLabel#heroTitle { font-size: 23px; font-weight: 750; color: #FFFFFF; }
-            QLabel#heroSubtitle, QLabel#mutedText { color: #B3C4D6; }
-            QLabel#statusPill { color: #8AB6FF; background: #0F2A45; border: 1px solid #31516F; border-radius: 12px; padding: 10px 14px; font-size: 10px; font-weight: 800; }
-            QTabBar::tab { background: #0F2A45; color: #B3C4D6; border: 1px solid #31516F; padding: 11px 18px; margin-right: 5px; border-top-left-radius: 7px; border-top-right-radius: 7px; }
-            QTabBar::tab:selected { color: #FFFFFF; background: #173A5E; border-bottom: 3px solid #FF7B86; }
-            QCheckBox { spacing: 8px; }
-            QCheckBox::indicator { width: 17px; height: 17px; }
-        )QSS");
-    } else {
-        setStyleSheet(R"QSS(
-            QMainWindow, QWidget { background: #F4F8FD; color: #122C45; }
-            QGroupBox { background: #FFFFFF; border: 1px solid #CAD8E8; border-left: 3px solid #E62E2D; border-radius: 12px; margin-top: 14px; padding: 18px 12px 12px; font-weight: 650; }
-            QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 5px; color: #004E98; }
-            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit { min-height: 36px; background: #FFFFFF; border: 1px solid #CAD8E8; border-radius: 7px; padding: 8px; selection-background-color: #D9E8FF; }
-            QPushButton { background: #EAF1FA; border: 1px solid #CAD8E8; border-radius: 8px; padding: 10px 16px; min-height: 24px; color: #004E98; }
-            QPushButton:hover { border-color: #1A5FDB; background: #D9E8FF; }
-            QPushButton:disabled { color: #73869A; background: #EDF2F8; }
-            QPushButton#primaryButton { background: #004E98; color: #FFFFFF; border: none; font-weight: 750; letter-spacing: 1px; }
-            QPushButton#primaryButton:hover { background: #1A5FDB; }
-            QSlider::groove:horizontal { height: 5px; background: #CAD8E8; border-radius: 2px; }
-            QSlider::sub-page:horizontal { background: #004E98; border-radius: 2px; }
-            QSlider::handle:horizontal { background: #FFFFFF; border: 2px solid #004E98; width: 15px; margin: -6px 0; border-radius: 7px; }
-            QProgressBar { background: #EAF1FA; border: 0; border-radius: 4px; }
-            QProgressBar::chunk { background: #004E98; border-radius: 4px; }
-            QLabel#brandTitle { color: #004E98; font-size: 22px; font-weight: 850; letter-spacing: 3px; }
-            QLabel#brandSubtitle, QLabel#fieldLabel { color: #4D6177; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-            QLabel#heroTitle { font-size: 23px; font-weight: 750; color: #122C45; }
-            QLabel#heroSubtitle, QLabel#mutedText { color: #4D6177; }
-            QLabel#statusPill { color: #004E98; background: #FFFFFF; border: 1px solid #CAD8E8; border-radius: 12px; padding: 10px 14px; font-size: 10px; font-weight: 800; }
-            QTabBar::tab { background: #EAF1FA; color: #314B66; border: 1px solid #CAD8E8; padding: 11px 18px; margin-right: 5px; border-top-left-radius: 7px; border-top-right-radius: 7px; }
-            QTabBar::tab:selected { color: #004E98; background: #FFFFFF; border-bottom: 3px solid #E62E2D; }
-            QCheckBox { spacing: 8px; }
-            QCheckBox::indicator { width: 17px; height: 17px; }
-        )QSS");
-    }
+    const QString page = dark ? "#0A1E46" : "#F4F6FA";
+    const QString surface = dark ? "#0039A6" : "#FFFFFF";
+    const QString ink = dark ? "#FFFFFF" : "#0A1E46";
+    const QString secondary = dark ? "#FFFFFF" : "#0039A6";
+    const QString border = dark ? "#FFFFFF" : "#0039A6";
+    const QString accent = "#0039A6";
+    const QString signal = "#B51A10";
+    const QString signalBright = "#D52B1E";
+    const QString selection = dark ? "#0A1E46" : "#0039A6";
+
+    const QString style = QStringLiteral(R"QSS(
+        QWidget {
+            background: %1;
+            color: %2;
+            font-family: "Segoe UI", "Arial", "DejaVu Sans";
+            font-size: 10pt;
+        }
+        QMainWindow { background: %1; }
+        QGroupBox {
+            background: %3;
+            border: 1px solid %4;
+            border-left: 3px solid %7;
+            border-radius: 3px;
+            margin-top: 12px;
+            padding: 14px 10px 10px;
+            font-weight: 650;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 12px;
+            padding: 0 5px;
+            color: %5;
+            font-family: "Georgia", "Cambria", "Times New Roman";
+            font-size: 10pt;
+            font-weight: 700;
+        }
+        QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit {
+            min-height: 36px;
+            background: %3;
+            color: %2;
+            border: 1px solid %4;
+            border-radius: 3px;
+            padding: 7px;
+            selection-background-color: %8;
+            selection-color: #FFFFFF;
+        }
+        QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus,
+        QListWidget:focus, QPlainTextEdit:focus, QPushButton:focus {
+            border: 2px solid %9;
+        }
+        QPushButton {
+            background: %3;
+            color: %2;
+            border: 1px solid %4;
+            border-radius: 3px;
+            padding: 9px 14px;
+            min-height: 24px;
+        }
+        QPushButton:hover { border-color: %9; }
+        QPushButton:disabled {
+            color: %5;
+            background: %1;
+            border: 1px solid %4;
+        }
+        QPushButton#primaryButton {
+            background: %6;
+            color: #FFFFFF;
+            border: 1px solid %6;
+            font-weight: 750;
+        }
+        QPushButton#primaryButton:hover { background: %10; }
+        QSlider::groove:horizontal {
+            height: 4px;
+            background: %4;
+            border-radius: 2px;
+        }
+        QSlider::sub-page:horizontal { background: %6; border-radius: 2px; }
+        QSlider::handle:horizontal {
+            background: #FFFFFF;
+            border: 2px solid %6;
+            width: 15px;
+            margin: -6px 0;
+            border-radius: 3px;
+        }
+        QProgressBar {
+            background: %1;
+            color: %2;
+            border: 1px solid %4;
+            border-radius: 3px;
+            min-height: 10px;
+            text-align: center;
+        }
+        QProgressBar::chunk { background: %6; border-radius: 2px; }
+        QLabel#brandTitle {
+            color: %5;
+            font-family: "Georgia", "Cambria", "Times New Roman";
+            font-size: 22px;
+            font-weight: 800;
+        }
+        QLabel#brandSubtitle, QLabel#fieldLabel { color: %5; font-size: 10px; font-weight: 700; }
+        QLabel#heroTitle {
+            color: %5;
+            font-family: "Georgia", "Cambria", "Times New Roman";
+            font-size: 20px;
+            font-weight: 750;
+        }
+        QLabel#heroSubtitle, QLabel#mutedText { color: %5; }
+        QLabel#statusPill {
+            color: #FFFFFF;
+            background: %6;
+            border: 1px solid %6;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+        QTabBar::tab {
+            background: %3;
+            color: %5;
+            border: 1px solid %4;
+            padding: 10px 16px;
+            margin-right: 4px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
+        QTabBar::tab:selected {
+            color: %5;
+            background: %1;
+            border-bottom: 3px solid %7;
+        }
+        QCheckBox { spacing: 8px; }
+        QCheckBox::indicator { width: 17px; height: 17px; }
+        QCheckBox::indicator:checked {
+            background: %6;
+            border: 2px solid %6;
+        }
+        QListWidget::item:selected { background: %8; color: #FFFFFF; }
+    )QSS")
+        .arg(page, ink, surface, border, secondary, accent, signal, selection, signalBright, "#0A1E46");
+    setStyleSheet(style);
 }
 
 ventu::Parameters MainWindow::parameters() const {
@@ -511,7 +605,7 @@ ventu::Parameters MainWindow::parameters() const {
 
 void MainWindow::setBusy(bool busy) {
     generateButton_->setEnabled(!busy);
-    generateButton_->setText(busy ? "РЕНДЕРИНГ SAMPLE PACK…" : "СОЗДАТЬ SAMPLE PACK");
+    generateButton_->setText(busy ? "СОЗДАНИЕ НАБОРА СЭМПЛОВ…" : "СОЗДАТЬ SAMPLE PACK");
     progress_->setRange(0, busy ? 0 : 100);
     if (!busy) progress_->setValue(100);
     statusLabel_->setText(busy ? "Рендеринг выполняется в рабочем потоке. Интерфейс остаётся отзывчивым." : statusLabel_->text());
@@ -535,7 +629,7 @@ void MainWindow::startGeneration() {
         return;
     }
     const QString canonical = QDir::cleanPath(destination);
-    const auto reply = QMessageBox::question(this, "Создать sample pack",
+    const auto reply = QMessageBox::question(this, "Создать набор сэмплов",
         QString("Сгенерировать %1 вариаций профиля %2 и сохранить в:\n%3 ?")
             .arg(p.variations).arg(q(ventu::toString(p.style)), canonical),
         QMessageBox::Yes | QMessageBox::Cancel, QMessageBox::Yes);
@@ -551,6 +645,8 @@ void MainWindow::startGeneration() {
     appendLog(QString("PROFILE  %1 / %2 / %3 / %4 Hz")
         .arg(q(ventu::toString(p.style)), q(ventu::toString(p.target)), q(ventu::toString(p.sampler)))
         .arg(p.sampleRate));
+    appendLog(QString("KEY  %1 · scale: %2")
+        .arg(keyBox_->currentText(), q(ventu::toString(p.scale))));
 
     try {
         worker_ = std::thread([this, p, canonical] {
@@ -593,8 +689,9 @@ void MainWindow::startGeneration() {
             const QString cadenceLabel = cadenceCount > 0
                 ? QString("grid %1%").arg(cadenceTotal / cadenceCount, 0, 'f', 1)
                 : QString("grid n/a");
-            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · %5 · peak ceiling −0.3 dBFS")
-                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style))).arg(p.seed).arg(cadenceLabel));
+            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · %4 / %5 · seed %6 · %7 · предел пика −0,3 dBFS")
+                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style)))
+                .arg(keyBox_->currentText(), q(ventu::toString(p.scale))).arg(p.seed).arg(cadenceLabel));
             appendLog(QString("QMR CADENCE  %1 analyzed loop exports · %2")
                 .arg(cadenceCount).arg(cadenceLabel));
             statusLabel_->setText(QString("Готово · %1 аудиофайлов сохранено локально.").arg(files.size()));

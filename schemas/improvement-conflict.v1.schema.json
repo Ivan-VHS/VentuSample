@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/Ivan-VHS/VentuSample/blob/main/schemas/improvement-conflict.v1.schema.json",
+  "title": "Improvement, dissonance, and conflict profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "project",
+    "status_model",
+    "controls"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.improvement-conflict.v1"
+    },
+    "version": {
+      "const": "1.0.0"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "scope",
+        "safety_boundary"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "safety_boundary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "status_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "initial",
+        "allowed"
+      ],
+      "properties": {
+        "initial": {
+          "const": "not_assessed"
+        },
+        "allowed": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "not_assessed",
+              "detected",
+              "root_cause_confirmed",
+              "remediated",
+              "verified",
+              "deferred"
+            ]
+          }
+        }
+      }
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "improvement_term",
+          "dissonance_term",
+          "conflict_term",
+          "intent",
+          "remediation",
+          "verification",
+          "state",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^IC-[0-9]{2}$"
+          },
+          "improvement_term": {
+            "type": "string",
+            "minLength": 1
+          },
+          "dissonance_term": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conflict_term": {
+            "type": "string",
+            "minLength": 1
+          },
+          "intent": {
+            "type": "string",
+            "minLength": 1
+          },
+          "remediation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification": {
+            "type": "string",
+            "minLength": 1
+          },
+          "state": {
+            "enum": [
+              "not_assessed",
+              "detected",
+              "root_cause_confirmed",
+              "remediated",
+              "verified",
+              "deferred"
+            ]
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

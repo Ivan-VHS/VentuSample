@@ -354,6 +354,44 @@ std::string slug(const std::string& value) {
     return result;
 }
 
+std::string modeLabel(Scale scale) {
+    switch (scale) {
+    case Scale::NaturalMinor: return "Minor";
+    case Scale::HarmonicMinor: return "Harmonic Minor";
+    case Scale::Dorian: return "Dorian";
+    case Scale::Phrygian: return "Phrygian";
+    case Scale::Major: return "Major";
+    case Scale::MinorPentatonic: return "Minor Pentatonic";
+    }
+    return "Minor";
+}
+
+std::string modeFamily(Scale scale) {
+    switch (scale) {
+    case Scale::Major: return "major";
+    case Scale::NaturalMinor:
+    case Scale::HarmonicMinor:
+    case Scale::MinorPentatonic: return "minor";
+    case Scale::Dorian:
+    case Scale::Phrygian: return "modal";
+    }
+    return "minor";
+}
+
+std::string musicalKeyLabel(int rootNote, Scale scale) {
+    static constexpr std::array<const char*, 12> names{
+        "C", "Csharp", "D", "Dsharp", "E", "F", "Fsharp", "G", "Gsharp", "A", "Asharp", "B"
+    };
+    const auto index = static_cast<std::size_t>(std::clamp(rootNote, 0, 11));
+    return std::string(names[index]) + " " + modeLabel(scale);
+}
+
+std::string musicalKeyFileTag(int rootNote, Scale scale) {
+    auto label = musicalKeyLabel(rootNote, scale);
+    std::replace(label.begin(), label.end(), ' ', '_');
+    return label;
+}
+
 void addOneShot(AudioBuffer& audio, const Parameters& p, const std::string& name, std::mt19937& rng) {
     if (name == "kick") addKick(audio, 0, 0.88, rng, 0.0);
     else if (name == "snare") addSnare(audio, 0, 0.76, rng, 0.0, 0.0);
@@ -807,7 +845,10 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
     }
     const std::array<const char*, 8> kitNames{"kick", "snare", "hat", "clap", "rim", "perc", "bass", "pluck"};
     const std::array<const char*, 12> noteNames{"C", "Csharp", "D", "Dsharp", "E", "F", "Fsharp", "G", "Gsharp", "A", "Asharp", "B"};
-    const std::string prefix = "VentuSample_" + slug(toString(p.style)) + "_" + std::to_string(p.bpm) + "BPM_" + noteNames[static_cast<std::size_t>(p.rootNote)];
+    const std::string basePrefix = "VentuSample_" + slug(toString(p.style)) + "_" + std::to_string(p.bpm) + "BPM";
+    const bool tonalTarget = p.target != Target::Drums && p.target != Target::OneShotKit;
+    const std::string packPrefix = basePrefix + (tonalTarget ? "_" + musicalKeyFileTag(p.rootNote, p.scale) : "");
+    const std::string selectedKeyLabel = musicalKeyLabel(p.rootNote, p.scale);
     const auto manifestPath = outputDirectory / "ventusample_manifest.json";
     if (std::filesystem::exists(manifestPath, ec) || ec) {
         result.error = "В выбранной папке уже есть ventusample_manifest.json или невозможно проверить содержимое. Выбери пустую папку экспорта.";
@@ -818,14 +859,16 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
     for (int variation = 0; variation < p.variations; ++variation) {
         if (p.target == Target::OneShotKit) {
             for (const auto* hit : kitNames) {
-                const auto path = outputDirectory / (prefix + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
+                const bool pitchedHit = std::string(hit) == "bass" || std::string(hit) == "pluck";
+                const std::string hitKeyTag = pitchedHit ? "_" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) : "";
+                const auto path = outputDirectory / (packPrefix + hitKeyTag + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
                 if (std::filesystem::exists(path, ec) || ec) {
                     result.error = "Файл уже существует или недоступен: " + path.string();
                     return result;
                 }
             }
         } else {
-            const auto path = outputDirectory / (prefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
+            const auto path = outputDirectory / (packPrefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
             if (std::filesystem::exists(path, ec) || ec) {
                 result.error = "Файл уже существует или недоступен: " + path.string();
                 return result;
@@ -833,10 +876,11 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
         }
     }
     std::ostringstream manifest;
-    manifest << "{\n  \"schema\": \"ventusample.pack.v1\",\n  \"generator\": \"VentuSample native DSP 0.1.0\",\n  \"audio_format\": \"wav_pcm16_stereo\",\n";
+    manifest << "{\n  \"schema\": \"ventusample.pack.v2\",\n  \"generator\": \"VentuSample native DSP 0.2.0\",\n  \"audio_format\": \"wav_pcm16_stereo\",\n";
     manifest << "  \"parameters\": {\"style\": \"" << jsonEscape(toString(p.style)) << "\", \"target\": \"" << jsonEscape(toString(p.target))
              << "\", \"bpm\": " << p.bpm << ", \"key\": \"" << noteNames[static_cast<std::size_t>(p.rootNote)]
-             << "\", \"scale\": \"" << toString(p.scale) << "\", \"bars\": " << p.bars << ", \"variations\": " << p.variations << ", \"swing_percent\": " << p.swingPercent
+             << "\", \"scale\": \"" << toString(p.scale) << "\", \"musical_key\": \"" << jsonEscape(selectedKeyLabel)
+             << "\", \"mode_family\": \"" << modeFamily(p.scale) << "\", \"bars\": " << p.bars << ", \"variations\": " << p.variations << ", \"swing_percent\": " << p.swingPercent
              << ", \"density_percent\": " << p.densityPercent << ", \"grit_percent\": " << p.gritPercent
              << ", \"saturation_percent\": " << p.saturationPercent << ", \"stereo_percent\": " << p.stereoPercent
              << ", \"high_pass_hz\": " << p.highPassHz << ", \"low_pass_hz\": " << p.lowPassHz
@@ -853,7 +897,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
         if (p.target == Target::OneShotKit) {
             for (const auto* hit : kitNames) {
                 auto audio = render(p, variation, hit);
-                const auto path = outputDirectory / (prefix + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
+                const bool pitchedHit = std::string(hit) == "bass" || std::string(hit) == "pluck";
+                const std::string hitKeyTag = pitchedHit ? "_" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) : "";
+                const auto path = outputDirectory / (packPrefix + hitKeyTag + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
                 std::string error;
                 if (!writeWave(path, audio, error)) { result.error = error; return result; }
                 const auto stats = measure(audio);
@@ -862,11 +908,13 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 if (!first) manifest << ",\n";
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1 << "}";
+                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                         << ", \"musical_key\": " << (pitchedHit ? "\"" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) + "\"" : "null")
+                         << ", \"scale\": null, \"mode_family\": " << (pitchedHit ? "\"pitched_note\"" : "null") << "}";
             }
         } else {
             auto audio = render(p, variation, {}, sourcePtr);
-            const auto path = outputDirectory / (prefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
+            const auto path = outputDirectory / (packPrefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
             std::string error;
             if (!writeWave(path, audio, error)) { result.error = error; return result; }
             const auto stats = measure(audio);
@@ -875,7 +923,10 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             if (!first) manifest << ",\n";
             first = false;
             manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                     << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1 << "}";
+                     << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                     << ", \"musical_key\": " << (tonalTarget ? "\"" + jsonEscape(selectedKeyLabel) + "\"" : "null")
+                     << ", \"scale\": " << (tonalTarget ? "\"" + jsonEscape(toString(p.scale)) + "\"" : "null")
+                     << ", \"mode_family\": " << (tonalTarget ? "\"" + modeFamily(p.scale) + "\"" : "null") << "}";
         }
     }
     manifest << "\n  ]\n}\n";

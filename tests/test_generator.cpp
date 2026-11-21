@@ -229,10 +229,16 @@ void testWaveAndPackExport() {
             batch.cadence.front().gridAccuracyPercent >= 99.0,
             "generated loops should expose high-accuracy event-grid diagnostics");
     require(batch.files.size() == 2, "two variations should export two loop files");
+    require(batch.files.front().filename().string().find("_C_Minor_") != std::string::npos,
+            "tonal loop filenames should include the selected root and minor mode");
     require(std::filesystem::exists(pack / "ventusample_manifest.json"), "sample pack should include a manifest");
     std::ifstream manifest(pack / "ventusample_manifest.json", std::ios::binary);
     const std::string json((std::istreambuf_iterator<char>(manifest)), std::istreambuf_iterator<char>());
-    require(json.find("ventusample.pack.v1") != std::string::npos, "manifest should use the v1 schema id");
+    require(json.find("ventusample.pack.v2") != std::string::npos, "manifest should use the v2 schema id");
+    require(json.find("\"musical_key\": \"C Minor\"") != std::string::npos,
+            "manifest should export a readable musical key label");
+    require(json.find("\"mode_family\": \"minor\"") != std::string::npos,
+            "manifest should classify the selected scale as minor");
     require(json.find("East Coast") != std::string::npos, "manifest should record the selected style");
     require(json.find("single.wav") != std::string::npos, "manifest should identify the imported source by basename");
     require(json.find("density_percent") != std::string::npos, "manifest should include the full parameter snapshot");
@@ -263,6 +269,26 @@ void testWaveAndPackExport() {
     require(kit.cadence.size() == kit.files.size() && !kit.cadence.front().analyzed,
             "one-shot exports should mark loop cadence as not applicable");
     require(kit.files.size() == 8, "one-shot kit should contain eight separate hits");
+    bool hasUnpitchedKick = false;
+    bool hasKeyedBass = false;
+    for (const auto& filePath : kit.files) {
+        const auto filename = filePath.filename().string();
+        if (filename.find("_v1_kick.wav") != std::string::npos &&
+            filename.find("_C_") == std::string::npos) hasUnpitchedKick = true;
+        if (filename.find("_C_v1_bass.wav") != std::string::npos) hasKeyedBass = true;
+    }
+    require(hasUnpitchedKick, "unpitched drum one-shots must not receive a false key tag");
+    require(hasKeyedBass, "pitched one-shots should carry their note name in the filename");
+
+    auto majorParameters = p;
+    majorParameters.target = ventu::Target::Melody;
+    majorParameters.variations = 1;
+    majorParameters.rootNote = 9;
+    majorParameters.scale = ventu::Scale::Major;
+    const auto majorPack = ventu::generatePack(majorParameters, temp / "major");
+    require(static_cast<bool>(majorPack), "major-key sample export should succeed");
+    require(majorPack.files.front().filename().string().find("_A_Major_") != std::string::npos,
+            "major-key export filenames should include the major label");
     // Keep the deterministic pack fixture for the independent schema-shape test.
 }
 }

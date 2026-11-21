@@ -1,0 +1,40 @@
+name: Improvement and conflict contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "improvement-conflict.v1.json"
+      - "schemas/improvement-conflict.v1.schema.json"
+      - "tools/improvement_conflict.py"
+      - "tests/test_improvement_conflict.py"
+      - "docs/IMPROVEMENT_CONFLICT_STANDARD.md"
+      - ".github/workflows/improvement-conflict.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "improvement-conflict.v1.json"
+      - "schemas/improvement-conflict.v1.schema.json"
+      - "tools/improvement_conflict.py"
+      - "tests/test_improvement_conflict.py"
+      - "docs/IMPROVEMENT_CONFLICT_STANDARD.md"
+      - ".github/workflows/improvement-conflict.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run governance regression tests
+        run: python -m unittest discover -s tests -p test_improvement_conflict.py -v
+      - name: Validate all 20 controls and evidence paths
+        run: python tools/improvement_conflict.py
+      - name: Emit machine-readable report
+        run: python tools/improvement_conflict.py --format json

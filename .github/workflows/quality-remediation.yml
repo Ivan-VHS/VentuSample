@@ -1,0 +1,38 @@
+name: Quality remediation matrix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "quality-remediation.v1.json"
+      - "schemas/quality-remediation.v1.schema.json"
+      - "tools/quality_remediation.py"
+      - "tests/test_quality_remediation.py"
+      - "docs/QUALITY_REMEDIATION_STANDARD.md"
+      - ".github/workflows/quality-remediation.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "quality-remediation.v1.json"
+      - "schemas/quality-remediation.v1.schema.json"
+      - "tools/quality_remediation.py"
+      - "tests/test_quality_remediation.py"
+      - "docs/QUALITY_REMEDIATION_STANDARD.md"
+      - ".github/workflows/quality-remediation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  remediation-profile:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run remediation-profile regression tests
+        run: python -m unittest discover -s tests -p test_quality_remediation.py -v
+      - name: Validate all 20 triplets and evidence paths
+        run: python tools/quality_remediation.py --format json
