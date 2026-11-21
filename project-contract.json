@@ -1,0 +1,160 @@
+{
+  "schema": "ivan-vhs.project-contract.v1",
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "version": "0.2.0",
+    "repository": "Ivan-VHS/VentuSample",
+    "domain": "offline hip-hop sample-pack generation",
+    "default_branch": "main"
+  },
+  "implementation": {
+    "language": "C++20",
+    "desktop": "Qt 6 Widgets",
+    "build": "CMake",
+    "renderer": "portable scalar offline DSP"
+  },
+  "capabilities": [
+    {
+      "id": "procedural_hiphop_generation",
+      "status": "implemented",
+      "summary": "Seeded procedural stereo patterns for 14 hip-hop and adjacent profiles.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "pcm16_wav_export",
+      "status": "implemented",
+      "summary": "Bounded RIFF PCM16 stereo output with peak/RMS metadata.",
+      "evidence": [
+        "src/generator.cpp",
+        "schemas/ventusample.pack.v1.schema.json"
+      ]
+    },
+    {
+      "id": "pcm16_wav_chop_import",
+      "status": "implemented",
+      "summary": "Bounded PCM16 mono/stereo import, four-slice beat placement and semitone resampling.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "native_qt_desktop",
+      "status": "partial",
+      "summary": "Qt 6 Widgets application source and CMake target are present; desktop compile is CI-gated because the local build environment has no Qt 6 SDK.",
+      "evidence": [
+        "src/main.cpp",
+        "src/mainwindow.cpp",
+        "CMakeLists.txt",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "reproducible_variations",
+      "status": "implemented",
+      "summary": "Variation index and seed deterministically initialize the PRNG.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "reaper_pack_exchange",
+      "status": "implemented",
+      "summary": "Exports versioned ventusample.pack.v1 manifests and WAV assets that Reaper validates and compares read-only; the Reaper consumer reads manifest metadata only and leaves WAV files untouched.",
+      "evidence": [
+        "schemas/ventusample.pack.v1.schema.json",
+        "federation/octa-pyramid.v1.json"
+      ]
+    },
+    {
+      "id": "quality_monolith_rhythm_pipeline",
+      "status": "implemented",
+      "summary": "QMR-20 render cohesion plus Billionaire Golden Era crate reassembly, weighted drum voicing, shared swing timing, deterministic turnarounds and stereo-linked mastering.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp",
+        "docs/QUALITY_MONOLITH_RHYTHM.md"
+      ]
+    },
+    {
+      "id": "billionaire_golden_era_profile",
+      "status": "implemented",
+      "summary": "Editable golden-era Boom Bap profile with deterministic 0-2-1-3 imported-crate reassembly, weighted kick/snare voicing, restrained hats and deterministic rendering.",
+      "evidence": [
+        "src/generator.hpp",
+        "src/generator.cpp",
+        "src/mainwindow.cpp",
+        "tests/test_generator.cpp",
+        "docs/ARCHITECTURE.md",
+        "docs/USER_GUIDE_RU.md",
+        "schemas/ventusample.pack.v1.schema.json"
+      ]
+    },
+    {
+      "id": "tonal_export_metadata",
+      "status": "implemented",
+      "summary": "Exports readable key/mode labels in tonal WAV filenames and per-file v2 manifest metadata; unpitched drum assets remain unlabelled.",
+      "evidence": [
+        "src/generator.cpp",
+        "src/mainwindow.cpp",
+        "schemas/ventusample.pack.v2.schema.json",
+        "tests/test_generator.cpp"
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "ventusample.pack.v1",
+      "transport": "json-file-plus-wav-assets",
+      "schema": "schemas/ventusample.pack.v1.schema.json",
+      "status": "implemented"
+    },
+    {
+      "id": "ventusample.pack.v2",
+      "transport": "json-file-plus-wav-assets",
+      "schema": "schemas/ventusample.pack.v2.schema.json",
+      "status": "implemented"
+    }
+  ],
+  "integrations": [
+    {
+      "peer": "reaper",
+      "interface": "ventusample.pack.v1",
+      "transport": "json-file-plus-wav-assets",
+      "status": "implemented",
+      "opt_in": true
+    },
+    {
+      "peer": "pytyliki",
+      "interface": "pytyliki.c-abi.v1",
+      "transport": "native-ffi",
+      "status": "planned",
+      "opt_in": true
+    },
+    {
+      "peer": "oplague",
+      "interface": "not-applicable.v1",
+      "transport": "none",
+      "status": "not_applicable",
+      "opt_in": false
+    }
+  ],
+  "safety_boundaries": [
+    "Offline rendering by default; no network telemetry or background audio capture.",
+    "Imported WAV files are untrusted input and are size, chunk, format and frame bounded.",
+    "No external native library is loaded implicitly.",
+    "No driver, firmware, system-audio or hardware control is performed.",
+    "Real-time playback, DAW plugin hosting, tempo-preserving time-stretch and GPU dispatch are not implemented."
+  ],
+  "extension_points": [
+    "Versioned sample pack import/export adapters.",
+    "Explicit opt-in Pytyliki C ABI measurements after differential tests.",
+    "Additional independent style profiles and DSP kernels behind validated parameters.",
+    "Additional phrase strategies can extend the shared 16-step groove schedule without changing the pack v1 contract."
+  ]
+}

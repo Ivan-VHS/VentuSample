@@ -1,0 +1,103 @@
+name: Update Behind Pull Request Branches
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+# Updating a same-repository PR branch requires write access to contents
+# as well as pull requests. This workflow never checks out or executes PR code.
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: update-behind-pr-branches-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Safely update eligible PR branches from main
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Update behind same-repository PR branches
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          PR_BASE_REF: ${{ github.event.pull_request.base.ref }}
+          PR_DRAFT: ${{ github.event.pull_request.draft }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          update_pr() {
+            local number="$1"
+            local expected_sha="$2"
+            local head_repo="$3"
+            local base_ref="$4"
+            local draft="$5"
+
+            if [[ "$head_repo" != "$GITHUB_REPOSITORY" || "$base_ref" != "main" || "$draft" != "false" ]]; then
+              echo "SKIP PR #$number: not an eligible same-repository, non-draft main PR."
+              return 0
+            fi
+
+            local current_sha
+            current_sha="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" --jq '.head.sha')"
+            if [[ -z "$expected_sha" || "$current_sha" != "$expected_sha" ]]; then
+              echo "SKIP PR #$number: head changed since this sweep was prepared."
+              return 0
+            fi
+
+            local state
+            state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" --jq '.mergeable_state // "unknown"')"
+
+            if [[ "$state" == "dirty" ]]; then
+              echo "NOTICE PR #$number: merge conflict detected; leaving it for manual resolution."
+              return 0
+            fi
+
+            # A PR can be "blocked" because required checks are expected while
+            # its branch is still behind main. Compare ancestry independently.
+            local comparison
+            comparison="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$current_sha" \
+              --jq '[.ahead_by, .behind_by, .status] | @tsv')"
+
+            local ahead_by behind_by compare_status
+            IFS=$'\t' read -r ahead_by behind_by compare_status <<< "$comparison"
+
+            if [[ ! "$ahead_by" =~ ^[0-9]+$ || ! "$behind_by" =~ ^[0-9]+$ ]]; then
+              echo "ERROR PR #$number: invalid compare response: $comparison"
+              return 1
+            fi
+
+            if (( behind_by > 0 )); then
+              echo "UPDATE PR #$number: branch is behind main by $behind_by commit(s) (ahead=$ahead_by, compare=$compare_status, mergeable_state=$state)."
+              gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$number/update-branch" \
+                -f "expected_head_sha=$current_sha" >/dev/null
+              return 0
+            fi
+
+            echo "OK PR #$number: branch contains current main (ahead=$ahead_by, behind=$behind_by, compare=$compare_status, mergeable_state=$state)."
+          }
+
+          if [[ "$EVENT_NAME" == "pull_request_target" ]]; then
+            update_pr "$PR_NUMBER" "$PR_HEAD_SHA" "$PR_HEAD_REPO" "$PR_BASE_REF" "$PR_DRAFT"
+            exit 0
+          fi
+
+          while IFS=$'\t' read -r number expected_sha head_repo base_ref draft; do
+            [[ -n "$number" ]] || continue
+            update_pr "$number" "$expected_sha" "$head_repo" "$base_ref" "$draft"
+          done < <(
+            gh api --paginate "repos/$GITHUB_REPOSITORY/pulls?state=open&base=main&per_page=100" \
+              --jq '.[] | [.number, .head.sha, (.head.repo.full_name // ""), .base.ref, (.draft | tostring)] | @tsv'
+          )

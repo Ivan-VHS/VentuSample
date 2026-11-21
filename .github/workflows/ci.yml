@@ -1,0 +1,104 @@
+name: VentuSample CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ventusample-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-contract:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile Python verification tools
+        run: |
+          python -m py_compile tools/validate_project_contract.py tools/validate_generated_fixture.py tools/validate_visual_canon.py
+          python tools/validate_visual_canon.py src/mainwindow.cpp
+      - name: Validate project contract and OCTA-8 federation
+        run: python tools/validate_project_contract.py
+      - name: Parse versioned pack schema and project contract
+        run: |
+          python -c "import json, pathlib; [json.loads(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('project-contract.json', 'schemas/ventusample.pack.v1.schema.json', 'federation/octa-pyramid.v1.json')]"
+
+  native-engine:
+    # Existing repository rules require this historical status context.
+    # The actual compiled product engine is C++20 and is built/tested below.
+    name: Native C
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Configure native C++20 engine
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
+      - name: Build native engine
+        run: cmake --build build --parallel 2
+      - name: Run audio and manifest tests
+        run: ctest --test-dir build --output-on-failure
+
+  linux-core-and-desktop:
+    name: Linux DSP + Qt desktop build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Install toolchain and Qt 6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ qt6-base-dev
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build --parallel 2
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  windows-native-desktop:
+    name: Windows 11 native Qt desktop build
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Install Qt 6 Widgets
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Configure
+        run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
+      - name: Build native app and tests
+        run: cmake --build build --config Release --parallel 2
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Capture live desktop screenshot
+        shell: pwsh
+        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "artifacts/ventusample-studio.png" -StartupSeconds 15
+      - name: Upload live desktop screenshot artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ventusample-live-windows-screenshot
+          path: artifacts/ventusample-studio.png
+          if-no-files-found: error
+          retention-days: 30
