@@ -439,7 +439,7 @@
       "title": "Изоляция пайплайнов CI/CD",
       "description": "Код недоверенных fork PR не получает secrets или write token; pull_request_target используется с изоляцией.",
       "severity": "critical",
-      "enforcement": "review",
+      "enforcement": "block",
       "check": "workflow-isolation",
       "remediation": "Использовать read-only permissions и не исполнять недоверенный код с секретами."
     },
