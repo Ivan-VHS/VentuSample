@@ -223,6 +223,6 @@
     "request_response_edges_are_synchronous": true,
     "no_implicit_native_loading": true,
     "no_driver_mutation_through_mesh": true,
-    "reaper_pack_consumer_implemented": false
+    "reaper_pack_consumer_implemented": true
   }
 }

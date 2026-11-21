@@ -64,8 +64,8 @@
     },
     {
       "id": "reaper_pack_exchange",
-      "status": "partial",
-      "summary": "Versioned pack artifact is exported; a Reaper-side consumer/round-trip adapter is not included.",
+      "status": "implemented",
+      "summary": "Exports versioned ventusample.pack.v1 manifests and WAV assets that Reaper validates and compares read-only; the Reaper consumer reads manifest metadata only and leaves WAV files untouched.",
       "evidence": [
         "schemas/ventusample.pack.v1.schema.json",
         "federation/octa-pyramid.v1.json"
@@ -109,7 +109,7 @@
       "peer": "reaper",
       "interface": "ventusample.pack.v1",
       "transport": "json-file-plus-wav-assets",
-      "status": "partial",
+      "status": "implemented",
       "opt_in": true
     },
     {
