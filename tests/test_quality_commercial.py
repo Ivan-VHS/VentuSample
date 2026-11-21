@@ -25,7 +25,7 @@ class QualityCommercialTests(unittest.TestCase):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["missing/evidence.txt"]
         with tempfile.TemporaryDirectory() as directory:
-            report = assess_profile(profile, root=directory)
+            report = assess_profile(profile, root=ROOT)
         self.assertTrue(report["issues"])
         self.assertEqual(report["evidence"]["files_missing"], 1)
 
