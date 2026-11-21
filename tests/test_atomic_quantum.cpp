@@ -40,7 +40,7 @@ int main() {
     require(std::abs(ghzProbabilities[7] - 0.5) < 1e-12, "GHZ state has 50% |111>");
 
     auto measured = bell;
-    const auto measurement = ventu::atomicQuantumMeasureZ(measured, 0u, 0.8);
+    const auto measurement = ventu::atomicQuantumMeasureZ(measured, 0u, 0.2);
     require(measurement.outcome == 1u, "seeded sample determines reproducible measurement");
     const auto collapsed = ventu::atomicQuantumProbabilities(measured);
     require(std::count_if(collapsed.begin(), collapsed.end(), [](double p) { return p > 0.0; }) == 1,
