@@ -6,6 +6,8 @@
 #include <QDialog>
 #include <QFile>
 #include <QFileDialog>
+#include <QFont>
+#include <QGroupBox>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
