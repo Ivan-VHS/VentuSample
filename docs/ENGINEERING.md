@@ -13,3 +13,7 @@
 | 9 | Release | build, tests, schemas, license and clean package |
 
 VentuSample is an offline renderer, not a DAW, plugin host, live monitor or sample-rights clearance service.
+
+## Shared evolution matrix
+
+This repository adopts the shared [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md): 20 domains, 40 practices, a versioned JSON contract and negative tests. The framework complements existing engineering, project and safety contracts; it does not assert that every technique is applicable or already implemented. Claims of implementation must remain backed by local code, tests or operational evidence.
