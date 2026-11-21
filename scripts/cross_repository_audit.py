@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the shared security baseline across the four project checkouts."""
+"""Audit source, dependency hygiene and policy parity across all four repositories."""
 from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 from typing import Any
@@ -20,11 +21,21 @@ SHARED_FILES = (
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
+def load_module(path: Path, name: str) -> Any:
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load assurance module: {path.name}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
 def audit(roots: dict[str, Path]) -> dict[str, Any]:
     problems: list[str] = []
     if set(roots) != set(EXPECTED):
         problems.append("exactly the four registered repositories must be supplied")
     contracts: dict[str, dict[str, Any]] = {}
+    source_reports: dict[str, dict[str, Any]] = {}
+    dependency_reports: dict[str, dict[str, Any]] = {}
     for name, project_id in EXPECTED.items():
         root = roots.get(name)
         if root is None or not root.is_dir():
@@ -55,6 +66,16 @@ def audit(roots: dict[str, Path]) -> dict[str, Any]:
         ):
             if not (root / rel).is_file():
                 problems.append(f"{name}: missing required local guardrail {rel}")
+        if not (root / ".github" / "workflows" / "codeql.yml").is_file():
+            problems.append(f"{name}: CodeQL workflow is missing")
+        try:
+            scanner = load_module(root / "scripts" / "security_audit.py", f"security_audit_{project_id}")
+            dependency = load_module(root / "scripts" / "dependency_audit.py", f"dependency_audit_{project_id}")
+            source_reports[name] = scanner.audit(root)
+            dependency_reports[name] = dependency.audit(root)
+        except Exception as error:  # A broken assurance tool is itself a failed audit.
+            problems.append(f"{name}: source/dependency audit failed ({type(error).__name__})")
+
     if len(contracts) == 4:
         first = contracts["Pytyliki"]
         for name, contract in contracts.items():
@@ -66,15 +87,37 @@ def audit(roots: dict[str, Path]) -> dict[str, Any]:
             hashes = {name: digest(roots[name] / rel) for name in EXPECTED if (roots[name] / rel).is_file()}
             if len(set(hashes.values())) != 1:
                 problems.append(f"shared assurance file differs between repositories: {rel}")
+
+    combined = {
+        "critical_secrets": sum(int(report.get("counts", {}).get("critical_secrets", 0)) for report in source_reports.values()),
+        "privacy": sum(int(report.get("counts", {}).get("privacy", 0)) for report in source_reports.values()),
+        "source_risks": sum(int(report.get("counts", {}).get("source_risks", 0)) for report in source_reports.values()),
+    }
+    if combined["critical_secrets"]:
+        problems.append("one or more repositories contain high-confidence secret findings")
+    parity_score = max(0, 100 - min(100, 15 * len(problems)))
+    source_penalty = min(100, combined["critical_secrets"] * 30 + combined["privacy"] * 3 + combined["source_risks"])
+    source_score = max(0, 100 - source_penalty)
+    dep_scores = [int(report.get("pin_hygiene_score", 0)) for report in dependency_reports.values()]
+    dependency_score = round(sum(dep_scores) / len(dep_scores)) if dep_scores else 0
+    overall_score = round(parity_score * 0.50 + source_score * 0.35 + dependency_score * 0.15)
     return {
-        "schema": "cross-repository-policy-audit.v1",
+        "schema": "cross-repository-security-assessment.v2",
         "repositories_checked": sorted(contracts),
         "expected_repositories": sorted(EXPECTED),
         "shared_files_checked": list(SHARED_FILES),
         "status": "pass" if not problems else "fail",
         "problems": problems,
-        "score": 100 if not problems else max(0, 100 - 15 * len(problems)),
-        "limitations": "Checks policy/tooling parity and file presence; it does not prove the application code is free of vulnerabilities.",
+        "score": overall_score,
+        "score_components": {
+            "policy_and_tooling_parity": {"weight": 50, "score": parity_score},
+            "source_and_privacy_scan": {"weight": 35, "score": source_score},
+            "dependency_pin_hygiene": {"weight": 15, "score": dependency_score},
+        },
+        "aggregate_findings": combined,
+        "source_audits": source_reports,
+        "dependency_audits": dependency_reports,
+        "limitations": "Static rule matching and offline dependency metadata inventory; no secret values are emitted. Does not prove absence of vulnerabilities or replace CodeQL, fuzzing, tests or expert review.",
     }
 
 def main() -> int:
