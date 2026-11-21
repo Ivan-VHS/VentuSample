@@ -143,3 +143,10 @@ See [CareGuard v1 contract and safety boundaries](docs/CARE_GUARD_V1.md).
 ## Beelzebul repository protection
 
 This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
+
+
+## CLife sample-workstation savepoints
+
+CLife creates bounded, SHA-256-verified snapshots of project files, manifests, presets and exported packs. Recovery is an offline copy to a new directory; it never runs in the audio callback or changes rendered audio.
+
+[CLife documentation](docs/CLIFE.md) · Run `python tools/clife.py snapshot .`.
