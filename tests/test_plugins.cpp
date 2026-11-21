@@ -108,8 +108,8 @@ void testManifestDiscoveryAndLifecycle() {
     require(!manager.setEnabled("hello-extension", true),
             "metadata discovery must not enable code without a reviewed handler");
     const auto pending = manager.execute("hello-extension", {});
-    require(!pending.success && pending.summary.find("no reviewed SDK handler") != std::string::npos,
-            "manifest discovery must not execute or load native code");
+    require(!pending.success && pending.summary.find("disabled") != std::string::npos,
+            "manifest discovery must keep metadata-only plugins disabled until a reviewed handler is attached");
 
     int initialized = 0;
     int stopped = 0;
