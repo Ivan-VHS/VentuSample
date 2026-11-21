@@ -102,7 +102,7 @@ jobs:
         shell: pwsh
         run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "assets/screenshots/ventusample-studio.png" -StartupSeconds 15
       - name: Commit screenshot to same-repository pull request
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, 'refresh-screenshot')
         shell: pwsh
         env:
           TARGET_BRANCH: ${{ github.head_ref }}
