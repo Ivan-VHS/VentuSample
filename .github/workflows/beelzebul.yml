@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: beelzebul-\${{ github.workflow }}-\${{ github.ref }}
+  group: beelzebul-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -39,12 +39,12 @@ jobs:
         run: python3 -m unittest discover -s tests -p "test_beelzebul.py" -v
       - name: Run read-only repository scan
         env:
-          BASE_REF: \${{ github.event.pull_request.base.sha || '' }}
+          BASE_REF: ${{ github.event.pull_request.base.sha || '' }}
         run: |
           set -euo pipefail
           ARGS=()
           if [ -n "$BASE_REF" ]; then ARGS+=(--base-ref "$BASE_REF"); fi
-          python3 tools/beelzebul.py --json --output "$RUNNER_TEMP/beelzebul-report.json" "\${ARGS[@]}"
+          python3 tools/beelzebul.py --json --output "$RUNNER_TEMP/beelzebul-report.json" "${ARGS[@]}"
           python3 - <<'PY'
           import json
           import os
