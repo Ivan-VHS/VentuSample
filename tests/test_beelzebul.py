@@ -133,6 +133,15 @@ jobs:
         report = self.report()
         self.assertIn("Y-04", {item["rule_id"] for item in report["findings"]})
 
+    def test_context_managed_path_open_is_not_flagged(self):
+        self.write("src/managed.py", """from pathlib import Path
+def read_file(path):
+    with Path(path).open("r", encoding="utf-8") as stream:
+        return stream.read()
+""")
+        report = self.report()
+        self.assertNotIn("M-15", {item["rule_id"] for item in report["findings"]})
+
     def test_risk_score_is_bounded(self):
         value = "AK" + "IA" + ("A" * 16)
         self.write("src/credential.py", f'TOKEN = "{value}"\n')
