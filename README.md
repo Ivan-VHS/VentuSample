@@ -48,3 +48,7 @@ VentuSample now includes a 20 × 3 evidence-linked matrix for audio/product qual
 ## Federation
 
 See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) and [Reaper pack audit guide](docs/REAPER_PACK_AUDIT.md). Direct VentuSample-to-Pytyliki ABI and Reaper render-request automation remain planned; OPlague device/driver diagnostics are not coupled to offline audio generation.
+
+## Market development and positioning
+
+The [market-development standard](docs/MARKET_DEVELOPMENT_STANDARD.md) and [versioned profile](market-development.v1.json) define audience segments, evidence-backed positioning, promotion channels, commercialization gates and privacy-respecting measurement. They do not imply market demand, sales or profitability.
