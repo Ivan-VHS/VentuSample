@@ -24,3 +24,13 @@ Default easing is `cubic-bezier(0.2, 0.8, 0.2, 1)` (Qt OutCubic). Normal and Exp
 The View → Motion Settings dialog persists Reduce Motion, Eco / Low-CPU Visuals, Expressive Motion and Sync to BPM. VentuSample's internal project BPM drives a restrained beat indicator; this is project-tempo feedback, not an external DAW transport connection. Reduce Motion and Eco mode suspend the beat indicator and cap retained transitions at 80 ms.
 
 Qt animations, spring timers and the beat timer run on the UI thread only. They do not run inside DSP callbacks, audio buffers, generator workers or stochastic-routing code.
+
+## Spring solver parameters
+
+| Mode | Stiffness (k) | Damping (c) | Mass (m) | Duration scale |
+| --- | ---: | ---: | ---: | ---: |
+| Normal | 240 | 22 | 1.00 | 1.00x |
+| Expressive | 340 | 20 | 0.85 | 1.35x |
+| Reduced / Eco | no spatial spring | no spatial spring | — | maximum 80 ms |
+
+The solver uses semi-implicit Euler integration with two substeps per timer tick and clamps the frame delta to 32 ms. Its timer is parented to the animated widget, runs on the Qt UI thread, and is stopped when a newer spring replaces it or the widget is destroyed. Existing graphics effects owned by other UI subsystems are never replaced.
