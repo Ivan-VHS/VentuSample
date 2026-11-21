@@ -36,4 +36,4 @@ Launch `VentuSample` from the build output. Choose a sound profile and output ty
 - Genre profiles are original procedural patterns, not copied artist recordings or proprietary sample libraries.
 - A generated pack's SHA-256, when calculated externally, identifies bytes; it does not authenticate a publisher.
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/QUALITY_MONOLITH_RHYTHM.md`](docs/QUALITY_MONOLITH_RHYTHM.md), [`docs/SOURCE_INTEGRATION.md`](docs/SOURCE_INTEGRATION.md), and [`docs/USER_GUIDE_RU.md`](docs/USER_GUIDE_RU.md).
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/QUALITY_MONOLITH_RHYTHM.md`](docs/QUALITY_MONOLITH_RHYTHM.md), [`docs/ENGINEERING_BASELINE.md`](docs/ENGINEERING_BASELINE.md), and [`docs/USER_GUIDE_RU.md`](docs/USER_GUIDE_RU.md). Publication requirements are defined in [`docs/DOCUMENTATION_CONTROL.md`](docs/DOCUMENTATION_CONTROL.md).
