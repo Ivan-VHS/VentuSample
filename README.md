@@ -139,3 +139,7 @@ This repository's host adapter, shared 18-plugin catalog and compatibility rules
 The native C++20 core adds bounded project-load assessment, non-destructive language review, valid help-request handling, manual support-path selection, evidence references, clinical-action boundaries and a deterministic maintenance reserve. It does not monitor or diagnose people.
 
 See [CareGuard v1 contract and safety boundaries](docs/CARE_GUARD_V1.md).
+
+## Beelzebul repository protection
+
+This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
