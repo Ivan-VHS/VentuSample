@@ -42,6 +42,9 @@ int main() {
     assert(plan.allocations == std::vector<std::uint32_t>({100, 100, 100, 100, 100}));
     assert(plan.baskets.size() == 5 && plan.greetingGraph.size() == 10);
     assert(plan.spent + plan.remaining == 500);
+    auto inconsistent = plan;
+    ++inconsistent.spent;
+    assert(!inconsistent.verify());
 
     bool rejected = false;
     try { (void)splitWeighted(500, {0, 0}); } catch (const std::invalid_argument&) { rejected = true; }
