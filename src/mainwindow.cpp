@@ -261,6 +261,10 @@ void MainWindow::buildUi() {
     pathRow->addWidget(outputPath_, 1);
     pathRow->addWidget(browseButton);
     exportCardLayout->addLayout(pathRow);
+    auto* tonalExportHint = new QLabel("Метки тональности и лада попадут в имена WAV и manifest (например, A_Minor или C_Major). У drum-only файлов тональность не указывается.");
+    tonalExportHint->setObjectName("mutedText");
+    tonalExportHint->setWordWrap(true);
+    exportCardLayout->addWidget(tonalExportHint);
     auto* actionRow = new QHBoxLayout();
     generateButton_ = new QPushButton("СОЗДАТЬ НАБОР СЭМПЛОВ");
     generateButton_->setObjectName("primaryButton");
@@ -641,6 +645,8 @@ void MainWindow::startGeneration() {
     appendLog(QString("PROFILE  %1 / %2 / %3 / %4 Hz")
         .arg(q(ventu::toString(p.style)), q(ventu::toString(p.target)), q(ventu::toString(p.sampler)))
         .arg(p.sampleRate));
+    appendLog(QString("KEY  %1 · scale: %2")
+        .arg(keyBox_->currentText(), q(ventu::toString(p.scale))));
 
     try {
         worker_ = std::thread([this, p, canonical] {
@@ -683,8 +689,9 @@ void MainWindow::startGeneration() {
             const QString cadenceLabel = cadenceCount > 0
                 ? QString("grid %1%").arg(cadenceTotal / cadenceCount, 0, 'f', 1)
                 : QString("grid n/a");
-            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · %5 · предел пика −0,3 dBFS")
-                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style))).arg(p.seed).arg(cadenceLabel));
+            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · %4 / %5 · seed %6 · %7 · предел пика −0,3 dBFS")
+                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style)))
+                .arg(keyBox_->currentText(), q(ventu::toString(p.scale))).arg(p.seed).arg(cadenceLabel));
             appendLog(QString("QMR CADENCE  %1 analyzed loop exports · %2")
                 .arg(cadenceCount).arg(cadenceLabel));
             statusLabel_->setText(QString("Готово · %1 аудиофайлов сохранено локально.").arg(files.size()));

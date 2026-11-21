@@ -74,4 +74,6 @@ The **20 × 3 correction / coverage / defect matrix** preserves all supplied ter
 
 The repeated term «Исчерпывающесть» is intentionally retained in rows 5 and 18 as supplied; the matrix preserves the original vocabulary rather than silently normalizing it.
 
+## Tonal sample export
 
+Generated tonal loops, melodies and bass files include the selected root and mode in their WAV names (for example, `A_Minor` or `C_Major`). The `ventusample.pack.v2` manifest records the readable `musical_key`, `mode_family` and exact `scale` in the parameter snapshot and on each exported file. Drum-only files remain unlabelled; pitched bass/pluck one-shots carry only their note. Imported source WAVs are not automatically key-detected. The v1 pack schema remains available for existing packs.

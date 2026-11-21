@@ -11,7 +11,7 @@ FIXTURE = Path(__import__("tempfile").gettempdir()) / "ventusample-tests" / "pac
 
 
 def main() -> int:
-    schema = json.loads((ROOT / "schemas/ventusample.pack.v1.schema.json").read_text(encoding="utf-8"))
+    schema = json.loads((ROOT / "schemas/ventusample.pack.v2.schema.json").read_text(encoding="utf-8"))
     pack = json.loads((FIXTURE / "ventusample_manifest.json").read_text(encoding="utf-8"))
     assert pack["schema"] == schema["properties"]["schema"]["const"]
     assert pack["audio_format"] == schema["properties"]["audio_format"]["const"]
@@ -36,7 +36,10 @@ def main() -> int:
         assert math.isfinite(entry["peak"]) and 0 <= entry["peak"] <= 1
         assert math.isfinite(entry["rms"]) and 0 <= entry["rms"] <= 1
         assert math.isfinite(entry["crest_db"]) and entry["crest_db"] >= 0
-    print("Generated pack fixture matches ventusample.pack.v1 schema shape.")
+        assert entry["musical_key"] is None or isinstance(entry["musical_key"], str)
+        assert entry["scale"] is None or isinstance(entry["scale"], str)
+        assert entry["mode_family"] in (None, "major", "minor", "modal", "pitched_note")
+    print("Generated pack fixture matches ventusample.pack.v2 schema shape.")
     return 0
 
 
