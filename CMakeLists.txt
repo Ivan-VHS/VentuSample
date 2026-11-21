@@ -44,6 +44,8 @@ add_library(ventusample_core STATIC
     src/budget_planner.hpp
     src/reaper_expression.cpp
     src/reaper_expression.hpp
+    src/careguard.cpp
+    src/careguard.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -150,4 +152,11 @@ if(VENTU_BUILD_TESTS)
         add_test(NAME ventusample-manifest-fixture COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_generated_fixture.py)
         set_tests_properties(ventusample-manifest-fixture PROPERTIES DEPENDS ventusample-generator)
     endif()
+endif()
+
+
+if(VENTU_BUILD_TESTS)
+    add_executable(ventusample_careguard_tests tests/test_careguard.cpp)
+    target_link_libraries(ventusample_careguard_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-careguard-v1 COMMAND ventusample_careguard_tests)
 endif()
