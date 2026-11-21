@@ -1,7 +1,6 @@
 #include "reaper_expression.hpp"
 
 #include <cstdint>
-#include <limits>
 
 #ifdef VENTU_HAS_REAPER
 #include "reaper/ffi.h"
@@ -51,8 +50,8 @@ bool lookupReaperSelfhood(const std::string& identity,
                           std::uint64_t& ordinal,
                           std::string& error) {
 #ifdef VENTU_HAS_REAPER
-    if (identity.empty()) {
-        error = "identity must not be empty";
+    if (identity.empty() || identity.find('\0') != std::string::npos) {
+        error = "identity must be non-empty and must not contain NUL";
         return false;
     }
     std::uint64_t candidate = ordinal;
