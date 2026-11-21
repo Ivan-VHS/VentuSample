@@ -1,0 +1,160 @@
+{
+  "schema": "anatidae.quality-repeatability-native.v1",
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "runtime": "C++20 + optional Qt 6 desktop",
+    "native_surfaces": [
+      "native C++20 sample generator",
+      "DSP and audio file output",
+      "Qt 6 desktop workstation and versioned sample packs"
+    ]
+  },
+  "pillars": {
+    "quality": {
+      "intent": "Audio correctness, safe parameter handling, metadata integrity and reproducible verification.",
+      "criteria": [
+        {
+          "id": "generator-invariants",
+          "status": "implemented",
+          "requirement": "Generator outputs respect the declared parameter and sample invariants.",
+          "verification": "Native generator tests exercise the core output contract.",
+          "evidence": {
+            "implementation": [
+              "src/generator.cpp"
+            ],
+            "verification": [
+              "tests/test_generator.cpp"
+            ]
+          }
+        },
+        {
+          "id": "pack-schema-integrity",
+          "status": "implemented",
+          "requirement": "Pack metadata follows a versioned schema and malformed fixtures are rejected.",
+          "verification": "The fixture validator checks generated pack content against the declared schema.",
+          "evidence": {
+            "implementation": [
+              "schemas/ventusample.pack.v1.schema.json"
+            ],
+            "verification": [
+              "tools/validate_generated_fixture.py"
+            ]
+          }
+        },
+        {
+          "id": "project-contract",
+          "status": "implemented",
+          "requirement": "Project-level capabilities and constraints remain machine-readable and consistent.",
+          "verification": "The project contract validator is run in CI.",
+          "evidence": {
+            "implementation": [
+              "project-contract.json"
+            ],
+            "verification": [
+              "tools/validate_project_contract.py",
+              ".github/workflows/ci.yml"
+            ]
+          }
+        }
+      ]
+    },
+    "multiplicity": {
+      "intent": "Repeated generation is reproducible, batch limits are explicit and partial failures are visible.",
+      "criteria": [
+        {
+          "id": "seeded-generation",
+          "status": "implemented",
+          "requirement": "A fixed seed and parameter set produce repeatable generation output.",
+          "verification": "Generator tests protect seeded and deterministic behavior.",
+          "evidence": {
+            "implementation": [
+              "src/generator.cpp"
+            ],
+            "verification": [
+              "tests/test_generator.cpp"
+            ]
+          }
+        },
+        {
+          "id": "bounded-multi-output",
+          "status": "planned",
+          "requirement": "Multi-sample batches define an upper bound, stable item order, cancellation and per-item results.",
+          "verification": "The generator test suite is the acceptance target; the batch API is not yet marked complete.",
+          "evidence": {
+            "implementation": [
+              "src/generator.hpp"
+            ],
+            "verification": [
+              "tests/test_generator.cpp"
+            ]
+          }
+        },
+        {
+          "id": "repeatable-fixture-validation",
+          "status": "implemented",
+          "requirement": "Exported pack fixtures can be validated repeatedly without mutating the source assets.",
+          "verification": "The fixture validator is part of the Python contract CI job.",
+          "evidence": {
+            "implementation": [
+              "tools/validate_generated_fixture.py"
+            ],
+            "verification": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        }
+      ]
+    },
+    "native": {
+      "intent": "The native C++ generator remains authoritative and desktop integration follows platform conventions.",
+      "criteria": [
+        {
+          "id": "cpp20-core",
+          "status": "implemented",
+          "requirement": "The generator core builds as a C++20 library independently of the desktop UI.",
+          "verification": "The native-engine CI job configures, builds and tests the core library.",
+          "evidence": {
+            "implementation": [
+              "CMakeLists.txt",
+              "src/generator.cpp"
+            ],
+            "verification": [
+              "tests/test_generator.cpp",
+              ".github/workflows/ci.yml"
+            ]
+          }
+        },
+        {
+          "id": "qt-desktop-boundary",
+          "status": "implemented",
+          "requirement": "Qt 6 owns desktop presentation while generator behavior remains in the native core.",
+          "verification": "Linux and Windows CI jobs build and test the desktop target when Qt is available.",
+          "evidence": {
+            "implementation": [
+              "src/mainwindow.cpp",
+              "src/generator.cpp"
+            ],
+            "verification": [
+              ".github/workflows/ci.yml"
+            ]
+          }
+        },
+        {
+          "id": "versioned-pack-boundary",
+          "status": "implemented",
+          "requirement": "Sample packs use a versioned metadata and file-format contract.",
+          "verification": "Schema and generated-fixture validation protect the exported boundary.",
+          "evidence": {
+            "implementation": [
+              "schemas/ventusample.pack.v1.schema.json"
+            ],
+            "verification": [
+              "tools/validate_generated_fixture.py"
+            ]
+          }
+        }
+      ]
+    }
+  }
+}\n
