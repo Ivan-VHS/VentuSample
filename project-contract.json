@@ -5,7 +5,7 @@
     "name": "VentuSample",
     "version": "0.2.0",
     "repository": "Ivan-VHS/VentuSample",
-    "domain": "offline hip-hop sample-pack generation",
+    "domain": "offline sample-pack and cinematic sample-family generation",
     "default_branch": "main"
   },
   "implementation": {
@@ -105,6 +105,19 @@
         "schemas/ventusample.pack.v2.schema.json",
         "tests/test_generator.cpp"
       ]
+    },
+    {
+      "id": "cineforge_cinematic_pack_engine",
+      "status": "implemented",
+      "summary": "Deterministic scene-tagged cinematic sample families with shared BPM/key, 24-bit PCM WAV dry/wet exports, combined preview and versioned manifest.",
+      "evidence": [
+        "src/cineforge.cpp",
+        "src/cineforge.hpp",
+        "src/cineforge_window.cpp",
+        "tests/test_cineforge.cpp",
+        "docs/CINEFORGE.md",
+        "schemas/cineforge.pack.v1.schema.json"
+      ]
     }
   ],
   "interfaces": [
@@ -118,6 +131,12 @@
       "id": "ventusample.pack.v2",
       "transport": "json-file-plus-wav-assets",
       "schema": "schemas/ventusample.pack.v2.schema.json",
+      "status": "implemented"
+    },
+    {
+      "id": "cineforge.pack.v1",
+      "transport": "json-file-plus-wav-assets",
+      "schema": "schemas/cineforge.pack.v1.schema.json",
       "status": "implemented"
     }
   ],
@@ -155,6 +174,7 @@
     "Versioned sample pack import/export adapters.",
     "Explicit opt-in Pytyliki C ABI measurements after differential tests.",
     "Additional independent style profiles and DSP kernels behind validated parameters.",
-    "Additional phrase strategies can extend the shared 16-step groove schedule without changing the pack v1 contract."
+    "Additional phrase strategies can extend the shared 16-step groove schedule without changing the pack v1 contract.",
+    "CINEFORGE dry/wet family expansion, stem deconstruction and DAW handoff."
   ]
 }
