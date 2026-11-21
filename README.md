@@ -51,6 +51,12 @@ The readiness report also prints a prioritized commercial action plan. Open item
 
 See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) and [Reaper pack audit guide](docs/REAPER_PACK_AUDIT.md). Direct VentuSample-to-Pytyliki ABI and Reaper render-request automation remain planned; OPlague device/driver diagnostics are not coupled to offline audio generation.
 
+## Visual design: Duck Sovereign Canon
+
+The Qt Widgets application follows a stable workstation hierarchy: sound identity, musical grid and structure, groove and texture, processing, optional source input, then export and result. The theme uses the approved white/blue/red values, local serif headings with Cyrillic support, local sans-serif controls, clear keyboard focus and 2–4 px geometry. The light/dark switch changes semantic tokens only; both modes remain inside the six-value palette.
+
+See [docs/DUCK_SOVEREIGN_CANON.md](docs/DUCK_SOVEREIGN_CANON.md) for the normative color, contrast, typography, layout, accessibility and offline requirements.
+
 ## Anatidae design layer
 
 The shared [Anatidae naming canon](federation/ANATIDAE_NAMING_CANON.md) governs friendly UI vocabulary across the four-project family. The [VentuSample desktop design contract](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) defines its use without changing audio profiles, parameters or export behavior.
