@@ -158,7 +158,7 @@ void MainWindow::buildUi() {
     beatIndicator_ = new QLabel("● BPM SYNC");
     beatIndicator_->setObjectName("beatIndicator");
     beatIndicator_->setVisible(false);
-    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0B1F3A; border-radius: 5px; padding: 5px 8px; }");
+    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
     header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
 
