@@ -9,6 +9,7 @@ struct Preferences {
     bool ecoVisuals{false};
     bool syncToBpm{false};
     bool expressiveMotion{false};
+    bool expressiveMotion{false};
 };
 
 int boundedDuration(const Preferences& preferences, int requestedMs);
