@@ -143,3 +143,7 @@ See [CareGuard v1 contract and safety boundaries](docs/CARE_GUARD_V1.md).
 ## Beelzebul repository protection
 
 This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.md), machine-readable [policy](security/beelzebul.v1.json), and read-only [scanner](tools/beelzebul.py). Run `python tools/beelzebul.py` locally; GitHub Actions runs the same gate for pull requests and protected-branch updates.
+
+## Transactional runtime
+
+Bounded in-memory state transitions, integrity checks, optimistic generation commits and rollback are documented in [Transactional Runtime Contract v1](docs/TRANSACTIONAL_RUNTIME.md). This does not enable firmware flashing or unrestricted executable loading.
