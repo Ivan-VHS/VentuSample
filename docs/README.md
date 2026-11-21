@@ -4,6 +4,7 @@
 |---|---|
 | [FEATURES.md](FEATURES.md) | generation and output matrix |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline and parameter limits |
+| [PLUGINS.md](PLUGINS.md) | built-in plugin host, extension SDK and stochastic DSP routing |
 | [USER_GUIDE_RU.md](USER_GUIDE_RU.md) | operation, profile and key labels |
 | [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md) | 20×3 QMR acceptance matrix |
 | [SOURCE_INTEGRATION.md](SOURCE_INTEGRATION.md) | WAV constraints and source rights |

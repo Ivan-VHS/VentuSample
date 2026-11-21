@@ -237,9 +237,34 @@ void MainWindow::buildUi() {
     tripletCheck_ = new QCheckBox("Тройные роллы хэтов"); tripletCheck_->setChecked(true);
     humanizeCheck_ = new QCheckBox("Микрогуманизация ±2 мс"); humanizeCheck_->setChecked(true);
     dustCheck_ = new QCheckBox("Виниловая фактура / шум транзиентов"); dustCheck_->setChecked(false);
+    stochasticCheck_ = new QCheckBox("Включить стохастическую цепь эффектов");
+    stochasticCheck_->setToolTip("Меняет DSP-цепочку при офлайн-экспорте WAV. Realtime-аудиопоток не используется.");
+    stochasticIntensitySlider_ = addSliderRow(filterGrid, 6, "Интенсивность стохастики", 0, 100, 45, &stochasticIntensityValue_);
+    stochasticTriggerBox_ = new QComboBox();
+    addChoice(stochasticTriggerBox_, {"Весь файл", "Каждый такт", "Музыкальные транзиенты"}, 0);
+    stochasticTopologyBox_ = new QComboBox();
+    addChoice(stochasticTopologyBox_, {"Гибрид", "Последовательная", "Параллельная"}, 0);
+    auto* stochasticPoolGroup = new QGroupBox("ПУЛ ДОСТУПНЫХ DSP-ЭФФЕКТОВ");
+    auto* stochasticPoolLayout = new QGridLayout(stochasticPoolGroup);
+    const std::array<QString, 8> stochasticEffectNames{
+        "Low-pass", "High-pass", "Saturator", "Bitcrusher",
+        "Delay", "Reverb", "Ring mod", "Stereo width"
+    };
+    for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect) {
+        stochasticPoolChecks_[effect] = new QCheckBox(stochasticEffectNames[effect]);
+        stochasticPoolChecks_[effect]->setChecked(true);
+        stochasticPoolLayout->addWidget(stochasticPoolChecks_[effect],
+            static_cast<int>(effect / 2u), static_cast<int>(effect % 2u));
+    }
     filterGrid->addWidget(tripletCheck_, 2, 0, 1, 2);
     filterGrid->addWidget(humanizeCheck_, 3, 0, 1, 2);
     filterGrid->addWidget(dustCheck_, 4, 0, 1, 2);
+    filterGrid->addWidget(stochasticCheck_, 5, 0, 1, 2);
+    filterGrid->addWidget(new QLabel("ТРИГГЕР МУТАЦИИ"), 8, 0);
+    filterGrid->addWidget(stochasticTriggerBox_, 8, 1, 1, 2);
+    filterGrid->addWidget(stochasticPoolGroup, 9, 0, 1, 3);
+    filterGrid->addWidget(new QLabel("ТОПОЛОГИЯ ЦЕПИ"), 10, 0);
+    filterGrid->addWidget(stochasticTopologyBox_, 10, 1, 1, 2);
     detailRow->addWidget(makeCard("04  /  ОБРАБОТКА И ДВИЖЕНИЕ", filterGrid), 1);
     studioLayout->addLayout(detailRow);
 
@@ -376,7 +401,7 @@ void MainWindow::showPlugins(const QString& selected) {
     dialog.setWindowTitle("VentuSample — менеджер плагинов");
     dialog.resize(920, 590);
     auto* root = new QVBoxLayout(&dialog);
-    auto* intro = new QLabel("18 общих внутренних модулей · встроенный C++ host · версионированный Plugin API");
+    auto* intro = new QLabel("19 общих внутренних модулей · встроенный C++ host · версионированный Plugin API");
     intro->setWordWrap(true);
     root->addWidget(intro);
 
@@ -528,6 +553,13 @@ void MainWindow::loadSettings() {
     tripletCheck_->setChecked(settings.value("triplets", true).toBool());
     humanizeCheck_->setChecked(settings.value("humanize", true).toBool());
     dustCheck_->setChecked(settings.value("dust", false).toBool());
+    stochasticCheck_->setChecked(settings.value("stochastic_enabled", false).toBool());
+    stochasticIntensitySlider_->setValue(settings.value("stochastic_intensity", 45).toInt());
+    stochasticTriggerBox_->setCurrentIndex(std::clamp(settings.value("stochastic_trigger", 0).toInt(), 0, 2));
+    const auto poolMask = static_cast<unsigned int>(settings.value("stochastic_pool_mask", 255).toUInt());
+    for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
+        stochasticPoolChecks_[effect]->setChecked((poolMask & (1u << effect)) != 0u);
+    stochasticTopologyBox_->setCurrentIndex(std::clamp(settings.value("stochastic_topology", 0).toInt(), 0, 2));
     darkThemeCheck_->setChecked(settings.value("dark", false).toBool());
     outputPath_->setText(settings.value("output", QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/VentuSample").toString());
     sourceSamplePath_->setText(settings.value("source_sample", "").toString());
@@ -568,6 +600,14 @@ void MainWindow::saveSettings() {
     settings.setValue("triplets", tripletCheck_->isChecked());
     settings.setValue("humanize", humanizeCheck_->isChecked());
     settings.setValue("dust", dustCheck_->isChecked());
+    settings.setValue("stochastic_enabled", stochasticCheck_->isChecked());
+    settings.setValue("stochastic_intensity", stochasticIntensitySlider_->value());
+    settings.setValue("stochastic_trigger", stochasticTriggerBox_->currentIndex());
+    unsigned int poolMask = 0u;
+    for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
+        if (stochasticPoolChecks_[effect]->isChecked()) poolMask |= (1u << effect);
+    settings.setValue("stochastic_pool_mask", static_cast<uint>(poolMask));
+    settings.setValue("stochastic_topology", stochasticTopologyBox_->currentIndex());
     settings.setValue("dark", darkThemeCheck_->isChecked());
     settings.setValue("output", outputPath_->text());
     settings.setValue("source_sample", sourceSamplePath_->text());
@@ -753,6 +793,13 @@ ventu::Parameters MainWindow::parameters() const {
     p.tripletRolls = tripletCheck_->isChecked();
     p.microHumanize = humanizeCheck_->isChecked();
     p.vinylDust = dustCheck_->isChecked();
+    p.stochasticEnabled = stochasticCheck_->isChecked();
+    p.stochasticIntensityPercent = stochasticIntensitySlider_->value();
+    p.stochasticTriggerMode = stochasticTriggerBox_->currentIndex();
+    p.stochasticTopology = stochasticTopologyBox_->currentIndex();
+    p.stochasticPluginMask = 0u;
+    for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
+        if (stochasticPoolChecks_[effect]->isChecked()) p.stochasticPluginMask |= (1u << effect);
     return p;
 }
 

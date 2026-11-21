@@ -1,12 +1,12 @@
 # VentuSample plugin platform
 
-VentuSample contains 18 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
+VentuSample contains 19 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
 
 ## Host capabilities
 
 | Capability | Implementation |
 |---|---|
-| Built-in registry | 18 first-party plugins registered by the core |
+| Built-in registry | 19 first-party plugins registered by the core |
 | Public SDK | PluginDescriptor, PluginContext, PluginHandler and lifecycle callbacks |
 | Manifest discovery | metadata-only recursive discovery from the desktop manager |
 | Compatibility | plugin API version 1, host ID ventu and semantic plugin versions |
@@ -14,6 +14,20 @@ VentuSample contains 18 first-party built-in plugins and a public C++20 SDK for 
 | Handler attachment | reviewed C++ handler registration through registerPlugin or attachHandler |
 | Diagnostics | source, manifest path, enabled/initialized state, handler attachment and last error |
 | Safety | discovered metadata defaults disabled; no automatic DLL/SO loading or manifest-driven code execution |
+
+## Stochastic Router (built-in)
+
+The **Stochastic Router** is a first-party offline DSP processor, not a wrapper around arbitrary third-party DLLs. It has eight weighted pool entries: low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Each entry can be enabled or excluded from the pool in the generator UI.
+
+- **Topologies:** hybrid, serial or parallel (2–4 branches when enough effects are selected).
+- **Triggers:** one route per file, one route per bar, or one route per scheduled generator event. The onset mode uses event frames from the procedural renderer; imported WAVs are not independently transient-detected.
+- **Macros:** intensity 0–100%; aggression, space, dirt and chaos follow grit, stereo, saturation and density controls.
+- **Safety:** wet ≤65%, effect feedback ≤72%, 5–20 ms dry/wet fades at segment boundaries, RMS gain compensation limited to 0.5–2×, sample-peak output guard ≤−0.3 dBFS.
+- **Determinism:** generator seed, variation, topology, trigger and enabled pool mask determine route selection.
+
+The generator checkbox is off by default. When enabled, this engine processes the rendered float buffer before PCM16 WAV encoding. Manifest v2 stores the settings and each output file's selected route names. Running the module from Plugin Manager performs a one-bar in-memory preview and reports its measurements; it does not write files.
+
+This path is **offline**. There is no real-time callback, live playback, hot swapping during playback, or arbitrary third-party audio-plugin loading.
 
 ## Desktop usage
 

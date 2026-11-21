@@ -1,4 +1,5 @@
 #include "generator.hpp"
+#include "stochastic_router.hpp"
 
 #include <algorithm>
 #include <array>
@@ -480,6 +481,16 @@ std::string validate(const Parameters& p) {
     if (p.bars < 1 || p.bars > 16) return "Длина должна составлять 1–16 тактов.";
     if (p.variations < 1 || p.variations > 32) return "Количество вариантов должно быть в диапазоне 1–32.";
     if (p.swingPercent < 50 || p.swingPercent > 68) return "Swing должен находиться в диапазоне 50–68%.";
+    if (p.stochasticIntensityPercent < 0 || p.stochasticIntensityPercent > 100)
+        return "Интенсивность стохастической цепи должна находиться в диапазоне 0–100%.";
+    if (p.stochasticTriggerMode < 0 || p.stochasticTriggerMode > 2)
+        return "Неизвестный режим триггера стохастической маршрутизации.";
+    if (p.stochasticTopology < 0 || p.stochasticTopology > 2)
+        return "Неизвестный тип графа стохастической маршрутизации.";
+    if ((p.stochasticPluginMask & ~0xFFu) != 0u)
+        return "Маска пула стохастических эффектов содержит неизвестные биты.";
+    if (p.stochasticEnabled && p.stochasticIntensityPercent > 0 && p.stochasticPluginMask == 0u)
+        return "Включи хотя бы один DSP-эффект в пуле стохастической маршрутизации.";
     if (p.densityPercent < 0 || p.densityPercent > 100 || p.gritPercent < 0 || p.gritPercent > 100 ||
         p.saturationPercent < 0 || p.saturationPercent > 100 || p.stereoPercent < 0 || p.stereoPercent > 100)
         return "Проценты плотности, зерна, сатурации и ширины должны находиться в диапазоне 0–100.";
@@ -875,6 +886,36 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             }
         }
     }
+    const auto applyStochastic = [&](AudioBuffer& audio, int variation, StochasticResult& report) -> bool {
+        if (!p.stochasticEnabled || p.stochasticIntensityPercent <= 0) return true;
+        StochasticConfig config;
+        config.seed = static_cast<std::uint32_t>(p.seed)
+            ^ (static_cast<std::uint32_t>(variation + 1) * 0x9E3779B9u);
+        config.intensity = static_cast<double>(p.stochasticIntensityPercent) / 100.0;
+        config.aggression = static_cast<double>(p.gritPercent) / 100.0;
+        config.space = static_cast<double>(p.stereoPercent) / 100.0;
+        config.dirt = static_cast<double>(p.saturationPercent) / 100.0;
+        config.chaos = static_cast<double>(p.densityPercent) / 100.0;
+        config.triggerMode = p.stochasticTriggerMode == 1
+            ? StochasticTriggerMode::FixedBlocks
+            : (p.stochasticTriggerMode == 2
+                ? StochasticTriggerMode::ScheduledOnsets
+                : StochasticTriggerMode::SinglePass);
+        config.topology = p.stochasticTopology == 1
+            ? StochasticTopology::Serial
+            : (p.stochasticTopology == 2 ? StochasticTopology::Parallel : StochasticTopology::Hybrid);
+        for (std::size_t effect = 0; effect < config.pool.size(); ++effect)
+            config.pool[effect].enabled = (p.stochasticPluginMask & (1u << effect)) != 0u;
+        config.blockFrames = std::max<std::size_t>(
+            256u, static_cast<std::size_t>(audio.sampleRate) * 240u
+                / static_cast<std::size_t>(p.bpm));
+        report = processStochastic(audio, config);
+        if (!report.success) {
+            result.error = report.error;
+            return false;
+        }
+        return true;
+    };
     std::ostringstream manifest;
     manifest << "{\n  \"schema\": \"ventusample.pack.v2\",\n  \"generator\": \"VentuSample native DSP 0.2.0\",\n  \"audio_format\": \"wav_pcm16_stereo\",\n";
     manifest << "  \"parameters\": {\"style\": \"" << jsonEscape(toString(p.style)) << "\", \"target\": \"" << jsonEscape(toString(p.target))
@@ -888,6 +929,14 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
              << ", \"triplet_rolls\": " << (p.tripletRolls ? "true" : "false")
              << ", \"micro_humanize\": " << (p.microHumanize ? "true" : "false")
              << ", \"vinyl_dust\": " << (p.vinylDust ? "true" : "false")
+             << ", \"stochastic_enabled\": " << (p.stochasticEnabled ? "true" : "false")
+             << ", \"stochastic_seed\": " << p.seed
+             << ", \"stochastic_intensity_percent\": " << p.stochasticIntensityPercent
+             << ", \"stochastic_trigger_mode\": \""
+             << (p.stochasticTriggerMode == 1 ? "bar" : (p.stochasticTriggerMode == 2 ? "onset" : "file")) << "\""
+             << ", \"stochastic_plugin_mask\": " << p.stochasticPluginMask
+             << ", \"stochastic_topology\": \""
+             << (p.stochasticTopology == 1 ? "serial" : (p.stochasticTopology == 2 ? "parallel" : "hybrid")) << "\""
              << ", \"seed\": " << p.seed << ", \"sample_rate\": " << p.sampleRate << ", \"sampler\": \"" << toString(p.sampler)
              << "\", \"timbre\": \"" << toString(p.timbre) << "\", \"source_mix_percent\": " << p.sourceMixPercent << ", \"source_pitch_semitones\": " << p.sourcePitchSemitones
              << "},\n  \"source_sample\": \"" << jsonEscape(sourcePtr == nullptr ? std::string{} : pathFromUtf8(p.sourceSamplePath).filename().string())
@@ -897,6 +946,8 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
         if (p.target == Target::OneShotKit) {
             for (const auto* hit : kitNames) {
                 auto audio = render(p, variation, hit);
+                StochasticResult stochasticReport;
+                if (!applyStochastic(audio, variation, stochasticReport)) return result;
                 const bool pitchedHit = std::string(hit) == "bass" || std::string(hit) == "pluck";
                 const std::string hitKeyTag = pitchedHit ? "_" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) : "";
                 const auto path = outputDirectory / (packPrefix + hitKeyTag + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
@@ -909,11 +960,18 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
                          << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
-                         << ", \"musical_key\": " << (pitchedHit ? "\"" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) + "\"" : "null")
+                         << ", \"stochastic_routes\": [";
+                for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
+                    if (route != 0u) manifest << ", ";
+                    manifest << "\"" << jsonEscape(stochasticReport.routes[route]) << "\"";
+                }
+                manifest << "], \"musical_key\": " << (pitchedHit ? "\"" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) + "\"" : "null")
                          << ", \"scale\": null, \"mode_family\": " << (pitchedHit ? "\"pitched_note\"" : "null") << "}";
             }
         } else {
             auto audio = render(p, variation, {}, sourcePtr);
+            StochasticResult stochasticReport;
+            if (!applyStochastic(audio, variation, stochasticReport)) return result;
             const auto path = outputDirectory / (packPrefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
             std::string error;
             if (!writeWave(path, audio, error)) { result.error = error; return result; }
@@ -924,7 +982,12 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             first = false;
             manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
                      << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
-                     << ", \"musical_key\": " << (tonalTarget ? "\"" + jsonEscape(selectedKeyLabel) + "\"" : "null")
+                     << ", \"stochastic_routes\": [";
+            for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
+                if (route != 0u) manifest << ", ";
+                manifest << "\"" << jsonEscape(stochasticReport.routes[route]) << "\"";
+            }
+            manifest << "], \"musical_key\": " << (tonalTarget ? "\"" + jsonEscape(selectedKeyLabel) + "\"" : "null")
                      << ", \"scale\": " << (tonalTarget ? "\"" + jsonEscape(toString(p.scale)) + "\"" : "null")
                      << ", \"mode_family\": " << (tonalTarget ? "\"" + modeFamily(p.scale) + "\"" : "null") << "}";
         }
