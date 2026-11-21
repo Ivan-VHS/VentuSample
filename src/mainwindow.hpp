@@ -89,7 +89,7 @@ private:
     QComboBox* stochasticTriggerBox_{};
     QComboBox* stochasticTopologyBox_{};
     std::array<QCheckBox*, 8> stochasticPoolChecks_{};
-    QCheckBox* darkThemeCheck_{};
+    QComboBox* atmosphereBox_{};
     QLineEdit* outputPath_{};
     QLineEdit* sourceSamplePath_{};
     QSlider* sourceMixSlider_{};
