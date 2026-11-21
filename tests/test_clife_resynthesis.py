@@ -29,6 +29,11 @@ class CLifePolicyTests(unittest.TestCase):
         policy["safety"]["automatic_source_rewrite"] = True
         self.assertTrue(any("automatic_source_rewrite" in issue for issue in validate_policy(policy, ROOT)))
 
+    def test_rejects_wrong_policy_schema_dialect(self) -> None:
+        policy = json.loads(json.dumps(self.policy))
+        policy["$schema"] = "not-a-schema"
+        self.assertTrue(any("schema dialect" in issue for issue in validate_policy(policy, ROOT)))
+
     def test_rejects_force_push(self) -> None:
         policy = json.loads(json.dumps(self.policy))
         policy["safety"]["force_push"] = True
