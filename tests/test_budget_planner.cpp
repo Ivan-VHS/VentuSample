@@ -16,11 +16,13 @@ int main() {
     assert(plan.allocations[5] == 40);
     assert(plan.plannedUah == 500);
 
+    plan.allocations[4] = 0;
+    plan.allocations[5] = 0;
     plan.allocations[0] = 350;
     plan.allocations[1] = 200;
     assert(calculate(plan));
-    assert(plan.plannedUah == 670);
-    assert(plan.remainingUah == -170);
+    assert(plan.plannedUah == 550);
+    assert(plan.remainingUah == -50);
     assert(!plan.withinBudget);
 
     assert(!applyScenario(plan, "unknown"));
