@@ -258,6 +258,10 @@ void MainWindow::buildUi() {
     pathRow->addWidget(outputPath_, 1);
     pathRow->addWidget(browseButton);
     exportCardLayout->addLayout(pathRow);
+    auto* tonalExportHint = new QLabel("Метки тональности и лада попадут в имена WAV и manifest (например, A_Minor или C_Major). У drum-only файлов тональность не указывается.");
+    tonalExportHint->setObjectName("mutedText");
+    tonalExportHint->setWordWrap(true);
+    exportCardLayout->addWidget(tonalExportHint);
     auto* actionRow = new QHBoxLayout();
     generateButton_ = new QPushButton("СОЗДАТЬ SAMPLE PACK");
     generateButton_->setObjectName("primaryButton");
@@ -551,6 +555,8 @@ void MainWindow::startGeneration() {
     appendLog(QString("PROFILE  %1 / %2 / %3 / %4 Hz")
         .arg(q(ventu::toString(p.style)), q(ventu::toString(p.target)), q(ventu::toString(p.sampler)))
         .arg(p.sampleRate));
+    appendLog(QString("KEY  %1 · scale: %2")
+        .arg(keyBox_->currentText(), q(ventu::toString(p.scale))));
 
     try {
         worker_ = std::thread([this, p, canonical] {
@@ -581,8 +587,9 @@ void MainWindow::startGeneration() {
             const QString manifest = QDir(lastOutputDirectory_).filePath("ventusample_manifest.json");
             auto* manifestItem = new QListWidgetItem(QFileInfo(manifest).fileName(), filesList_);
             manifestItem->setData(Qt::UserRole, manifest);
-            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · peak ceiling −0.3 dBFS")
-                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style))).arg(p.seed));
+            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · %4 / %5 · seed %6 · peak ceiling −0.3 dBFS")
+                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style)))
+                .arg(keyBox_->currentText(), q(ventu::toString(p.scale))).arg(p.seed));
             statusLabel_->setText(QString("Готово · %1 аудиофайлов сохранено локально.").arg(files.size()));
             appendLog(QString("DONE  %1 audio files + ventusample_manifest.json").arg(files.size()));
                 openFolderButton_->setEnabled(true);
