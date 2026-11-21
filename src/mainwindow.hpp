@@ -49,7 +49,8 @@ private:
     void startGeneration();
     void setBusy(bool busy);
     void appendLog(const QString& message);
-    void addChoice(QComboBox* combo, const QStringList& labels, int selected = 0);
+    void addChoice(QComboBox* combo, const QStringList& labels, int selected = 0,
+                   const QString& accessibleName = {});
     QSlider* addSliderRow(class QGridLayout* grid, int row, const QString& label,
                           int min, int max, int value, QLabel** valueLabel);
 
