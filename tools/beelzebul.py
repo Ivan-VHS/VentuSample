@@ -465,10 +465,21 @@ def scan_repository(root: Path, policy_path: Path, base_ref: str | None = None) 
         if re.search(r"(?m)^\s*permissions\s*:\s*write-all\s*$", text, re.I):
             add("Y-04", rel, None, "workflow grants write-all permissions")
         if "pull_request_target:" in lower:
-            if "actions/checkout" in lower or re.search(r"(?is)run\s*:.*(?:github\.event\.pull_request|head\.sha)", text):
-                add("Y-04", rel, None, "pull_request_target combined with checkout or PR-controlled execution")
-            else:
-                add("Y-07", rel, None, "pull_request_target requires explicit trust-boundary review")
+            # Metadata-only use of PR fields is not the same as executing PR code.
+            # Flag only a checkout explicitly pinned to the contributor's head, or a
+            # run expression that directly interpolates a PR-controlled head value.
+            checkout_of_head = bool(re.search(
+                r"(?is)uses\s*:\s*actions/checkout@[^\n]+\n(?:(?:[ \t]+[^\n]*\n){0,12})[ \t]+ref\s*:\s*[^\n#]*(?:pull_request\.head|head\.sha)",
+                text,
+            ))
+            run_interpolation = bool(re.search(
+                r"(?im)^\s*run\s*:\s*.*\$\{\{\s*github\.event\.pull_request\.head\.",
+                text,
+            ))
+            if checkout_of_head or run_interpolation:
+                add("Y-04", rel, None, "pull_request_target executes or checks out contributor-controlled head content")
+            elif re.search(r"(?im)^\s*permissions\s*:", text) and re.search(r"(?im)^\s*contents\s*:\s*write\s*$", text):
+                add("Y-07", rel, None, "pull_request_target uses write permissions; review metadata-only handling and token scope")
         if re.search(r"(?im)^\s*run\s*:\s*.*\$\{\{\s*secrets\.", text):
             add("Y-05", rel, None, "secret context interpolated directly into shell run expression")
         if re.search(r"(?im)^\s*continue-on-error\s*:\s*true\s*$", text):
@@ -486,9 +497,21 @@ def scan_repository(root: Path, policy_path: Path, base_ref: str | None = None) 
     if dependency_change:
         add("Q-02", "<pull-request>", None, "dependency manifest/lock file changed; review transitive and mirrored components")
 
-    risk = sum(SEVERITY_WEIGHT[f.severity] + (6 if f.path.startswith((".github/workflows/", "security/")) else _path_risk(f.path)) for f in findings)
+    # Risk is not a count of grep matches. Cap each rule at its strongest
+    # observed severity, then add a small path-exposure and change-volume modifier.
+    strongest_by_rule: dict[str, int] = {}
+    for finding in findings:
+        strongest_by_rule[finding.rule_id] = max(
+            strongest_by_rule.get(finding.rule_id, 0),
+            SEVERITY_WEIGHT[finding.severity],
+        )
+    sensitive_path_bonus = min(12, len({
+        finding.path for finding in findings
+        if finding.path.startswith((".github/workflows/", "security/"))
+    }) * 2)
+    risk = sum(strongest_by_rule.values()) + sensitive_path_bonus
     if changed_files:
-        risk += min(15, len(changed_files) // 5)
+        risk += min(10, len(changed_files) // 10)
     risk = min(int(limits["max_risk_score"]), risk)
     blocked = [f for f in findings if f.enforcement == "block"]
     review = [f for f in findings if f.enforcement in {"review", "governance"}]
