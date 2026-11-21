@@ -47,3 +47,10 @@ The runtime library does not independently configure OS sandboxes, TLS, identity
 ## Exceptions
 
 No exceptions are pre-authorized. Each exception requires an owner, reason, approver, exact rule scope, creation date and expiry within 30 days. Expired or malformed exceptions fail validation.
+
+## Wired application boundaries
+
+- `src/plugin_manager.cpp::validId` applies `L511` / `M-11` to plugin identifiers before registration.
+- `readFileBounded` applies `L505` / `M-03` to manifest bytes before JSON field extraction. The existing 64 KiB manifest and 256-manifest ceilings remain in force.
+- Rejections emit redacted structured events through `std::clog`; these checks run in plugin discovery/registration, not in the realtime audio callback.
+- The C11 ABI is compiled as C++ at this target boundary to avoid changing the project’s enabled CMake languages.
