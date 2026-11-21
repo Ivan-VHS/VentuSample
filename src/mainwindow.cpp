@@ -4,6 +4,10 @@
 #include <QCloseEvent>
 #include <QComboBox>
 #include <QDesktopServices>
+#include <QDialog>
+#include <QCoreApplication>
+#include <QMenu>
+#include <QMenuBar>
 #include <QDoubleSpinBox>
 #include <QFont>
 #include <QFileDialog>
@@ -112,6 +116,14 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 }
 
 void MainWindow::buildUi() {
+    auto* pluginsMenu = menuBar()->addMenu("Плагины");
+    pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
+    pluginsMenu->addSeparator();
+    for (const auto& plugin : pluginManager_.plugins()) {
+        const QString id = QString::fromStdString(plugin.id);
+        pluginsMenu->addAction(QString::fromStdString(plugin.name), this, [this, id] { showPlugins(id); });
+    }
+
     auto* central = new QWidget(this);
     auto* root = new QVBoxLayout(central);
     root->setContentsMargins(20, 18, 20, 18);
@@ -359,6 +371,108 @@ void MainWindow::buildUi() {
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
 }
 
+void MainWindow::showPlugins(const QString& selected) {
+    QDialog dialog(this);
+    dialog.setWindowTitle("VentuSample — менеджер плагинов");
+    dialog.resize(920, 590);
+    auto* root = new QVBoxLayout(&dialog);
+    auto* intro = new QLabel("18 общих внутренних модулей · встроенный C++ host · версионированный Plugin API");
+    intro->setWordWrap(true);
+    root->addWidget(intro);
+
+    auto* columns = new QHBoxLayout();
+    auto* list = new QListWidget(&dialog);
+    auto* details = new QPlainTextEdit(&dialog);
+    details->setReadOnly(true);
+    details->setMinimumWidth(440);
+    columns->addWidget(list, 1);
+    columns->addWidget(details, 2);
+    root->addLayout(columns, 1);
+
+    auto* actions = new QHBoxLayout();
+    auto* toggle = new QPushButton("Включить / отключить", &dialog);
+    auto* run = new QPushButton("Запустить плагин", &dialog);
+    auto* close = new QPushButton("Закрыть", &dialog);
+    actions->addWidget(toggle);
+    actions->addWidget(run);
+    actions->addStretch();
+    actions->addWidget(close);
+    root->addLayout(actions);
+
+    const auto refresh = [this, list, details, selected] {
+        const QString current = list->currentItem()
+            ? list->currentItem()->data(Qt::UserRole).toString() : selected;
+        list->clear();
+        int selectedRow = 0;
+        int row = 0;
+        for (const auto& plugin : pluginManager_.plugins()) {
+            const bool enabled = pluginManager_.isEnabled(plugin.id);
+            auto* item = new QListWidgetItem(
+                QString::fromStdString(plugin.name) + (enabled ? "   [ВКЛ]" : "   [ВЫКЛ]"), list);
+            item->setData(Qt::UserRole, QString::fromStdString(plugin.id));
+            if (QString::fromStdString(plugin.id) == current) selectedRow = row;
+            ++row;
+        }
+        if (list->count() > 0) list->setCurrentRow(selectedRow);
+        (void)details;
+    };
+    const auto updateDetails = [this, list, details, toggle] {
+        const auto* item = list->currentItem();
+        if (!item) {
+            details->clear();
+            toggle->setEnabled(false);
+            return;
+        }
+        const auto id = item->data(Qt::UserRole).toString().toStdString();
+        const auto* plugin = pluginManager_.find(id);
+        if (!plugin) return;
+        QString text = QString("NAME: %1\nID: %2\nVERSION: %3\nDOMAIN: %4\nOPERATION: %5\n\n%6\n\nCAPABILITIES:\n")
+            .arg(QString::fromStdString(plugin->name),
+                 QString::fromStdString(plugin->id),
+                 QString::fromStdString(plugin->version),
+                 QString::fromStdString(plugin->domain),
+                 QString::fromStdString(plugin->operation),
+                 QString::fromStdString(plugin->description));
+        for (const auto& capability : plugin->capabilities)
+            text += " • " + QString::fromStdString(capability) + "\n";
+        text += QString("\nSTATUS: %1").arg(pluginManager_.isEnabled(id) ? "ENABLED" : "DISABLED");
+        details->setPlainText(text);
+        toggle->setEnabled(true);
+        toggle->setText(pluginManager_.isEnabled(id) ? "Отключить" : "Включить");
+    };
+
+    refresh();
+    connect(list, &QListWidget::currentRowChanged, &dialog, [updateDetails](int) { updateDetails(); });
+    connect(toggle, &QPushButton::clicked, &dialog, [this, list, refresh, updateDetails] {
+        const auto* item = list->currentItem();
+        if (!item) return;
+        const auto id = item->data(Qt::UserRole).toString().toStdString();
+        pluginManager_.setEnabled(id, !pluginManager_.isEnabled(id));
+        saveSettings();
+        refresh();
+        updateDetails();
+    });
+    connect(run, &QPushButton::clicked, &dialog, [this, list, details, updateDetails] {
+        const auto* item = list->currentItem();
+        if (!item) return;
+        const auto id = item->data(Qt::UserRole).toString().toStdString();
+        ventu::PluginContext context;
+        context.parameters = parameters();
+        context.workspaceRoot = pathFromQString(QCoreApplication::applicationDirPath());
+        context.outputDirectory = pathFromQString(outputPath_->text());
+        const auto result = pluginManager_.execute(id, context);
+        QString report = QString::fromStdString(result.summary);
+        for (const auto& detail : result.details)
+            report += "\n• " + QString::fromStdString(detail);
+        details->setPlainText(report);
+        appendLog(QString("PLUGIN %1  %2").arg(QString::fromStdString(id),
+                                               result.success ? "OK" : "FAILED"));
+    });
+    connect(close, &QPushButton::clicked, &dialog, &QDialog::accept);
+    updateDetails();
+    dialog.exec();
+}
+
 void MainWindow::loadSettings() {
     QSettings settings;
     settings.beginGroup("generator");
@@ -390,6 +504,12 @@ void MainWindow::loadSettings() {
     sourceSamplePath_->setText(settings.value("source_sample", "").toString());
     sourceMixSlider_->setValue(settings.value("source_mix", 65).toInt());
     sourcePitchSpin_->setValue(settings.value("source_pitch", 0).toInt());
+    settings.endGroup();
+    settings.beginGroup("plugins");
+    for (const auto& plugin : pluginManager_.plugins()) {
+        if (settings.contains(QString::fromStdString(plugin.id)))
+            pluginManager_.setEnabled(plugin.id, settings.value(QString::fromStdString(plugin.id)).toBool());
+    }
     settings.endGroup();
 }
 
@@ -424,6 +544,10 @@ void MainWindow::saveSettings() {
     settings.setValue("source_sample", sourceSamplePath_->text());
     settings.setValue("source_mix", sourceMixSlider_->value());
     settings.setValue("source_pitch", sourcePitchSpin_->value());
+    settings.endGroup();
+    settings.beginGroup("plugins");
+    for (const auto& plugin : pluginManager_.plugins())
+        settings.setValue(QString::fromStdString(plugin.id), pluginManager_.isEnabled(plugin.id));
     settings.endGroup();
     settings.sync();
 }

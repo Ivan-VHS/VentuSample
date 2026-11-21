@@ -4,6 +4,10 @@ C++20 · Qt 6 Widgets · Windows/Linux where Qt is available · Offline · Apach
 
 Native workstation for deterministic procedural hip-hop sample packs. The scalar renderer exports PCM16 stereo WAV and versioned JSON manifests; it does not require a DAW or audio device.
 
+## Internal plugin suite
+
+The 18 shared internal products are built-in plugins in the native PluginManager. Open the **Плагины** menu to inspect capabilities, enable/disable modules and run read-only tools. See [Plugin host and SDK](docs/PLUGINS.md). The C++ SDK supports registering reviewed in-process handlers; arbitrary DLL/SO loading is intentionally not enabled.
+
 ## Generator matrix
 
 | Output | Content |

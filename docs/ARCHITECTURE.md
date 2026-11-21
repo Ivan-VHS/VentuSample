@@ -10,7 +10,7 @@
 | Asset I/O | PCM16 import, 4-slice chop, pitch resample, WAV export |
 | Master | sampler color, linked stereo compression, sample-peak ceiling |
 | Manifest | settings snapshot, key/mode, peak/RMS/crest |
-| Tests | validation, repeatability, variations, WAV round-trip, schemas |
+| Plugin host | versioned built-in registry, enable/disable lifecycle, bounded handlers and public registration API |\n| Tests | validation, repeatability, variations, WAV round-trip, schemas and plugin lifecycle |
 
 ## Numeric limits
 
