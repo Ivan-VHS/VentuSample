@@ -1,0 +1,505 @@
+{
+  "policy_version": "1.0.0",
+  "codex": "BEELZEBUL-66",
+  "title": "Beelzebul Multi-Layer Repository Guard",
+  "purpose": "Read-only, deterministic repository security audit. The quantum layer is cross-file correlation analysis, not a claim of quantum computation.",
+  "tiers": [
+    {
+      "id": "atomic",
+      "name": "Atomic Bytes",
+      "rule_count": 15,
+      "rules": [
+        {
+          "rule_id": "A01",
+          "title": "Credential assignment",
+          "description": "Detects likely API keys, access tokens, passwords and client secrets in literals.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "A02",
+          "title": "Cloud access identifier",
+          "description": "Detects AWS-style access-key identifiers in tracked text.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "A03",
+          "title": "Private-key material",
+          "description": "Detects private-key PEM headers in tracked text.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "A04",
+          "title": "High-entropy secret literal",
+          "description": "Flags long, high-entropy strings assigned to secret-like names.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "A05",
+          "title": "Bidirectional control",
+          "description": "Detects Unicode bidirectional controls that can disguise source order.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "A06",
+          "title": "Zero-width character",
+          "description": "Detects zero-width and byte-order characters in source/configuration.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "A07",
+          "title": "NUL or unexpected control byte",
+          "description": "Detects NUL and non-whitespace control bytes in text/source files.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "A08",
+          "title": "Unresolved merge marker",
+          "description": "Detects unresolved Git conflict markers in tracked text.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "A09",
+          "title": "Mixed line endings",
+          "description": "Detects CRLF/LF mixtures inside one file.",
+          "severity": "low"
+        },
+        {
+          "rule_id": "A10",
+          "title": "Oversized text artifact",
+          "description": "Flags text files above the configured size bound.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "A11",
+          "title": "Invalid UTF-8 text",
+          "description": "Detects invalid UTF-8 in files expected to be text.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "A12",
+          "title": "Ambiguous Unicode space",
+          "description": "Detects non-breaking and unusual Unicode spaces in code/configuration.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "A13",
+          "title": "Plaintext HTTP endpoint",
+          "description": "Detects non-local HTTP endpoints in executable/configuration files.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "A14",
+          "title": "Credential disclosure path",
+          "description": "Detects credential-like values passed to print/logging calls.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "A15",
+          "title": "Sensitive credential filename",
+          "description": "Detects private environment files, key stores and private-key filenames.",
+          "severity": "critical"
+        }
+      ]
+    },
+    {
+      "id": "atomic_modules",
+      "name": "Atomic Modules",
+      "rule_count": 15,
+      "rules": [
+        {
+          "rule_id": "M01",
+          "title": "Dynamic expression execution",
+          "description": "Detects eval/exec-style execution sinks in production source.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M02",
+          "title": "Shell-enabled process execution",
+          "description": "Detects subprocess calls configured with shell execution.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M03",
+          "title": "OS command execution",
+          "description": "Detects direct operating-system shell helpers.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M04",
+          "title": "Unsafe object deserialization",
+          "description": "Detects pickle load operations on untrusted object streams.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M05",
+          "title": "Unsafe YAML loading",
+          "description": "Detects YAML load calls without an explicit safe loader.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M06",
+          "title": "Weak digest primitive",
+          "description": "Detects MD5/SHA-1 use outside clearly named compatibility code.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "M07",
+          "title": "TLS verification disabled",
+          "description": "Detects requests made with certificate verification disabled.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M08",
+          "title": "Interpolated SQL execution",
+          "description": "Detects common string interpolation immediately at SQL execute calls.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M09",
+          "title": "Unsafe temporary filename",
+          "description": "Detects race-prone temporary-name generation.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "M10",
+          "title": "Legacy XML parser",
+          "description": "Detects XML parsing entry points requiring explicit entity/DTD hardening.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "M11",
+          "title": "Input-to-process correlation",
+          "description": "Detects external input flowing into process invocation on the same source line.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M12",
+          "title": "Dynamic module loading",
+          "description": "Detects variable-driven imports requiring a trust-boundary review.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "M13",
+          "title": "Input-derived filesystem path",
+          "description": "Detects request/argument-derived paths passed to file opening calls.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "M14",
+          "title": "Nested-repeat regular expression",
+          "description": "Detects likely catastrophic-backtracking regex structures.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "M15",
+          "title": "Swallowed exception",
+          "description": "Detects broad exception handlers that silently discard failures.",
+          "severity": "low"
+        }
+      ]
+    },
+    {
+      "id": "nuclear",
+      "name": "Nuclear Repository",
+      "rule_count": 15,
+      "rules": [
+        {
+          "rule_id": "N01",
+          "title": "Workflow write-all permission",
+          "description": "Detects unbounded GitHub Actions permission declarations.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "N02",
+          "title": "Privileged pull-request checkout",
+          "description": "Detects pull_request_target combined with untrusted head checkout.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "N03",
+          "title": "Workflow expression injection",
+          "description": "Detects untrusted GitHub event interpolation directly in shell run commands.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "N04",
+          "title": "Unpinned workflow action",
+          "description": "Flags third-party actions referenced by movable tags instead of commit SHA.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "N05",
+          "title": "Remote script piped to shell",
+          "description": "Detects curl/wget content piped directly into a shell.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "N06",
+          "title": "Missing workflow timeout",
+          "description": "Detects workflow jobs without an explicit timeout bound.",
+          "severity": "low"
+        },
+        {
+          "rule_id": "N07",
+          "title": "Persisted checkout credentials",
+          "description": "Detects checkout steps that persist credentials unnecessarily.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "N08",
+          "title": "Secrets in fork-capable workflow",
+          "description": "Flags secret references in pull_request workflows for review.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "N09",
+          "title": "Floating container base",
+          "description": "Detects Docker images using latest or an unpinned base tag.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "N10",
+          "title": "Dependency lock gap",
+          "description": "Detects dependency manifests without a corresponding lockfile.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "N11",
+          "title": "Unpinned Python requirement",
+          "description": "Detects requirements that are not version-pinned.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "N12",
+          "title": "Floating JavaScript dependency",
+          "description": "Detects wildcard/latest JavaScript dependency versions.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "N13",
+          "title": "Unverified remote download",
+          "description": "Detects remote downloads without nearby checksum verification.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "N14",
+          "title": "Excessive repository write scope",
+          "description": "Detects workflow contents-write or broad write permissions.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "N15",
+          "title": "Dangerous workflow trigger combination",
+          "description": "Detects privileged trigger combinations requiring isolation.",
+          "severity": "critical"
+        }
+      ]
+    },
+    {
+      "id": "quantum",
+      "name": "Quantum Correlations",
+      "rule_count": 15,
+      "rules": [
+        {
+          "rule_id": "Q01",
+          "title": "Untrusted-input to dangerous-sink correlation",
+          "description": "Correlates external input and dynamic execution/deserialization in one source file.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q02",
+          "title": "Network plus disabled TLS",
+          "description": "Correlates outbound network clients with disabled certificate verification.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q03",
+          "title": "External input plus shell execution",
+          "description": "Correlates request/argument input with process or shell execution.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "Q04",
+          "title": "Network-fed deserialization",
+          "description": "Correlates network reads with unsafe deserialization.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "Q05",
+          "title": "Secret plus logging correlation",
+          "description": "Correlates secret-like variables with logging or console output.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q06",
+          "title": "Weak crypto in authentication path",
+          "description": "Correlates weak digests with password/authentication code.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q07",
+          "title": "Privileged workflow plus external event",
+          "description": "Correlates write permissions with untrusted event data.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q08",
+          "title": "Pull-request privilege interference",
+          "description": "Correlates pull_request_target with event interpolation or write scope.",
+          "severity": "critical"
+        },
+        {
+          "rule_id": "Q09",
+          "title": "Manifest-lock inconsistency",
+          "description": "Correlates dependency manifests with missing or mismatched locks.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "Q10",
+          "title": "Multi-signal file concentration",
+          "description": "Flags files accumulating several independent security findings.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q11",
+          "title": "Security-test bypass",
+          "description": "Detects skipped security-focused test jobs or test filters.",
+          "severity": "medium"
+        },
+        {
+          "rule_id": "Q12",
+          "title": "Branch-governance bypass marker",
+          "description": "Detects explicit bypass/disable settings in repository governance files.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q13",
+          "title": "Peer-policy drift",
+          "description": "Verifies canonical policy and scanner parity across federation peers.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q14",
+          "title": "Cross-file risk concentration",
+          "description": "Correlates multiple high-risk source files in a single change set.",
+          "severity": "high"
+        },
+        {
+          "rule_id": "Q15",
+          "title": "Source/CI trust-boundary mismatch",
+          "description": "Correlates privileged workflow settings with risky source behavior.",
+          "severity": "high"
+        }
+      ]
+    }
+  ],
+  "global_rules": [
+    {
+      "rule_id": "G01",
+      "title": "Single policy authority",
+      "description": "Policy version, required layer sizes and unique rule IDs must validate.",
+      "severity": "critical"
+    },
+    {
+      "rule_id": "G02",
+      "title": "Security-first blocking",
+      "description": "Critical/high findings block changed-file checks; lower severities remain visible.",
+      "severity": "high"
+    },
+    {
+      "rule_id": "G03",
+      "title": "Deterministic evidence",
+      "description": "Reports are stable, structured and contain no matched secret values.",
+      "severity": "high"
+    },
+    {
+      "rule_id": "G04",
+      "title": "Expiring exceptions",
+      "description": "Every exception requires a reason and an unexpired ISO date.",
+      "severity": "high"
+    },
+    {
+      "rule_id": "G05",
+      "title": "Exact-path suppressions",
+      "description": "Exceptions must target one exact repository path and one rule ID.",
+      "severity": "high"
+    },
+    {
+      "rule_id": "G06",
+      "title": "Unified risk calibration",
+      "description": "Severity-weighted scoring uses one shared scale across all repositories.",
+      "severity": "medium"
+    }
+  ],
+  "scan": {
+    "max_text_file_bytes": 2097152,
+    "follow_symlinks": false,
+    "network_access": "disabled",
+    "execute_scanned_code": false,
+    "excluded_directories": [
+      ".git",
+      "node_modules",
+      "build",
+      "dist",
+      "target",
+      ".venv",
+      "venv",
+      "__pycache__",
+      ".pytest_cache"
+    ],
+    "semantic_suffixes": [
+      ".py",
+      ".c",
+      ".h",
+      ".cc",
+      ".cpp",
+      ".cxx",
+      ".hpp",
+      ".js",
+      ".jsx",
+      ".ts",
+      ".tsx",
+      ".go",
+      ".rs",
+      ".java",
+      ".cs",
+      ".rb",
+      ".php",
+      ".sh",
+      ".ps1"
+    ]
+  },
+  "blocking": {
+    "changed_files": [
+      "critical",
+      "high"
+    ],
+    "full_audit": "report_only"
+  },
+  "scoring": {
+    "critical": 25,
+    "high": 12,
+    "medium": 5,
+    "low": 1,
+    "cap": 100
+  },
+  "federation": {
+    "owner": "Ivan-VHS",
+    "peers": [
+      "Pytyliki",
+      "Reaper",
+      "OPlague",
+      "VentuSample"
+    ],
+    "canonical_ref": "main",
+    "parity_files": [
+      ".beelzebul/policy.v1.json",
+      ".beelzebul/exceptions.v1.json",
+      "security/beelzebul/scanner.py",
+      "security/beelzebul/test_scanner.py",
+      "security/beelzebul/federation.py",
+      "docs/BEELZEBUL.md",
+      ".github/workflows/beelzebul.yml"
+    ]
+  }
+}
