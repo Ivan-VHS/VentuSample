@@ -18,7 +18,7 @@ void require(bool condition, const char* message) {
 void testBuiltinRegistry() {
     ventu::PluginManager manager;
     const auto plugins = manager.plugins();
-    require(plugins.size() == 19u, "all nineteen shared products must be registered as plugins");
+    require(plugins.size() == 20u, "all twenty built-in products must be registered as plugins");
     require(manager.find("Dropaul") != nullptr, "display names should resolve");
     require(manager.find("keel-koh") != nullptr, "stable plugin IDs should resolve");
     require(manager.find("stochastic-router") != nullptr, "Stochastic Router must be registered as a built-in plugin");
@@ -44,6 +44,16 @@ void testEnableDisableAndDispatch() {
     const auto plan = manager.execute("dropaul", context);
     require(plan.success && plan.details.size() >= 5u,
             "Dropaul should create a read-only export dry-run plan");
+    const auto wellbeingDescriptor = manager.find("mental-wellbeing-reference");
+    require(wellbeingDescriptor != nullptr, "Mental Wellbeing Reference must be registered as a built-in plugin");
+    const auto wellbeing = manager.execute("mental-wellbeing-reference", context);
+    require(wellbeing.success && wellbeing.summary.find("transcript-grounded") != std::string::npos,
+            "wellbeing plugin should expose a read-only educational reference");
+    require(!wellbeing.details.empty()
+            && wellbeing.details[1].find("middle section is unavailable") != std::string::npos,
+            "wellbeing plugin must expose the known transcript gap");
+    require(wellbeing.details[3].find("insufficient transcript evidence") != std::string::npos,
+            "the title must not be used to invent antidepressant claims");
     const auto stochastic = manager.execute("stochastic-router", context);
     require(stochastic.success && stochastic.summary.find("preview route") != std::string::npos,
             "Stochastic Router should produce a bounded in-memory preview");
