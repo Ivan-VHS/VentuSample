@@ -7,7 +7,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: veelsevul-appguard-\${{ github.ref }}
+  group: veelsevul-appguard-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   policy-and-runtime:
@@ -30,7 +30,7 @@ jobs:
         run: /tmp/veelsevul-appguard-test
       - name: Scan changed files for credential leakage and hidden controls
         env:
-          BASE_SHA: \${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
         run: |
           if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "0000000000000000000000000000000000000000" ]; then
             python3 .veelsevul/guard.py --scan-base "$BASE_SHA"
