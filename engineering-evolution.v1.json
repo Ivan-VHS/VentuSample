@@ -1,0 +1,497 @@
+{
+  "schema": "engineering-evolution.v1",
+  "version": 1,
+  "title": "Engineering Evolution Framework",
+  "purpose": "A shared, evidence-led framework for architecture, modernization, verification and operational evolution across the Ivan-VHS repositories.",
+  "adoption": {
+    "sequence": [
+      "Inventory",
+      "Model",
+      "Pilot",
+      "Verify",
+      "Adopt",
+      "Measure"
+    ],
+    "statuses": [
+      "not_assessed",
+      "planned",
+      "implemented",
+      "not_applicable"
+    ],
+    "rule": "A practice is implemented only when repository-specific code, tests or operational evidence support the claim. Not every practice is appropriate for every repository."
+  },
+  "pillars": [
+    {
+      "id": "architecture",
+      "terms": [
+        "Архитектура",
+        "Квантование",
+        "Телеметрия"
+      ],
+      "intent": "Define stable module boundaries and versioned contracts. Quantization states precision and error budgets; telemetry is low-cardinality, privacy-conscious and local by default.",
+      "practices": [
+        {
+          "term": "Квантование",
+          "guidance": "Define stable module boundaries and versioned contracts."
+        },
+        {
+          "term": "Телеметрия",
+          "guidance": "Quantization states precision and error budgets; telemetry is low-cardinality, privacy-conscious and local by default."
+        }
+      ],
+      "acceptance": [
+        "Quantized values retain units, precision and a documented error bound.",
+        "Telemetry records source, time window and sampling policy without exporting secrets."
+      ]
+    },
+    {
+      "id": "impulse",
+      "terms": [
+        "Импульс",
+        "Модернизация",
+        "Калибровка"
+      ],
+      "intent": "Treat events and triggers as explicit inputs. Modernize incrementally against a recorded baseline and calibrate thresholds with representative fixtures.",
+      "practices": [
+        {
+          "term": "Модернизация",
+          "guidance": "Treat events and triggers as explicit inputs."
+        },
+        {
+          "term": "Калибровка",
+          "guidance": "Modernize incrementally against a recorded baseline and calibrate thresholds with representative fixtures."
+        }
+      ],
+      "acceptance": [
+        "Behavior-changing work has a before/after baseline and rollback point.",
+        "Calibration fixtures cover nominal, boundary and failure conditions."
+      ]
+    },
+    {
+      "id": "crystal",
+      "terms": [
+        "Кристалл",
+        "Векторизация",
+        "Дискретизация"
+      ],
+      "intent": "Keep canonical state stable. Apply vectorized paths only when they preserve scalar semantics; discretize continuous values with explicit sampling and resolution rules.",
+      "practices": [
+        {
+          "term": "Векторизация",
+          "guidance": "Keep canonical state stable."
+        },
+        {
+          "term": "Дискретизация",
+          "guidance": "Apply vectorized paths only when they preserve scalar semantics; discretize continuous values with explicit sampling and resolution rules."
+        }
+      ],
+      "acceptance": [
+        "Optimized paths are checked against a trusted scalar/reference implementation.",
+        "Sampling intervals, resolution and rounding risks are documented where relevant."
+      ]
+    },
+    {
+      "id": "transformation",
+      "terms": [
+        "Преобразование",
+        "Автоматизация",
+        "Инкапсуляция"
+      ],
+      "intent": "Make transformations repeatable and isolated behind owned interfaces. Automation is idempotent and least-privileged; encapsulation protects invariants.",
+      "practices": [
+        {
+          "term": "Автоматизация",
+          "guidance": "Make transformations repeatable and isolated behind owned interfaces."
+        },
+        {
+          "term": "Инкапсуляция",
+          "guidance": "Automation is idempotent and least-privileged; encapsulation protects invariants."
+        }
+      ],
+      "acceptance": [
+        "Repeated automation does not create duplicate or destructive side effects.",
+        "Mutable state and transformation preconditions are exposed through validated interfaces."
+      ]
+    },
+    {
+      "id": "orbit",
+      "terms": [
+        "Орбита",
+        "Трансформация",
+        "Параметризация"
+      ],
+      "intent": "Model feature, data and release lifecycles as controlled stages. Parameterize behavior with validated configuration and versioned migration paths.",
+      "practices": [
+        {
+          "term": "Трансформация",
+          "guidance": "Model feature, data and release lifecycles as controlled stages."
+        },
+        {
+          "term": "Параметризация",
+          "guidance": "Parameterize behavior with validated configuration and versioned migration paths."
+        }
+      ],
+      "acceptance": [
+        "Lifecycle states and transition rules are documented and testable.",
+        "Parameters have schema, units, bounds, defaults and compatibility rules."
+      ]
+    },
+    {
+      "id": "integration",
+      "terms": [
+        "Интеграция",
+        "Оптимизация",
+        "Дедупликация"
+      ],
+      "intent": "Integrate through explicit adapters and versioned interfaces. Optimize measured bottlenecks; deduplicate work without erasing provenance, ordering or meaningful distinctions.",
+      "practices": [
+        {
+          "term": "Оптимизация",
+          "guidance": "Integrate through explicit adapters and versioned interfaces."
+        },
+        {
+          "term": "Дедупликация",
+          "guidance": "Optimize measured bottlenecks; deduplicate work without erasing provenance, ordering or meaningful distinctions."
+        }
+      ],
+      "acceptance": [
+        "Every integration has an owner, contract and failure mode.",
+        "Optimization preserves output semantics and has regression coverage."
+      ]
+    },
+    {
+      "id": "algorithm",
+      "terms": [
+        "Алгоритм",
+        "Компиляция",
+        "Контейнеризация"
+      ],
+      "intent": "Prefer bounded algorithms with stated complexity. Compilation and packaging are reproducible; containers remain optional tools, not a universal dependency.",
+      "practices": [
+        {
+          "term": "Компиляция",
+          "guidance": "Prefer bounded algorithms with stated complexity."
+        },
+        {
+          "term": "Контейнеризация",
+          "guidance": "Compilation and packaging are reproducible; containers remain optional tools, not a universal dependency."
+        }
+      ],
+      "acceptance": [
+        "Algorithmic limits and worst-case input sizes are declared and tested.",
+        "Build inputs and packaged runtime dependencies are traceable."
+      ]
+    },
+    {
+      "id": "mechanism",
+      "terms": [
+        "Механизм",
+        "Моделирование",
+        "Репликация"
+      ],
+      "intent": "Model mechanisms before implementing them. Replicate state or work only under an explicit consistency model, with deterministic fixtures and clear ownership.",
+      "practices": [
+        {
+          "term": "Моделирование",
+          "guidance": "Model mechanisms before implementing them."
+        },
+        {
+          "term": "Репликация",
+          "guidance": "Replicate state or work only under an explicit consistency model, with deterministic fixtures and clear ownership."
+        }
+      ],
+      "acceptance": [
+        "Models define states, transitions, assumptions and failure cases.",
+        "Replicas cannot silently diverge or duplicate side effects."
+      ]
+    },
+    {
+      "id": "evolution",
+      "terms": [
+        "Эволюция",
+        "Конфигурация",
+        "Маршрутизация"
+      ],
+      "intent": "Evolve systems through versioned configuration and explicit routing rules. Routing is deterministic, observable and allow-listed.",
+      "practices": [
+        {
+          "term": "Конфигурация",
+          "guidance": "Evolve systems through versioned configuration and explicit routing rules."
+        },
+        {
+          "term": "Маршрутизация",
+          "guidance": "Routing is deterministic, observable and allow-listed."
+        }
+      ],
+      "acceptance": [
+        "Configuration is validated before activation and has safe defaults.",
+        "Destinations and fallback behavior are explicit and tested."
+      ]
+    },
+    {
+      "id": "resonance",
+      "terms": [
+        "Резонанс",
+        "Декомпозиция",
+        "Декомпрессия"
+      ],
+      "intent": "Separate coupled responsibilities and isolate hot paths. Treat decompression as untrusted input processing with strict size, ratio, path and time limits.",
+      "practices": [
+        {
+          "term": "Декомпозиция",
+          "guidance": "Separate coupled responsibilities and isolate hot paths."
+        },
+        {
+          "term": "Декомпрессия",
+          "guidance": "Treat decompression as untrusted input processing with strict size, ratio, path and time limits."
+        }
+      ],
+      "acceptance": [
+        "Components have explicit inputs, outputs and resource budgets.",
+        "Compressed inputs cannot escape approved output roots."
+      ]
+    },
+    {
+      "id": "horizon",
+      "terms": [
+        "Горизонт",
+        "Масштабирование",
+        "Трансляция"
+      ],
+      "intent": "Plan capacity against measured demand and declared budgets. Translate formats, units or protocol versions through explicit adapters.",
+      "practices": [
+        {
+          "term": "Масштабирование",
+          "guidance": "Plan capacity against measured demand and declared budgets."
+        },
+        {
+          "term": "Трансляция",
+          "guidance": "Translate formats, units or protocol versions through explicit adapters."
+        }
+      ],
+      "acceptance": [
+        "Scaling thresholds derive from measurements and resource limits.",
+        "Translations preserve units and semantics and report unsupported fields."
+      ]
+    },
+    {
+      "id": "molecule",
+      "terms": [
+        "Молекула",
+        "Оркестрация",
+        "Сегментация"
+      ],
+      "intent": "Compose cohesive components with clear lifecycle ownership. Orchestration coordinates; segmentation isolates data, workloads and failure domains.",
+      "practices": [
+        {
+          "term": "Оркестрация",
+          "guidance": "Compose cohesive components with clear lifecycle ownership."
+        },
+        {
+          "term": "Сегментация",
+          "guidance": "Orchestration coordinates; segmentation isolates data, workloads and failure domains."
+        }
+      ],
+      "acceptance": [
+        "Each component has a clear responsibility and bounded dependencies.",
+        "Cancellation, partial failure and segment boundaries are handled explicitly."
+      ]
+    },
+    {
+      "id": "navigation",
+      "terms": [
+        "Навигация",
+        "Интерпретация",
+        "Агрегация"
+      ],
+      "intent": "Make capabilities and data flows discoverable. Interpretation explains malformed or ambiguous inputs; aggregation preserves provenance and deterministic ordering.",
+      "practices": [
+        {
+          "term": "Интерпретация",
+          "guidance": "Make capabilities and data flows discoverable."
+        },
+        {
+          "term": "Агрегация",
+          "guidance": "Interpretation explains malformed or ambiguous inputs; aggregation preserves provenance and deterministic ordering."
+        }
+      ],
+      "acceptance": [
+        "Supported routes and capability boundaries are discoverable.",
+        "Aggregated outputs retain source identity, timestamps and conflict information."
+      ]
+    },
+    {
+      "id": "synchronization",
+      "terms": [
+        "Синхронизация",
+        "Адаптация",
+        "Фрагментация"
+      ],
+      "intent": "Define consistency and ordering before synchronizing state. Adapt interfaces compatibly; fragment large payloads with integrity checks and explicit reassembly rules.",
+      "practices": [
+        {
+          "term": "Адаптация",
+          "guidance": "Define consistency and ordering before synchronizing state."
+        },
+        {
+          "term": "Фрагментация",
+          "guidance": "Adapt interfaces compatibly; fragment large payloads with integrity checks and explicit reassembly rules."
+        }
+      ],
+      "acceptance": [
+        "Concurrent updates have a documented conflict and ordering policy.",
+        "Fragments are bounded and reassembled without silent truncation."
+      ]
+    },
+    {
+      "id": "gravity",
+      "terms": [
+        "Гравитация",
+        "Стабилизация",
+        "Деплоймент"
+      ],
+      "intent": "Treat safety, data integrity and resource constraints as non-negotiable. Stabilize with timeouts and bounded retries; deploy with health checks and rollback.",
+      "practices": [
+        {
+          "term": "Стабилизация",
+          "guidance": "Treat safety, data integrity and resource constraints as non-negotiable."
+        },
+        {
+          "term": "Деплоймент",
+          "guidance": "Stabilize with timeouts and bounded retries; deploy with health checks and rollback."
+        }
+      ],
+      "acceptance": [
+        "Failure handling avoids infinite retries and unsafe partial state.",
+        "Deployments have health gates, rollback paths and approval for privileged changes."
+      ]
+    },
+    {
+      "id": "protocol",
+      "terms": [
+        "Протокол",
+        "Реконструкция",
+        "Рефакторинг"
+      ],
+      "intent": "Specify wire and internal protocols. Reconstruct state only from verifiable evidence; refactor behind compatibility tests while preserving behavior.",
+      "practices": [
+        {
+          "term": "Реконструкция",
+          "guidance": "Specify wire and internal protocols."
+        },
+        {
+          "term": "Рефакторинг",
+          "guidance": "Reconstruct state only from verifiable evidence; refactor behind compatibility tests while preserving behavior."
+        }
+      ],
+      "acceptance": [
+        "Protocol versions, error codes and compatibility expectations are documented.",
+        "Refactors pass behavioral parity tests and never infer missing source data."
+      ]
+    },
+    {
+      "id": "geometry",
+      "terms": [
+        "Геометрия",
+        "Верификация",
+        "Абстракция"
+      ],
+      "intent": "Use precise structural models for relationships, dimensions and coordinate systems. Verify invariants at boundaries; abstract only when it clarifies contracts.",
+      "practices": [
+        {
+          "term": "Верификация",
+          "guidance": "Use precise structural models for relationships, dimensions and coordinate systems."
+        },
+        {
+          "term": "Абстракция",
+          "guidance": "Verify invariants at boundaries; abstract only when it clarifies contracts."
+        }
+      ],
+      "acceptance": [
+        "Dimensions, units, indices and coordinate assumptions are explicit.",
+        "Abstractions have invariant tests and avoid needless indirection."
+      ]
+    },
+    {
+      "id": "generation",
+      "terms": [
+        "Генерация",
+        "Декомпиляция",
+        "Индексация"
+      ],
+      "intent": "Make generators deterministic when seeded and validate artifacts. Use decompilation for read-only inspection; index content with freshness and privacy boundaries.",
+      "practices": [
+        {
+          "term": "Декомпиляция",
+          "guidance": "Make generators deterministic when seeded and validate artifacts."
+        },
+        {
+          "term": "Индексация",
+          "guidance": "Use decompilation for read-only inspection; index content with freshness and privacy boundaries."
+        }
+      ],
+      "acceptance": [
+        "Generated outputs are reproducible or declare nondeterministic inputs.",
+        "Inspection never executes the artifact, and indexes are rebuildable."
+      ]
+    },
+    {
+      "id": "trajectory",
+      "terms": [
+        "Траектория",
+        "Синтезирование",
+        "Сериализация"
+      ],
+      "intent": "Track changes through measurable milestones. Synthesize sources with explicit conflict handling; serialize stable, versioned representations.",
+      "practices": [
+        {
+          "term": "Синтезирование",
+          "guidance": "Track changes through measurable milestones."
+        },
+        {
+          "term": "Сериализация",
+          "guidance": "Synthesize sources with explicit conflict handling; serialize stable, versioned representations."
+        }
+      ],
+      "acceptance": [
+        "Milestones have evidence-based exit criteria and measurable outcomes.",
+        "Serialized formats are versioned, validated and stable under repeat runs."
+      ]
+    },
+    {
+      "id": "perspective",
+      "terms": [
+        "Перспектива",
+        "Прогнозирование",
+        "Десериализация"
+      ],
+      "intent": "Use historical evidence to forecast capacity, risk and maintenance needs while exposing uncertainty. Deserialize only bounded, schema-validated input.",
+      "practices": [
+        {
+          "term": "Прогнозирование",
+          "guidance": "Use historical evidence to forecast capacity, risk and maintenance needs while exposing uncertainty."
+        },
+        {
+          "term": "Десериализация",
+          "guidance": "Deserialize only bounded, schema-validated input."
+        }
+      ],
+      "acceptance": [
+        "Forecasts state data window, assumptions, confidence and known gaps.",
+        "Deserialization rejects oversized, malformed and out-of-range fields safely."
+      ]
+    }
+  ],
+  "guardrails": [
+    "Keep project-contract.json and existing architecture and safety contracts authoritative; this framework complements rather than replaces them.",
+    "Never mark a capability implemented without repository-specific code, tests or operational evidence.",
+    "Prefer existing toolchains; do not introduce a framework, service or container runtime solely to satisfy a vocabulary item.",
+    "Keep telemetry local by default, minimize collection, redact secrets and identifiers, and require explicit opt-in before external transmission.",
+    "Bound untrusted inputs, decompression, recursion, memory, execution time, concurrency and generated output sizes.",
+    "Preserve units, precision, ordering, provenance and compatibility when quantizing, translating, aggregating or serializing data.",
+    "Make automation idempotent and least-privileged; destructive or privileged operations require explicit authorization and rollback.",
+    "Treat decompilation and inspection as read-only; never execute untrusted source, packages, binaries or generated payloads.",
+    "Base performance and scaling claims on reproducible measurements with hardware, workload and environment context.",
+    "Allow not_applicable when a technique conflicts with the repository's product boundary or safety model."
+  ]
+}
