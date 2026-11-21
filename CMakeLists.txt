@@ -43,6 +43,16 @@ if(VENTU_BUILD_DESKTOP)
         )
         target_link_libraries(VentuSample PRIVATE ventusample_core Qt6::Widgets)
         target_include_directories(VentuSample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+        if(VENTU_BUILD_TESTS)
+            add_executable(ventusample_ui_motion_tests
+                tests/test_ui_motion.cpp
+                src/ui_motion.cpp
+                src/ui_motion.hpp
+            )
+            target_link_libraries(ventusample_ui_motion_tests PRIVATE Qt6::Widgets)
+            target_include_directories(ventusample_ui_motion_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+            add_test(NAME ventusample-ui-motion COMMAND ventusample_ui_motion_tests)
+        endif()
         if(WIN32)
             target_compile_definitions(VentuSample PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0A00 WINVER=0x0A00)
         endif()
