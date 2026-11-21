@@ -171,6 +171,19 @@ void testBillionaireGoldenEraProfile() {
     const auto sequentialOrder = ventu::render(p, 0, {}, &source);
     require(crateOrder.samples != sequentialOrder.samples,
             "Billionaire Golden Era must reassemble four source slices in 0-2-1-3 order");
+
+    p.style = ventu::Style::BillionaireGoldenEra;
+    const auto packDirectory = std::filesystem::temp_directory_path() / "ventusample-bge-pack";
+    std::error_code cleanupError;
+    std::filesystem::remove_all(packDirectory, cleanupError);
+    const auto pack = ventu::generatePack(p, packDirectory);
+    require(static_cast<bool>(pack), "Billionaire Golden Era pack export should succeed");
+    std::ifstream manifest(packDirectory / "ventusample_manifest.json", std::ios::binary);
+    const std::string manifestText((std::istreambuf_iterator<char>(manifest)),
+                                   std::istreambuf_iterator<char>());
+    require(manifestText.find("Billionaire Golden Era") != std::string::npos,
+            "exported manifest must retain the shared Billionaire Golden Era profile name");
+    std::filesystem::remove_all(packDirectory, cleanupError);
 }
 
 void testWaveAndPackExport() {
