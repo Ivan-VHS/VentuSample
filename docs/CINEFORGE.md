@@ -11,7 +11,7 @@ CINEFORGE is the native, offline cinematic sound-family generator inside VentuSa
 
 ## Asset family
 
-The current procedural family catalogue includes SubBoom, TitanImpact, BrassPulse, MetalHit, Ostinato, PercussionLoop, Riser, Atmosphere, HybridAccent and ImpactTail. Pack size selects the first N families in a stable order.
+The current procedural family catalogue includes SubBoom, TitanImpact, BrassPulse, MetalHit, Ostinato, PercussionLoop, Riser, Atmosphere, HybridAccent, ImpactTail, GlassShard and ReversePressure. Pack size selects the first N families in a stable order.
 
 Each object exports five independent stereo WAV files:
 - Dry — dry composite.

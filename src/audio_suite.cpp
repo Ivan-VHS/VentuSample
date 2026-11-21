@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstdint>
 #include <fstream>
@@ -420,7 +421,7 @@ bool processAudioChain(AudioSuiteBuffer& buffer, const std::vector<AudioPluginCh
     return true;
 }
 
-bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error) {
+bool loadWav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error) {
     std::error_code ec;
     const auto fileBytes = std::filesystem::file_size(path, ec);
     if (ec || fileBytes < 44u || fileBytes > kMaxWavBytes) {
@@ -437,6 +438,7 @@ bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, s
         error = "Invalid RIFF/WAVE container.";
         return false;
     }
+
     std::uint16_t format = 0, channels = 0, bits = 0, blockAlign = 0;
     std::uint32_t sampleRate = 0, dataOffset = 0, dataSize = 0;
     std::size_t offset = 12u;
@@ -457,31 +459,74 @@ bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, s
         }
         offset = begin + static_cast<std::size_t>(chunkSize) + (chunkSize & 1u);
     }
-    if (format != 1u || (channels != 1u && channels != 2u) || bits != 16u
+
+    const bool pcm16 = format == 1u && bits == 16u;
+    const bool pcm24 = format == 1u && bits == 24u;
+    const bool float32 = format == 3u && bits == 32u;
+    const std::uint16_t bytesPerSample = static_cast<std::uint16_t>(bits / 8u);
+    if ((!pcm16 && !pcm24 && !float32) || (channels != 1u && channels != 2u)
         || sampleRate < 8000u || sampleRate > 384000u
-        || blockAlign != channels*2u || dataSize == 0u || dataOffset == 0u) {
-        error = "Only PCM16 mono/stereo WAV from 8 to 384 kHz is supported.";
+        || blockAlign != channels * bytesPerSample || dataSize == 0u
+        || dataOffset == 0u || (dataSize % blockAlign) != 0u) {
+        error = "Supported WAV input: PCM16, PCM24 or IEEE Float32; mono/stereo; 8–384 kHz.";
         return false;
     }
+
     const std::size_t frames = static_cast<std::size_t>(dataSize / blockAlign);
     if (frames == 0u || frames > kMaxFrames) {
         error = "WAV frame count exceeds the 20-million-frame safety limit.";
         return false;
     }
+
+    const auto decodeSample = [&bytes, pcm16, pcm24, float32](std::size_t at, float& sample) {
+        if (pcm16) {
+            const auto raw = read16(bytes, at);
+            const std::int32_t signedValue = raw >= 0x8000u
+                ? static_cast<std::int32_t>(raw) - 65536
+                : static_cast<std::int32_t>(raw);
+            sample = static_cast<float>(signedValue) / 32768.0f;
+        } else if (pcm24) {
+            const std::uint32_t raw = static_cast<std::uint32_t>(bytes[at])
+                | (static_cast<std::uint32_t>(bytes[at+1u]) << 8u)
+                | (static_cast<std::uint32_t>(bytes[at+2u]) << 16u);
+            const std::int32_t signedValue = (raw & 0x800000u) != 0u
+                ? static_cast<std::int32_t>(raw) - 0x1000000
+                : static_cast<std::int32_t>(raw);
+            sample = static_cast<float>(signedValue) / 8388608.0f;
+        } else if (float32) {
+            sample = std::bit_cast<float>(read32(bytes, at));
+            if (!std::isfinite(sample)) return false;
+        }
+        return true;
+    };
+
     AudioSuiteBuffer loaded;
     loaded.sampleRate = static_cast<int>(sampleRate);
     loaded.left.resize(frames);
     loaded.right.resize(frames);
-    for (std::size_t i=0; i<frames; ++i) {
-        const std::size_t at = static_cast<std::size_t>(dataOffset) + i*blockAlign;
-        const auto l = static_cast<std::int16_t>(read16(bytes, at));
-        const auto r = channels == 2u ? static_cast<std::int16_t>(read16(bytes, at+2u)) : l;
-        loaded.left[i] = static_cast<float>(l)/32768.0f;
-        loaded.right[i] = static_cast<float>(r)/32768.0f;
+    for (std::size_t i = 0; i < frames; ++i) {
+        const std::size_t at = static_cast<std::size_t>(dataOffset) + i * blockAlign;
+        if (!decodeSample(at, loaded.left[i])) {
+            error = "Float32 WAV contains a non-finite sample.";
+            return false;
+        }
+        if (channels == 2u) {
+            if (!decodeSample(at + bytesPerSample, loaded.right[i])) {
+                error = "Float32 WAV contains a non-finite sample.";
+                return false;
+            }
+        } else {
+            loaded.right[i] = loaded.left[i];
+        }
     }
     buffer = std::move(loaded);
     error.clear();
     return true;
+}
+
+bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error) {
+    // Kept as a source-compatible alias; the generic reader accepts all bounded formats above.
+    return loadWav(path, buffer, error);
 }
 
 bool savePcm16Wav(const std::filesystem::path& path, const AudioSuiteBuffer& buffer,

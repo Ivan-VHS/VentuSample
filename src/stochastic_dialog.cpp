@@ -83,7 +83,7 @@ StochasticDialog::StochasticDialog(QWidget* parent) : QDialog(parent) {
     auto* inputRow = new QHBoxLayout();
     sourcePath_ = new QLineEdit();
     sourcePath_->setReadOnly(true);
-    sourcePath_->setPlaceholderText("Загрузи локальный PCM16 WAV для офлайн-рендера");
+    sourcePath_->setPlaceholderText("Загрузи локальный PCM16/PCM24/Float32 WAV для офлайн-рендера");
     auto* import = new QPushButton("Импорт WAV…");
     inputRow->addWidget(sourcePath_, 1);
     inputRow->addWidget(import);
@@ -104,7 +104,7 @@ StochasticDialog::StochasticDialog(QWidget* parent) : QDialog(parent) {
     root->addLayout(slotActions);
 
     status_ = new QLabel(
-        "Генерация детерминирована Seed. Для рендера нужен локальный PCM16 WAV; исходник не перезаписывается.");
+        "Генерация детерминирована Seed. Для рендера нужен локальный PCM16/PCM24/Float32 WAV; исходник не перезаписывается.");
     status_->setWordWrap(true);
     status_->setStyleSheet("padding:8px;border:1px solid #0039A6;border-radius:3px;");
     root->addWidget(status_);
@@ -135,11 +135,11 @@ StochasticDialog::~StochasticDialog() {
 
 void StochasticDialog::importSource() {
     const QString file = QFileDialog::getOpenFileName(
-        this, "Import source WAV", {}, "WAV audio (*.wav);;All files (*.*)");
+        this, "Import source WAV (PCM16/24 or Float32)", {}, "WAV audio (*.wav);;All files (*.*)");
     if (file.isEmpty()) return;
     ventu::AudioSuiteBuffer loaded;
     std::string error;
-    if (!ventu::loadPcm16Wav(pathFromQString(file), loaded, error)) {
+    if (!ventu::loadWav(pathFromQString(file), loaded, error)) {
         QMessageBox::warning(this, "WAV import failed", QString::fromStdString(error));
         return;
     }
@@ -229,7 +229,7 @@ void StochasticDialog::toggleSelectedLock() {
 void StochasticDialog::renderSelectedPlan() {
     if (worker_.joinable()) worker_.join();
     if (source_.left.empty()) {
-        QMessageBox::information(this, "Stochastic Router", "Сначала импортируй PCM16 WAV.");
+        QMessageBox::information(this, "Stochastic Router", "Сначала импортируй PCM16/PCM24/Float32 WAV.");
         return;
     }
     const int index = planSelector_->currentIndex();
@@ -266,7 +266,7 @@ void StochasticDialog::renderSelectedPlan() {
             }
             status_->setText("RENDER COMPLETE · " + pathToQString(output));
             QMessageBox::information(this, "Stochastic Router",
-                                     "Processed PCM16 WAV exported. Source file was not modified.");
+                                     "Processed PCM16/PCM24/Float32 WAV exported. Source file was not modified.");
         }, Qt::QueuedConnection);
     });
 }

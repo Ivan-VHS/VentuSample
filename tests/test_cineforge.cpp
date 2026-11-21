@@ -1,4 +1,5 @@
 #include "cineforge.hpp"
+#include "audio_suite.hpp"
 
 #include <cstdint>
 #include <cstdlib>
@@ -69,6 +70,14 @@ void testFormatsAndDeterminism() {
     const auto floatBytes = readBytes(floating.assets.front().files.front());
     require(read16(floatBytes, 34u) == 32u, "float output must be 32-bit");
     require(read16(floatBytes, 20u) == 3u, "float output must declare IEEE float format");
+
+    ventu::AudioSuiteBuffer imported24, importedFloat;
+    std::string importError;
+    require(ventu::loadWav(first.assets.front().files.front(), imported24, importError),
+            "Audio Suite generic reader must import CINEFORGE PCM24 output");
+    require(ventu::loadWav(floating.assets.front().files.front(), importedFloat, importError),
+            "Audio Suite generic reader must import CINEFORGE Float32 output");
+    require(imported24.valid() && importedFloat.valid(), "imported CINEFORGE buffers must be valid");
     std::filesystem::remove_all(root, ec);
 }
 

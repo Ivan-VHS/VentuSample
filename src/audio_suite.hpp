@@ -47,7 +47,9 @@ bool processAudioPlugin(AudioSuiteBuffer& buffer, const std::string& idOrName,
 bool processAudioChain(AudioSuiteBuffer& buffer, const std::vector<AudioPluginChainItem>& chain,
                        std::string& error);
 
-// Bounded PCM16 RIFF/WAVE I/O. Mono files are expanded to dual-mono internally.
+// Bounded PCM16/PCM24/IEEE Float32 RIFF/WAVE import. Mono files are expanded to dual-mono.
+bool loadWav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error);
+// Compatibility entry point retained for clients of the original PCM16-only API.
 bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error);
 bool savePcm16Wav(const std::filesystem::path& path, const AudioSuiteBuffer& buffer,
                   std::string& error);

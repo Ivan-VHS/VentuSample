@@ -5,7 +5,7 @@ Ventu Audio Suite is the native offline effects rack built into VentuSample. It 
 ## Desktop workflow
 
 1. Open **Плагины → Ventu Audio Suite — 66 DSP эффектов**.
-2. Import a PCM16 mono or stereo WAV. Mono is converted to dual-mono in memory.
+2. Import a PCM16, PCM24 or IEEE Float32 mono/stereo WAV. Mono is converted to dual-mono in memory.
 3. Select an effect in the library and click **Добавить эффект**. Repeat to build a serial rack; order matters.
 4. Select a rack item and edit its Amount, Wet, Rate, Tone and Width controls. Values are stored per effect instance.
 5. Click **Обработать и экспортировать** and choose a new WAV destination. Processing takes place on a worker thread. The imported source is never overwritten.
@@ -121,7 +121,7 @@ The public API is in src/audio_suite.hpp:
 - findAudioPlugin() resolves a stable ID or display name.
 - processAudioPlugin() processes one effect.
 - processAudioChain() renders a serial chain transactionally.
-- loadPcm16Wav() and savePcm16Wav() provide bounded PCM16 RIFF/WAVE I/O.
+- loadWav() (plus the source-compatible loadPcm16Wav() alias) and savePcm16Wav() provide bounded PCM16/PCM24/IEEE Float32 RIFF/WAVE I/O.
 
 Example:
 
@@ -158,7 +158,7 @@ The common control surface keeps the host contract consistent. A future descript
 
 ## File and safety limits
 
-- Import: RIFF/WAVE, integer PCM16, mono or stereo, 8–384 kHz.
+- Import: RIFF/WAVE PCM16, PCM24 or IEEE Float32, mono or stereo, 8–384 kHz.
 - Maximum import size: 128 MiB.
 - Maximum buffer length: 20,000,000 frames.
 - Mono import becomes dual-mono; export is stereo PCM16.
@@ -179,4 +179,4 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-The audio-suite tests verify the 66 unique descriptors, execute every DSP processor, validate transactional chain behavior, reject invalid controls and perform a PCM16 WAV round-trip.
+The audio-suite tests verify the 66 unique descriptors, execute every DSP processor, validate transactional chain behavior, reject invalid controls and perform a PCM16/PCM24/Float32 WAV round-trip.

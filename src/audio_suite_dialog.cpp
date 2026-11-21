@@ -44,7 +44,7 @@ AudioSuiteDialog::AudioSuiteDialog(QWidget* parent) : QDialog(parent) {
     auto* root = new QVBoxLayout(this);
     auto* heading = new QLabel("VENTU AUDIO SUITE");
     heading->setStyleSheet("font-size:20px;font-weight:800;letter-spacing:2px;");
-    auto* subtitle = new QLabel("66 ВСТРОЕННЫХ DSP-ЭФФЕКТОВ  ·  ОФЛАЙН-СТЕРЕО  ·  PCM16 WAV");
+    auto* subtitle = new QLabel("66 ВСТРОЕННЫХ DSP-ЭФФЕКТОВ  ·  ОФЛАЙН-СТЕРЕО  ·  PCM16/PCM24/Float32 WAV");
     subtitle->setStyleSheet("color:#6b91c7;font-size:10px;font-weight:700;");
     root->addWidget(heading);
     root->addWidget(subtitle);
@@ -210,7 +210,7 @@ void AudioSuiteDialog::loadInput() {
     if (file.isEmpty()) return;
     ventu::AudioSuiteBuffer loaded;
     std::string error;
-    if (!ventu::loadPcm16Wav(pathFromQString(file), loaded, error)) {
+    if (!ventu::loadWav(pathFromQString(file), loaded, error)) {
         QMessageBox::warning(this, "Не удалось открыть WAV", QString::fromStdString(error));
         return;
     }
@@ -288,7 +288,7 @@ void AudioSuiteDialog::exportProcessedRack() {
                 return;
             }
             status_->setText(QString("Готово: %1").arg(pathToQString(output)));
-            QMessageBox::information(this, "Ventu Audio Suite", "Обработанный PCM16 WAV экспортирован.");
+            QMessageBox::information(this, "Ventu Audio Suite", "Обработанный PCM16/PCM24/Float32 WAV экспортирован.");
         }, Qt::QueuedConnection);
     });
 }
