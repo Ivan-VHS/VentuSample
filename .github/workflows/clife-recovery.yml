@@ -1,0 +1,25 @@
+name: CLife Recovery Contract
+
+on:
+  pull_request:
+    paths:
+      - '.clife/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clife-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run CLife recovery regression tests
+        run: python -m unittest discover -s .clife -p 'test_*.py' -v
+      - name: Check CLI entry point
+        run: python .clife/engine.py --help
