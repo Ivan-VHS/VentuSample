@@ -576,7 +576,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                 const auto at = static_cast<std::size_t>(onset);
 
                 const bool baseKick = std::find(spec.kicks.begin(), spec.kicks.begin() + spec.kickCount, step) != spec.kicks.begin() + spec.kickCount;
-                const bool cadenceKick = phraseTurnaround && step == 14 && density >= 0.38 && p.style != Style::JazzRap;
+                const bool cadenceKick = phraseTurnaround && step == 15 && density >= 0.38 && p.style != Style::JazzRap;
                 const bool kick = baseKick || cadenceKick;
                 const bool baseSnare = step == spec.snareA || step == spec.snareB;
                 const bool ghostSnare = drumsOn && phraseTurnaround && step == 10 && density >= 0.68
