@@ -3,7 +3,6 @@
 
 #include <QComboBox>
 #include <QDesktopServices>
-#include <QDoubleSpinBox>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QGridLayout>
@@ -11,16 +10,17 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QListWidgetItem>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QSlider>
 #include <QSpinBox>
 #include <QStandardPaths>
+#include <QThread>
+#include <QMetaObject>
 #include <QUrl>
 #include <QVBoxLayout>
-
-#include <thread>
 
 namespace {
 QSlider* sliderRow(QFormLayout* form, const QString& title, int initial) {
@@ -43,7 +43,6 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
     auto* heading = new QLabel("<h1>CINEFORGE / HOLLYWOOD STEM & SAMPLE ENGINE</h1><p>Scene-to-Pack · cohesive sound families · offline 24-bit WAV rendering</p>");
     heading->setWordWrap(true);
     root->addWidget(heading);
-
     auto* scene = new QLineEdit("Dark industrial thriller, monumental metal, deep sub impacts");
     scene->setMaxLength(512);
     scene->setPlaceholderText("Describe the scene, energy and sonic character…");
@@ -68,9 +67,9 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
     auto* mood = sliderRow(controls, "Mood / tonal character", 72);
     auto* space = sliderRow(controls, "Space / depth", 58);
     auto* punch = sliderRow(controls, "Punch / transient weight", 78);
-    root->addWidget(new QGroupBox("SCENE CONTROLS"));
-    auto* controlBox = qobject_cast<QGroupBox*>(root->itemAt(root->count()-1)->widget());
+    auto* controlBox = new QGroupBox("SCENE CONTROLS");
     controlBox->setLayout(controls);
+    root->addWidget(controlBox);
 
     auto* pathRow = new QHBoxLayout();
     auto* output = new QLineEdit(QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/CINEFORGE");
@@ -86,12 +85,23 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
     root->addLayout(actions);
     auto* status = new QLabel("Ready · local deterministic synthesis · no network requests");
     root->addWidget(status);
+    auto* progress = new QProgressBar();
+    progress->setRange(0, 1); progress->setValue(0); progress->setVisible(false);
+    root->addWidget(progress);
     auto* files = new QListWidget();
     root->addWidget(files,1);
 
     connect(browse,&QPushButton::clicked,this,[this,output]{
         const auto dir=QFileDialog::getExistingDirectory(this,"CINEFORGE output",output->text());
         if(!dir.isEmpty()) output->setText(dir);
+    });
+    connect(preview,&QPushButton::clicked,this,[preview]{
+        const auto path=preview->property("path").toString();
+        if(!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+    });
+    connect(files,&QListWidget::itemDoubleClicked,this,[](QListWidgetItem* item){
+        const auto path=item->data(Qt::UserRole).toString();
+        if(!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
     });
     connect(generate,&QPushButton::clicked,this,[=]{
         ventu::cineforge::Settings s;
@@ -103,19 +113,16 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
         const auto dir=output->text().trimmed();
         if(dir.isEmpty()){QMessageBox::warning(this,"Output required","Choose an output folder.");return;}
         generate->setEnabled(false); preview->setEnabled(false); files->clear();
-        status->setText("Rendering coherent dry/wet families and 24-bit preview…");
-        auto* progress=new QProgressBar(); progress->setRange(0,0); root->addWidget(progress);
-        auto* worker=new QThread(this);
-        // The renderer is synchronous and isolated from the UI thread.
-        connect(worker,&QThread::started,this,[=]{
+        progress->setVisible(true); status->setText("Rendering coherent dry/wet families and 24-bit preview…");
+        auto* worker=QThread::create([this,s,dir,generate,preview,files,status,progress]{
             const auto result=ventu::cineforge::generate(s,std::filesystem::u8path(dir.toUtf8().constData()));
             QMetaObject::invokeMethod(this,[=]{
-                progress->deleteLater(); worker->quit(); worker->wait(); worker->deleteLater();
+                progress->setVisible(false);
                 generate->setEnabled(true);
                 if(!result){status->setText("Generation failed: "+QString::fromStdString(result.error));return;}
                 for(const auto& asset:result.assets){
-                    auto* item=new QListWidgetItem(QString::fromStdString(asset.name)+"  ·  Dry + Wet",files);
-                    item->setData(Qt::UserRole,QString::fromStdString(asset.dryPath.string()));
+                    auto* dry=new QListWidgetItem(QString::fromStdString(asset.name)+"  ·  Dry",files);
+                    dry->setData(Qt::UserRole,QString::fromStdString(asset.dryPath.string()));
                     auto* wet=new QListWidgetItem(QString::fromStdString(asset.name)+"  ·  Wet",files);
                     wet->setData(Qt::UserRole,QString::fromStdString(asset.wetPath.string()));
                 }
@@ -123,18 +130,11 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
                 manifest->setData(Qt::UserRole,QString::fromStdString(result.manifestPath.string()));
                 preview->setEnabled(true);
                 preview->setProperty("path",QString::fromStdString(result.previewPath.string()));
-                status->setText(QString("Complete · %1 cohesive assets · %2-bit / %3 kHz · %4 BPM · %5")
-                    .arg(result.assets.size()).arg(24).arg(s.sampleRate/1000).arg(s.bpm).arg(keyName(s.rootNote)));
+                status->setText(QString("Complete · %1 cohesive assets · 24-bit / %2 kHz · %3 BPM · %4")
+                    .arg(result.assets.size()).arg(s.sampleRate/1000).arg(s.bpm).arg(keyName(s.rootNote)));
             },Qt::QueuedConnection);
         });
+        connect(worker,&QThread::finished,worker,&QObject::deleteLater);
         worker->start();
-        connect(preview,&QPushButton::clicked,this,[preview]{
-            const auto path=preview->property("path").toString();
-            if(!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
-        });
-        connect(files,&QListWidget::itemDoubleClicked,this,[](QListWidgetItem* item){
-            const auto path=item->data(Qt::UserRole).toString();
-            if(!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
-        });
     });
 }
