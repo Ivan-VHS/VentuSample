@@ -9,6 +9,7 @@
 - Tempo, bars, key, scale, sampler character, timbre, swing, density, grit, saturation, stereo width, filters, snare timing, bus-compression ratio, triplet rolls, humanization and vinyl dust controls.
 - Optional PCM16 WAV chop import with four-slice beat placement and semitone resampling.
 - Deterministic variations, WAV export, peak/RMS/crest measurement and complete `ventusample.pack.v1` metadata.
+- Reaper interoperability: the exported manifest can be validated and compared read-only in Reaper using its `ventusample_metrics()` and `ventusample_compare()` built-ins; comparison is metadata-based and does not open WAV assets.
 
 ## Build
 
@@ -36,3 +37,8 @@ Launch `VentuSample` from the build output. Choose a sound profile and output ty
 - A generated pack's SHA-256, when calculated externally, identifies bytes; it does not authenticate a publisher.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/SOURCE_INTEGRATION.md`](docs/SOURCE_INTEGRATION.md), and [`docs/USER_GUIDE_RU.md`](docs/USER_GUIDE_RU.md).
+
+
+## Federation
+
+See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md), [Reaper pack audit guide](docs/REAPER_PACK_AUDIT.md), and the [VentuSample/Reaper interface](docs/SOURCE_INTEGRATION.md). Direct VentuSample-to-Pytyliki ABI and Reaper render-request automation remain planned; OPlague device/driver diagnostics are not coupled to audio generation.
