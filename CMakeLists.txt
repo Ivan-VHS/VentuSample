@@ -12,6 +12,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(ventusample_core STATIC
     src/generator.cpp
     src/generator.hpp
+    src/occasion_planner.cpp
+    src/occasion_planner.hpp
     src/plugin_manager.cpp
     src/plugin_manager.hpp
     src/stochastic_router.hpp
@@ -93,6 +95,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-generator COMMAND ventusample_tests)
+    add_executable(ventusample_occasion_tests tests/test_occasion_planner.cpp)
+    target_link_libraries(ventusample_occasion_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-occasion-planner COMMAND ventusample_occasion_tests)
     add_executable(ventusample_plugin_tests tests/test_plugins.cpp)
     target_link_libraries(ventusample_plugin_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-plugin-host COMMAND ventusample_plugin_tests)
