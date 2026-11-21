@@ -34,7 +34,7 @@ bool validId(const std::string& id) {
     vee_guard guard{};
     vee_guard_init(&guard, static_cast<std::size_t>(kMaxManifestBytes),
                    kMaxManifests, 80u, 1024u, nullptr, nullptr);
-    if (vee_guard_check_identifier(&guard, 511u, "Я-11", "plugin-id",
+    if (vee_guard_check_identifier(&guard, 511u, "M-11", "plugin-id",
                                    id.c_str()) != VEEELZEVUL_ALLOW) return false;
     if (id.empty() || id.size() > 80u) return false;
     if (id.front() == '-' || id.back() == '-') return false;
