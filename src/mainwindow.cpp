@@ -363,7 +363,8 @@ void MainWindow::buildUi() {
         " Каждая вариация получает независимый детерминированный seed.</p>"
         "<h3>Инженерные ограничения</h3><p>Офлайн-рендеринг; фиксированные диапазоны параметров; ограничение длительности и числа вариантов;"
         " отсутствие скрытой загрузки библиотек, сетевого телеметрирования и обращения к устройствам записи.</p>"
-        "<p>0.1.0 · Windows / Linux / macOS (Qt 6 desktop target)</p>");
+        "<p>0.1.0 · Windows / Linux / macOS (Qt 6 desktop target)</p>"
+        "<p><b>Разработчик:</b> Ivan-VHS</p>");
     aboutText->setWordWrap(true);
     aboutLayout->addWidget(aboutText);
     aboutLayout->addStretch();
