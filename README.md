@@ -45,6 +45,8 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/QUALITY_MONOLITH_RHYT
 VentuSample now includes a 20 × 3 evidence-linked matrix for audio/product quality, operational repeatability and commercial pack release. Run **python tools/quality_commercial.py** or add **--format json**. The report does not certify source-sample rights, market demand, sales or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
 
 
+The readiness report also prints a prioritized commercial action plan. Open items stay explicit: license review, support ownership, release delivery, user validation, cost measurement and any future pricing decision. No revenue, profit or market-fit claim is inferred.
+
 ## Federation
 
 See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) and [Reaper pack audit guide](docs/REAPER_PACK_AUDIT.md). Direct VentuSample-to-Pytyliki ABI and Reaper render-request automation remain planned; OPlague device/driver diagnostics are not coupled to offline audio generation.
