@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/VentuSample/blob/main/schemas/cineforge.pack.v1.schema.json",
+  "title": "CINEFORGE cinematic sample pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "scene", "bpm", "key", "sample_rate", "bit_depth", "seed", "assets", "preview", "processing"],
+  "properties": {
+    "schema": {"const": "cineforge.pack.v1"},
+    "scene": {"type": "string", "maxLength": 512},
+    "bpm": {"type": "integer", "minimum": 40, "maximum": 200},
+    "key": {"type": "string", "enum": ["C","Csharp","D","Dsharp","E","F","Fsharp","G","Gsharp","A","Asharp","B"]},
+    "sample_rate": {"type": "integer", "enum": [48000, 96000]},
+    "bit_depth": {"const": 24},
+    "seed": {"type": "integer", "minimum": 0},
+    "assets": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "dry", "wet"],
+        "properties": {
+          "name": {"type": "string"},
+          "dry": {"type": "string", "pattern": "\\.wav$"},
+          "wet": {"type": "string", "pattern": "\\.wav$"}
+        }
+      }
+    },
+    "preview": {"type": "string", "pattern": "\\.wav$"},
+    "processing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mood", "space", "punch", "variations", "headroom_dbfs", "low_end_mono"],
+      "properties": {
+        "mood": {"type": "integer", "minimum": 0, "maximum": 100},
+        "space": {"type": "integer", "minimum": 0, "maximum": 100},
+        "punch": {"type": "integer", "minimum": 0, "maximum": 100},
+        "variations": {"type": "integer", "minimum": 1, "maximum": 12},
+        "headroom_dbfs": {"type": "number", "maximum": -0.5},
+        "low_end_mono": {"type": "boolean"}
+      }
+    }
+  }
+}

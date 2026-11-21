@@ -1,4 +1,5 @@
 #include "mainwindow.hpp"
+#include "cineforge_window.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -116,6 +117,12 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 }
 
 void MainWindow::buildUi() {
+    auto* cineforgeMenu = menuBar()->addMenu("CINEFORGE");
+    cineforgeMenu->addAction("Scene-to-Pack Studio…", this, [this] {
+        CineforgeWindow window(this);
+        window.exec();
+    });
+
     auto* pluginsMenu = menuBar()->addMenu("Плагины");
     pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
     pluginsMenu->addSeparator();

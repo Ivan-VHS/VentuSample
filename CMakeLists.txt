@@ -15,6 +15,7 @@ add_library(ventusample_core STATIC
     src/plugin_manager.cpp
     src/plugin_manager.hpp
     src/builtin_plugins.cpp
+    src/cineforge.cpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -32,6 +33,8 @@ if(VENTU_BUILD_DESKTOP)
             src/main.cpp
             src/mainwindow.cpp
             src/mainwindow.hpp
+            src/cineforge_window.cpp
+            src/cineforge_window.hpp
         )
         target_link_libraries(VentuSample PRIVATE ventusample_core Qt6::Widgets)
         target_include_directories(VentuSample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -64,6 +67,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_plugin_tests tests/test_plugins.cpp)
     target_link_libraries(ventusample_plugin_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-plugin-host COMMAND ventusample_plugin_tests)
+    add_executable(ventusample_cineforge_tests tests/test_cineforge.cpp)
+    target_link_libraries(ventusample_cineforge_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-cineforge COMMAND ventusample_cineforge_tests)
     find_package(Python3 QUIET COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
         add_test(NAME ventusample-contract COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_project_contract.py)
