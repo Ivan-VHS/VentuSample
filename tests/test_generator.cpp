@@ -83,6 +83,36 @@ void testPhraseGridAndSwing() {
             "phrase rendering must retain the master sample-peak ceiling");
 }
 
+void testBillionaireGoldenEraProfile() {
+    ventu::Parameters p;
+    p.style = ventu::Style::BillionaireGoldenEra;
+    p.sampleRate = 22050;
+    p.lowPassHz = 10000;
+    p.bpm = 93;
+    p.bars = 2;
+    p.variations = 2;
+    p.swingPercent = 60;
+    p.densityPercent = 74;
+    p.gritPercent = 34;
+    p.saturationPercent = 30;
+    p.snareOffsetMs = 18;
+    p.sampler = ventu::Sampler::MPC3000XL;
+    p.vinylDust = true;
+    p.microHumanize = false;
+
+    const auto first = ventu::render(p, 0);
+    const auto repeat = ventu::render(p, 0);
+    require(!first.samples.empty(), "Billionaire Golden Era profile should render audio");
+    require(first.samples == repeat.samples, "Billionaire Golden Era profile must remain deterministic");
+    require(ventu::toString(p.style) == "Billionaire Golden Era",
+            "Billionaire Golden Era profile should expose its stable public name");
+
+    p.style = ventu::Style::BoomBap;
+    const auto classic = ventu::render(p, 0);
+    require(first.samples != classic.samples,
+            "Billionaire Golden Era drum voicing must differ from the classic Boom Bap profile");
+}
+
 void testWaveAndPackExport() {
     const auto temp = std::filesystem::temp_directory_path() / "ventusample-tests";
     std::error_code ec;
@@ -162,6 +192,7 @@ int main() {
     testValidation();
     testDeterministicRender();
     testPhraseGridAndSwing();
+    testBillionaireGoldenEraProfile();
     testWaveAndPackExport();
     std::cout << "VentuSample generator tests passed.\n";
     return 0;
