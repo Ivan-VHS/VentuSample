@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a pack emitted by the C++ integration test against the v1 schema shape."""
+"""Validate a pack emitted by the C++ integration test against the v2 schema shape."""
 from __future__ import annotations
 
 import json
@@ -17,9 +17,11 @@ def main() -> int:
     assert pack["audio_format"] == schema["properties"]["audio_format"]["const"]
     params = pack["parameters"]
     parameter_schema = schema["properties"]["parameters"]
-    assert set(parameter_schema["required"]) == set(params), (set(parameter_schema["required"]) - set(params), set(params) - set(parameter_schema["required"]))
-    for key, rule in parameter_schema["properties"].items():
-        value = params[key]
+    parameter_properties = parameter_schema["properties"]
+    assert set(parameter_schema["required"]) <= set(params), set(parameter_schema["required"]) - set(params)
+    assert set(params) <= set(parameter_properties), set(params) - set(parameter_properties)
+    for key, value in params.items():
+        rule = parameter_properties[key]
         if "minimum" in rule:
             assert value >= rule["minimum"], (key, value)
         if "maximum" in rule:
@@ -30,8 +32,15 @@ def main() -> int:
             assert isinstance(value, bool), (key, value)
     assert pack["source_sample"] == "single.wav"
     assert 1 <= len(pack["files"]) <= schema["properties"]["files"]["maxItems"]
+    file_schema = schema["properties"]["files"]["items"]
     for entry in pack["files"]:
-        assert set(entry) == set(schema["properties"]["files"]["items"]["required"])
+        file_properties = file_schema["properties"]
+        assert set(file_schema["required"]) <= set(entry), set(file_schema["required"]) - set(entry)
+        assert set(entry) <= set(file_properties), set(entry) - set(file_properties)
+        if "stochastic_routes" in entry:
+            routes = entry["stochastic_routes"]
+            assert isinstance(routes, list) and len(routes) <= file_properties["stochastic_routes"]["maxItems"]
+            assert all(isinstance(route, str) and route for route in routes)
         assert (FIXTURE / entry["file"]).is_file()
         assert math.isfinite(entry["peak"]) and 0 <= entry["peak"] <= 1
         assert math.isfinite(entry["rms"]) and 0 <= entry["rms"] <= 1
