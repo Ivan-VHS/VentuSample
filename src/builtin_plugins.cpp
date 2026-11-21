@@ -51,6 +51,51 @@ std::vector<fs::path> collectFiles(const fs::path& root, std::size_t limit = 500
     return result;
 }
 
+std::vector<fs::path> collectWellbeingFiles(const fs::path& root, bool& truncated) {
+    constexpr std::size_t maxFiles = 5000u;
+    constexpr int maxDepth = 16;
+    const std::vector<std::string> ignored{
+        ".git", "build", "dist", "target", "vendor", "node_modules",
+        ".venv", "venv", "__pycache__", ".pytest_cache"
+    };
+    std::vector<fs::path> result;
+    std::error_code ec;
+    if (root.empty() || !fs::is_directory(root, ec) || ec) return result;
+    fs::recursive_directory_iterator it(
+        root, fs::directory_options::skip_permission_denied, ec), end;
+    while (!ec && it != end) {
+        const auto path = it->path();
+        std::error_code itemError;
+        const auto status = it->symlink_status(itemError);
+        if (itemError) {
+            it.increment(ec);
+            if (ec) ec.clear();
+            continue;
+        }
+        if (fs::is_symlink(status)) {
+            if (fs::is_directory(it->status(itemError))) it.disable_recursion_pending();
+        } else if (fs::is_directory(status)) {
+            const auto folder = lower(path.filename().string());
+            if (std::find(ignored.begin(), ignored.end(), folder) != ignored.end()) {
+                it.disable_recursion_pending();
+            } else if (it.depth() >= maxDepth) {
+                truncated = true;
+                it.disable_recursion_pending();
+            }
+        } else if (fs::is_regular_file(status)) {
+            if (result.size() >= maxFiles) {
+                truncated = true;
+                break;
+            }
+            result.push_back(path);
+        }
+        it.increment(ec);
+        if (ec) ec.clear();
+    }
+    std::sort(result.begin(), result.end());
+    return result;
+}
+
 std::string extension(const fs::path& path) {
     return lower(path.extension().string());
 }
@@ -90,6 +135,88 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
     const auto& p = context.parameters;
     const auto validation = validate(p);
 
+    if (id == "code-wellbeing") {
+        if (context.workspaceRoot.empty())
+            return fail("Code Wellbeing requires an explicitly selected local workspace.");
+        std::error_code rootError;
+        if (fs::is_symlink(context.workspaceRoot, rootError) || rootError
+            || !fs::is_directory(context.workspaceRoot, rootError) || rootError)
+            return fail("Code Wellbeing workspace is unavailable, linked or not a directory.");
+        bool fileListTruncated = false;
+        const auto files = collectWellbeingFiles(context.workspaceRoot, fileListTruncated);
+        std::size_t source = 0, tests = 0, docs = 0, readmes = 0, workflows = 0;
+        std::size_t owners = 0, dependencies = 0, recovery = 0, learning = 0;
+        std::size_t scanned = 0, largeUnits = 0, sourceBytes = 0;
+        bool sourceScanTruncated = false;
+        constexpr std::size_t maxSourceBytesTotal = 32u * 1024u * 1024u;
+        std::size_t todo = 0, fixme = 0, hack = 0, xxx = 0;
+        const std::regex testPath(R"((^|/)(tests?|testing|specs?)/|(^|/)test_[^/]*$|(^|/)[^/]*[.]test[.])", std::regex::icase);
+        const std::regex workflowPath(R"((^|/)[.]github/workflows/|(^|/)[.]gitlab-ci[.]yml$|(^|/)azure-pipelines[.]yml$)", std::regex::icase);
+        const std::regex recoveryName(R"(rollback|runbook|recovery|release-process)", std::regex::icase);
+        const std::regex learningName(R"(postmortem|post-mortem|incident|(^|[-_.])adr([-.]|$))", std::regex::icase);
+        const std::regex sourceExt(R"([.](c|h|cc|cpp|cxx|hpp|hxx|py|js|jsx|ts|tsx|rs|go|java|cs|rpr|qcs|lua)$)", std::regex::icase);
+        const std::regex docExt(R"([.](md|mdx|rst|adoc)$)", std::regex::icase);
+        const std::regex depName(R"((^|/)(pyproject[.]toml|requirements[.]txt|package(-lock)?[.]json|pnpm-lock[.]yaml|yarn[.]lock|cargo[.]toml|cargo[.]lock|go[.]mod|go[.]sum|poetry[.]lock|pipfile([.]lock)?|vcpkg[.]json|conanfile[.](py|txt))$)", std::regex::icase);
+        for (const auto& file : files) {
+            std::error_code ec;
+            const auto relative = fs::relative(file, context.workspaceRoot, ec);
+            if (ec) continue;
+            const auto rel = relative.generic_string();
+            const bool isSource = std::regex_search(rel, sourceExt);
+            const auto filename = lower(file.filename().string());
+            if (isSource) {
+                ++source;
+                if (std::regex_search(rel, testPath)) ++tests;
+                std::string content;
+                std::error_code sizeError;
+                const auto fileBytes = fs::file_size(file, sizeError);
+                if (sizeError || fileBytes > 1024u * 1024u
+                    || fileBytes > maxSourceBytesTotal - sourceBytes) {
+                    sourceScanTruncated = true;
+                } else if (readBounded(file, content, 1024u * 1024u)) {
+                    sourceBytes += content.size();
+                    ++scanned;
+                    const auto lines = static_cast<std::size_t>(std::count(content.begin(), content.end(), '\n')) + 1u;
+                    if (lines > 1000u) ++largeUnits;
+                    std::istringstream input(content);
+                    std::string line;
+                    while (std::getline(input, line)) {
+                        if (line.find("TODO") != std::string::npos) ++todo;
+                        if (line.find("FIXME") != std::string::npos) ++fixme;
+                        if (line.find("HACK") != std::string::npos) ++hack;
+                        if (line.find("XXX") != std::string::npos) ++xxx;
+                    }
+                }
+            }
+            if (std::regex_search(rel, docExt)) ++docs;
+            if (filename.rfind("readme", 0u) == 0u) ++readmes;
+            if (std::regex_search(rel, workflowPath)) ++workflows;
+            if (filename == "codeowners") ++owners;
+            if (std::regex_search(rel, depName)) ++dependencies;
+            if (std::regex_search(filename, recoveryName)) ++recovery;
+            if (std::regex_search(filename, learningName)) ++learning;
+        }
+        std::vector<std::string> details{
+            "Read-only local inventory; no files were changed or uploaded.",
+            "Files inventoried: " + std::to_string(files.size()),
+            "Source files: " + std::to_string(source) + " | test files: " + std::to_string(tests),
+            "Documentation files: " + std::to_string(docs) + " | README files: " + std::to_string(readmes),
+            "CI workflows: " + std::to_string(workflows) + " | ownership files: " + std::to_string(owners),
+            "Dependency manifests: " + std::to_string(dependencies) + " | recovery guides: " + std::to_string(recovery),
+            "Incident / decision records: " + std::to_string(learning),
+            "Source text scanned (bounded to 1 MiB per file): " + std::to_string(scanned),
+            "Review prompts: TODO=" + std::to_string(todo) + ", FIXME=" + std::to_string(fixme)
+                + ", HACK=" + std::to_string(hack) + ", XXX=" + std::to_string(xxx)
+                + ", large source units (>1000 lines)=" + std::to_string(largeUnits),
+            "No aggregate wellbeing score: missing evidence is a review prompt, not a diagnosis or quality verdict.",
+            "No contributor ranking, commit-time analysis, audio processing, mood inference or device telemetry.",
+            "Presence of tests, CI, docs or runbooks does not prove their quality, freshness or effectiveness.",
+            "Source text bytes inspected: " + std::to_string(sourceBytes) + " / 33554432 maximum.",
+            std::string("Source text scan capped: ") + (sourceScanTruncated ? "yes" : "no"),
+            std::string("File/depth inventory capped: ") + (fileListTruncated ? "yes" : "no") + " (5000 files / depth 16)"
+        };
+        return ok("Code Mental Health / Codebase Wellbeing inventory completed.", std::move(details));
+    }
     if (id == "stochastic-router") {
         if (!validation.empty()) return fail("Stochastic Router rejected invalid generator settings: " + validation);
         Parameters previewParameters = p;
@@ -332,7 +459,7 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
 } // namespace
 
 void registerBuiltinPlugins(PluginManager& manager) {
-    const std::array<PluginDescriptor, 19> specs{{
+    const std::array<PluginDescriptor, 20> specs{{
         descriptor("operandu", "Operandu", "Data & logic", "Typed generator values and parameter inspection.", "inspect_parameters", {"typed parameters", "validation report"}),
         descriptor("dropaul", "Dropaul", "Actions & workflows", "Deterministic export planning and dry-run sequencing.", "plan_export", {"DAG-like workflow", "dry-run", "export stages"}),
         descriptor("zdoro", "Zdoro", "Integrity & diagnostics", "Read-only workspace, output and settings health checks.", "inspect_workspace", {"workspace status", "output status", "settings baseline"}),
@@ -351,7 +478,8 @@ void registerBuiltinPlugins(PluginManager& manager) {
         descriptor("vprossee", "Vprossee", "Verification & validation", "Requirement and evidence readiness matrix.", "verify_evidence", {"acceptance evidence", "readiness"}),
         descriptor("professiya", "Professiya", "Learning", "Contributor learning paths for the native workstation.", "learning_paths", {"learning sequence", "developer onboarding"}),
         descriptor("profevo", "Profevo", "Evolution", "Compatibility-aware manifest and plugin migration planning.", "plan_evolution", {"manifest compatibility", "versioned plugins"}),
-        descriptor("stochastic-router", "Stochastic Router", "Audio processing", "Seeded weighted effect-chain generation, safe parameter mutation, offline routing and peak protection.", "stochastic_route_preview", {"weighted plugin pool", "serial and parallel routes", "deterministic trigger mutation", "bounded feedback and wet", "RMS matching", "sample peak guard"})
+        descriptor("stochastic-router", "Stochastic Router", "Audio processing", "Seeded weighted effect-chain generation, safe parameter mutation, offline routing and peak protection.", "stochastic_route_preview", {"weighted plugin pool", "serial and parallel routes", "deterministic trigger mutation", "bounded feedback and wet", "RMS matching", "sample peak guard"}),
+        descriptor("code-wellbeing", "Code Wellbeing", "Engineering sustainability", "Read-only repository maintenance inventory with evidence limits and non-blaming review cues.", "inspect_codebase_wellbeing", {"source and test inventory", "documentation and CI evidence", "maintainer support signals", "read-only bounded scan"})
     }};
     for (const auto& spec : specs) {
         const auto id = spec.id;

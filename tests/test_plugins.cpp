@@ -18,7 +18,7 @@ void require(bool condition, const char* message) {
 void testBuiltinRegistry() {
     ventu::PluginManager manager;
     const auto plugins = manager.plugins();
-    require(plugins.size() == 19u, "all nineteen shared products must be registered as plugins");
+    require(plugins.size() == 20u, "all twenty built-in products must be registered as plugins");
     require(manager.find("Dropaul") != nullptr, "display names should resolve");
     require(manager.find("keel-koh") != nullptr, "stable plugin IDs should resolve");
     require(manager.find("stochastic-router") != nullptr, "Stochastic Router must be registered as a built-in plugin");
@@ -44,6 +44,33 @@ void testEnableDisableAndDispatch() {
     const auto plan = manager.execute("dropaul", context);
     require(plan.success && plan.details.size() >= 5u,
             "Dropaul should create a read-only export dry-run plan");
+    const auto wellbeingDescriptor = manager.find("code-wellbeing");
+    require(wellbeingDescriptor != nullptr, "Code Wellbeing must be registered as a built-in plugin");
+    namespace fs = std::filesystem;
+    const auto workspace = fs::temp_directory_path() / "ventusample-code-wellbeing-test";
+    std::error_code workspaceError;
+    fs::remove_all(workspace, workspaceError);
+    fs::create_directories(workspace / "src", workspaceError);
+    fs::create_directories(workspace / "tests", workspaceError);
+    fs::create_directories(workspace / ".github" / "workflows", workspaceError);
+    require(!workspaceError, "Code Wellbeing fixture directories should be created");
+    { std::ofstream readme(workspace / "README.md"); readme << "# Fixture\n"; }
+    { std::ofstream source(workspace / "src" / "main.cpp"); source << "// TODO: revisit\nint main() { return 0; }\n"; }
+    { std::ofstream testFile(workspace / "tests" / "test_main.cpp"); testFile << "int test_main() { return 0; }\n"; }
+    { std::ofstream workflow(workspace / ".github" / "workflows" / "ci.yml"); workflow << "name: CI\n"; }
+    ventu::PluginContext wellbeingContext;
+    wellbeingContext.workspaceRoot = workspace;
+    const auto wellbeing = manager.execute("code-wellbeing", wellbeingContext);
+    require(wellbeing.success && wellbeing.summary.find("Code Mental Health") != std::string::npos,
+            "Code Wellbeing should produce a read-only repository inventory");
+    require(wellbeing.details.size() >= 10u
+            && wellbeing.details[2].find("Source files: 2 | test files: 1") != std::string::npos,
+            "Code Wellbeing should report source and test inventory");
+    require(wellbeing.details[8].find("TODO=1") != std::string::npos,
+            "Code Wellbeing should report review markers as evidence");
+    require(wellbeing.details[9].find("No aggregate wellbeing score") != std::string::npos,
+            "Code Wellbeing must not generate a pseudo-clinical or aggregate score");
+    fs::remove_all(workspace, workspaceError);
     const auto stochastic = manager.execute("stochastic-router", context);
     require(stochastic.success && stochastic.summary.find("preview route") != std::string::npos,
             "Stochastic Router should produce a bounded in-memory preview");

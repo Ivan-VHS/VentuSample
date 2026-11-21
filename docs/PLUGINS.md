@@ -1,12 +1,12 @@
 # VentuSample plugin platform
 
-VentuSample contains 19 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
+VentuSample contains 20 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
 
 ## Host capabilities
 
 | Capability | Implementation |
 |---|---|
-| Built-in registry | 19 first-party plugins registered by the core |
+| Built-in registry | 20 first-party plugins registered by the core |
 | Public SDK | PluginDescriptor, PluginContext, PluginHandler and lifecycle callbacks |
 | Manifest discovery | metadata-only recursive discovery from the desktop manager |
 | Compatibility | plugin API version 1, host ID ventu and semantic plugin versions |
@@ -60,6 +60,14 @@ The **Stochastic Router** is a first-party offline DSP processor. It does not lo
 The generator checkbox is off by default. When enabled, the engine processes the rendered float buffer before PCM16 WAV encoding. Manifest v2 stores the settings and each output file's selected route names. Running the module from Plugin Manager performs a one-bar in-memory preview; it does not write files.
 
 This path is **offline**. It does not provide a real-time callback, playback hot-swapping, VST/AU hosting or arbitrary third-party audio-plugin loading.
+
+## Code Wellbeing
+
+The built-in `code-wellbeing` plugin performs a bounded, read-only inventory of a selected local workspace. It reports source/test/docs/CI evidence, ownership and dependency manifests, recovery/incident records and contextual TODO/FIXME/HACK markers. Generated directories are pruned during traversal; enumeration is capped at 5,000 files and 16 directory levels, while source text inspection is capped at 1 MiB per file and 32 MiB total.
+
+The output is evidence, not a single wellbeing score or a correctness/security verdict. Missing artefacts and maintenance markers are prompts for human review, not automatic defect labels. The plugin never processes audio, inspects listening behaviour, ranks contributors, reads commit timing, changes files or uploads repository contents.
+
+See [Code Mental Health / Codebase Wellbeing](CODE_MENTAL_HEALTH.md) for the shared engineering charter and limits.
 
 ## Manifest contract
 

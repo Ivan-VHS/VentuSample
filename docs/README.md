@@ -2,7 +2,7 @@
 
 | File | Purpose |
 |---|---|
-| [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
+| [CODE_MENTAL_HEALTH.md](CODE_MENTAL_HEALTH.md) | Code Mental Health / Codebase Wellbeing charter and scanner boundaries |\n| [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
 | [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
 | [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |

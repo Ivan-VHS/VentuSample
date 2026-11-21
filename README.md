@@ -71,7 +71,7 @@ VentuSample can optionally link Reaper's standalone C17 integer-expression ABI. 
 
 ## Internal plugin platform
 
-The native PluginManager includes 19 built-in internal tools. The **Плагины → Менеджер плагинов** view supports inspection, enable/disable and bounded dispatch. A public C++20 SDK exposes reviewed handler registration, lazy initialization, shutdown callbacks and diagnostics.
+The native PluginManager includes 20 built-in internal tools. The **Плагины → Менеджер плагинов** view supports inspection, enable/disable and bounded dispatch. A public C++20 SDK exposes reviewed handler registration, lazy initialization, shutdown callbacks and diagnostics.
 
 Local `plugin.json` manifests can be discovered recursively, but discovery is metadata-only. A discovered entry remains disabled until a reviewed native handler is explicitly attached. Automatic DLL/SO loading, manifest-driven code execution, marketplace installation and sandbox claims are not supported. The public manifest contract is [ivan-vhs.plugin.v1](schemas/ivan-vhs.plugin.v1.schema.json). See [Plugin platform and SDK](docs/PLUGINS.md).
 
@@ -123,6 +123,12 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 
 [Apache-2.0](LICENSE)
 
+
+## Code Wellbeing built-in plugin
+
+VentuSample registers `code-wellbeing` as a read-only repository-maintenance inventory in the existing plugin host. Select a local workspace to inspect source/test/docs/CI evidence and review cues. The plugin does not inspect audio, infer contributor state, change files or compute an aggregate wellbeing score.
+
+[Engineering charter and measurement limits](docs/CODE_MENTAL_HEALTH.md) · [Versioned contract](data/code-wellbeing/codebase-wellbeing.v1.json)
 
 ## Bounded resource-allocation reference
 An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
