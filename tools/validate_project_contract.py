@@ -63,6 +63,10 @@ def validate_federation() -> None:
         raise ValueError("octa-hub must remain non-executable and non-critical")
     if len(data["facets"]) != 8 or {facet["side"] for facet in data["facets"]} != set(range(1, 9)):
         raise ValueError("OCTA-8 must declare eight independently numbered facets")
+    if data.get("semantics", {}).get("reaper_pack_consumer_implemented") is not True:
+        raise ValueError("Reaper's VentuSample pack consumer must be declared implemented")
+    if data["base_mesh"].get("project_ids") != ["reaper", "pytyliki", "oplague", "ventusample"]:
+        raise ValueError("unexpected OCTA-8 project ordering or membership")
 
 
 def main() -> int:
