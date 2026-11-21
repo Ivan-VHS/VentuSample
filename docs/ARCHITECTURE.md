@@ -92,7 +92,7 @@ An imported PCM16 WAV is divided into four source regions. Each bar places those
 
 ## 6. Desktop behavior
 
-The UI supports light/dark semantic themes, a scrollable parameter workbench, native folder/file pickers, generation status, result listing, log output and a quick-open action for the export directory and double-click opening of exported WAV/manifest files in their system-default applications. Preferences are stored using `QSettings`, outside the source tree. Generation runs on a worker thread; the window does not claim a real-time audio callback or live preview.
+The UI supports light/dark semantic themes, a scrollable parameter workbench, native folder/file pickers, generation status, result listing, log output and a quick-open action for the export directory and double-click opening of exported WAV/manifest files in their system-default applications. The authoritative Qt desktop visual contract is [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md), with the interaction summary in [UI_UX_SYSTEM.md](UI_UX_SYSTEM.md). Preferences are stored using `QSettings`, outside the source tree. Generation runs on a worker thread; the window does not claim a real-time audio callback or live preview.
 
 ## 7. Build and verification
 
