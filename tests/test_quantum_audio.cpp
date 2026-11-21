@@ -2,10 +2,13 @@
 
 #include <cmath>
 #include <cstdlib>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <limits>
 #include <set>
 #include <string>
+#include <random>
 #include <vector>
 
 namespace {
@@ -109,6 +112,50 @@ void testDryMixAndValidation() {
     require(!contaminatedResult.success, "non-finite input samples must be rejected");
 }
 
+void testDeterministicFuzzSmoke() {
+    std::mt19937 rng(0x5AFE2026u);
+    std::uniform_real_distribution<float> sample(-0.8f, 0.8f);
+    std::uniform_real_distribution<double> control(0.0, 1.0);
+    for (std::size_t iteration = 0; iteration < 128u; ++iteration) {
+        ventu::AudioBuffer audio;
+        audio.sampleRate = (iteration % 7u == 0u) ? 44100 : 48000;
+        audio.channels = 2;
+        const std::size_t frames = 64u + static_cast<std::size_t>(rng() % 449u);
+        audio.samples.resize(frames * 2u);
+        for (float& value : audio.samples) value = sample(rng);
+        const auto inputSize = audio.samples.size();
+        const ventu::QuantumAudioParameters parameters{
+            control(rng), control(rng), control(rng), control(rng)
+        };
+        const auto result = ventu::processQuantumAudio("strange-quark", audio, parameters);
+        require(result.success, "bounded valid fuzz cases must process successfully");
+        require(audio.samples.size() == inputSize, "fuzz processing must preserve the sample count");
+        for (const float value : audio.samples)
+            require(std::isfinite(value), "fuzz processing must not emit NaN or infinity");
+    }
+
+    /* Feed malformed, bounded RIFF-like byte streams to the real WAV loader. */
+    const auto fuzzPath = std::filesystem::temp_directory_path() / "ventusample-fuzz-smoke.wav";
+    for (std::size_t iteration = 0; iteration < 128u; ++iteration) {
+        const std::size_t length = static_cast<std::size_t>(rng() % 513u);
+        std::vector<char> bytes(length);
+        for (char& value : bytes) value = static_cast<char>(rng() & 0xffu);
+        if (iteration % 3u == 0u && bytes.size() >= 12u) {
+            bytes[0] = 'R'; bytes[1] = 'I'; bytes[2] = 'F'; bytes[3] = 'F';
+            bytes[8] = 'W'; bytes[9] = 'A'; bytes[10] = 'V'; bytes[11] = 'E';
+        }
+        {
+            std::ofstream stream(fuzzPath, std::ios::binary | std::ios::trunc);
+            require(static_cast<bool>(stream), "fuzz fixture must be writable");
+            stream.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
+        }
+        std::string error;
+        (void)ventu::loadWave(fuzzPath, error);
+    }
+    std::error_code ignored;
+    std::filesystem::remove(fuzzPath, ignored);
+}
+
 void testAnalyzerIsReadOnly() {
     auto audio = fixture();
     const auto original = audio.samples;
@@ -125,6 +172,7 @@ int main() {
     testEveryModuleProcessesFiniteAudio();
     testDryMixAndValidation();
     testAnalyzerIsReadOnly();
+    testDeterministicFuzzSmoke();
     std::cout << "Ventu Quantum Audio Engine tests passed (133 modules).\n";
     return 0;
 }

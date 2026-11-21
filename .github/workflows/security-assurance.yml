@@ -1,0 +1,178 @@
+name: Repository Security Assurance
+
+on:
+  push:
+    branches:
+      - main
+      - feat/mental-wellbeing-code-safety-v1
+      - "security/**"
+  pull_request:
+  merge_group:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  osv_pr:
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.7.1
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+  osv_full:
+    if: github.event_name != 'pull_request' && github.event_name != 'merge_group'
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.7.1
+    with:
+      scan-args: |-
+        --recursive
+        ./
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+  assurance:
+    name: Source audit, fuzzing, privacy and federation
+    needs: [osv_pr, osv_full]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current repository
+        uses: actions/checkout@v4
+
+      - name: Check out Pytyliki for federation audit
+        uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/Pytyliki
+          ref: ${{ (github.event_name == 'pull_request' && github.head_ref == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || (github.event_name != 'pull_request' && github.ref_name == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || 'main' }}
+          path: .federation/Pytyliki
+
+      - name: Check out Reaper for federation audit
+        uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/Reaper
+          ref: ${{ (github.event_name == 'pull_request' && github.head_ref == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || (github.event_name != 'pull_request' && github.ref_name == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || 'main' }}
+          path: .federation/Reaper
+
+      - name: Check out OPlague for federation audit
+        uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/OPlague
+          ref: ${{ (github.event_name == 'pull_request' && github.head_ref == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || (github.event_name != 'pull_request' && github.ref_name == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || 'main' }}
+          path: .federation/OPlague
+
+      - name: Check out VentuSample for federation audit
+        uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/VentuSample
+          ref: ${{ (github.event_name == 'pull_request' && github.head_ref == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || (github.event_name != 'pull_request' && github.ref_name == 'feat/mental-wellbeing-code-safety-v1') && 'feat/mental-wellbeing-code-safety-v1' || 'main' }}
+          path: .federation/VentuSample
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Audit tracked source and configuration
+        id: source_audit
+        continue-on-error: true
+        run: python scripts/security_audit.py --output security-audit-report.json
+
+      - name: Inventory dependencies and pin hygiene
+        id: dependency_audit
+        continue-on-error: true
+        run: python scripts/dependency_audit.py --output dependency-audit-report.json
+
+      - name: Run privacy and secret-redaction regressions
+        id: privacy
+        continue-on-error: true
+        run: python scripts/test_privacy_regressions.py
+
+      - name: Configure and build Pytyliki native tests
+        if: github.repository == 'Ivan-VHS/Pytyliki'
+        continue-on-error: true
+        run: |
+          cmake -S . -B build -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
+
+      - name: Run Pytyliki native regression tests
+        if: github.repository == 'Ivan-VHS/Pytyliki'
+        continue-on-error: true
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Compile and test Reaper Python runtime
+        if: github.repository == 'Ivan-VHS/Reaper'
+        continue-on-error: true
+        run: |
+          python -m compileall -q reaper tests scripts
+          python -m unittest discover -s tests -v
+
+      - name: Test OPlague Python inspection runtime
+        if: github.repository == 'Ivan-VHS/OPlague'
+        continue-on-error: true
+        run: python -m unittest discover -s tests -v
+
+      - name: Configure and build VentuSample native tests
+        if: github.repository == 'Ivan-VHS/VentuSample'
+        continue-on-error: true
+        run: |
+          cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
+
+      - name: Run VentuSample native regression tests
+        if: github.repository == 'Ivan-VHS/VentuSample'
+        continue-on-error: true
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Run project-specific deterministic fuzz-smoke corpus
+        id: fuzz
+        continue-on-error: true
+        run: python scripts/fuzz_smoke.py
+
+      - name: Validate cross-repository security policy and tool parity
+        id: federation
+        continue-on-error: true
+        run: |
+          python scripts/cross_repository_audit.py \
+            --repo "Pytyliki=${GITHUB_WORKSPACE}/.federation/Pytyliki" \
+            --repo "Reaper=${GITHUB_WORKSPACE}/.federation/Reaper" \
+            --repo "OPlague=${GITHUB_WORKSPACE}/.federation/OPlague" \
+            --repo "VentuSample=${GITHUB_WORKSPACE}/.federation/VentuSample" \
+            --output cross-repository-audit-report.json
+
+      - name: Review dependency changes on pull requests
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+      - name: Calculate unified assurance score
+        id: score
+        if: always()
+        run: |
+          python scripts/security_score.py \
+            --scan security-audit-report.json \
+            --dependencies dependency-audit-report.json \
+            --fuzz-status "${{ steps.fuzz.outcome == 'success' && 'passed' || 'failed' }}" \
+            --privacy-status "${{ steps.privacy.outcome == 'success' && 'passed' || 'failed' }}" \
+            --dependency-vuln-status "${{ (needs.osv_pr.result == 'success' || needs.osv_full.result == 'success') && 'passed' || 'failed' }}" \
+            --federation-status "${{ steps.federation.outcome == 'success' && 'passed' || 'failed' }}" \
+            --output security-assurance-score.json
+
+      - name: Upload redacted assurance reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-assurance-${{ github.repository }}-${{ github.run_id }}
+          path: |
+            security-audit-report.json
+            dependency-audit-report.json
+            cross-repository-audit-report.json
+            security-assurance-score.json
+          if-no-files-found: warn
+          retention-days: 30
