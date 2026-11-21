@@ -601,7 +601,7 @@ ventu::Parameters MainWindow::parameters() const {
 
 void MainWindow::setBusy(bool busy) {
     generateButton_->setEnabled(!busy);
-    generateButton_->setText(busy ? "РЕНДЕРИНГ SAMPLE PACK…" : "СОЗДАТЬ SAMPLE PACK");
+    generateButton_->setText(busy ? "СОЗДАНИЕ НАБОРА СЭМПЛОВ…" : "СОЗДАТЬ SAMPLE PACK");
     progress_->setRange(0, busy ? 0 : 100);
     if (!busy) progress_->setValue(100);
     statusLabel_->setText(busy ? "Рендеринг выполняется в рабочем потоке. Интерфейс остаётся отзывчивым." : statusLabel_->text());
