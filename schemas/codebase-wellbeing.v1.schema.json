@@ -1,0 +1,216 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/shared-contracts/codebase-wellbeing.v1.schema.json",
+  "title": "Codebase Wellbeing Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "concept",
+    "source_inspiration",
+    "principles",
+    "support_model",
+    "engineering_myths",
+    "assessment_contract"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "concept": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "definition",
+        "is_engineering_metaphor",
+        "clinical_equivalence"
+      ],
+      "properties": {
+        "id": {
+          "const": "code-mental-health"
+        },
+        "name": {
+          "const": "Code Mental Health / Codebase Wellbeing"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 20
+        },
+        "is_engineering_metaphor": {
+          "const": true
+        },
+        "clinical_equivalence": {
+          "const": false
+        }
+      }
+    },
+    "source_inspiration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "channel",
+        "title",
+        "video_url",
+        "published_at",
+        "duration",
+        "transcript_coverage",
+        "adaptation_note"
+      ],
+      "properties": {
+        "channel": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "video_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "published_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "duration": {
+          "type": "string"
+        },
+        "transcript_coverage": {
+          "type": "string"
+        },
+        "adaptation_note": {
+          "type": "string",
+          "minLength": 20
+        }
+      }
+    },
+    "principles": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "principle",
+          "engineering_translation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9-]+$"
+          },
+          "principle": {
+            "type": "string"
+          },
+          "engineering_translation": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "support_model": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "layer",
+          "purpose",
+          "examples"
+        ],
+        "properties": {
+          "layer": {
+            "type": "string"
+          },
+          "purpose": {
+            "type": "string"
+          },
+          "examples": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "engineering_myths": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "myth",
+          "correction"
+        ],
+        "properties": {
+          "myth": {
+            "type": "string"
+          },
+          "correction": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "assessment_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dimensions",
+        "reporting_rules",
+        "explicit_non_goals"
+      ],
+      "properties": {
+        "dimensions": {
+          "type": "array",
+          "minItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "signals",
+              "interpretation_limit"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9-]+$"
+              },
+              "signals": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "interpretation_limit": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "reporting_rules": {
+          "type": "array",
+          "minItems": 4,
+          "items": {
+            "type": "string"
+          }
+        },
+        "explicit_non_goals": {
+          "type": "array",
+          "minItems": 5,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
