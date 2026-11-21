@@ -4,17 +4,17 @@ VentuSample remains a C++20 audio generator, DSP pipeline, plugin host and Qt wo
 
 Enable it by pointing CMake at an explicit local Reaper checkout:
 
-\`\`\`sh
+```sh
 cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DREAPER_SOURCE_DIR=/absolute/path/to/Reaper
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
-\`\`\`
+```
 
-The \`ventusample_core\` target links Reaper's versioned C ABI v1 when enabled. The small C++ wrapper in \`src/reaper_expression.hpp\` exposes:
+The `ventusample_core` target links Reaper's versioned C ABI v1 when enabled. The small C++ wrapper in `src/reaper_expression.hpp` exposes:
 
-- \`reaperRuntimeAvailable()\` — reports whether the ABI was linked.
-- \`evaluateReaperInteger(expression, result, error)\` — evaluates bounded signed-i64 expressions.
-- \`lookupReaperSelfhood(identity, ordinal, error)\` — exact lookup in the canonical 20-entry vocabulary.
+- `reaperRuntimeAvailable()` — reports whether the ABI was linked.
+- `evaluateReaperInteger(expression, result, error)` — evaluates bounded signed-i64 expressions.
+- `lookupReaperSelfhood(identity, ordinal, error)` — exact lookup in the canonical 20-entry vocabulary.
 
 When the option is omitted, the project builds exactly as before and the wrapper returns an explicit unavailable diagnostic. No runtime shared-library search, PATH lookup, download, filesystem access or process execution is introduced by this bridge.
 
