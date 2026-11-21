@@ -245,8 +245,9 @@ def correlate(findings,file_texts,focus_paths=None):
     for path,text in sorted(file_texts.items()):
         if ".github/rulesets/" in path and re.search(r"bypass.{0,100}(?:always|unrestricted)|(?:always|unrestricted).{0,100}bypass",text,re.I):add(findings,"Q12","high",path,1,"Repository governance contains an unrestricted bypass marker.","medium")
     for path,items in sorted(by_path.items()):
+        if focus_paths is not None and path not in focus_paths:continue
         if sum(1 for x in items if x["severity"] in {"high","critical"})>=3:add(findings,"Q10","high",path,1,"Multiple independent high-risk signals are concentrated in one file.","medium")
-    high_paths=sorted({f["path"] for f in findings if f["severity"] in {"high","critical"} and f["path"]!="__history__"})
+    high_paths=sorted({f["path"] for f in findings if f["severity"] in {"high","critical"} and f["path"]!="__history__" and (focus_paths is None or f["path"] in focus_paths)})
     if len(high_paths)>=4:add(findings,"Q14","high","__repository__",1,"High-risk indicators are distributed across several repository files.","low",high_paths)
     if any(f["rule_id"]=="N10" for f in findings):add(findings,"Q09","medium","__repository__",1,"Dependency manifests and repository lockfile inventory are inconsistent.","medium",[f["path"] for f in findings if f["rule_id"]=="N10"])
 def score_findings(findings,policy):
