@@ -18,12 +18,12 @@ CLife does not run in the audio callback, alter the active renderer, hot-swap na
 
 Run from the repository root with Python 3.10+:
 
-\`\`\`sh
+```sh
 python tools/clife.py snapshot .
 python tools/clife.py verify .clife/snapshots/<snapshot>.clife
 python tools/clife.py restore .clife/snapshots/<snapshot>.clife --to ../ventusample-recovered
 python -m unittest discover -s tests -p "test_clife.py" -v
-\`\`\`
+```
 
 The default archive location is .clife/snapshots/. Build, distribution, version-control, cache, dependency and previous CLife output directories are excluded.
 
