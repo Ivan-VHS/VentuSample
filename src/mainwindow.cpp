@@ -390,9 +390,11 @@ void MainWindow::showPlugins(const QString& selected) {
     root->addLayout(columns, 1);
 
     auto* actions = new QHBoxLayout();
+    auto* discover = new QPushButton("Обнаружить расширения…", &dialog);
     auto* toggle = new QPushButton("Включить / отключить", &dialog);
     auto* run = new QPushButton("Запустить плагин", &dialog);
     auto* close = new QPushButton("Закрыть", &dialog);
+    actions->addWidget(discover);
     actions->addWidget(toggle);
     actions->addWidget(run);
     actions->addStretch();
@@ -416,32 +418,59 @@ void MainWindow::showPlugins(const QString& selected) {
         if (list->count() > 0) list->setCurrentRow(selectedRow);
         (void)details;
     };
-    const auto updateDetails = [this, list, details, toggle] {
+    const auto updateDetails = [this, list, details, toggle, run] {
         const auto* item = list->currentItem();
         if (!item) {
             details->clear();
             toggle->setEnabled(false);
+            run->setEnabled(false);
             return;
         }
         const auto id = item->data(Qt::UserRole).toString().toStdString();
         const auto* plugin = pluginManager_.find(id);
         if (!plugin) return;
-        QString text = QString("NAME: %1\nID: %2\nVERSION: %3\nDOMAIN: %4\nOPERATION: %5\n\n%6\n\nCAPABILITIES:\n")
+        const auto statuses = pluginManager_.statuses();
+        const auto status = std::find_if(statuses.begin(), statuses.end(),
+            [&id](const ventu::PluginStatus& value) { return value.descriptor.id == id; });
+        const bool hasHandler = status != statuses.end() && status->handlerAttached;
+        const bool enabled = pluginManager_.isEnabled(id);
+        QString text = QString("NAME: %1\nID: %2\nVERSION: %3\nAPI: %4\nDOMAIN: %5\nSOURCE: %6\nOPERATION: %7\n\n%8\n\nCAPABILITIES:\n")
             .arg(QString::fromStdString(plugin->name),
                  QString::fromStdString(plugin->id),
                  QString::fromStdString(plugin->version),
+                 QString::number(plugin->apiVersion),
                  QString::fromStdString(plugin->domain),
+                 QString::fromStdString(plugin->source),
                  QString::fromStdString(plugin->operation),
                  QString::fromStdString(plugin->description));
         for (const auto& capability : plugin->capabilities)
             text += " • " + QString::fromStdString(capability) + "\n";
-        text += QString("\nSTATUS: %1").arg(pluginManager_.isEnabled(id) ? "ENABLED" : "DISABLED");
+        text += QString("\nSTATUS: %1\nHANDLER: %2\nMANIFEST: %3")
+            .arg(enabled ? "ENABLED" : "DISABLED",
+                 hasHandler ? "ATTACHED" : "NOT ATTACHED",
+                 QString::fromStdString(plugin->manifestPath));
+        if (status != statuses.end() && !status->lastError.empty())
+            text += "\nLAST ERROR: " + QString::fromStdString(status->lastError);
         details->setPlainText(text);
-        toggle->setEnabled(true);
-        toggle->setText(pluginManager_.isEnabled(id) ? "Отключить" : "Включить");
+        toggle->setEnabled(hasHandler || enabled);
+        toggle->setText(enabled ? "Отключить" : "Включить");
+        run->setEnabled(enabled && hasHandler);
     };
 
     refresh();
+    connect(discover, &QPushButton::clicked, &dialog, [this, &dialog, details, refresh, updateDetails] {
+        const QString directory = QFileDialog::getExistingDirectory(
+            &dialog, "Каталог расширений", QCoreApplication::applicationDirPath());
+        if (directory.isEmpty()) return;
+        std::vector<std::string> diagnostics;
+        const auto count = pluginManager_.discoverManifests(pathFromQString(directory), &diagnostics);
+        QString report = QString("Обнаружено новых манифестов: %1").arg(static_cast<qulonglong>(count));
+        for (const auto& item : diagnostics)
+            report += "\n• " + QString::fromStdString(item);
+        details->setPlainText(report);
+        refresh();
+        updateDetails();
+    });
     connect(list, &QListWidget::currentRowChanged, &dialog, [updateDetails](int) { updateDetails(); });
     connect(toggle, &QPushButton::clicked, &dialog, [this, list, refresh, updateDetails] {
         const auto* item = list->currentItem();
