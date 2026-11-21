@@ -124,11 +124,11 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 [Apache-2.0](LICENSE)
 
 
-## Mental Wellbeing Reference plugin
+## Code Wellbeing built-in plugin
 
-The built-in `mental-wellbeing-reference` plugin exposes an offline, transcript-grounded awareness catalogue. It does not process audio, inspect listening behaviour, infer mood or provide diagnosis or treatment advice. The incomplete transcript and unverified antidepressant-myths segment remain explicitly marked.
+VentuSample registers `code-wellbeing` as a read-only repository-maintenance inventory in the existing plugin host. Select a local workspace to inspect source/test/docs/CI evidence and review cues. The plugin does not inspect audio, infer contributor state, change files or compute an aggregate wellbeing score.
 
-[Source, data contract and safety boundaries](docs/MENTAL_WELLBEING_AWARENESS.md) · [JSON bundle](data/wellbeing/depression-awareness.v1.json)
+[Engineering charter and measurement limits](docs/CODE_MENTAL_HEALTH.md) · [Versioned contract](data/code-wellbeing/codebase-wellbeing.v1.json)
 
 ## Bounded resource-allocation reference
 An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
