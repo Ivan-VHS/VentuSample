@@ -8,8 +8,10 @@ on:
     - cron: "17 * * * *"
   workflow_dispatch:
 
+# Updating a same-repository PR branch requires write access to contents
+# as well as pull requests. This workflow never checks out or executes PR code.
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 concurrency:
