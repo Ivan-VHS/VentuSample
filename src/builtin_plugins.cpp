@@ -123,7 +123,7 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
                 std::string content;
                 if (readBounded(file, content, 1024u * 1024u)) {
                     ++scanned;
-                    const auto lines = static_cast<std::size_t>(std::count(content.begin(), content.end(), '\\n')) + 1u;
+                    const auto lines = static_cast<std::size_t>(std::count(content.begin(), content.end(), '\n')) + 1u;
                     if (lines > 1000u) ++largeUnits;
                     std::istringstream input(content);
                     std::string line;
