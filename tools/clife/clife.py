@@ -199,12 +199,30 @@ def _git_metadata(root: Path) -> dict[str, Any]:
     }
 
 
+def _snapshot_root(root: Path, create: bool = False) -> Path:
+    """Resolve the local CLife store without following repository-controlled symlinks."""
+    store = root / ".clife"
+    if store.is_symlink() or (store.exists() and not store.is_dir()):
+        raise CLifeError("Refusing to use .clife because it is not a real directory.")
+    if not store.exists():
+        if not create:
+            return store / "snapshots"
+        store.mkdir()
+    snapshots = store / "snapshots"
+    if snapshots.is_symlink() or (snapshots.exists() and not snapshots.is_dir()):
+        raise CLifeError("Refusing to use .clife/snapshots because it is not a real directory.")
+    if not snapshots.exists() and create:
+        snapshots.mkdir()
+    return snapshots
+
+
 def make_snapshot(root: str | Path, label: str = "savepoint") -> str:
     base = _root(root)
     config = _load_config(base)
+    snapshots_root = _snapshot_root(base, create=True)
     files, skipped = _candidate_files(base, config)
     snapshot_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
-    snapshot_dir = base / ".clife" / "snapshots" / snapshot_id
+    snapshot_dir = snapshots_root / snapshot_id
     payload_dir = snapshot_dir / "files"
     try:
         payload_dir.mkdir(parents=True, exist_ok=False)
@@ -238,7 +256,8 @@ def make_snapshot(root: str | Path, label: str = "savepoint") -> str:
 def _snapshot_dir(root: Path, snapshot_id: str) -> Path:
     if not SNAPSHOT_ID_RE.fullmatch(snapshot_id):
         raise CLifeError(f"Invalid snapshot id: {snapshot_id!r}")
-    directory = root / ".clife" / "snapshots" / snapshot_id
+    snapshots_root = _snapshot_root(root, create=False)
+    directory = snapshots_root / snapshot_id
     if not directory.is_dir() or directory.is_symlink():
         raise CLifeError(f"Snapshot not found: {snapshot_id}")
     return directory
@@ -248,6 +267,8 @@ def _load_manifest(root: Path, snapshot_id: str) -> tuple[Path, dict[str, Any]]:
     directory = _snapshot_dir(root, snapshot_id)
     manifest_path = directory / "manifest.json"
     checksum_path = directory / "manifest.sha256"
+    if manifest_path.is_symlink() or checksum_path.is_symlink():
+        raise CLifeError("Snapshot manifest and checksum must not be symbolic links.")
     try:
         encoded = manifest_path.read_bytes()
         expected = checksum_path.read_text(encoding="ascii").split()[0]
@@ -282,6 +303,13 @@ def verify_snapshot(root: str | Path, snapshot_id: str) -> tuple[int, list[str]]
     directory, manifest = _load_manifest(base, snapshot_id)
     errors: list[str] = []
     verified = 0
+    payload_root = directory / "files"
+    if payload_root.is_symlink() or not payload_root.is_dir():
+        return 0, ["invalid snapshot payload directory"]
+    try:
+        payload_root.resolve(strict=True).relative_to(directory.resolve(strict=True))
+    except (OSError, ValueError):
+        return 0, ["snapshot payload directory escapes savepoint"]
     for record in manifest["files"]:
         relative = _safe_relative(record["path"])
         payload = _inside(directory / "files", relative)
@@ -302,7 +330,7 @@ def verify_snapshot(root: str | Path, snapshot_id: str) -> tuple[int, list[str]]
 
 def latest_snapshot(root: str | Path) -> str:
     base = _root(root)
-    snapshots = base / ".clife" / "snapshots"
+    snapshots = _snapshot_root(base, create=False)
     if not snapshots.is_dir():
         raise CLifeError("No savepoints found. Create one with: clife.py savepoint")
     candidates = sorted(p.name for p in snapshots.iterdir() if p.is_dir() and SNAPSHOT_ID_RE.fullmatch(p.name))
