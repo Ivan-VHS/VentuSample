@@ -39,6 +39,14 @@ manager.registerPlugin(
 
 A discovered manifest can receive a reviewed handler with attachHandler(id, handler, onInitialize, onShutdown). A metadata-only entry cannot be enabled or executed until a handler is attached. Initialization is lazy and occurs before the first successful dispatch. Disabling an initialized module invokes its shutdown callback.
 
+## Quantum Audio Engine — 133 DSP modules
+
+The audio laboratory is opened independently from **Плагины → Quantum Audio Engine — 133 DSP**. It has 133 stable DSP module identities in five families: Quarks & Hadron (23), Quantum Mechanics (23), Atoms & Orbitals (23), Fields & Relativity (23), and Experimental Instruments (41).
+
+The lab loads supported WAV files, offers Amount / Tone / Rate / Wet-Dry controls for each module, builds an ordered processing chain, processes interleaved float samples offline and exports stereo PCM16 WAV. Module settings and chain order are persisted locally with QSettings. The catalogue uses 21 reusable DSP kernels with controlled per-module variants, rather than claiming 133 unrelated low-level algorithms. Each entry has a stable ID, description, category, visual concept and tested dispatch path.
+
+The audio processor is deliberately offline: it does not introduce a real-time callback, device routing, VST/AU hosting or arbitrary native-library loading. Quantum and particle terminology describes creative signal-processing models, not physical quantum computation. The complete catalogue, DSP mapping and audio limitations are in [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md).
+
 ## Manifest contract
 
 The JSON Schema is schemas/ivan-vhs.plugin.v1.schema.json; a metadata-only fixture lives in examples/plugins/metadata-example/plugin.json. IDs are stable kebab-case, versions use SemVer, and api_version must equal 1. The native host currently supports a conservative plain-string subset of JSON manifests; escaped string values are not accepted by its lightweight metadata reader.

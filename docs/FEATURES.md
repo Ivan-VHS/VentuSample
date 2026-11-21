@@ -17,3 +17,12 @@
 | QMR-20 | 20 quality × cohesion × rhythm controls and regression gates |
 
 Profiles are original procedural patterns, not artist or recording emulations.
+
+## Quantum Audio Engine
+
+- 133 named audio DSP modules across five scientific/conceptual families.
+- 21 reusable C++ DSP kernels with individual module IDs and parameter defaults.
+- Ordered offline WAV processing chain with per-module Amount, Tone, Rate and Wet/Dry controls.
+- Local chain and module-control persistence, signal scope and PCM16 WAV export.
+- Independent native test target exercises every catalogue entry and invalid-input guards.
+

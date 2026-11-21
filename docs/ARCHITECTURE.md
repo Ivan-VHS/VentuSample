@@ -10,7 +10,9 @@
 | Asset I/O | PCM16 import, 4-slice chop, pitch resample, WAV export |
 | Master | sampler color, linked stereo compression, sample-peak ceiling |
 | Manifest | settings snapshot, key/mode, peak/RMS/crest |
-| Plugin host | versioned built-in registry, enable/disable lifecycle, bounded handlers and public registration API |\n| Tests | validation, repeatability, variations, WAV round-trip, schemas and plugin lifecycle |
+| Plugin host | versioned built-in registry, enable/disable lifecycle, bounded handlers and public registration API |
+| Quantum Audio Engine | 133 typed DSP module identities, 21 reusable processing kernels, ordered offline chain and WAV I/O |
+| Tests | validation, repeatability, variations, WAV round-trip, schemas, plugin lifecycle and 133 DSP module checks |
 
 ## Numeric limits
 
