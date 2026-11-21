@@ -3,7 +3,7 @@
   "project": {
     "id": "ventusample",
     "name": "VentuSample",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "repository": "Ivan-VHS/VentuSample",
     "domain": "offline hip-hop sample-pack generation",
     "default_branch": "main"
@@ -31,6 +31,17 @@
       "evidence": [
         "src/generator.cpp",
         "schemas/ventusample.pack.v1.schema.json"
+      ]
+    },
+    {
+      "id": "tonal_export_metadata",
+      "status": "implemented",
+      "summary": "Exports readable key/mode labels in tonal WAV filenames and per-file v2 manifest metadata; unpitched drum assets remain unlabelled.",
+      "evidence": [
+        "src/generator.cpp",
+        "src/mainwindow.cpp",
+        "schemas/ventusample.pack.v2.schema.json",
+        "tests/test_generator.cpp"
       ]
     },
     {
@@ -87,6 +98,12 @@
       "id": "ventusample.pack.v1",
       "transport": "json-file-plus-wav-assets",
       "schema": "schemas/ventusample.pack.v1.schema.json",
+      "status": "implemented"
+    },
+    {
+      "id": "ventusample.pack.v2",
+      "transport": "json-file-plus-wav-assets",
+      "schema": "schemas/ventusample.pack.v2.schema.json",
       "status": "implemented"
     }
   ],
