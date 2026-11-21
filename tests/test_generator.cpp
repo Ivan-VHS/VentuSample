@@ -115,6 +115,77 @@ void testCadenceGridAudit() {
     require(empty.valid && !empty.analyzed, "one-shot or event-free audio should report cadence as not applicable");
 }
 
+void testBillionaireGoldenEraProfile() {
+    ventu::Parameters p;
+    p.style = ventu::Style::BillionaireGoldenEra;
+    p.target = ventu::Target::FullLoop;
+    p.sampleRate = 22050;
+    p.lowPassHz = 10000;
+    p.bpm = 93;
+    p.bars = 4;
+    p.variations = 1;
+    p.microHumanize = false;
+
+    require(ventu::toString(p.style) == "Billionaire Golden Era",
+            "profile name must match the shared pack contract");
+    require(ventu::validate(p).empty(), "Billionaire Golden Era parameters should validate");
+    const auto first = ventu::render(p, 0);
+    const auto repeated = ventu::render(p, 0);
+    require(!first.samples.empty(), "Billionaire Golden Era should render a loop");
+    require(first.samples == repeated.samples,
+            "Billionaire Golden Era must remain deterministic for a fixed seed");
+
+    p.style = ventu::Style::EastCoast;
+    const auto eastCoast = ventu::render(p, 0);
+    require(first.samples != eastCoast.samples,
+            "Billionaire Golden Era should have distinct drum voicing");
+
+    // Four distinct source regions make the fixed 0-2-1-3 crate order observable.
+    ventu::AudioBuffer source;
+    source.sampleRate = 22050;
+    source.channels = 2;
+    constexpr std::size_t sliceFrames = 11025u;
+    source.samples.resize(sliceFrames * 4u * 2u);
+    const std::array<double, 4> frequencies{220.0, 330.0, 440.0, 550.0};
+    for (std::size_t slice = 0; slice < frequencies.size(); ++slice) {
+        for (std::size_t frame = 0; frame < sliceFrames; ++frame) {
+            const double phase = 2.0 * 3.14159265358979323846 * frequencies[slice]
+                * static_cast<double>(frame) / source.sampleRate;
+            const float sample = static_cast<float>(0.35 * std::sin(phase));
+            const std::size_t index = (slice * sliceFrames + frame) * 2u;
+            source.samples[index] = sample;
+            source.samples[index + 1u] = sample;
+        }
+    }
+
+    p.target = ventu::Target::Melody;
+    p.bpm = 120;
+    p.bars = 1;
+    p.sourceMixPercent = 100;
+    p.style = ventu::Style::BillionaireGoldenEra;
+    const auto crateOrder = ventu::render(p, 0, {}, &source);
+    const auto repeatedCrateOrder = ventu::render(p, 0, {}, &source);
+    require(crateOrder.samples == repeatedCrateOrder.samples,
+            "crate reassembly must be deterministic");
+    p.style = ventu::Style::EastCoast;
+    const auto sequentialOrder = ventu::render(p, 0, {}, &source);
+    require(crateOrder.samples != sequentialOrder.samples,
+            "Billionaire Golden Era must reassemble four source slices in 0-2-1-3 order");
+
+    p.style = ventu::Style::BillionaireGoldenEra;
+    const auto packDirectory = std::filesystem::temp_directory_path() / "ventusample-bge-pack";
+    std::error_code cleanupError;
+    std::filesystem::remove_all(packDirectory, cleanupError);
+    const auto pack = ventu::generatePack(p, packDirectory);
+    require(static_cast<bool>(pack), "Billionaire Golden Era pack export should succeed");
+    std::ifstream manifest(packDirectory / "ventusample_manifest.json", std::ios::binary);
+    const std::string manifestText((std::istreambuf_iterator<char>(manifest)),
+                                   std::istreambuf_iterator<char>());
+    require(manifestText.find("Billionaire Golden Era") != std::string::npos,
+            "exported manifest must retain the shared Billionaire Golden Era profile name");
+    std::filesystem::remove_all(packDirectory, cleanupError);
+}
+
 void testWaveAndPackExport() {
     const auto temp = std::filesystem::temp_directory_path() / "ventusample-tests";
     std::error_code ec;
@@ -227,6 +298,7 @@ int main() {
     testDeterministicRender();
     testPhraseGridAndSwing();
     testCadenceGridAudit();
+    testBillionaireGoldenEraProfile();
     testWaveAndPackExport();
     std::cout << "VentuSample generator tests passed.\n";
     return 0;
