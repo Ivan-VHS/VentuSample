@@ -65,6 +65,11 @@ public:
     bool attachHandler(const std::string& idOrName, PluginHandler handler,
                        PluginLifecycle onInitialize = {},
                        PluginLifecycle onShutdown = {});
+    // Replaces an attached in-memory handler only while the plugin is disabled and stopped.
+    // This never loads a manifest entrypoint, DLL, SO or other executable payload.
+    bool hotSwapHandler(const std::string& idOrName, PluginHandler handler,
+                        PluginLifecycle onInitialize = {},
+                        PluginLifecycle onShutdown = {});
     std::vector<PluginDescriptor> plugins() const;
     std::vector<PluginStatus> statuses() const;
     const PluginDescriptor* find(const std::string& idOrName) const noexcept;

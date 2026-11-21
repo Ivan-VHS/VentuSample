@@ -140,6 +140,18 @@ void testManifestDiscoveryAndLifecycle() {
     require(activeFound, "diagnostics should expose enabled and initialized state");
     require(manager.setEnabled("hello-extension", false), "extension should disable cleanly");
     require(stopped == 1, "shutdown hook should run on disable");
+    require(manager.setEnabled("hello-extension", true), "extension can be re-enabled for a hot-swap guard check");
+    require(!manager.hotSwapHandler("hello-extension", [](const ventu::PluginContext&) {
+        return ventu::PluginResult{true, "unsafe live replacement", {}};
+    }), "an enabled handler must never be replaced");
+    require(manager.setEnabled("hello-extension", false), "extension should stop before replacement");
+    require(manager.hotSwapHandler("hello-extension", [](const ventu::PluginContext&) {
+        return ventu::PluginResult{true, "hot-swapped reviewed handler", {"new generation"}};
+    }), "disabled stopped handlers should be replaceable with reviewed host code");
+    require(manager.setEnabled("hello-extension", true), "hot-swapped handler should be enableable");
+    const auto swapped = manager.execute("hello-extension", {});
+    require(swapped.success && swapped.summary == "hot-swapped reviewed handler",
+            "dispatch should use the replacement handler after the guarded swap");
     fs::remove_all(root, ec);
 }
 

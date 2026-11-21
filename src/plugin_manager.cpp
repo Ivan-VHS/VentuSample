@@ -234,6 +234,24 @@ bool PluginManager::attachHandler(const std::string& idOrName, PluginHandler han
     return true;
 }
 
+bool PluginManager::hotSwapHandler(const std::string& idOrName, PluginHandler handler,
+                                   PluginLifecycle onInitialize, PluginLifecycle onShutdown) {
+    if (!handler) return false;
+    const auto key = normalized(idOrName);
+    const auto found = std::find_if(entries_.begin(), entries_.end(), [&](const Entry& entry) {
+        return normalized(entry.descriptor.id) == key
+            || normalized(entry.descriptor.name) == key;
+    });
+    // A running/initialised handler is never replaced underneath an active dispatch.
+    if (found == entries_.end() || !found->handler || found->enabled || found->initialized)
+        return false;
+    found->handler = std::move(handler);
+    found->onInitialize = std::move(onInitialize);
+    found->onShutdown = std::move(onShutdown);
+    found->lastError.clear();
+    return true;
+}
+
 std::vector<PluginDescriptor> PluginManager::plugins() const {
     std::vector<PluginDescriptor> result;
     result.reserve(entries_.size());
