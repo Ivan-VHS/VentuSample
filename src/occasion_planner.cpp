@@ -32,13 +32,15 @@ bool GiftPlan::verify() const noexcept {
     if (remaining > budget || spent + remaining != budget ||
         allocations.size() != baskets.size()) return false;
     std::uint64_t allocationTotal = 0;
+    std::uint64_t basketSpent = 0;
     for (std::size_t i = 0; i < allocations.size(); ++i) {
         allocationTotal += allocations[i];
         std::uint64_t basketTotal = 0;
         for (const auto& line : baskets[i]) basketTotal += line.lineTotal;
         if (basketTotal > allocations[i]) return false;
+        basketSpent += basketTotal;
     }
-    return allocationTotal == budget && spent <= budget;
+    return allocationTotal == budget && basketSpent == spent && spent <= budget;
 }
 
 std::vector<std::uint32_t> splitEvenly(std::uint32_t total, std::size_t parts) {
