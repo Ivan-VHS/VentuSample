@@ -49,7 +49,7 @@ QString pathToQString(const std::filesystem::path& value) {
 QStringList styleNames() {
     return {"Boom Bap", "East Coast", "Harlem Dip-Trap", "G-Unit", "Modern Trap",
             "Atlanta Trap", "UK Drill", "UK Grime", "Memphis", "Jazz Rap", "G-Funk",
-            "Boom Trap", "Cripple Trill", "Billionaire Golden Era"};
+            "Boom Trap", "Cripple Trill"};
 }
 QStringList targetNames() { return {"Полный луп", "Мелодия", "Ударные", "Бас", "One-shot kit"}; }
 QStringList scaleNames() { return {"Natural Minor", "Harmonic Minor", "Dorian", "Phrygian", "Major", "Minor Pentatonic"}; }
@@ -308,7 +308,7 @@ void MainWindow::buildUi() {
         "<h2>VentuSample Native DSP</h2>"
         "<p>Процедурный генератор хип-хоп-сэмплов с воспроизводимыми seed-вариациями."
         " Все вычисления выполняются локально, WAV экспортируется в PCM16.</p>"
-        "<h3>Профили</h3><p>Boom Bap · East Coast · Harlem Dip-Trap · G-Unit · Modern Trap · Atlanta Trap · UK Drill · UK Grime · Memphis · Jazz Rap · G-Funk · Boom Trap · Cripple Trill · Billionaire Golden Era.</p>"
+        "<h3>Профили</h3><p>Boom Bap · East Coast · Harlem Dip-Trap · G-Unit · Modern Trap · Atlanta Trap · UK Drill · UK Grime · Memphis · Jazz Rap · G-Funk · Boom Trap · Cripple Trill.</p>"
         "<h3>Что генерируется</h3><p>Полные лупы, мелодии, ударные, басовые партии и multi-one-shot kit."
         " Каждая вариация получает независимый детерминированный seed.</p>"
         "<h3>Инженерные ограничения</h3><p>Офлайн-рендеринг; фиксированные диапазоны параметров; ограничение длительности и числа вариантов;"
@@ -565,7 +565,8 @@ void MainWindow::startGeneration() {
             QStringList files;
             for (const auto& file : result.files) files.push_back(pathToQString(file));
             const QString error = QString::fromUtf8(result.error.c_str());
-            QMetaObject::invokeMethod(this, [this, files, error, p] {
+            const auto cadence = result.cadence;
+            QMetaObject::invokeMethod(this, [this, files, error, p, cadence] {
             if (worker_.joinable()) worker_.join();
             setBusy(false);
             if (!error.isEmpty()) {
@@ -581,8 +582,21 @@ void MainWindow::startGeneration() {
             const QString manifest = QDir(lastOutputDirectory_).filePath("ventusample_manifest.json");
             auto* manifestItem = new QListWidgetItem(QFileInfo(manifest).fileName(), filesList_);
             manifestItem->setData(Qt::UserRole, manifest);
-            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · peak ceiling −0.3 dBFS")
-                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style))).arg(p.seed));
+            double cadenceTotal = 0.0;
+            int cadenceCount = 0;
+            for (const auto& report : cadence) {
+                if (report.valid && report.analyzed) {
+                    cadenceTotal += report.gridAccuracyPercent;
+                    ++cadenceCount;
+                }
+            }
+            const QString cadenceLabel = cadenceCount > 0
+                ? QString("grid %1%").arg(cadenceTotal / cadenceCount, 0, 'f', 1)
+                : QString("grid n/a");
+            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · seed %4 · %5 · peak ceiling −0.3 dBFS")
+                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style))).arg(p.seed).arg(cadenceLabel));
+            appendLog(QString("QMR CADENCE  %1 analyzed loop exports · %2")
+                .arg(cadenceCount).arg(cadenceLabel));
             statusLabel_->setText(QString("Готово · %1 аудиофайлов сохранено локально.").arg(files.size()));
             appendLog(QString("DONE  %1 audio files + ventusample_manifest.json").arg(files.size()));
                 openFolderButton_->setEnabled(true);

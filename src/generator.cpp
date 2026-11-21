@@ -28,10 +28,6 @@ struct StyleProfile {
     double hatProbability;
     double toneDecay;
     double bassWeight;
-    double kickGain{1.0};
-    double snareGain{1.0};
-    double hatGain{1.0};
-    double ghostProbability{0.18};
 };
 
 StyleProfile profile(Style style) {
@@ -49,9 +45,6 @@ StyleProfile profile(Style style) {
     case Style::Gfunk:         return {{{0, 6, 8, 12, 14, 0}}, 5, 4, 12, false, 0.50, 1.00, 0.82};
     case Style::BoomTrap:      return {{{0, 6, 8, 10, 14, 0}}, 5, 4, 12, false, 0.65, 0.74, 0.96};
     case Style::CrippleTrill:  return {{{0, 3, 8, 11, 14, 0}}, 5, 4, 12, false, 0.70, 0.62, 0.95};
-    case Style::BillionaireGoldenEra:
-        return {{{0, 6, 8, 11, 14, 0}}, 5, 4, 12, false, 0.44, 0.96, 0.86,
-                1.12, 1.14, 0.84, 0.24};
     }
     return {{{0, 5, 8, 14, 0, 0}}, 4, 4, 12, false, 0.52, 0.8, 0.8};
 }
@@ -200,11 +193,7 @@ void mixSourceChops(AudioBuffer& output, const AudioBuffer& source, const Parame
     for (int bar = 0; bar < p.bars; ++bar) {
         for (int beat = 0; beat < 4; ++beat) {
             const int rotation = (variation * 3 + bar * 2) % 4;
-            const auto rotatedSlice = static_cast<std::size_t>((beat + rotation) % 4);
-            // Reassemble the middle pair for a crate-derived call/response phrase.
-            constexpr std::array<std::size_t, 4> mogulCrateOrder{0u, 2u, 1u, 3u};
-            const std::size_t sliceIndex = p.style == Style::BillionaireGoldenEra
-                ? mogulCrateOrder[rotatedSlice] : rotatedSlice;
+            const std::size_t sliceIndex = static_cast<std::size_t>((beat + rotation) % 4);
             const std::size_t sourceStart = sliceIndex * sliceFrames;
             const auto outputStart = static_cast<std::size_t>(
                 (static_cast<double>(bar * 4 + beat) * beatFrames));
@@ -392,7 +381,6 @@ std::string toString(Style value) {
     case Style::Gfunk: return "G-Funk";
     case Style::BoomTrap: return "Boom Trap";
     case Style::CrippleTrill: return "Cripple Trill";
-    case Style::BillionaireGoldenEra: return "Billionaire Golden Era";
     }
     return "East Coast";
 }
@@ -592,33 +580,30 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                 const bool kick = baseKick || cadenceKick;
                 const bool baseSnare = step == spec.snareA || step == spec.snareB;
                 const bool ghostSnare = drumsOn && phraseTurnaround && step == 10 && density >= 0.68
-                    && uniform(rng, 0.0, 1.0) < spec.ghostProbability;
+                    && uniform(rng, 0.0, 1.0) < 0.18;
                 const bool snare = baseSnare || ghostSnare;
 
-                if (drumsOn && kick) {
-                    const double kickLevel = (cadenceKick && !baseKick)
-                        ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08);
-                    addKick(audio, at, kickLevel * spec.kickGain, rng, width);
-                }
+                if (drumsOn && kick) { audio.eventFrames.push_back(at); addKick(audio, at, (cadenceKick && !baseKick) ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08), rng, width); }
                 if (drumsOn && snare) {
+                    audio.eventFrames.push_back(at);
                     const auto offset = static_cast<long long>(p.snareOffsetMs) * p.sampleRate / 1000;
                     const auto shifted = static_cast<std::size_t>(std::max<long long>(0, static_cast<long long>(at) + offset));
-                    const double snareLevel = ghostSnare ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07);
-                    addSnare(audio, shifted, snareLevel * spec.snareGain,
-                             rng, uniform(rng, -0.08, 0.08), width);
+                    addSnare(audio, shifted, ghostSnare ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07), rng, uniform(rng, -0.08, 0.08), width);
                 }
 
                 const bool regularHat = drumsOn && (step % 2 == 0
                     || uniform(rng, 0.0, 1.0) < density * spec.hatProbability);
                 const bool turnaroundHat = phraseTurnaround && step >= 13 && density >= 0.40;
                 if (drumsOn && (regularHat || turnaroundHat)) {
+                    audio.eventFrames.push_back(at);
                     const double accent = (step % 4 == 0) ? 0.52 : (turnaroundHat ? 0.27 : 0.34);
                     const double decay = turnaroundHat ? 0.026 : (step % 4 == 0 ? 0.065 : 0.042);
-                    addHat(audio, at, accent * spec.hatGain,
-                           rng, uniform(rng, -0.78, 0.78), width, decay);
+                    addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, decay);
                 }
-                if (drumsOn && step % 4 == 3 && uniform(rng, 0.0, 1.0) < density * 0.25)
+                if (drumsOn && step % 4 == 3 && uniform(rng, 0.0, 1.0) < density * 0.25) {
+                    audio.eventFrames.push_back(at);
                     addPerc(audio, at, 0.22, rng, uniform(rng, -0.85, 0.85), width);
+                }
                 if (drumsOn && p.tripletRolls && (p.style == Style::ModernTrap || p.style == Style::AtlantaTrap || p.style == Style::UKDrill || p.style == Style::Memphis || p.style == Style::CrippleTrill) && (step == 7 || step == 15)) {
                     for (int roll = 1; roll <= 2; ++roll) {
                         const auto rollAt = at + static_cast<std::size_t>(stepFrames * roll / 3.0);
@@ -630,6 +615,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
             const auto barStart = static_cast<std::size_t>(bar * barFrames);
             const int chordDegree = intervals[static_cast<std::size_t>((bar % 4 == 2) ? 3 : (bar % 4 == 3 ? 4 : 0))];
             if (melodyOn) {
+                audio.eventFrames.push_back(barStart);
                 const int third = intervals[std::min<std::size_t>(2, intervals.size() - 1)];
                 const int fifth = intervals[std::min<std::size_t>(4, intervals.size() - 1)];
                 const int chordNotes[] = {0, third, fifth};
@@ -648,6 +634,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     double noteOnset = bar * barFrames + step * stepFrames + swingOffsetForStep(step);
                     if (p.microHumanize) noteOnset += uniform(rng, -0.001, 0.001) * p.sampleRate;
                     const auto noteAt = static_cast<std::size_t>(std::max(0.0, noteOnset));
+                    audio.eventFrames.push_back(noteAt);
                     addTone(audio, noteAt, midiHz(rootMidi + degree + octave), (60.0 / p.bpm) * uniform(rng, 0.12, 0.42),
                             uniform(rng, 0.12, 0.27), p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
                 }
@@ -655,6 +642,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
             if (bassOn) {
                 for (int step : {0, 8}) {
                     const auto bassAt = static_cast<std::size_t>(bar * barFrames + step * stepFrames);
+                    audio.eventFrames.push_back(bassAt);
                     const double slide = (p.style == Style::UKDrill || p.style == Style::ModernTrap || p.style == Style::AtlantaTrap) ? uniform(rng, -5.0, 7.0) : 0.0;
                     const int octave = (p.style == Style::JazzRap || p.style == Style::Gfunk) ? 1 : 0;
                     addBass(audio, bassAt, midiHz(rootMidi - 12 + octave * 12), (60.0 / p.bpm) * 1.6,
@@ -675,6 +663,65 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
     applySamplerColor(audio, p.sampler, p.gritPercent);
     applyMaster(audio, p);
     return audio;
+}
+
+
+CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent, double toleranceMs) {
+    CadenceStats result;
+    if (audio.sampleRate < 8000 || audio.sampleRate > 192000 || audio.channels != 2 ||
+        audio.samples.empty() || audio.samples.size() % static_cast<std::size_t>(audio.channels) != 0 ||
+        bpm < 60 || bpm > 190 || swingPercent < 50 || swingPercent > 68 ||
+        !std::isfinite(toleranceMs) || toleranceMs <= 0.0 || toleranceMs > 50.0 ||
+        audio.eventFrames.size() > 1000000u) {
+        result.error = "Некорректные параметры аудио или сетки для анализа ритма.";
+        return result;
+    }
+    result.valid = true;
+    if (audio.eventFrames.empty()) return result;
+
+    const double stepFrames = (60.0 / static_cast<double>(bpm)) *
+                              static_cast<double>(audio.sampleRate) / 4.0;
+    const double toleranceFrames = toleranceMs * static_cast<double>(audio.sampleRate) / 1000.0;
+    double deviationSum = 0.0;
+    result.eventCount = audio.eventFrames.size();
+    for (const std::size_t frame : audio.eventFrames) {
+        if (frame >= audio.frames()) {
+            result.valid = false;
+            result.error = "Событие выходит за границы аудиобуфера.";
+            return result;
+        }
+        const auto nearestStep = static_cast<long long>(
+            std::llround(static_cast<double>(frame) / stepFrames));
+        double bestDeviation = std::numeric_limits<double>::max();
+        for (long long candidate = nearestStep - 1; candidate <= nearestStep + 1; ++candidate) {
+            if (candidate < 0) continue;
+            const auto stepInBar = static_cast<int>(candidate % 16);
+            double expectedFrame = static_cast<double>(candidate) * stepFrames;
+            if ((stepInBar % 4) == 2) {
+                expectedFrame += stepFrames * 4.0 *
+                    static_cast<double>(swingPercent - 50) / 100.0;
+            }
+            bestDeviation = std::min(bestDeviation,
+                std::abs(static_cast<double>(frame) - expectedFrame));
+        }
+        if (!std::isfinite(bestDeviation)) {
+            result.valid = false;
+            result.error = "Не удалось сопоставить событие с музыкальной сеткой.";
+            return result;
+        }
+        deviationSum += bestDeviation;
+        result.maxDeviationMs = std::max(
+            result.maxDeviationMs,
+            bestDeviation * 1000.0 / static_cast<double>(audio.sampleRate));
+        if (bestDeviation <= toleranceFrames) ++result.onGridCount;
+    }
+    result.offGridCount = result.eventCount - result.onGridCount;
+    result.meanDeviationMs = deviationSum * 1000.0 /
+        (static_cast<double>(audio.sampleRate) * static_cast<double>(result.eventCount));
+    result.gridAccuracyPercent = 100.0 * static_cast<double>(result.onGridCount) /
+        static_cast<double>(result.eventCount);
+    result.analyzed = true;
+    return result;
 }
 
 AudioStats measure(const AudioBuffer& audio) {
@@ -791,6 +838,7 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 std::string error;
                 if (!writeWave(path, audio, error)) { result.error = error; return result; }
                 const auto stats = measure(audio);
+                result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
                 result.files.push_back(path);
                 if (!first) manifest << ",\n";
                 first = false;
@@ -803,6 +851,7 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             std::string error;
             if (!writeWave(path, audio, error)) { result.error = error; return result; }
             const auto stats = measure(audio);
+            result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
             result.files.push_back(path);
             if (!first) manifest << ",\n";
             first = false;

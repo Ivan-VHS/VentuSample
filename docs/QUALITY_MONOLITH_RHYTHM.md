@@ -41,16 +41,6 @@ The supplied 20-row vocabulary is converted into three engineering axes:
 
 ## Implemented behavior
 
-### Billionaire Golden Era profile
-
-The requested luxury / golden-era vocabulary is implemented as one production profile rather than a stack of near-duplicate genre labels:
-
-- **Crate rebuild:** imported four-slice source material is reassembled in a deterministic 0-2-1-3 order before the existing beat-synchronous placement and pitch resampling.
-- **Heavy 90s / dragged boom-bap pocket:** the profile uses a five-event kick map and classic backbeat snare anchors. The existing user-controlled swing and snare offset provide the drag; neither is overwritten by profile selection.
-- **Premium drum programming:** kick and snare levels are weighted independently while the hat layer is intentionally restrained. Phrase-end ghost snares use a profile-owned probability.
-- **MPC / saturation / mastering chain:** the profile is designed to work with the existing MPC 2500/3000XL/5000 color, grit, saturation, filter and stereo-linked master controls. No unsupported tape emulation, LUFS target or true-peak claim is introduced.
-- **Translation and export:** the normal PCM16 export, deterministic seed, per-file peak/RMS/crest measurements and −0.3 dBFS sample-peak ceiling remain active.
-
 ### Quality
 
 - The stereo bus compressor now uses one detector envelope and one gain value for both channels. A transient on one side no longer drives an independent gain reduction on only that side.
@@ -92,3 +82,13 @@ The native test suite now checks that:
 - Existing user controls and saved preferences remain compatible.
 - There is no claim of LUFS normalization, oversampled true-peak limiting, phase-correlation analysis, tempo-preserving time-stretch, live playback or GPU acceleration.
 - Phrase turnarounds are deterministic procedural behavior, not a promise of human-composed arrangement quality.
+
+## New event-grid cadence auditor
+
+The native generator now retains a bounded list of its own scheduled musical onset frames in each in-memory render result. `analyzeCadence` compares those events with the same BPM/16th-note grid used by the renderer, including its swing displacement.
+
+Each exported variation receives a `CadenceStats` entry in `BatchResult`. The desktop summary displays the mean on-grid percentage across analyzed loop exports and writes the per-batch count to the log.
+
+The report includes event count, on-grid/off-grid count, mean and maximum timing deviation, and grid accuracy. A 3 ms default tolerance accommodates the renderer's bounded micro-humanization. Triplet ornament notes are excluded from the core-grid event list because they are intentional sub-grid flourishes. One-shot kits are marked not applicable rather than assigned a misleading loop score.
+
+The existing `ventusample.pack.v1` manifest remains unchanged. Cadence diagnostics are in-memory generation diagnostics and do not alter saved pack compatibility.

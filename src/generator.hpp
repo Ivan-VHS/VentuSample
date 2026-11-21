@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <string>
@@ -9,8 +10,7 @@ namespace ventu {
 
 enum class Style {
     BoomBap, EastCoast, HarlemDipTrap, GUnit, ModernTrap, AtlantaTrap,
-    UKDrill, UKGrime, Memphis, JazzRap, Gfunk, BoomTrap, CrippleTrill,
-    BillionaireGoldenEra
+    UKDrill, UKGrime, Memphis, JazzRap, Gfunk, BoomTrap, CrippleTrill
 };
 enum class Target { FullLoop, Melody, Drums, Bass, OneShotKit };
 enum class Scale { NaturalMinor, HarmonicMinor, Dorian, Phrygian, Major, MinorPentatonic };
@@ -50,6 +50,8 @@ struct AudioBuffer {
     int sampleRate{44100};
     int channels{2};
     std::vector<float> samples;
+    /* Scheduled musical onsets; not inferred from imported audio or noise. */
+    std::vector<std::size_t> eventFrames;
     std::size_t frames() const noexcept { return samples.size() / static_cast<std::size_t>(channels); }
 };
 
@@ -59,8 +61,21 @@ struct AudioStats {
     double crestDb{0.0};
 };
 
+struct CadenceStats {
+    bool valid{false};
+    bool analyzed{false};
+    std::size_t eventCount{0};
+    std::size_t onGridCount{0};
+    std::size_t offGridCount{0};
+    double meanDeviationMs{0.0};
+    double maxDeviationMs{0.0};
+    double gridAccuracyPercent{0.0};
+    std::string error;
+};
+
 struct BatchResult {
     std::vector<std::filesystem::path> files;
+    std::vector<CadenceStats> cadence;
     std::string error;
     explicit operator bool() const noexcept { return error.empty() && !files.empty(); }
 };
@@ -74,6 +89,8 @@ std::string validate(const Parameters& parameters);
 AudioBuffer loadWave(const std::filesystem::path& path, std::string& error);
 AudioBuffer render(const Parameters& parameters, int variation, const std::string& oneShot = {},
                    const AudioBuffer* sourceSample = nullptr);
+CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent,
+                            double toleranceMs = 3.0);
 AudioStats measure(const AudioBuffer& audio);
 bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error);
 BatchResult generatePack(const Parameters& parameters, const std::filesystem::path& outputDirectory);
