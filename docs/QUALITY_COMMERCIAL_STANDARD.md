@@ -47,3 +47,19 @@ The root profile **quality-commercial.v1.json** records all 60 controls. Run **p
 The renderer is offline and deterministic for a fixed seed and parameters. WAV peak/RMS/crest measurements and the pack manifest are technical evidence, not a guarantee of subjective musical quality, loudness compliance on every playback chain, publisher identity or rights clearance. The application does not verify copyright ownership or grant a license for imported material. Generated packs must not be advertised as commercially cleared until the operator has reviewed source rights and applicable license terms.
 
 A commercial maturity score is not revenue, profit, valuation or investment readiness. Progress requires independently reviewable user, rights, cost and distribution evidence.
+
+
+## Operational cohesion and prioritized next steps
+
+The second axis (**Execution**) measures the cohesion of the end-to-end operating model: consistent module ownership, bounded workflows, aligned interfaces, reproducible release steps and synchronized documentation. “Monolithic” means a consistent product journey and a single source of truth; it does not mean collapsing independent modules into one source file or removing project boundaries.
+
+The evaluator now emits a prioritized action plan derived from the declared commercial controls:
+
+| Priority | Required next step | Acceptance evidence |
+|---|---|---|
+| P0 | Complete license and third-party rights review | License compatibility, notices, bundled dependencies and asset permissions are reviewed before commercial redistribution claims. |
+| P1 | Define support ownership and release delivery | Maintenance owner, supported versions, issue route, release artifacts and reproducible installation are documented; no SLA is implied. |
+| P2 | Validate user demand and unit economics | Actual user workflows and delivery/support costs are recorded before market-fit or margin claims. |
+| P3 | Consider pricing only after evidence | User value, rights, operating costs and support scope are assessed; no willingness-to-pay is invented. |
+
+Run `python tools/quality_commercial.py` for the text report or `python tools/quality_commercial.py --format json` for structured output. The action plan is advisory; declared statuses do not prove sales, revenue, profitability or investment readiness.
