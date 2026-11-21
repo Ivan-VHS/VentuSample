@@ -1,0 +1,243 @@
+{
+  "schema": "anatidae.improvement-conflict.v1",
+  "version": "1.0.0",
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "scope": "Offline C++20 and Qt 6 desktop workstation for deterministic hip-hop sample generation, PCM16 WAV import/export, and versioned sample-pack manifests.",
+    "safety_boundary": "Generation remains offline and deterministic for fixed seed and parameters. Imported audio is untrusted input and application labels do not establish source ownership or commercial rights. Export schemas remain explicitly versioned; changes must preserve supported pack compatibility."
+  },
+  "status_model": {
+    "initial": "not_assessed",
+    "allowed": [
+      "not_assessed",
+      "detected",
+      "root_cause_confirmed",
+      "remediated",
+      "verified",
+      "deferred"
+    ]
+  },
+  "controls": [
+    {
+      "id": "IC-01",
+      "improvement_term": "Совершенствование",
+      "dissonance_term": "Дисгармония",
+      "conflict_term": "Конфликты",
+      "intent": "Align audio acceptance criteria and rendered output.",
+      "remediation": "Choose one authoritative audio/manifest contract; reconcile DSP, GUI, tests, and documentation; add a regression test for the corrected behavior.",
+      "verification": "Render deterministic fixtures and compare measured output and manifest fields with documented acceptance criteria.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-02",
+      "improvement_term": "Преображение",
+      "dissonance_term": "Разлад",
+      "conflict_term": "Противоречия",
+      "intent": "Restore reliability when rendering, cancellation, or export state is inconsistent.",
+      "remediation": "Trace the failure to its root cause, bound allocations and input sizes, and preserve recoverable generation state.",
+      "verification": "Exercise invalid settings, cancellation, resource limits, export failures, and recovery with deterministic tests.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-03",
+      "improvement_term": "Оптимизация",
+      "dissonance_term": "Несозвучие",
+      "conflict_term": "Столкновения",
+      "intent": "Close unsafe or ambiguous audio-input and filesystem paths.",
+      "remediation": "Reject malformed WAV and unsafe paths early; constrain resource use; make destructive replacement explicit and avoid silent overwrite.",
+      "verification": "Add negative tests for truncated WAVs, invalid chunks, path traversal, oversized data, and unintended writes.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-04",
+      "improvement_term": "Модернизация",
+      "dissonance_term": "Дисбаланс",
+      "conflict_term": "Несовместимости",
+      "intent": "Modernize audio profiles and pack contracts without breaking supported consumers.",
+      "remediation": "Introduce versioned profile and manifest changes with migration notes; retain compatibility for existing pack versions.",
+      "verification": "Run v1/v2 manifest and WAV compatibility tests across supported build targets.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-05",
+      "improvement_term": "Улучшение",
+      "dissonance_term": "Диспропорция",
+      "conflict_term": "Разногласия",
+      "intent": "Prioritize audible and workflow improvements instead of accumulating unused controls.",
+      "remediation": "Rank proposals by reproducible audio impact, user workflow, risk, and complexity; remove redundant parameter paths without reducing user control.",
+      "verification": "Compare controlled render fixtures, exported metadata, and regression outcomes before and after the change.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-06",
+      "improvement_term": "Развитие",
+      "dissonance_term": "Несогласованность",
+      "conflict_term": "Расхождения",
+      "intent": "Align generator, desktop UI, DSP, and export around shared parameter ownership.",
+      "remediation": "Define one authoritative parameter contract; remove divergent defaults and duplicated transformations between core and GUI.",
+      "verification": "Run engine/UI/export integration tests and verify that selected settings reach the renderer and manifest unchanged.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-07",
+      "improvement_term": "Преимущественное развитие",
+      "dissonance_term": "Разноречие",
+      "conflict_term": "Коллизии",
+      "intent": "Direct effort toward the generator's primary sample-pack outcomes.",
+      "remediation": "Prioritize offline sample generation, loop/kit export, deterministic variation, and clear musical metadata; keep unrelated service integrations out of scope.",
+      "verification": "Review roadmap items against implemented render, import, key/mode, manifest, and export workflows.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-08",
+      "improvement_term": "Усовершенствование",
+      "dissonance_term": "Противоречивость",
+      "conflict_term": "Споры",
+      "intent": "Make disputes over musical behavior and control semantics reproducible.",
+      "remediation": "Record parameter intent, default, constraints, trade-offs, and a reference render instead of resolving disagreements by taste alone.",
+      "verification": "Use seed-fixed audio fixtures and objective measurements; document any remaining subjective listening review separately.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-09",
+      "improvement_term": "Реконструкция",
+      "dissonance_term": "Какофония",
+      "conflict_term": "Несогласованности",
+      "intent": "Rebuild fragile render or export paths at a stable module boundary.",
+      "remediation": "Consolidate duplicate rendering/export logic behind tested interfaces; avoid wholesale DSP changes without characterization fixtures.",
+      "verification": "Run end-to-end generation, import, WAV export, manifest, and pack re-validation tests.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-10",
+      "improvement_term": "Рефакторинг",
+      "dissonance_term": "Дискретность",
+      "conflict_term": "Противоборства",
+      "intent": "Refactor code for clarity while preserving audio and file compatibility.",
+      "remediation": "Use small changes, retain DSP/manifest contracts, and pair each refactor with sample-level and metadata tests.",
+      "verification": "Compare rendered samples, deterministic seeds, manifest shape, and public APIs before and after.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-11",
+      "improvement_term": "Переосмысление",
+      "dissonance_term": "Разобщённость",
+      "conflict_term": "Соперничества",
+      "intent": "Re-evaluate old assumptions when sound-design profiles or user workflows change.",
+      "remediation": "Document assumptions about timing, swing, tonal labels, source import, and profile voicing; revise only with reproducible examples.",
+      "verification": "Add fixed-seed tests for changed semantics and update UI help and export metadata.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-12",
+      "improvement_term": "Обновление",
+      "dissonance_term": "Неоднородность",
+      "conflict_term": "Раздвоения",
+      "intent": "Keep profile definitions, schemas, README claims, and manifest versions synchronized.",
+      "remediation": "Use explicit versioned migrations and reject unsupported versions with actionable errors.",
+      "verification": "Test current and supported legacy manifests, migration paths, and round-trip validation.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-13",
+      "improvement_term": "Преобразование",
+      "dissonance_term": "Несоответствие",
+      "conflict_term": "Пересечения",
+      "intent": "Transform imported or rendered audio without losing timing, musical metadata, or provenance.",
+      "remediation": "Preserve sample rate, channel count, frame boundaries, key/mode semantics, source labels, and render parameters; make conversions explicit.",
+      "verification": "Use PCM/WAV structure, metadata, timing, and round-trip integrity tests.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-14",
+      "improvement_term": "Обогащение",
+      "dissonance_term": "Расхождение",
+      "conflict_term": "Накладки",
+      "intent": "Combine complementary profiles and generation stages without hidden coupling.",
+      "remediation": "Keep profile-specific voicing, crate order, and optional transformations behind explicit, tested configuration.",
+      "verification": "Test individual profiles and combinations; verify one profile cannot silently override unrelated global user settings.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-15",
+      "improvement_term": "Усиление",
+      "dissonance_term": "Разноголосица",
+      "conflict_term": "Неувязки",
+      "intent": "Strengthen weak points revealed by repeated audio or export failures.",
+      "remediation": "Fix the root cause of clipping, malformed output, non-determinism, or UI/render disagreement; add focused diagnostics.",
+      "verification": "Reproduce the old failure and prove the regression test fails before and passes after the correction.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-16",
+      "improvement_term": "Доработка",
+      "dissonance_term": "Дисгармоничность",
+      "conflict_term": "Диссонансы",
+      "intent": "Finish resource, cancellation, file, and empty-state edge cases before release.",
+      "remediation": "Close cleanup, thread shutdown, overwrite prompts, error messages, empty packs, and import-boundary behavior.",
+      "verification": "Run boundary, cancellation, worker-lifecycle, empty-output, malformed-input, and platform-specific checks.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-17",
+      "improvement_term": "Возвышение",
+      "dissonance_term": "Конфликтность",
+      "conflict_term": "Антагонизмы",
+      "intent": "Improve desktop clarity and accessibility without changing sound semantics.",
+      "remediation": "Use clear control grouping, visible keyboard focus, readable status feedback, and reduced-motion behavior.",
+      "verification": "Check keyboard navigation, focus, scaling, and UI-to-renderer state correspondence.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-18",
+      "improvement_term": "Прогрессирование",
+      "dissonance_term": "Неслаженность",
+      "conflict_term": "Несоответствия",
+      "intent": "Tune audio quality and performance using measured evidence.",
+      "remediation": "Profile representative render workloads; optimize measured DSP or allocation bottlenecks while retaining headroom and numerical correctness.",
+      "verification": "Record repeatable render timing, peak/RMS/crest, clipping, and output-integrity comparisons.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-19",
+      "improvement_term": "Эволюционирование",
+      "dissonance_term": "Раздвоенность",
+      "conflict_term": "Разобщённости",
+      "intent": "Evolve profile and export formats incrementally while retaining compatible packs.",
+      "remediation": "Version schema changes and keep reader support/migration explicit; document how old manifests remain readable.",
+      "verification": "Test supported pack versions, migrations, and independent Reaper validation of exported manifests.",
+      "state": "not_assessed",
+      "evidence": []
+    },
+    {
+      "id": "IC-20",
+      "improvement_term": "Комплексное совершенствование",
+      "dissonance_term": "Поляризация",
+      "conflict_term": "Раздоры",
+      "intent": "Review emergent issues across profiles, rendering, desktop, DSP, export, rights, and documentation.",
+      "remediation": "Reconcile audio behavior, GUI state, manifests, CI, source-sample rights notices, and cross-project contracts with evidence.",
+      "verification": "Run all relevant CI gates, deterministic fixtures, package validation, and release checks before promotion.",
+      "state": "not_assessed",
+      "evidence": []
+    }
+  ]
+}
