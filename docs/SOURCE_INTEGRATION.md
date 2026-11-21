@@ -50,7 +50,7 @@ Reused concepts from the Reaper desktop design system, UI/UX architecture, proje
 - Independent product boundaries; versioned JSON at project boundaries; evidence-backed capability claims.
 - An eight-facet federation model (identity, contracts, transport, provenance, validation, privacy, safety and audit).
 
-VentuSample remains an independent audio product; it does not embed Reaper's parser, IR, runtime, compiler or language semantics. The exported pack contract is the integration point.
+VentuSample remains an independent audio product; it does not embed Reaper's parser, IR, runtime, compiler or language semantics. The exported pack contract is the integration point. Reaper now validates exported manifests and compares normalized musical settings and stored per-file measurements. This consumer reads manifest JSON only and does not open or modify audio assets. See [REAPER_PACK_AUDIT.md](REAPER_PACK_AUDIT.md).
 
 Reference: [Reaper repository](https://github.com/Ivan-VHS/Reaper).
 
@@ -63,7 +63,7 @@ Reused concepts from `docs/PROCESSOR_NATIVE_DSP.md`, `docs/MEMORY_ARENA.md`, `do
 - Explicit sample rate/channel/frame validation, fixed input bounds and per-render state.
 - Offline PCM conversion, gain/filter/dynamics/measurement concepts.
 
-VentuSample currently uses its own C++20 scalar audio engine and does not load a Pytyliki binary. A future C ABI cross-check must be explicitly selected, versioned and tested before promotion.
+VentuSample continues to use its own C++20 scalar audio engine and does not load a Pytyliki binary. Reaper can optionally route the pack-descriptor distance calculation through Pytyliki's existing ABI v1; a direct VentuSample native adapter remains planned and is not represented as an audio-rendering backend.
 
 Reference: [Pytyliki repository](https://github.com/Ivan-VHS/Pytyliki).
 
@@ -93,6 +93,9 @@ Reference: [OPlague repository](https://github.com/Ivan-VHS/OPlague).
 | Time-preserving pitch shift | Not implemented |
 | GPU / SIMD dispatch | Not implemented; scalar baseline is authoritative |
 | Optional Pytyliki native DSP bridge | Specified as a future explicit adapter; not loaded |
-| Reaper pack consumer / round-trip recipe automation | Versioned file contract published; consumer automation not yet implemented |
+| Reaper pack consumer | Implemented in Reaper: bounded manifest validation, 22 normalized descriptors and read-only two-pack comparison; WAV assets are not opened |
 
 This ledger prevents a specification, source document or sibling project's capability from being presented as a working VentuSample feature without implementation and test evidence.
+
+
+The shared four-project OCTA-8 topology has twelve directed peer links, four local self-loops and eight protocol facets. Reaper pack-manifest audit is the implemented VentuSample exchange; render-request automation and direct Pytyliki integration remain planned. The OPlague ↔ VentuSample pair is not applicable by design.
