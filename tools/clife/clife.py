@@ -218,8 +218,8 @@ def _snapshot_root(root: Path, create: bool = False) -> Path:
 
 def make_snapshot(root: str | Path, label: str = "savepoint") -> str:
     base = _root(root)
-    config = _load_config(base)
     snapshots_root = _snapshot_root(base, create=True)
+    config = _load_config(base)
     files, skipped = _candidate_files(base, config)
     snapshot_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     snapshot_dir = snapshots_root / snapshot_id
