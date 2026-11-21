@@ -116,3 +116,6 @@
 - Список файлов и журнал ограничены/виртуализируются; двойной запуск генерации предотвращён; результаты доступны без потери контекста настроек.
 - Qt timers/animations не запускаются в DSP callbacks, audio buffers или генераторном worker; только UI thread получает визуальную обратную связь.
 
+## Implementation evidence — VentuSample
+
+The Qt UI policy tests cover contrast calculations and ordinary/large-text thresholds. Accessible names are supplied for choices, parameter controls, progress, status, generated files and diagnostic output; field labels are linked to their corresponding editors. Manual keyboard-only, high-DPI and 200% scaling audits remain release checks. The UI policy does not report fabricated generator progress and does not run in the DSP/worker path.
