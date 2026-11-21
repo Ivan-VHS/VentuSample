@@ -52,6 +52,10 @@ Open **Плагины → Quantum Audio Engine — 133 DSP** for the separate of
 
 The catalogue is a creative signal-processing system, not physical quantum computation. It is not a real-time audio engine, DAW, VST/AU host or arbitrary native-library loader. See [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) for input/output constraints, catalogue and DSP boundaries.
 
+## Atomic-Quantum 133 simulation layer
+
+A separate C++20 research library registers 133 atomic/quantum operation IDs and implements a bounded state-vector subset: state validation, normalization, Hadamard/phase/Pauli/CNOT/SWAP gates, Bell/GHZ preparation, seeded projective measurement, stochastic noise trajectories and pure-state fidelity. This is distinct from the existing **Quantum Audio Engine — 133 DSP modules** above: the audio catalogue remains intact and is not physical quantum computing. Advanced research functions remain catalogued until their numerical models are independently implemented and tested. See [Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md).
+
 ## Stochastic routing
 
 The optional **Stochastic Router** processes rendered audio buffers before PCM16 WAV export. Its weighted pool contains eight selectable processors: low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. It does not load, discover or instantiate arbitrary third-party plugins.

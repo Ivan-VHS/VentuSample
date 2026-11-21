@@ -19,6 +19,8 @@ add_library(ventusample_core STATIC
     src/builtin_plugins.cpp
     src/quantum_audio.cpp
     src/quantum_audio.hpp
+    src/atomic_quantum.cpp
+    src/atomic_quantum.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -43,6 +45,15 @@ if(VENTU_BUILD_DESKTOP)
         )
         target_link_libraries(VentuSample PRIVATE ventusample_core Qt6::Widgets)
         target_include_directories(VentuSample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+        if(VENTU_BUILD_TESTS)
+            add_executable(ventusample_ui_motion_tests
+                tests/test_ui_motion.cpp
+                src/ui_motion.cpp
+                src/ui_motion.hpp
+            )
+            target_link_libraries(ventusample_ui_motion_tests PRIVATE Qt6::Widgets)
+            target_include_directories(ventusample_ui_motion_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+        endif()
         if(WIN32)
             target_compile_definitions(VentuSample PRIVATE UNICODE _UNICODE NOMINMAX WIN32_LEAN_AND_MEAN _WIN32_WINNT=0x0A00 WINVER=0x0A00)
         endif()
@@ -66,6 +77,9 @@ endif()
 
 if(VENTU_BUILD_TESTS)
     enable_testing()
+    if(VENTU_BUILD_DESKTOP AND Qt6Widgets_FOUND)
+        add_test(NAME ventusample-ui-motion COMMAND ventusample_ui_motion_tests)
+    endif()
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-generator COMMAND ventusample_tests)
@@ -78,6 +92,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_quantum_audio_tests tests/test_quantum_audio.cpp)
     target_link_libraries(ventusample_quantum_audio_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-quantum-audio COMMAND ventusample_quantum_audio_tests)
+    add_executable(ventusample_atomic_quantum_tests tests/test_atomic_quantum.cpp)
+    target_link_libraries(ventusample_atomic_quantum_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-atomic-quantum COMMAND ventusample_atomic_quantum_tests)
     find_package(Python3 QUIET COMPONENTS Interpreter)
     if(Python3_Interpreter_FOUND)
         add_test(NAME ventusample-contract COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_project_contract.py)
