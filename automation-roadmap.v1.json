@@ -1,0 +1,593 @@
+{
+  "schema": "anatidae.automation-roadmap.v1",
+  "project": {
+    "id": "ventusample",
+    "name": "VentuSample",
+    "repository": "Ivan-VHS/VentuSample",
+    "default_branch": "main",
+    "stack": [
+      "C++20",
+      "Qt 6",
+      "CMake"
+    ],
+    "focus": "Deterministic sample generation, bounded offline DSP, PCM16 WAV export, and versioned sample-pack manifests."
+  },
+  "principles": [
+    "Least privilege and read-only defaults",
+    "Evidence before status claims",
+    "Idempotent and bounded automation",
+    "Pull-request review and required checks for source changes",
+    "Observable failures and explicit recovery ceilings",
+    "Human approval for external or destructive operations"
+  ],
+  "safety": {
+    "default_token_permissions": "read",
+    "auto_merge_requires_successful_checks": true,
+    "automatic_production_deploy": false,
+    "automatic_driver_or_firmware_install": false,
+    "automatic_secret_rotation": false,
+    "automatic_destructive_cleanup": false,
+    "automatic_publication_without_release_gate": false
+  },
+  "phases": [
+    {
+      "id": "baseline",
+      "name": "Phase 1 — Baseline and contract",
+      "exit_criteria": [
+        "All 20 workstreams are registered.",
+        "The JSON roadmap, schema, documentation, evidence paths, and safety settings pass the contract workflow."
+      ]
+    },
+    {
+      "id": "continuous",
+      "name": "Phase 2 — Continuous verification",
+      "exit_criteria": [
+        "Existing CI, architecture, quality, synchronization, and auto-merge checks remain authoritative.",
+        "New diagnostics are read-only, bounded, and observable."
+      ]
+    },
+    {
+      "id": "gated-release",
+      "name": "Phase 3 — Recovery, scale, and release gates",
+      "exit_criteria": [
+        "Recovery and scaling are tested for idempotence and resource bounds.",
+        "Deployment and publication remain disabled until an approved target, rollback plan, and protected environment exist."
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "id": "01-plan-governance",
+      "intent_ru": "Запланировать",
+      "automation": [
+        "Автоматизировать",
+        "Автоматизация"
+      ],
+      "priority": "P0",
+      "status": "extend",
+      "objective": "Version and validate one machine-readable automation roadmap for this repository.",
+      "target": "Plan changes through reviewed roadmap updates and contract checks.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        "project-contract.json",
+        "docs/DOCUMENTATION_CONTROL.md"
+      ],
+      "guardrails": [
+        "Roadmap changes are reviewed as versioned source.",
+        "Do not represent planned work as implemented."
+      ],
+      "acceptance": "The roadmap contract is valid, identifies all 20 workstreams, and its evidence paths exist."
+    },
+    {
+      "id": "02-organize-triggers",
+      "intent_ru": "Организовать",
+      "automation": [
+        "Автозапуск",
+        "Автопланирование"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Use event-driven CI and scheduled read-only checks with explicit manual dispatch.",
+      "target": "Run only on declared push, pull-request, schedule, or manual events.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/verified-auto-merge.yml",
+        ".github/workflows/update-behind-pr-branches.yml"
+      ],
+      "guardrails": [
+        "Scheduled checks are read-only.",
+        "No workflow receives write permissions by default."
+      ],
+      "acceptance": "Eligible workflows start from their declared triggers and use least-privilege permissions."
+    },
+    {
+      "id": "03-systematize-sync",
+      "intent_ru": "Систематизировать",
+      "automation": [
+        "Автосинхронизация",
+        "Автопроектирование"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Keep project contracts and peer-integration metadata synchronized with repository reality.",
+      "target": "Validate declared contracts and only synchronize eligible same-repository pull requests.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        "project-contract.json",
+        "federation/octa-pyramid.v1.json"
+      ],
+      "guardrails": [
+        "Never overwrite a changed branch head.",
+        "Keep interface versions explicit."
+      ],
+      "acceptance": "Contract and federation metadata validate without silently changing runtime behavior."
+    },
+    {
+      "id": "04-prioritize-change-flow",
+      "intent_ru": "Приоритизировать",
+      "automation": [
+        "Автообновление",
+        "Авторазработка"
+      ],
+      "priority": "P1",
+      "status": "extend",
+      "objective": "Make improvement intake traceable by impact, risk, dependencies, and verification cost.",
+      "target": "Use conflict and remediation records; require review for priority changes.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/improvement-conflict.yml",
+        ".github/workflows/quality-remediation.yml"
+      ],
+      "guardrails": [
+        "Priority changes require rationale and maintainer review.",
+        "Do not suppress competing findings."
+      ],
+      "acceptance": "Each proposed improvement has a priority, rationale, acceptance condition, and evidence."
+    },
+    {
+      "id": "05-refresh-project-config",
+      "intent_ru": "Актуализировать",
+      "automation": [
+        "Автонастройка",
+        "Автогенерация"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Keep project metadata, configuration contracts, and generated inventories current.",
+      "target": "Regenerate only deterministic metadata; validate before acceptance.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        "project-contract.json",
+        ".architecture/resilience-policy.json"
+      ],
+      "guardrails": [
+        "Only deterministic configuration may be generated.",
+        "Never commit environment-specific secrets."
+      ],
+      "acceptance": "Declared configuration matches the current repository and validates against its contract."
+    },
+    {
+      "id": "06-optimize-toolchain",
+      "intent_ru": "Оптимизировать",
+      "automation": [
+        "Автоконфигурация",
+        "Автопрограммирование"
+      ],
+      "priority": "P1",
+      "status": "extend",
+      "objective": "Tune build and toolchain configuration from measured evidence rather than speculative changes.",
+      "target": "Benchmark before changing defaults; keep platform-specific overrides explicit.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".architecture/resilience-policy.json",
+        ".architecture/resilience-policy.schema.json"
+      ],
+      "guardrails": [
+        "Do not trade correctness for speed.",
+        "Keep measured baselines and regression tests."
+      ],
+      "acceptance": "Any optimization includes a reproducible baseline and a regression check."
+    },
+    {
+      "id": "07-synchronize-branches",
+      "intent_ru": "Синхронизировать",
+      "automation": [
+        "Автооптимизация",
+        "Автоконфигурация"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Keep eligible pull-request branches current with main without overwriting concurrent work.",
+      "target": "Check repository ownership, target branch, draft state, and expected head SHA.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/update-behind-pr-branches.yml"
+      ],
+      "guardrails": [
+        "Same-repository, non-draft PRs targeting main only.",
+        "Use expected-head SHA and leave conflicts unresolved."
+      ],
+      "acceptance": "Only eligible, unchanged, same-repository branches are updated; conflicts are left for review."
+    },
+    {
+      "id": "08-integrate-projects",
+      "intent_ru": "Интегрировать",
+      "automation": [
+        "Автопланирование",
+        "Автонастройка"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Validate cross-project interfaces and shared federation metadata as versioned contracts.",
+      "target": "Require explicit interface versions and local evidence for each integration.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        "project-contract.json",
+        "federation/octa-pyramid.v1.json"
+      ],
+      "guardrails": [
+        "Validate declared interfaces before integration.",
+        "No hidden network or central runtime dependency."
+      ],
+      "acceptance": "Peer links and interface declarations validate without introducing a central runtime dependency."
+    },
+    {
+      "id": "09-modernize-quality-flow",
+      "intent_ru": "Модернизировать",
+      "automation": [
+        "Автокоррекция",
+        "Автоинтеграция"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Route defects through root-cause remediation, regression coverage, and verified integration.",
+      "target": "Automated checks may diagnose and validate; code fixes remain reviewable changes.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-remediation.yml",
+        "quality-remediation.v1.json"
+      ],
+      "guardrails": [
+        "Automated remediation proposes verifiable changes; no blind rewrites.",
+        "Preserve regression evidence."
+      ],
+      "acceptance": "Every accepted correction has a reproducible regression test and passing verification."
+    },
+    {
+      "id": "10-automate-diagnostics",
+      "intent_ru": "Автоматизировать",
+      "automation": [
+        "Автодиагностика",
+        "Автосинхронизация"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Run repeatable diagnostics on repository events and scheduled maintenance checks.",
+      "target": "Keep diagnostic jobs read-only unless a narrowly scoped write is explicitly required.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-remediation.yml",
+        ".github/workflows/update-behind-pr-branches.yml"
+      ],
+      "guardrails": [
+        "Diagnostics are read-only.",
+        "Do not execute code discovered from untrusted PRs in privileged contexts."
+      ],
+      "acceptance": "Diagnostics produce actionable failures and do not mutate source or production systems."
+    },
+    {
+      "id": "11-structure-test-updates",
+      "intent_ru": "Структурировать",
+      "automation": [
+        "Автотестирование",
+        "Автообновление"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Organize validation into focused test suites with deterministic update checks.",
+      "target": "Run focused tests for changed contracts and the full required suite before merge.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-repeatability-native.yml",
+        "tests/test_generator.cpp"
+      ],
+      "guardrails": [
+        "Required test suites remain merge gates.",
+        "Do not auto-delete or weaken tests."
+      ],
+      "acceptance": "Test groups are repeatable, failures are visible, and updates cannot bypass required checks."
+    },
+    {
+      "id": "12-scale-validation",
+      "intent_ru": "Масштабировать",
+      "automation": [
+        "Автопроверка",
+        "Автооптимизация"
+      ],
+      "priority": "P1",
+      "status": "extend",
+      "objective": "Scale validation through bounded matrices, parallel jobs, and resource-aware test selection.",
+      "target": "Cap concurrency and runtime; measure before raising matrix size.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-repeatability-native.yml",
+        "quality-repeatability-native.v1.json"
+      ],
+      "guardrails": [
+        "Bound matrix size, runtime, and concurrency.",
+        "Retain all required platform checks."
+      ],
+      "acceptance": "Expanded validation stays within declared time and resource budgets without reducing required coverage."
+    },
+    {
+      "id": "13-implement-verification",
+      "intent_ru": "Реализовать",
+      "automation": [
+        "Автоверификация",
+        "Автомодернизация"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Verify architecture, quality, and compatibility contracts as executable acceptance gates.",
+      "target": "Treat missing evidence as a failure, not as an inferred success.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-commercial.yml",
+        ".github/workflows/quality-remediation.yml"
+      ],
+      "guardrails": [
+        "Missing evidence fails closed.",
+        "Never bypass branch protection or required checks."
+      ],
+      "acceptance": "Acceptance gates check current evidence and report the exact failing contract."
+    },
+    {
+      "id": "14-coordinate-deployment",
+      "intent_ru": "Координировать",
+      "automation": [
+        "Авторазвертывание",
+        "Автоматическое масштабирование"
+      ],
+      "priority": "P2",
+      "status": "planned",
+      "objective": "Define environment-aware deployment and scaling only where the repository has a real deployable target.",
+      "target": "Require protected environments and an explicit human approval before external deployment.",
+      "trigger": [
+        "workflow_dispatch",
+        "protected-release-review"
+      ],
+      "current_controls": [
+        ".github/workflows/verified-auto-merge.yml",
+        "project-contract.json"
+      ],
+      "guardrails": [
+        "External deployment requires a protected environment and human approval.",
+        "No production rollout is enabled by this roadmap."
+      ],
+      "acceptance": "A deployment workflow is added only with a documented target, rollback path, permissions, and approval gate."
+    },
+    {
+      "id": "15-consolidate-test-matrix",
+      "intent_ru": "Консолидировать",
+      "automation": [
+        "Автомасштабирование",
+        "Автотестирование"
+      ],
+      "priority": "P1",
+      "status": "active",
+      "objective": "Consolidate duplicate checks and maintain a coherent native and cross-platform verification matrix.",
+      "target": "Do not remove a check unless equivalent coverage is demonstrated.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-repeatability-native.yml",
+        "tests/test_generator.cpp"
+      ],
+      "guardrails": [
+        "Remove duplicate checks only after equivalent coverage is proven.",
+        "Keep platform-specific tests."
+      ],
+      "acceptance": "The consolidated matrix preserves platform coverage and publishes unambiguous results."
+    },
+    {
+      "id": "16-improve-recovery",
+      "intent_ru": "Усовершенствовать",
+      "automation": [
+        "Автовосстановление",
+        "Автоверификация"
+      ],
+      "priority": "P1",
+      "status": "planned",
+      "objective": "Add bounded recovery for transient CI and artifact failures with explicit retry ceilings.",
+      "target": "Never retry destructive actions or conceal a persistent failure as success.",
+      "trigger": [
+        "workflow_dispatch",
+        "protected-release-review"
+      ],
+      "current_controls": [
+        ".architecture/resilience-policy.json",
+        ".architecture/resilience-policy.schema.json"
+      ],
+      "guardrails": [
+        "Retries are idempotent and capped.",
+        "Persistent failures remain failures and are surfaced."
+      ],
+      "acceptance": "Recovery is idempotent, capped, observable, and followed by the same verification gates."
+    },
+    {
+      "id": "17-test-controls",
+      "intent_ru": "Протестировать",
+      "automation": [
+        "Автоконтроль",
+        "Автодиагностика"
+      ],
+      "priority": "P0",
+      "status": "active",
+      "objective": "Test safety boundaries, invalid inputs, failure paths, and diagnostic reporting.",
+      "target": "Prefer isolated fixtures; never run hardware-changing operations in CI.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/quality-remediation.yml",
+        "tests/test_generator.cpp"
+      ],
+      "guardrails": [
+        "Use isolated fixtures and test hardware boundaries safely.",
+        "Do not flash firmware or install drivers in CI."
+      ],
+      "acceptance": "Regression tests cover normal, boundary, invalid, and failure cases for the repository's core path."
+    },
+    {
+      "id": "18-verify-observability",
+      "intent_ru": "Верифицировать",
+      "automation": [
+        "Автомониторинг",
+        "Автовосстановление"
+      ],
+      "priority": "P1",
+      "status": "extend",
+      "objective": "Make workflow health, failed checks, stale branches, and recovery outcomes observable.",
+      "target": "Report only sourced workflow and repository state; do not auto-dismiss failures.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        ".github/workflows/verified-auto-merge.yml",
+        ".github/workflows/update-behind-pr-branches.yml"
+      ],
+      "guardrails": [
+        "Preserve failed-run and merge-block evidence.",
+        "Do not auto-dismiss alerts or failures."
+      ],
+      "acceptance": "A maintainer can trace each validation, synchronization, retry, and merge decision."
+    },
+    {
+      "id": "19-document-automation",
+      "intent_ru": "Документировать",
+      "automation": [
+        "Автоинтеграция",
+        "Автодокументирование"
+      ],
+      "priority": "P1",
+      "status": "extend",
+      "objective": "Keep automation design, evidence, limits, and maintenance ownership documented alongside code.",
+      "target": "Generate only deterministic documentation; preserve human review for semantic changes.",
+      "trigger": [
+        "push",
+        "pull_request",
+        "schedule",
+        "workflow_dispatch"
+      ],
+      "current_controls": [
+        "docs/README.md",
+        "docs/DOCUMENTATION_CONTROL.md"
+      ],
+      "guardrails": [
+        "Generated documentation is deterministic and reviewable.",
+        "Do not overwrite hand-maintained project guidance."
+      ],
+      "acceptance": "Documentation lists all workstreams, current status, evidence, safety limits, and next acceptance gates."
+    },
+    {
+      "id": "20-release-publication",
+      "intent_ru": "Развернуть",
+      "automation": [
+        "Автопубликация",
+        "Авторазвертывание"
+      ],
+      "priority": "P2",
+      "status": "planned",
+      "objective": "Prepare reproducible release packaging and publication after release criteria are explicitly defined.",
+      "target": "No unattended publication, signing, firmware installation, or production release.",
+      "trigger": [
+        "workflow_dispatch",
+        "protected-release-review"
+      ],
+      "current_controls": [
+        ".github/workflows/verified-auto-merge.yml",
+        "project-contract.json"
+      ],
+      "guardrails": [
+        "Publishing requires a protected release ref and explicit approval.",
+        "No unattended signing, external publication, or deployment."
+      ],
+      "acceptance": "Publication runs only from a protected release ref with verified artifacts and an approved release gate."
+    }
+  ]
+}
