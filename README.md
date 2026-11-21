@@ -4,7 +4,7 @@
 
 [CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · Offline · Apache-2.0
 
-VentuSample is a native workstation for deterministic procedural hip-hop sample packs. Its scalar renderer exports PCM16 stereo WAV files and versioned JSON manifests without requiring a DAW, audio device or network connection.
+VentuSample is a native workstation for deterministic procedural hip-hop sample packs. Its scalar renderer exports PCM16 stereo WAV files and versioned JSON manifests without requiring a DAW, audio device or network connection. An optional build-time bridge can link Reaper's native C17 expression runtime for deterministic integer control expressions; all audio generation and DSP remain in C++20.
 
 ## Live Windows desktop
 
@@ -64,6 +64,10 @@ There are 14 procedural profiles: Boom Bap, Billionaire Golden Era, East Coast, 
 | Sample rate | 22.05 / 44.1 / 48 / 96 kHz |
 | Source WAV | PCM16 mono/stereo, 8–192 kHz, ≤128 MiB, ≤20M frames |
 | Chop pitch / mix | −12…+12 semitones / 0–100% |
+
+## Optional Reaper C17 runtime
+
+VentuSample can optionally link Reaper's standalone C17 integer-expression ABI. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md). The bridge is configured explicitly at build time with `-DREAPER_SOURCE_DIR=/absolute/path/to/Reaper`; it is disabled by default, does not discover or download libraries at runtime, and does not replace the C++20 audio engine or enter the real-time DSP path.
 
 ## Internal plugin platform
 
