@@ -1,0 +1,26 @@
+name: Quality, Repeatability and Native Contract
+on:
+  push:
+    branches: [main, "feat/**", "integration/**"]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: quality-repeatability-native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  contract:
+    name: Validate engineering contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test policy validator
+        run: python tools/validate_quality_repeatability_native.py --self-test --json
+      - name: Validate project evidence and policy
+        run: python tools/validate_quality_repeatability_native.py --json
