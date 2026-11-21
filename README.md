@@ -1,5 +1,7 @@
 # VentuSample — procedural sample workstation
 
+[UI/UX Atlas 2026](docs/UI_UX_ATLAS_2026.md) · Dawn / Sunset / Night appearance profiles · accessibility-first native interaction
+
 [CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · Offline · Apache-2.0
 
 VentuSample is a native workstation for deterministic procedural hip-hop sample packs. Its scalar renderer exports PCM16 stereo WAV files and versioned JSON manifests without requiring a DAW, audio device or network connection.
