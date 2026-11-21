@@ -42,7 +42,6 @@ bool RuntimeTransaction::stage(const std::vector<std::uint8_t>& value) {
     staged_ = value;
     stagedCrc_ = checksum(staged_);
     lastError_.clear();
-    failed_ = false;
     return true;
 }
 
