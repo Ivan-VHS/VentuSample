@@ -15,20 +15,103 @@
     "renderer": "portable scalar offline DSP"
   },
   "capabilities": [
-    {"id": "procedural_hiphop_generation", "status": "implemented", "summary": "Seeded procedural stereo patterns for 13 hip-hop and adjacent profiles.", "evidence": ["src/generator.cpp", "tests/test_generator.cpp"]},
-    {"id": "pcm16_wav_export", "status": "implemented", "summary": "Bounded RIFF PCM16 stereo output with peak/RMS metadata.", "evidence": ["src/generator.cpp", "schemas/ventusample.pack.v1.schema.json"]},
-    {"id": "pcm16_wav_chop_import", "status": "implemented", "summary": "Bounded PCM16 mono/stereo import, four-slice beat placement and semitone resampling.", "evidence": ["src/generator.cpp", "tests/test_generator.cpp"]},
-    {"id": "native_qt_desktop", "status": "partial", "summary": "Qt 6 Widgets application source and CMake target are present; desktop compile is CI-gated because the local build environment has no Qt 6 SDK.", "evidence": ["src/main.cpp", "src/mainwindow.cpp", "CMakeLists.txt", ".github/workflows/ci.yml"]},
-    {"id": "reproducible_variations", "status": "implemented", "summary": "Variation index and seed deterministically initialize the PRNG.", "evidence": ["src/generator.cpp", "tests/test_generator.cpp"]},
-    {"id": "reaper_pack_exchange", "status": "partial", "summary": "Versioned pack artifact is exported; a Reaper-side consumer/round-trip adapter is not included.", "evidence": ["schemas/ventusample.pack.v1.schema.json", "federation/octa-pyramid.v1.json"]}
+    {
+      "id": "procedural_hiphop_generation",
+      "status": "implemented",
+      "summary": "Seeded procedural stereo patterns for 13 hip-hop and adjacent profiles.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "pcm16_wav_export",
+      "status": "implemented",
+      "summary": "Bounded RIFF PCM16 stereo output with peak/RMS metadata.",
+      "evidence": [
+        "src/generator.cpp",
+        "schemas/ventusample.pack.v1.schema.json"
+      ]
+    },
+    {
+      "id": "pcm16_wav_chop_import",
+      "status": "implemented",
+      "summary": "Bounded PCM16 mono/stereo import, four-slice beat placement and semitone resampling.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "native_qt_desktop",
+      "status": "partial",
+      "summary": "Qt 6 Widgets application source and CMake target are present; desktop compile is CI-gated because the local build environment has no Qt 6 SDK.",
+      "evidence": [
+        "src/main.cpp",
+        "src/mainwindow.cpp",
+        "CMakeLists.txt",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "id": "reproducible_variations",
+      "status": "implemented",
+      "summary": "Variation index and seed deterministically initialize the PRNG.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp"
+      ]
+    },
+    {
+      "id": "reaper_pack_exchange",
+      "status": "partial",
+      "summary": "Versioned pack artifact is exported; a Reaper-side consumer/round-trip adapter is not included.",
+      "evidence": [
+        "schemas/ventusample.pack.v1.schema.json",
+        "federation/octa-pyramid.v1.json"
+      ]
+    },
+    {
+      "id": "quality_monolith_rhythm_pipeline",
+      "status": "implemented",
+      "summary": "QMR-20 render cohesion with a shared swing grid for drums and melody, deterministic four-bar turnarounds, stereo-linked bus compression and regression coverage.",
+      "evidence": [
+        "src/generator.cpp",
+        "tests/test_generator.cpp",
+        "docs/QUALITY_MONOLITH_RHYTHM.md"
+      ]
+    }
   ],
   "interfaces": [
-    {"id": "ventusample.pack.v1", "transport": "json-file-plus-wav-assets", "schema": "schemas/ventusample.pack.v1.schema.json", "status": "implemented"}
+    {
+      "id": "ventusample.pack.v1",
+      "transport": "json-file-plus-wav-assets",
+      "schema": "schemas/ventusample.pack.v1.schema.json",
+      "status": "implemented"
+    }
   ],
   "integrations": [
-    {"peer": "reaper", "interface": "ventusample.pack.v1", "transport": "json-file-plus-wav-assets", "status": "partial", "opt_in": true},
-    {"peer": "pytyliki", "interface": "pytyliki.c-abi.v1", "transport": "native-ffi", "status": "planned", "opt_in": true},
-    {"peer": "oplague", "interface": "not-applicable.v1", "transport": "none", "status": "not_applicable", "opt_in": false}
+    {
+      "peer": "reaper",
+      "interface": "ventusample.pack.v1",
+      "transport": "json-file-plus-wav-assets",
+      "status": "partial",
+      "opt_in": true
+    },
+    {
+      "peer": "pytyliki",
+      "interface": "pytyliki.c-abi.v1",
+      "transport": "native-ffi",
+      "status": "planned",
+      "opt_in": true
+    },
+    {
+      "peer": "oplague",
+      "interface": "not-applicable.v1",
+      "transport": "none",
+      "status": "not_applicable",
+      "opt_in": false
+    }
   ],
   "safety_boundaries": [
     "Offline rendering by default; no network telemetry or background audio capture.",
@@ -40,6 +123,7 @@
   "extension_points": [
     "Versioned sample pack import/export adapters.",
     "Explicit opt-in Pytyliki C ABI measurements after differential tests.",
-    "Additional independent style profiles and DSP kernels behind validated parameters."
+    "Additional independent style profiles and DSP kernels behind validated parameters.",
+    "Additional phrase strategies can extend the shared 16-step groove schedule without changing the pack v1 contract."
   ]
 }
