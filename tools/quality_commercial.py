@@ -9,6 +9,62 @@ AXES = ("quality", "execution", "commercial")
 POINTS = {"implemented": 1.0, "planned": 0.25, "not_assessed": 0.0, "not_applicable": None}
 
 
+ACTION_RULES = {
+    "license_review": {
+        "statuses": {"manual_required", "planned", "not_assessed"},
+        "priority": "P0",
+        "title": "Complete license and third-party rights review",
+        "acceptance": "Record license compatibility, notices, asset permissions and redistribution obligations before commercial distribution."
+    },
+    "support_model": {
+        "statuses": {"planned", "not_assessed"},
+        "priority": "P1",
+        "title": "Define a maintainable support model",
+        "acceptance": "Name a maintenance owner, supported release window, issue intake route and escalation policy; do not imply an SLA until approved."
+    },
+    "distribution": {
+        "statuses": {"planned", "not_assessed"},
+        "priority": "P1",
+        "title": "Verify the release and delivery path",
+        "acceptance": "List exact supported artifacts and platforms; verify reproducible packaging, checksums and installation instructions."
+    },
+    "market_validation": {
+        "statuses": {"not_assessed"},
+        "priority": "P2",
+        "title": "Validate real user demand",
+        "acceptance": "Collect observed workflows and documented feedback from intended users before claiming market fit or adoption."
+    },
+    "unit_economics": {
+        "statuses": {"not_assessed"},
+        "priority": "P2",
+        "title": "Measure delivery and support costs",
+        "acceptance": "Record build, distribution, dependency, maintenance and support costs before making margin or profitability claims."
+    },
+    "pricing": {
+        "statuses": {"not_set", "not_assessed"},
+        "priority": "P3",
+        "title": "Make a pricing decision from evidence",
+        "acceptance": "Consider pricing only after user value, rights, delivery costs and support scope have been reviewed; never invent willingness-to-pay."
+    }
+}
+
+
+def build_commercial_action_plan(operations: Mapping[str, Any]) -> list[dict[str, str]]:
+    """Turn unresolved commercial controls into ordered, evidence-oriented next steps."""
+    actions = []
+    for field, rule in ACTION_RULES.items():
+        status = operations.get(field)
+        if status in rule["statuses"]:
+            actions.append({
+                "priority": rule["priority"],
+                "field": field,
+                "status": str(status),
+                "title": rule["title"],
+                "acceptance": rule["acceptance"],
+            })
+    return sorted(actions, key=lambda item: (item["priority"], item["field"]))
+
+
 class QualityProfileError(ValueError):
     """Invalid quality-commercial profile."""
 
@@ -116,7 +172,8 @@ def assess_profile(source: str | Path | Mapping[str, Any], *, root: str | Path |
             "evidence": {"references": refs, "files_found": found, "files_missing": refs-found,
                          "coverage_percent": round(100*found/refs, 1) if refs else 100.0},
             "axes": axes, "overall_declared_maturity_percent": round(sum(scores)/len(scores), 1) if scores else None,
-            "commercial_operations": operations, "commercial_open_items": open_items, "issues": issues, "criteria": rows,
+            "commercial_operations": operations, "commercial_open_items": open_items,
+            "commercial_actions": build_commercial_action_plan(operations), "issues": issues, "criteria": rows,
             "limitations": ["Declared maturity is not a certification or warranty.",
              "File presence is checked; referenced code and tests are not executed by this evaluator.",
              "Market demand, sales, revenue, profitability, valuation and investment readiness require independent evidence."]}
@@ -142,6 +199,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Overall declared maturity: {report['overall_declared_maturity_percent']}%")
         for item in report["commercial_open_items"]:
             print(f"OPEN {item['field']}: {item['status']}")
+        for action in report["commercial_actions"]:
+            print("NEXT " + action["priority"] + " " + action["title"] + " [" + action["field"] + "=" + action["status"] + "]")
         for issue in report["issues"]:
             print(f"ERROR {issue}", file=sys.stderr)
     return 1 if report["issues"] else 0

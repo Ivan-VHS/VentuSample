@@ -24,10 +24,10 @@ class QualityCommercialTests(unittest.TestCase):
     def test_missing_evidence_is_reported(self):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["missing/evidence.txt"]
-        with tempfile.TemporaryDirectory() as directory:
-            report = assess_profile(profile, root=directory)
+        report = assess_profile(profile, root=ROOT)
         self.assertTrue(report["issues"])
         self.assertEqual(report["evidence"]["files_missing"], 1)
+        self.assertTrue(any("missing/evidence.txt" in issue for issue in report["issues"]))
 
     def test_path_traversal_is_rejected(self):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
