@@ -2,6 +2,7 @@
 
 #include "generator.hpp"
 #include "plugin_manager.hpp"
+#include "ui_motion.hpp"
 
 #include <QMainWindow>
 
@@ -24,6 +25,8 @@ class QPushButton;
 class QSpinBox;
 class QSlider;
 class QPlainTextEdit;
+class QTabWidget;
+class QTimer;
 
 class MainWindow final : public QMainWindow {
     Q_OBJECT
@@ -40,6 +43,8 @@ private:
     void loadSettings();
     void saveSettings();
     void applyTheme();
+    void showMotionSettings();
+    void updateBeatSync();
     ventu::Parameters parameters() const;
     void startGeneration();
     void setBusy(bool busy);
@@ -95,6 +100,10 @@ private:
     QProgressBar* progress_{};
     QLabel* statusLabel_{};
     QLabel* summaryLabel_{};
+    QLabel* beatIndicator_{};
+    QTabWidget* tabs_{};
+    QTimer* beatTimer_{};
+    ventu::ui_motion::Preferences motionPreferences_{};
     QListWidget* filesList_{};
     QPlainTextEdit* log_{};
     ventu::PluginManager pluginManager_;
