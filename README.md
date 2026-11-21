@@ -5,9 +5,10 @@
 ## What it generates
 
 - Full loops, melody-only loops, drum patterns, bass parts and multi-one-shot kits.
-- Boom Bap, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap and Cripple Trill profiles.
+- Boom Bap, Billionaire Golden Era, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap and Cripple Trill profiles.
 - Tempo, bars, key, scale, sampler character, timbre, swing, density, grit, saturation, stereo width, filters, snare timing, bus-compression ratio, triplet rolls, humanization and vinyl dust controls.
 - Optional PCM16 WAV chop import with four-slice beat placement and semitone resampling.
+- Billionaire Golden Era crate reconstruction with a deterministic four-slice reassembly order, weighted kick/snare voicing, restrained hats and a late-backbeat-ready swing pocket.
 - Deterministic variations, four-bar phrase turnarounds, shared drum/melody swing timing, stereo-linked bus compression, WAV export and peak/RMS/crest measurement.
 - QMR-20 quality/cohesion/rhythm framework with regression coverage; pack metadata remains compatible with `ventusample.pack.v1`.
 
