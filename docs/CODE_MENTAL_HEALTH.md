@@ -19,7 +19,7 @@ The supplied transcript includes 00:00–00:07:55 and 01:17:16–01:19:53. Most 
 | Speak openly without stigma | Report bugs, incidents, flaky tests and regressions without blaming the reporter |
 | Share experience | Preserve decision records, incident timelines, postmortems and migration notes |
 | People and support | Maintain ownership maps, code review paths, pair debugging and escalation routes |
-| Physical activity / care routines | Reserve recurring capacity for refactoring, dependency care and test repair |
+| Supportive routines and sustained effort | Reserve recurring capacity for refactoring, dependency care and test repair |
 | Professional support | Ask maintainers, reviewers, security specialists and domain experts for help |
 | Myths around treatment | Challenge engineering quick-fix myths: green CI, raw test counts, linters and generated patches are not proof of correctness |
 
