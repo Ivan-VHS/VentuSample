@@ -2,7 +2,7 @@
 from __future__ import annotations
 import json, random, unittest
 from pathlib import Path
-from scanner import inspect_file, score_findings, validate_policy
+from scanner import correlate, inspect_file, score_findings, validate_policy
 
 class ScannerRegressionTests(unittest.TestCase):
     def test_secret_is_detected_but_never_echoed(self):
@@ -31,6 +31,15 @@ class ScannerRegressionTests(unittest.TestCase):
         findings=[{"severity":"high"},{"severity":"medium"},{"severity":"low"}]
         self.assertEqual(score_findings(findings,{}),score_findings(findings,{}))
         self.assertEqual(score_findings(findings,{})["risk_score"],18)
+    def test_correlations_ignore_scanner_and_policy_metadata(self):
+        findings = []
+        sources = {
+            "security/beelzebul/scanner.py": "password token sha1 logger.info(value)",
+            ".beelzebul/policy.v1.json": '{"password": "token", "sha1": "auth"}',
+        }
+        correlate(findings, sources, set(sources))
+        self.assertFalse([item for item in findings if item["rule_id"].startswith("Q")])
+
     def test_policy_contract_has_66_unique_rules(self):
         findings=[];policy=validate_policy(Path(__file__).resolve().parents[2],findings)
         self.assertEqual(policy.get("codex"),"BEELZEBUL-66")
