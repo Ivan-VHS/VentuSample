@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-SCHEMA = "cross-repository-assurance-score.v1"
+SCHEMA = "cross-repository-assurance-score.v2"
 
 def read_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
@@ -15,7 +15,14 @@ def read_json(path: Path) -> dict[str, Any]:
         raise ValueError(f"{path} must contain a JSON object")
     return value
 
-def compute(scan: dict[str, Any], deps: dict[str, Any], fuzz: str, privacy: str, federation: str) -> dict[str, Any]:
+def compute(
+    scan: dict[str, Any],
+    deps: dict[str, Any],
+    fuzz: str,
+    privacy: str,
+    federation: str,
+    dependency_vulns: str,
+) -> dict[str, Any]:
     counts = scan.get("counts", {})
     critical = int(counts.get("critical_secrets", 0))
     privacy_findings = int(counts.get("privacy", 0))
@@ -23,9 +30,9 @@ def compute(scan: dict[str, Any], deps: dict[str, Any], fuzz: str, privacy: str,
     pin_score = max(0, min(100, int(deps.get("pin_hygiene_score", 0))))
     categories = {
         "secret_hygiene": {
-            "weight": 25,
-            "score": 25 if critical == 0 else 0,
-            "basis": "25 points only when no high-confidence credential or private-key finding is present",
+            "weight": 20,
+            "score": 20 if critical == 0 else 0,
+            "basis": "20 points only when no high-confidence credential or private-key finding is present",
         },
         "privacy_leak_prevention": {
             "weight": 15,
@@ -42,10 +49,15 @@ def compute(scan: dict[str, Any], deps: dict[str, Any], fuzz: str, privacy: str,
             "score": 15 if fuzz == "passed" else 0,
             "basis": "Deterministic project-specific malformed-input fuzz corpus completed",
         },
-        "dependency_hygiene": {
+        "dependency_pin_hygiene": {
+            "weight": 5,
+            "score": round(pin_score * 5 / 100),
+            "basis": "Offline dependency inventory and exact-version pin hygiene",
+        },
+        "known_dependency_vulnerabilities": {
             "weight": 10,
-            "score": round(pin_score / 10),
-            "basis": "Offline inventory and exact-version pin hygiene; not a vulnerability-database result",
+            "score": 10 if dependency_vulns == "passed" else 0,
+            "basis": "OSV-Scanner PR differential or scheduled full scan completed without a blocking vulnerability",
         },
         "privacy_regressions": {
             "weight": 10,
@@ -66,7 +78,11 @@ def compute(scan: dict[str, Any], deps: dict[str, Any], fuzz: str, privacy: str,
         "score": total,
         "maximum": 100,
         "grade": grade,
-        "gate": "pass" if total >= 70 and critical == 0 and fuzz == "passed" and privacy == "passed" and federation == "passed" else "fail",
+        "gate": "pass" if (
+            total >= 70 and critical == 0 and fuzz == "passed"
+            and privacy == "passed" and federation == "passed"
+            and dependency_vulns == "passed"
+        ) else "fail",
         "categories": categories,
         "inputs": {
             "critical_secret_findings": critical,
@@ -75,9 +91,10 @@ def compute(scan: dict[str, Any], deps: dict[str, Any], fuzz: str, privacy: str,
             "fuzz_status": fuzz,
             "privacy_regression_status": privacy,
             "dependency_pin_hygiene_score": pin_score,
+            "dependency_vulnerability_scan_status": dependency_vulns,
             "federation_status": federation,
         },
-        "limitations": "A policy score is an engineering trend indicator, not a safety certification, clinical assessment, proof of exploit absence or substitute for review.",
+        "limitations": "A policy score is an engineering trend indicator, not a safety certification, proof of exploit absence or substitute for expert review. OSV results cover supported package metadata and published advisories.",
     }
 
 def main() -> int:
@@ -86,10 +103,18 @@ def main() -> int:
     parser.add_argument("--dependencies", type=Path, required=True)
     parser.add_argument("--fuzz-status", choices=("passed", "failed"), required=True)
     parser.add_argument("--privacy-status", choices=("passed", "failed"), required=True)
+    parser.add_argument("--dependency-vuln-status", choices=("passed", "failed"), required=True)
     parser.add_argument("--federation-status", choices=("passed", "failed"), required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = compute(read_json(args.scan), read_json(args.dependencies), args.fuzz_status, args.privacy_status, args.federation_status)
+    result = compute(
+        read_json(args.scan),
+        read_json(args.dependencies),
+        args.fuzz_status,
+        args.privacy_status,
+        args.federation_status,
+        args.dependency_vuln_status,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, ensure_ascii=False, indent=2))
