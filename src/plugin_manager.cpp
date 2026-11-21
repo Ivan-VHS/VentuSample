@@ -6,6 +6,7 @@
 #include <cctype>
 #include <exception>
 #include <fstream>
+#include <iostream>
 #include <iterator>
 #include <optional>
 #include <regex>
@@ -20,6 +21,17 @@ namespace fs = std::filesystem;
 constexpr std::uintmax_t kMaxManifestBytes = 64u * 1024u;
 constexpr std::size_t kMaxManifests = 256u;
 
+void appguardAudit(const vee_finding *finding, void *context) {
+    (void)context;
+    if (finding == nullptr || finding->decision == VEEELZEVUL_ALLOW) return;
+    const char *decision = finding->decision == VEEELZEVUL_DENY ? "deny" :
+                           finding->decision == VEEELZEVUL_QUARANTINE ? "quarantine" : "degrade";
+    std::clog << "[AppGuard] " << decision << " L" << finding->level_id
+              << " rule=" << finding->rule_id << " object=" << finding->object_id
+              << " reason=" << finding->reason << '\\n';
+}
+
+
 std::string normalized(const std::string& value) {
     std::string result;
     result.reserve(value.size());
@@ -33,7 +45,7 @@ std::string normalized(const std::string& value) {
 bool validId(const std::string& id) {
     vee_guard guard{};
     vee_guard_init(&guard, static_cast<std::size_t>(kMaxManifestBytes),
-                   kMaxManifests, 80u, 1024u, nullptr, nullptr);
+                   kMaxManifests, 80u, 1024u, appguardAudit, nullptr);
     if (vee_guard_check_identifier(&guard, 511u, "M-11", "plugin-id",
                                    id.c_str()) != VEEELZEVUL_ALLOW) return false;
     if (id.empty() || id.size() > 80u) return false;
@@ -86,7 +98,7 @@ bool readFileBounded(const fs::path& path, std::string& output) {
     if (ec || size > kMaxManifestBytes) return false;
     vee_guard guard{};
     vee_guard_init(&guard, static_cast<std::size_t>(kMaxManifestBytes),
-                   kMaxManifests, 80u, 1024u, nullptr, nullptr);
+                   kMaxManifests, 80u, 1024u, appguardAudit, nullptr);
     if (vee_guard_check_payload(&guard, 505u, "M-03", "plugin-manifest",
                                 static_cast<std::size_t>(size)) != VEEELZEVUL_ALLOW) return false;
     std::ifstream input(path, std::ios::binary);
