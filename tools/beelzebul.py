@@ -197,7 +197,10 @@ def _inspect_python(tree: ast.AST, path: str, add: Any) -> None:
     for node in ast.walk(tree):
         if isinstance(node, (ast.With, ast.AsyncWith)):
             for child in ast.walk(node):
-                if isinstance(child, ast.Call) and isinstance(child.func, ast.Name) and child.func.id == "open":
+                if isinstance(child, ast.Call) and (
+                    (isinstance(child.func, ast.Name) and child.func.id == "open")
+                    or (isinstance(child.func, ast.Attribute) and child.func.attr == "open")
+                ):
                     managed_open_lines.add(child.lineno)
 
     for node in ast.walk(tree):
