@@ -2,14 +2,17 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <iterator>
 #include <regex>
 #include <sstream>
 #include <string>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 namespace ventu {
@@ -233,10 +236,10 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
         for (const auto& file : files) if (extension(file) == ".md") docs.push_back(file.filename().string());
         std::sort(docs.begin(), docs.end());
         if (docs.size() > 30u) docs.resize(30u);
-        return ok("Keel Koh indexed Markdown documentation names.",
-                  {"Markdown documents discovered: " + std::to_string(
-                      std::count_if(files.begin(), files.end(), [](const fs::path& f) { return extension(f) == ".md"; }))},
-                  docs.empty() ? std::vector<std::string>{"No Markdown files found under the selected workspace."} : docs);
+        docs.insert(docs.begin(), "Markdown documents discovered: " + std::to_string(
+            std::count_if(files.begin(), files.end(), [](const fs::path& f) { return extension(f) == ".md"; })));
+        if (docs.size() == 1u) docs.push_back("No Markdown files found under the selected workspace.");
+        return ok("Keel Koh indexed Markdown documentation names.", std::move(docs));
     }
     if (id == "profe") {
         if (!validation.empty()) return fail("Profe found a generator settings violation: " + validation);

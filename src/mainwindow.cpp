@@ -466,7 +466,6 @@ void MainWindow::showPlugins(const QString& selected) {
         details->setPlainText(report);
         appendLog(QString("PLUGIN %1  %2").arg(QString::fromStdString(id),
                                                result.success ? "OK" : "FAILED"));
-        updateDetails();
     });
     connect(close, &QPushButton::clicked, &dialog, &QDialog::accept);
     updateDetails();
