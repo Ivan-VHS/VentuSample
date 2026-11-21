@@ -38,6 +38,8 @@ jobs:
         run: python tools/validate_engineering_evolution.py
       - name: Test engineering evolution contract
         run: python -m unittest discover -s tests -p "test_engineering_evolution.py" -v
+      - name: Test CLife snapshots
+        run: python -m unittest discover -s tests -p "test_clife.py" -v
       - name: Validate project contract and OCTA-8 federation
         run: python tools/validate_project_contract.py
       - name: Parse versioned pack schema and project contract
