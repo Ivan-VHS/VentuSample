@@ -1,5 +1,8 @@
 # Documentation
 
+[Security and trust boundaries](SECURITY_AND_TRUST_BOUNDARIES.md) — project-specific threat surfaces, safe failure, verification evidence and release checklist.
+[Beelzebul AppGuard 666](BEELZEBUL_APPGUARD_666.md) — 666-control catalog, status semantics and CI validation.
+
 | File | Purpose |
 |---|---|
 | [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
