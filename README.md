@@ -93,3 +93,8 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 [Features](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Anatidae design](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)
+
+
+## Motion Constitution v2026
+
+The shared interface contract is [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md). It standardizes spring/snappy easing, the 0.4×–2.2× motion-scale envelope, reduced-motion precedence, light/dark parity, the 2×2/focus-scene showcase and data-bound SVG/Canvas telemetry. The [native Qt motion contract](docs/UI_MOTION.md) defines the current implementation: bounded UI-thread transitions, persisted motion preferences and the optional project-BPM indicator. VentuSample is an offline sample-generation/DSP workstation, not a real-time DAW or external mixer; meters and waveforms must be derived from actual preview/render buffers and must never run inside DSP callbacks or generator workers.
