@@ -85,7 +85,8 @@ MainWindow::~MainWindow() {
 
 void MainWindow::addChoice(QComboBox* combo, const QStringList& labels, int selected) {
     combo->addItems(labels);
-    combo->setCurrentIndex(std::clamp(selected, 0, labels.size() - 1));
+    const int lastIndex = labels.isEmpty() ? 0 : static_cast<int>(labels.size()) - 1;
+    combo->setCurrentIndex(std::clamp(selected, 0, lastIndex));
     combo->setMinimumHeight(38);
 }
 
