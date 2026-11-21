@@ -1,0 +1,67 @@
+{
+  "schema": "mental-wellbeing-code-safety.v1",
+  "version": "1.0.0",
+  "source": {
+    "title": "Mental Wellbeing & Depression Awareness v1",
+    "video_id": "brNbnipJ-i8",
+    "channel": "ебаут",
+    "published_at": "2025-11-23",
+    "duration": "PT1H20M1S",
+    "transcript_coverage": "partial_head_and_tail",
+    "missing_middle": "not_reconstructed",
+    "clinical_authority": false,
+    "used_for": "non-stigmatizing communication, help-seeking without shame, personal autonomy and supportive engineering practices only"
+  },
+  "policy": {
+    "not_a_clinical_protocol": true,
+    "no_diagnosis_or_screening": true,
+    "no_medication_or_treatment_advice": true,
+    "no_crisis_triage_automation": true,
+    "no_mental_health_inference": true,
+    "no_health_or_productivity_surveillance": true,
+    "no_background_collection_of_wellbeing_data": true,
+    "no_unconsented_remote_telemetry": true,
+    "no_raw_sensitive_content_logging": true,
+    "data_minimization_required": true,
+    "bounded_untrusted_input_required": true,
+    "respectful_non_stigmatizing_language_required": true,
+    "accessible_user_control_required": true,
+    "blameless_incident_response_required": true,
+    "evidence_and_uncertainty_required": true
+  },
+  "enforcement": {
+    "contract_path": "mental-wellbeing-code-safety.v1.json",
+    "validator_path": "scripts/check_mental_wellbeing_guardrails.py",
+    "workflow_path": ".github/workflows/mental-wellbeing-guardrails.yml",
+    "fail_closed": true,
+    "standard_library_only": true
+  },
+  "project": {
+    "id": "ventusample",
+    "repository": "Ivan-VHS/VentuSample",
+    "language": "C++20",
+    "surfaces": [
+      "wav_import_export",
+      "procedural_renderer",
+      "offline_dsp",
+      "plugin_metadata",
+      "reaper_integer_bridge",
+      "project_manifests"
+    ]
+  },
+  "boundaries": {
+    "default_network_audio_upload": false,
+    "implicit_microphone_capture": false,
+    "plugin_manifest_executes_code": false,
+    "dsp_input_bounds": true,
+    "audio_metadata_minimization": true,
+    "audio_features_used_for_health_inference": false
+  },
+  "verification": [
+    "native_unit_tests",
+    "truncated_riff_chunks",
+    "allocation_and_frame_bounds",
+    "deterministic_seeded_render",
+    "metadata_minimization"
+  ]
+}
