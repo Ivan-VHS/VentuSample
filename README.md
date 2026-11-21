@@ -124,6 +124,12 @@ Without Qt, the portable DSP core and tests can still build; the desktop target 
 [Apache-2.0](LICENSE)
 
 
+## Mental Wellbeing Reference plugin
+
+The built-in `mental-wellbeing-reference` plugin exposes an offline, transcript-grounded awareness catalogue. It does not process audio, inspect listening behaviour, infer mood or provide diagnosis or treatment advice. The incomplete transcript and unverified antidepressant-myths segment remain explicitly marked.
+
+[Source, data contract and safety boundaries](docs/MENTAL_WELLBEING_AWARENESS.md) · [JSON bundle](data/wellbeing/depression-awareness.v1.json)
+
 ## Bounded resource-allocation reference
 An illustrative 500 UAH budget model with a versioned JSON contract and an offline simulator. This is a documentation example, not a feature of the host runtime.
 
