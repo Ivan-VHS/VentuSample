@@ -90,3 +90,13 @@ jobs:
         run: cmake --build build --config Release --parallel 2
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
+      - name: Capture live desktop window
+        shell: pwsh
+        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "assets/screenshots/ventusample-studio.png" -StartupSeconds 15
+      - name: Upload genuine README screenshot
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: ventusample-live-windows-screenshot
+          path: assets/screenshots/ventusample-studio.png
+          if-no-files-found: error
+          retention-days: 30

@@ -48,3 +48,10 @@ VentuSample now includes a 20 × 3 evidence-linked matrix for audio/product qual
 ## Federation
 
 See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/main/docs/PROJECT_FEDERATION_MATRIX.md) and [Reaper pack audit guide](docs/REAPER_PACK_AUDIT.md). Direct VentuSample-to-Pytyliki ABI and Reaper render-request automation remain planned; OPlague device/driver diagnostics are not coupled to offline audio generation.
+
+
+## Live VentuSample desktop screenshot
+
+<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample native Qt 6 sample generator on Windows 11" width="100%"></p>
+
+<sub>Actual live Windows 11 capture from the running Qt 6 application, produced by the Windows desktop CI after native build and tests pass.</sub>
