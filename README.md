@@ -132,3 +132,7 @@ An illustrative 500 UAH budget model with a versioned JSON contract and an offli
 ## Cross-repository plugin federation
 
 This repository's host adapter, shared 18-plugin catalog and compatibility rules are documented in [Plugin Federation](docs/PLUGIN_FEDERATION.md). The machine-readable host declaration is `federation/plugins/host.v1.json`.
+
+## Security documentation
+
+Project-specific trust boundaries, safe-failure behavior, verification evidence and release checks: [Security and trust boundaries](docs/SECURITY_AND_TRUST_BOUNDARIES.md). The [Beelzebul AppGuard 666 catalog](docs/BEELZEBUL_APPGUARD_666.md) is a policy inventory; catalog validation is not proof of active runtime enforcement. See the [full documentation index](docs/README.md).
