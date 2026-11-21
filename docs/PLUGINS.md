@@ -6,7 +6,7 @@ VentuSample contains 19 first-party built-in plugins and a public C++20 SDK for 
 
 | Capability | Implementation |
 |---|---|
-| Built-in registry | 18 first-party plugins registered by the core |
+| Built-in registry | 19 first-party plugins registered by the core |
 | Public SDK | PluginDescriptor, PluginContext, PluginHandler and lifecycle callbacks |
 | Manifest discovery | metadata-only recursive discovery from the desktop manager |
 | Compatibility | plugin API version 1, host ID ventu and semantic plugin versions |
