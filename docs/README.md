@@ -2,6 +2,7 @@
 
 | File | Purpose |
 |---|---|
+| [VISUAL_DOCUMENTATION.md](VISUAL_DOCUMENTATION.md) | README graphics, audio workflow diagrams, SVG/raster formats, typography, MDX and rendering rules |
 | [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
 | [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |

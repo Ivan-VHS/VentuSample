@@ -103,3 +103,11 @@ Motion follows a clear hierarchy: restrained spring easing for intentional entra
 **Accessibility and responsive behavior:** preserve readable contrast, visible keyboard focus, touch-sized controls, predictable active/disabled states and layouts that collapse cleanly on narrow screens. Motion must not cause layout shifts or make controls harder to operate.
 
 This is a DUCK CORE visual reference, **not a claim** that every theme, animation or control ships in every application. The implementation and project-specific contract are authoritative: [UI motion contract](docs/UI_MOTION.md).
+
+<!-- VISUAL-DOCS:BEGIN -->
+## Visual architecture map
+
+![VentuSample pipeline: seeded procedural generation, offline DSP, and WAV plus manifest export](assets/visual-documentation-map.svg)
+
+This static diagram explains the processing pipeline; it is not a live audio waveform or a screenshot. The actual Qt desktop capture above remains the UI reference. See [Visual documentation and graphics contract](docs/VISUAL_DOCUMENTATION.md).
+<!-- VISUAL-DOCS:END -->
