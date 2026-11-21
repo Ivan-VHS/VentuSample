@@ -183,7 +183,7 @@
       ],
       "current_controls": [
         "project-contract.json",
-        ".architecture/resilience-policy.json"
+        ".github/workflows/ci.yml"
       ],
       "guardrails": [
         "Only deterministic configuration may be generated.",
@@ -209,8 +209,8 @@
         "workflow_dispatch"
       ],
       "current_controls": [
-        ".architecture/resilience-policy.json",
-        ".architecture/resilience-policy.schema.json"
+        "quality-repeatability-native.v1.json",
+        ".github/workflows/quality-repeatability-native.yml"
       ],
       "guardrails": [
         "Do not trade correctness for speed.",

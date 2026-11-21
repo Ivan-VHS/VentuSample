@@ -46,6 +46,7 @@ This roadmap turns the 20 requested directions into traceable workstreams. It di
 ## Operating rules
 
 - The new roadmap workflow is read-only and uses `contents: read`.
+- The roadmap validator is also run in the existing CI workflow, which must finish successfully before the verified auto-merge workflow acts.
 - Existing verified auto-merge remains conditional on successful checks and repository protection; this roadmap does not bypass either.
 - Branch synchronization must use an expected head SHA, operate only on eligible same-repository pull requests, and leave conflicts for maintainers.
 - Diagnostics, schema checks, and scheduled audits must be deterministic, bounded, and non-destructive.

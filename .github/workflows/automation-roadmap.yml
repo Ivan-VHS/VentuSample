@@ -43,6 +43,5 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: false
       - name: Validate automation roadmap
         run: python scripts/validate_automation_roadmap.py --strict
