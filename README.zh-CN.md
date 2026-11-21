@@ -8,10 +8,36 @@ VentuSample 是一款用于确定性生成嘻哈采样包的原生工作站。�
 
 ## Windows 实际运行截图
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="运行于 Windows 11 的 VentuSample" width="100%"></p>
-<sub>来自 Qt CI 构建的真实 Windows 11 桌面截图，分辨率为 1920×1080。图中展示生成器工作区；插件发现和 DSP 实验室通过独立菜单操作打开。</sub>
+<sub>应用实际截屏 · 原始图像为 1920×1080 · 保留原始像素，不进行人为放大。</sub>
 
-## 界面动效与无障碍
-**View → Motion Settings** 提供可保存的 **Reduce Motion**、**Eco / Low-CPU Visuals** 和 **Sync to BPM** 选项。项目内部 BPM 驱动克制的节拍指示器；这是项目速度反馈，并非外部 DAW 传输控制。Reduce Motion 和 Eco 会暂停指示器，并将保留的过渡时长限制为 80 ms。Qt 动画和节拍计时器运行在 UI 线程，不进入 DSP 回调、音频缓冲区、生成器工作线程或随机路由代码。详见[界面动效规范](docs/UI_MOTION.md)。
+## 音频生成与处理流程
+
+第一张图展示当前离线路径：从带种子的生成开始，经可选随机路由，最终输出 WAV 和清单。
+
+```mermaid
+flowchart TD
+    A[随机种子与生成参数] --> B[程序化渲染器]
+    B --> C[生成的音频缓冲区]
+    C --> D{是否启用随机路由？}
+    D -- 否 --> E[立体声 PCM16 WAV]
+    D -- 是 --> F[离线随机路由处理器]
+    F --> E
+    E --> G[带版本号的 JSON 清单]
+    H[导入的受支持 WAV] --> I[Quantum Audio Engine]
+    I --> J[处理后的 PCM16 WAV]
+```
+
+## 插件发现与执行边界
+
+插件 manifest 仅作为元数据读取。发现条目必须显式关联经过审查的原生处理器后才可执行。
+
+```mermaid
+flowchart LR
+    A[本地 plugin.json] --> B[仅发现元数据]
+    B --> C[条目保持禁用]
+    C --> D[关联经过审查的原生处理器]
+    D --> E[有界调度或一个小节的预览]
+```
 
 ## 生成器
 | 输出 | 内容 |
@@ -54,31 +80,4 @@ ctest --test-dir build --output-on-failure
 - 没有网络遥测、后台音频捕获、实时回调或隐式原生库加载。
 - 导入和导出必须拥有源素材使用权。哈希只能证明字节一致，不能证明所有权。
 
-[功能](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [架构](docs/ARCHITECTURE.md) · [俄语指南](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper 采样包审计](docs/REAPER_PACK_AUDIT.md) · [源素材权利](docs/SOURCE_INTEGRATION.md) · [Anatidae 设计](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [文档索引](docs/README.md)
-
 [Apache-2.0](LICENSE)
-
-## DUCK CORE // README 与 Motion Suite
-
-统一视觉参考包含三套配色：**Pond Noir**、**Golden Reed** 和 **Arctic Glacier**。请使用画布、表面、文本、边框、强调色和焦点等语义令牌。
-
-克制的 spring 缓动用于进入和反馈，平滑缓动用于常规过渡；Zen / Hyper 仅作为应用实际提供的选项。视差、漂浮图形和 ripple 是非必要装饰。 `reduced-motion` 会关闭装饰性运动，并优先于其他模式。
-
-**无障碍：**确保对比度、可见的键盘焦点、适合触控的控件和响应式布局。动效不得妨碍输入或导致内容跳动。
-
-本节是视觉参考，不代表应用已实现所有效果。实际行为以[界面动效规范](docs/UI_MOTION.md)为准。
-
-## 文档体系与视觉素材
-
-Markdown/MDX、图表、截图、SVG 与栅格素材、无障碍、语言同步和链接检查统一遵循 [README 与视觉文档规范](docs/README_VISUAL_STANDARD.md)。
-
-
-## Motion Constitution v2026
-
-统一界面规范见 [Motion Constitution v2026](docs/MOTION_CONSTITUTION_V2026.md)。它统一弹簧/快速缓动、0.4×–2.2× 动效缩放范围、Reduce Motion 优先级、浅色/深色主题、2×2/焦点场景布局，以及基于真实数据的 SVG/Canvas 遥测。[Qt 原生动效规范](docs/UI_MOTION.md)说明当前实现：有界 UI 线程过渡、持久化动效偏好和可选的项目 BPM 指示器。VentuSample 是离线采样生成/DSP 工作站，并非实时 DAW 或外部混音器；电平和波形必须来自真实预览/渲染缓冲区，不得在 DSP 回调或生成器工作线程中执行动画。
-
-## 统一动效架构图
-
-<p align="center"><img src="assets/motion-constitution-v2026.svg" alt="Motion Constitution v2026 四领域架构图" width="100%"></p>
-
-这是共享的 2×2 架构示意图，并非应用运行截图。它将已交付功能与不可用或规划中的能力明确区分。
