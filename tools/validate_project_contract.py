@@ -46,6 +46,14 @@ def validate_contract() -> None:
             raise ValueError(f"invalid integration entry: {integration}")
     load_json("schemas/ventusample.pack.v1.schema.json")
     load_json("schemas/ventusample.pack.v2.schema.json")
+    plugin_schema = load_json("schemas/ivan-vhs.plugin.v1.schema.json")
+    if plugin_schema.get("properties", {}).get("schema", {}).get("const") != "ivan-vhs.plugin.v1":
+        raise ValueError("shared plugin manifest schema is missing or invalid")
+    plugin_manifest = load_json("examples/plugins/metadata-example/plugin.json")
+    if (plugin_manifest.get("schema") != "ivan-vhs.plugin.v1"
+            or plugin_manifest.get("host", {}).get("id") != "ventu"
+            or plugin_manifest.get("api_version") != 1):
+        raise ValueError("Ventu metadata-only plugin fixture violates the shared manifest contract")
     if "quality_monolith_rhythm_pipeline" not in capability_ids:
         raise ValueError("QMR-20 quality/cohesion/rhythm capability is missing")
     if "tonal_export_metadata" not in capability_ids:
