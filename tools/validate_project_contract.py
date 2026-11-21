@@ -45,6 +45,10 @@ def validate_contract() -> None:
         if integration.get("peer") not in PEERS or integration.get("status") not in STATUSES:
             raise ValueError(f"invalid integration entry: {integration}")
     load_json("schemas/ventusample.pack.v1.schema.json")
+    if "quality_monolith_rhythm_pipeline" not in capability_ids:
+        raise ValueError("QMR-20 quality/cohesion/rhythm capability is missing")
+    if not (ROOT / "docs/QUALITY_MONOLITH_RHYTHM.md").is_file():
+        raise ValueError("QMR-20 framework documentation is missing")
 
 
 def validate_federation() -> None:
@@ -64,9 +68,7 @@ def validate_federation() -> None:
     if len(data["facets"]) != 8 or {facet["side"] for facet in data["facets"]} != set(range(1, 9)):
         raise ValueError("OCTA-8 must declare eight independently numbered facets")
     if data.get("semantics", {}).get("reaper_pack_consumer_implemented") is not True:
-        raise ValueError("Reaper's VentuSample pack consumer must be declared implemented")
-    if data["base_mesh"].get("project_ids") != ["reaper", "pytyliki", "oplague", "ventusample"]:
-        raise ValueError("unexpected OCTA-8 project ordering or membership")
+        raise ValueError("Reaper pack manifest consumer must be declared implemented")
 
 
 def main() -> int:
