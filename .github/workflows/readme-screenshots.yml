@@ -1,0 +1,40 @@
+name: README live desktop screenshot
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/readme-screenshots.yml"
+      - ".github/scripts/capture_desktop_screenshot.ps1"
+      - "src/**"
+      - "CMakeLists.txt"
+      - "README.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  capture-live-studio:
+    name: VentuSample Qt 6 live Windows capture
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.8.3"
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+      - name: Configure and build native desktop
+        run: |
+          cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
+          cmake --build build --config Release --target VentuSample --parallel 2
+      - name: Capture running VentuSample
+        shell: pwsh
+        run: .github/scripts/capture_desktop_screenshot.ps1 -FilePath "build/Release/VentuSample.exe" -OutputPath "assets/screenshots/ventusample-studio.png" -StartupSeconds 15
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: readme-screenshot-ventusample
+          path: assets/screenshots/ventusample-studio.png
+          if-no-files-found: error
+          retention-days: 30
