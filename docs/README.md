@@ -22,3 +22,8 @@ The root README contains the live Windows desktop capture and current build comm
 ## Publishing standard
 
 [README and visual documentation standard](README_VISUAL_STANDARD.md) — information architecture, Markdown/MDX, diagrams, screenshots, image formats, accessibility, localization and quality gates.
+
+
+## Motion and embedded graphics
+
+[Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md) is the shared source for timing/easing tokens, adaptive motion, reduced-motion precedence, themes, the 2×2/focus-scene lab layout, SVG/Canvas telemetry rules and the four-domain capability matrix. [UI_MOTION.md](UI_MOTION.md) records the native behavior implemented in this repository; planned showcase features are not reported as shipped.
