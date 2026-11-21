@@ -1,5 +1,6 @@
 #include "atomic_quantum.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
