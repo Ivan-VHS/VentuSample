@@ -1,5 +1,6 @@
 #include "mainwindow.hpp"
 #include "quantum_audio_lab.hpp"
+#include "ui_ux.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
