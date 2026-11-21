@@ -82,3 +82,13 @@ The native test suite now checks that:
 - Existing user controls and saved preferences remain compatible.
 - There is no claim of LUFS normalization, oversampled true-peak limiting, phase-correlation analysis, tempo-preserving time-stretch, live playback or GPU acceleration.
 - Phrase turnarounds are deterministic procedural behavior, not a promise of human-composed arrangement quality.
+
+## New event-grid cadence auditor
+
+The native generator now retains a bounded list of its own scheduled musical onset frames in each in-memory render result. `analyzeCadence` compares those events with the same BPM/16th-note grid used by the renderer, including its swing displacement.
+
+Each exported variation receives a `CadenceStats` entry in `BatchResult`. The desktop summary displays the mean on-grid percentage across analyzed loop exports and writes the per-batch count to the log.
+
+The report includes event count, on-grid/off-grid count, mean and maximum timing deviation, and grid accuracy. A 3 ms default tolerance accommodates the renderer's bounded micro-humanization. Triplet ornament notes are excluded from the core-grid event list because they are intentional sub-grid flourishes. One-shot kits are marked not applicable rather than assigned a misleading loop score.
+
+The existing `ventusample.pack.v1` manifest remains unchanged. Cadence diagnostics are in-memory generation diagnostics and do not alter saved pack compatibility.
