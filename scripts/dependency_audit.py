@@ -14,7 +14,7 @@ LOCK_NAMES = {
     "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "vcpkg-lock.json",
     "conan.lock", "Cargo.lock",
 }
-SKIP_PARTS = {".git", ".venv", "venv", "node_modules", "build", "dist", "vendor"}
+SKIP_PARTS = {".git", ".venv", "venv", "node_modules", "build", "dist", "vendor", ".federation", ".security-audit"}
 REQ_RE = re.compile(r"^\s*([A-Za-z0-9_.-]+)\s*(.*)$")
 CM_FIND = re.compile(r"(?im)^\s*find_package\s*\(\s*([A-Za-z0-9_.+-]+)([^)]*)\)")
 CM_FETCH = re.compile(r"(?im)^\s*(?:FetchContent_Declare|ExternalProject_Add)\s*\(\s*([A-Za-z0-9_.+-]+)([^)]*)\)")
