@@ -150,3 +150,8 @@ evidence: []
 - [Pytyliki — processor workstation motion contract](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/UI_MOTION.md)
 
 This constitution standardizes the contract and documentation. It does not mean the full 2×2 showcase, focus scene, OTA ring, AI diff stream, SVG/Canvas telemetry or a `--motion-scale` control is already implemented in every native application.
+
+
+## Cross-repository change policy
+
+Changes to shared token values, reduced-motion precedence, semantic theme roles, layout rules or domain mappings must be synchronized across all four repository mirrors in one coordinated release. Native toolkit adapters and product-specific capability boundaries remain local to each repository. A mirror must never claim a planned showcase control or illustrative chart as shipped functionality.
