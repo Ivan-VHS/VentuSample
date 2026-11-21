@@ -46,7 +46,7 @@ private:
     QPushButton* removeButton_{};
     QPushButton* renderButton_{};
     std::filesystem::path sourcePath_;
-    ventu::AudioBuffer sourceBuffer_;
+    ventu::AudioSuiteBuffer sourceBuffer_;
     std::vector<ventu::AudioPluginChainItem> rack_;
     std::thread worker_;
 };

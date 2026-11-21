@@ -7,7 +7,7 @@
 
 namespace ventu {
 
-struct AudioBuffer {
+struct AudioSuiteBuffer {
     int sampleRate{44100};
     std::vector<float> left;
     std::vector<float> right;
@@ -42,14 +42,14 @@ const std::vector<AudioPluginDescriptor>& audioPluginCatalog();
 const AudioPluginDescriptor* findAudioPlugin(const std::string& idOrName) noexcept;
 
 // All effects use deterministic, offline stereo float DSP. The caller owns the buffer.
-bool processAudioPlugin(AudioBuffer& buffer, const std::string& idOrName,
+bool processAudioPlugin(AudioSuiteBuffer& buffer, const std::string& idOrName,
                         const AudioPluginParameters& parameters, std::string& error);
-bool processAudioChain(AudioBuffer& buffer, const std::vector<AudioPluginChainItem>& chain,
+bool processAudioChain(AudioSuiteBuffer& buffer, const std::vector<AudioPluginChainItem>& chain,
                        std::string& error);
 
 // Bounded PCM16 RIFF/WAVE I/O. Mono files are expanded to dual-mono internally.
-bool loadPcm16Wav(const std::filesystem::path& path, AudioBuffer& buffer, std::string& error);
-bool savePcm16Wav(const std::filesystem::path& path, const AudioBuffer& buffer,
+bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error);
+bool savePcm16Wav(const std::filesystem::path& path, const AudioSuiteBuffer& buffer,
                   std::string& error);
 
 } // namespace ventu

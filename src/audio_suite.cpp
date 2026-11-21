@@ -129,7 +129,7 @@ void write32(std::ostream& out, std::uint32_t value) {
 }
 }
 
-bool AudioBuffer::valid() const noexcept {
+bool AudioSuiteBuffer::valid() const noexcept {
     if (sampleRate < 8000 || sampleRate > 384000 || left.empty() || left.size() != right.size()
         || left.size() > kMaxFrames) return false;
     return std::all_of(left.begin(), left.end(), [](float v) { return std::isfinite(v); })
@@ -147,7 +147,7 @@ const AudioPluginDescriptor* findAudioPlugin(const std::string& idOrName) noexce
     return found == kCatalog.end() ? nullptr : &*found;
 }
 
-bool processAudioPlugin(AudioBuffer& buffer, const std::string& idOrName,
+bool processAudioPlugin(AudioSuiteBuffer& buffer, const std::string& idOrName,
                         const AudioPluginParameters& p, std::string& error) {
     const auto* descriptor = findAudioPlugin(idOrName);
     if (!descriptor) { error = "Unknown audio plugin: " + idOrName; return false; }
@@ -405,10 +405,10 @@ bool processAudioPlugin(AudioBuffer& buffer, const std::string& idOrName,
     return true;
 }
 
-bool processAudioChain(AudioBuffer& buffer, const std::vector<AudioPluginChainItem>& chain,
+bool processAudioChain(AudioSuiteBuffer& buffer, const std::vector<AudioPluginChainItem>& chain,
                        std::string& error) {
     if (chain.empty()) { error = "The effect rack is empty."; return false; }
-    AudioBuffer working = buffer;
+    AudioSuiteBuffer working = buffer;
     for (const auto& item : chain) {
         if (!processAudioPlugin(working, item.pluginId, item.parameters, error)) {
             error = item.pluginId + ": " + error;
@@ -420,7 +420,7 @@ bool processAudioChain(AudioBuffer& buffer, const std::vector<AudioPluginChainIt
     return true;
 }
 
-bool loadPcm16Wav(const std::filesystem::path& path, AudioBuffer& buffer, std::string& error) {
+bool loadPcm16Wav(const std::filesystem::path& path, AudioSuiteBuffer& buffer, std::string& error) {
     std::error_code ec;
     const auto fileBytes = std::filesystem::file_size(path, ec);
     if (ec || fileBytes < 44u || fileBytes > kMaxWavBytes) {
@@ -468,7 +468,7 @@ bool loadPcm16Wav(const std::filesystem::path& path, AudioBuffer& buffer, std::s
         error = "WAV frame count exceeds the 20-million-frame safety limit.";
         return false;
     }
-    AudioBuffer loaded;
+    AudioSuiteBuffer loaded;
     loaded.sampleRate = static_cast<int>(sampleRate);
     loaded.left.resize(frames);
     loaded.right.resize(frames);
@@ -484,7 +484,7 @@ bool loadPcm16Wav(const std::filesystem::path& path, AudioBuffer& buffer, std::s
     return true;
 }
 
-bool savePcm16Wav(const std::filesystem::path& path, const AudioBuffer& buffer,
+bool savePcm16Wav(const std::filesystem::path& path, const AudioSuiteBuffer& buffer,
                   std::string& error) {
     if (!buffer.valid()) { error = "Cannot export an invalid audio buffer."; return false; }
     const std::uint64_t dataBytes = static_cast<std::uint64_t>(buffer.frames()) * 4u;

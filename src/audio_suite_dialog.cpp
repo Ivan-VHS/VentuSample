@@ -17,6 +17,25 @@
 #include <cmath>
 #include <utility>
 
+namespace {
+std::filesystem::path pathFromQString(const QString& value) {
+#ifdef _WIN32
+    return std::filesystem::path(value.toStdWString());
+#else
+    const QByteArray bytes = value.toUtf8();
+    return std::filesystem::u8path(std::string(bytes.constData(), static_cast<std::size_t>(bytes.size())));
+#endif
+}
+QString pathToQString(const std::filesystem::path& value) {
+#ifdef _WIN32
+    return QString::fromStdWString(value.wstring());
+#else
+    const auto utf8 = value.u8string();
+    return QString::fromUtf8(reinterpret_cast<const char*>(utf8.data()), static_cast<qsizetype>(utf8.size()));
+#endif
+}
+}
+
 AudioSuiteDialog::AudioSuiteDialog(QWidget* parent) : QDialog(parent) {
     setWindowTitle("Ventu Audio Suite — 66 DSP effects");
     setMinimumSize(1040, 700);
@@ -189,7 +208,7 @@ void AudioSuiteDialog::loadInput() {
     const QString file = QFileDialog::getOpenFileName(this, "Загрузить исходный WAV", {},
                                                        "WAV audio (*.wav);;All files (*.*)");
     if (file.isEmpty()) return;
-    ventu::AudioBuffer loaded;
+    ventu::AudioSuiteBuffer loaded;
     std::string error;
     if (!ventu::loadPcm16Wav(pathFromQString(file), loaded, error)) {
         QMessageBox::warning(this, "Не удалось открыть WAV", QString::fromStdString(error));

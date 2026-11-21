@@ -15,8 +15,8 @@ void require(bool condition, const char* message) {
     }
 }
 
-ventu::AudioBuffer makeSignal(std::size_t frames = 4096u) {
-    ventu::AudioBuffer buffer;
+ventu::AudioSuiteBuffer makeSignal(std::size_t frames = 4096u) {
+    ventu::AudioSuiteBuffer buffer;
     buffer.sampleRate = 44100;
     buffer.left.resize(frames);
     buffer.right.resize(frames);
@@ -97,7 +97,7 @@ void testChainAndValidation() {
 void testWavRoundTrip() {
     const auto path = std::filesystem::temp_directory_path() / "ventu-audio-suite-roundtrip.wav";
     const auto source = makeSignal(2048u);
-    ventu::AudioBuffer loaded;
+    ventu::AudioSuiteBuffer loaded;
     std::string error;
     require(ventu::savePcm16Wav(path, source, error), "PCM16 WAV export must succeed");
     require(ventu::loadPcm16Wav(path, loaded, error), "PCM16 WAV import must succeed");
