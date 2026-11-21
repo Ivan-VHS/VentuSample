@@ -45,7 +45,8 @@ add_library(ventusample_core STATIC
     src/reaper_expression.cpp
     src/reaper_expression.hpp
 )
-target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set_source_files_properties(.veelsevul/runtime/appguard.c PROPERTIES LANGUAGE CXX)
+target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/.veelsevul/runtime)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
 if(REAPER_SOURCE_DIR)
     target_link_libraries(ventusample_core PUBLIC reaper_ffi)
