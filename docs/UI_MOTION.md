@@ -1,6 +1,6 @@
 # VentuSample UI motion contract
 
-VentuSample implements the AETHER-ANAS white/blue/red motion system with native Qt animations. Movement is state feedback, never ambient decoration. The 2026 Motion Lab concepts are adapted to Qt Widgets; the browser-only mesh, CSS blur and pointer-driven portal layers are not introduced into the audio workstation.
+VentuSample implements the AETHER-ANAS white/blue/red motion system with native Qt animations, extended by the shared Anatidae / Pond Motion profile. Movement is state feedback, never ambient decoration. Duck, feather and water motifs remain optional showcase material, never permanent chrome behind audio controls. The 2026 Motion Lab concepts are adapted to Qt Widgets; the browser-only mesh, CSS blur and pointer-driven portal layers are not introduced into the audio workstation.
 
 ## Timing and physics
 
@@ -34,3 +34,12 @@ Qt animations, spring timers and the beat timer run on the UI thread only. They 
 | Reduced / Eco | no spatial spring | no spatial spring | — | maximum 80 ms |
 
 The solver uses semi-implicit Euler integration with two substeps per timer tick and clamps the frame delta to 32 ms. Its timer is parented to the animated widget, runs on the Qt UI thread, and is stopped when a newer spring replaces it or the widget is destroyed. Existing graphics effects owned by other UI subsystems are never replaced.
+
+
+## Anatidae / Pond Motion translation
+
+VentuSample already has a native, UI-thread spring controller. The Expressive Motion preference selects the stronger spring response (stiffness 340, damping 20, mass 0.85) instead of the default response (240 / 22 / 1.0), with the existing 1.35× duration multiplier capped at 380 ms. The supplied paddle curve `cubic-bezier(0.22, 1.18, 0.36, 1)` is the conceptual target for that bounded response; the water curve `cubic-bezier(0.37, 0, 0.63, 1)` is reserved for decorative brand surfaces.
+
+Reduce Motion and Eco override Expressive Motion, cap retained transitions at 80 ms and suspend the BPM indicator. The indicator is driven by the current VentuSample project BPM, not an external DAW transport. No parallax, particles or permanent animated backdrops are placed behind generator controls. Qt animations and the BPM indicator remain on the UI thread and outside DSP callbacks, audio buffers and generator workers.
+
+The cross-project visual and motion contract is documented in [ANATIDAE_MOTION_CONSTITUTION.md](ANATIDAE_MOTION_CONSTITUTION.md).
