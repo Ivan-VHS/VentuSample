@@ -1,0 +1,48 @@
+name: Automation Roadmap Contract
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "automation-roadmap.v1.json"
+      - "automation-roadmap.v1.schema.json"
+      - "docs/AUTOMATION_ROADMAP.md"
+      - "scripts/validate_automation_roadmap.py"
+      - ".github/workflows/automation-roadmap.yml"
+  pull_request:
+    paths:
+      - "automation-roadmap.v1.json"
+      - "automation-roadmap.v1.schema.json"
+      - "docs/AUTOMATION_ROADMAP.md"
+      - "scripts/validate_automation_roadmap.py"
+      - ".github/workflows/automation-roadmap.yml"
+  schedule:
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: automation-roadmap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate roadmap, evidence, and safety gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: false
+      - name: Validate automation roadmap
+        run: python scripts/validate_automation_roadmap.py --strict
