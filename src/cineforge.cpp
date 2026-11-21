@@ -32,7 +32,7 @@ struct Family {
     bool rhythmic;
 };
 
-constexpr std::array<Family, 10> kFamilies{{
+constexpr std::array<Family, 12> kFamilies{{
     {"SubBoom", 48.0, 2.6, false},
     {"TitanImpact", 92.0, 2.2, false},
     {"BrassPulse", 146.0, 2.8, false},
@@ -42,7 +42,9 @@ constexpr std::array<Family, 10> kFamilies{{
     {"Riser", 260.0, 3.4, false},
     {"Atmosphere", 72.0, 3.8, false},
     {"HybridAccent", 210.0, 2.5, false},
-    {"ImpactTail", 64.0, 3.2, false}
+    {"ImpactTail", 64.0, 3.2, false},
+    {"GlassShard", 680.0, 2.3, false},
+    {"ReversePressure", 132.0, 3.6, false}
 }};
 
 constexpr std::array<const char*, 12> kKeys{{
