@@ -1,5 +1,6 @@
 #include "mainwindow.hpp"
 #include "quantum_audio_lab.hpp"
+#include "ui_ux.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -82,9 +83,10 @@ QWidget* makeCard(const QString& title, QLayout* content) {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("VentuSample — рабочая станция аудиопаков");
-    setMinimumSize(980, 720);
+    setMinimumSize(900, 640);
     resize(1320, 900);
     buildUi();
+    ventu::ui_ux::applyAccessibleDefaults(this);
     loadSettings();
     applyTheme();
     updateBeatSync();
@@ -94,11 +96,13 @@ MainWindow::~MainWindow() {
     if (worker_.joinable()) worker_.join();
 }
 
-void MainWindow::addChoice(QComboBox* combo, const QStringList& labels, int selected) {
+void MainWindow::addChoice(QComboBox* combo, const QStringList& labels, int selected,
+                           const QString& accessibleName) {
     combo->addItems(labels);
     const int lastIndex = labels.isEmpty() ? 0 : static_cast<int>(labels.size()) - 1;
     combo->setCurrentIndex(std::clamp(selected, 0, lastIndex));
     combo->setMinimumHeight(44);
+    if (!accessibleName.isEmpty()) combo->setAccessibleName(accessibleName);
 }
 
 QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& label,
@@ -202,13 +206,13 @@ void MainWindow::buildUi() {
     auto* musicalGrid = new QGridLayout();
     musicalGrid->setHorizontalSpacing(14);
     musicalGrid->setVerticalSpacing(10);
-    styleBox_ = new QComboBox(); addChoice(styleBox_, styleNames(), 1);
-    targetBox_ = new QComboBox(); addChoice(targetBox_, targetNames(), 0);
-    keyBox_ = new QComboBox(); addChoice(keyBox_, keyNames(), 0);
-    scaleBox_ = new QComboBox(); addChoice(scaleBox_, scaleNames(), 0);
-    samplerBox_ = new QComboBox(); addChoice(samplerBox_, samplerNames(), 2);
-    timbreBox_ = new QComboBox(); addChoice(timbreBox_, timbreNames(), 0);
-    rateBox_ = new QComboBox(); addChoice(rateBox_, rateNames(), 1);
+    styleBox_ = new QComboBox(); addChoice(styleBox_, styleNames(), 1, "Стиль генерации");
+    targetBox_ = new QComboBox(); addChoice(targetBox_, targetNames(), 0, "Тип создаваемого материала");
+    keyBox_ = new QComboBox(); addChoice(keyBox_, keyNames(), 0, "Тональность");
+    scaleBox_ = new QComboBox(); addChoice(scaleBox_, scaleNames(), 0, "Музыкальный лад");
+    samplerBox_ = new QComboBox(); addChoice(samplerBox_, samplerNames(), 2, "Профиль семплера");
+    timbreBox_ = new QComboBox(); addChoice(timbreBox_, timbreNames(), 0, "Тембр");
+    rateBox_ = new QComboBox(); addChoice(rateBox_, rateNames(), 1, "Частота дискретизации");
 
     const auto addField = [musicalGrid](int row, int col, const QString& label, QWidget* field) {
         auto* text = new QLabel(label);
@@ -240,6 +244,8 @@ void MainWindow::buildUi() {
     const auto addSpin = [structureGrid](int row, int col, const QString& label, QWidget* field) {
         auto* text = new QLabel(label);
         text->setObjectName("fieldLabel");
+        text->setBuddy(field);
+        field->setAccessibleName(label);
         structureGrid->addWidget(text, row * 2, col);
         structureGrid->addWidget(field, row * 2 + 1, col);
     };
@@ -274,9 +280,9 @@ void MainWindow::buildUi() {
     stochasticCheck_->setToolTip("Меняет DSP-цепочку при офлайн-экспорте WAV. Realtime-аудиопоток не используется.");
     stochasticIntensitySlider_ = addSliderRow(filterGrid, 6, "Интенсивность стохастики", 0, 100, 45, &stochasticIntensityValue_);
     stochasticTriggerBox_ = new QComboBox();
-    addChoice(stochasticTriggerBox_, {"Весь файл", "Каждый такт", "Музыкальные транзиенты"}, 0);
+    addChoice(stochasticTriggerBox_, {"Весь файл", "Каждый такт", "Музыкальные транзиенты"}, 0, "Триггер стохастического эффекта");
     stochasticTopologyBox_ = new QComboBox();
-    addChoice(stochasticTopologyBox_, {"Гибрид", "Последовательная", "Параллельная"}, 0);
+    addChoice(stochasticTopologyBox_, {"Гибрид", "Последовательная", "Параллельная"}, 0, "Топология цепи эффектов");
     auto* stochasticPoolGroup = new QGroupBox("ПУЛ ДОСТУПНЫХ DSP-ЭФФЕКТОВ");
     auto* stochasticPoolLayout = new QGridLayout(stochasticPoolGroup);
     const std::array<QString, 8> stochasticEffectNames{
@@ -304,6 +310,7 @@ void MainWindow::buildUi() {
     auto* sourceGrid = new QGridLayout();
     sourceSamplePath_ = new QLineEdit();
     sourceSamplePath_->setPlaceholderText("Необязательно: исходный PCM16 WAV для chop-нарезки");
+    sourceSamplePath_->setAccessibleName("Исходный PCM16 WAV");
     auto* sourceBrowse = new QPushButton("Загрузить WAV…");
     sourceMixSlider_ = new QSlider(Qt::Horizontal);
     sourceMixSlider_->setRange(0, 100);
@@ -316,10 +323,16 @@ void MainWindow::buildUi() {
     sourcePitchSpin_->setSuffix(" полутонов");
     sourceGrid->addWidget(sourceSamplePath_, 0, 0, 1, 3);
     sourceGrid->addWidget(sourceBrowse, 0, 3);
-    sourceGrid->addWidget(new QLabel("ДОЛЯ ИСХОДНОГО СЭМПЛА"), 1, 0);
+    auto* sourceMixLabel = new QLabel("ДОЛЯ ИСХОДНОГО СЭМПЛА");
+    sourceMixLabel->setBuddy(sourceMixSlider_);
+    sourceMixSlider_->setAccessibleName("Доля исходного сэмпла");
+    sourceGrid->addWidget(sourceMixLabel, 1, 0);
     sourceGrid->addWidget(sourceMixSlider_, 1, 1);
     sourceGrid->addWidget(sourceMixValue_, 1, 2);
-    sourceGrid->addWidget(new QLabel("СДВИГ ВЫСОТЫ"), 1, 3);
+    auto* sourcePitchLabel = new QLabel("СДВИГ ВЫСОТЫ");
+    sourcePitchLabel->setBuddy(sourcePitchSpin_);
+    sourcePitchSpin_->setAccessibleName("Сдвиг высоты в полутонах");
+    sourceGrid->addWidget(sourcePitchLabel, 1, 3);
     sourceGrid->addWidget(sourcePitchSpin_, 1, 4);
     studioLayout->addWidget(makeCard("05  /  ИСХОДНЫЙ СЭМПЛ ДЛЯ НАРЕЗКИ", sourceGrid));
 
@@ -327,6 +340,7 @@ void MainWindow::buildUi() {
     auto* pathRow = new QHBoxLayout();
     outputPath_ = new QLineEdit();
     outputPath_->setPlaceholderText("Папка экспорта WAV + manifest.json");
+    outputPath_->setAccessibleName("Папка экспорта WAV и manifest");
     auto* browseButton = new QPushButton("Выбрать папку…");
     pathRow->addWidget(outputPath_, 1);
     pathRow->addWidget(browseButton);
@@ -348,9 +362,12 @@ void MainWindow::buildUi() {
     progress_->setRange(0, 100);
     progress_->setValue(0);
     progress_->setTextVisible(false);
+    progress_->setAccessibleName("Ход генерации аудиопака");
+    progress_->setAccessibleDescription("Процент не отображается без достоверного значения.");
     progress_->setFixedHeight(8);
     exportCardLayout->addWidget(progress_);
     statusLabel_ = new QLabel("Готов к генерации · локальная обработка · без сетевых запросов");
+    statusLabel_->setAccessibleName("Состояние генератора");
     statusLabel_->setObjectName("mutedText");
     exportCardLayout->addWidget(statusLabel_);
     studioLayout->addWidget(makeCard("06  /  ЭКСПОРТ И РЕЗУЛЬТАТ", exportCardLayout));
@@ -366,9 +383,11 @@ void MainWindow::buildUi() {
     summaryLabel_ = new QLabel("Здесь появятся созданные WAV-файлы и параметры последней сессии.");
     summaryLabel_->setObjectName("mutedText");
     filesList_ = new QListWidget();
+    filesList_->setAccessibleName("Созданные аудиофайлы");
     outputLayout->addWidget(summaryLabel_);
     outputLayout->addWidget(filesList_, 2);
     log_ = new QPlainTextEdit();
+    log_->setAccessibleName("Журнал генерации и диагностики");
     log_->setReadOnly(true);
     log_->setMaximumBlockCount(1000);
     log_->setPlaceholderText("Журнал генерации и диагностики…");
@@ -774,7 +793,7 @@ void MainWindow::applyTheme() {
         QTabBar::tab:hover { border-color: %10; }
         QTabBar::tab:selected { color: %2; background: %1; border-bottom: 3px solid %6; }
         QCheckBox { spacing: 9px; padding: 3px; }
-        QCheckBox::indicator { width: 19px; height: 19px; }
+        QCheckBox::indicator { width: 20px; height: 20px; }
         QCheckBox::indicator:checked { background: %6; border: 2px solid %6; border-radius: 4px; }
         QListWidget::item { padding: 7px; }
         QListWidget::item:selected { background: %8; color: %2; }
