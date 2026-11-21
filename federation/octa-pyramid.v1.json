@@ -1,49 +1,220 @@
 {
   "schema": "octa.federation-pyramid.v1",
   "topology_id": "octa-8",
-  "shape": {"kind": "octagonal-pyramid", "base_sides": 8, "triangular_facets": 8, "apex_vertex": "octa-hub"},
+  "shape": {
+    "kind": "octagonal-pyramid",
+    "base_sides": 8,
+    "triangular_facets": 8,
+    "apex_vertex": "octa-hub"
+  },
   "apex": {
     "id": "octa-hub",
     "role": "protocol-coordination-only",
     "executable": false,
     "single_point_of_failure": false,
-    "linked_facets": ["facet.identity", "facet.contracts", "facet.transport", "facet.provenance", "facet.validation", "facet.privacy", "facet.safety", "facet.audit"]
+    "linked_facets": [
+      "facet.identity",
+      "facet.contracts",
+      "facet.transport",
+      "facet.provenance",
+      "facet.validation",
+      "facet.privacy",
+      "facet.safety",
+      "facet.audit"
+    ]
   },
   "base_mesh": {
     "mode": "horizontal-complete-directed-peer-mesh",
-    "project_ids": ["reaper", "pytyliki", "oplague", "ventusample"],
+    "project_ids": [
+      "reaper",
+      "pytyliki",
+      "oplague",
+      "ventusample"
+    ],
     "directed_peer_links": 12,
     "self_loops": 4
   },
   "facets": [
-    {"id": "facet.identity", "side": 1, "name": "Identity and namespaces", "invariant": "Stable project/interface IDs; no personal or host identity is required in a sample pack."},
-    {"id": "facet.contracts", "side": 2, "name": "Contracts and versioning", "invariant": "Explicit versioned pack and render-request contracts; breaking changes require a new schema version."},
-    {"id": "facet.transport", "side": 3, "name": "Transport and bounded envelopes", "invariant": "Bounded JSON pack metadata and optional caller-selected files; reject malformed and oversized audio input."},
-    {"id": "facet.provenance", "side": 4, "name": "Provenance and integrity", "invariant": "Record generator version, settings, source filename and per-file measurements; hashes are byte identifiers, not authenticity proofs."},
-    {"id": "facet.validation", "side": 5, "name": "Validation and normalization", "invariant": "Validate BPM, key, scales, sample rate, channel count, RIFF chunks and finite audio samples."},
-    {"id": "facet.privacy", "side": 6, "name": "Privacy and consent", "invariant": "All rendering is local; source files are explicit and full local paths are not written to pack metadata."},
-    {"id": "facet.safety", "side": 7, "name": "Execution and safety boundaries", "invariant": "No implicit native loading, network telemetry, recording capture or system-changing operation."},
-    {"id": "facet.audit", "side": 8, "name": "Audit and reproducibility", "invariant": "Seeded variations, deterministic parameter manifest, explicit limitations and unit tests."}
+    {
+      "id": "facet.identity",
+      "side": 1,
+      "name": "Identity and namespaces",
+      "invariant": "Stable project/interface IDs; no personal or host identity is required in a sample pack."
+    },
+    {
+      "id": "facet.contracts",
+      "side": 2,
+      "name": "Contracts and versioning",
+      "invariant": "Explicit versioned pack and render-request contracts; breaking changes require a new schema version."
+    },
+    {
+      "id": "facet.transport",
+      "side": 3,
+      "name": "Transport and bounded envelopes",
+      "invariant": "Bounded JSON pack metadata and optional caller-selected files; reject malformed and oversized audio input."
+    },
+    {
+      "id": "facet.provenance",
+      "side": 4,
+      "name": "Provenance and integrity",
+      "invariant": "Record generator version, settings, source filename and per-file measurements; hashes are byte identifiers, not authenticity proofs."
+    },
+    {
+      "id": "facet.validation",
+      "side": 5,
+      "name": "Validation and normalization",
+      "invariant": "Validate BPM, key, scales, sample rate, channel count, RIFF chunks, finite audio samples and shared drum/melody timing-grid bounds."
+    },
+    {
+      "id": "facet.privacy",
+      "side": 6,
+      "name": "Privacy and consent",
+      "invariant": "All rendering is local; source files are explicit and full local paths are not written to pack metadata."
+    },
+    {
+      "id": "facet.safety",
+      "side": 7,
+      "name": "Execution and safety boundaries",
+      "invariant": "No implicit native loading, network telemetry, recording capture or system-changing operation."
+    },
+    {
+      "id": "facet.audit",
+      "side": 8,
+      "name": "Audit and reproducibility",
+      "invariant": "Seeded variations, deterministic phrase turnarounds, parameter manifest, explicit limitations and regression tests."
+    }
   ],
   "peer_links": [
-    {"id": "reaper-to-oplage", "from": "reaper", "to": "oplague", "transport": "json-file", "interface": "reaper.oplage-comparison.v1", "flow": "artifact", "status": "implemented"},
-    {"id": "oplague-to-reaper", "from": "oplague", "to": "reaper", "transport": "json-file", "interface": "oplage.device-snapshot.v1", "flow": "artifact", "status": "implemented"},
-    {"id": "reaper-to-pytyliki", "from": "reaper", "to": "pytyliki", "transport": "native-ffi", "interface": "pytyliki.c-abi.v1", "flow": "request", "status": "implemented"},
-    {"id": "pytyliki-to-reaper", "from": "pytyliki", "to": "reaper", "transport": "native-ffi", "interface": "pytyliki.c-abi.v1", "flow": "response", "status": "implemented"},
-    {"id": "oplague-to-pytyliki", "from": "oplague", "to": "pytyliki", "transport": "native-ffi", "interface": "pytyliki.c-abi.v1", "flow": "request", "status": "implemented"},
-    {"id": "pytyliki-to-oplage", "from": "pytyliki", "to": "oplague", "transport": "native-ffi", "interface": "pytyliki.c-abi.v1", "flow": "response", "status": "implemented"},
-    {"id": "ventusample-to-reaper", "from": "ventusample", "to": "reaper", "transport": "json-file", "interface": "ventusample.pack.v1", "flow": "artifact", "status": "implemented"},
-    {"id": "reaper-to-ventusample", "from": "reaper", "to": "ventusample", "transport": "json-file", "interface": "ventusample.render-request.v1", "flow": "artifact", "status": "planned"},
-    {"id": "ventusample-to-pytyliki", "from": "ventusample", "to": "pytyliki", "transport": "native-ffi", "interface": "pytyliki.c-abi.v1", "flow": "request", "status": "planned"},
-    {"id": "pytyliki-to-ventusample", "from": "pytyliki", "to": "ventusample", "transport": "native-ffi", "interface": "pytyliki.c-abi.v1", "flow": "response", "status": "planned"},
-    {"id": "ventusample-to-oplage", "from": "ventusample", "to": "oplague", "transport": "none", "interface": "not-applicable.v1", "flow": "none", "status": "not_applicable"},
-    {"id": "oplague-to-ventusample", "from": "oplague", "to": "ventusample", "transport": "none", "interface": "not-applicable.v1", "flow": "none", "status": "not_applicable"}
+    {
+      "id": "reaper-to-oplage",
+      "from": "reaper",
+      "to": "oplague",
+      "transport": "json-file",
+      "interface": "reaper.oplage-comparison.v1",
+      "flow": "artifact",
+      "status": "implemented"
+    },
+    {
+      "id": "oplague-to-reaper",
+      "from": "oplague",
+      "to": "reaper",
+      "transport": "json-file",
+      "interface": "oplage.device-snapshot.v1",
+      "flow": "artifact",
+      "status": "implemented"
+    },
+    {
+      "id": "reaper-to-pytyliki",
+      "from": "reaper",
+      "to": "pytyliki",
+      "transport": "native-ffi",
+      "interface": "pytyliki.c-abi.v1",
+      "flow": "request",
+      "status": "implemented"
+    },
+    {
+      "id": "pytyliki-to-reaper",
+      "from": "pytyliki",
+      "to": "reaper",
+      "transport": "native-ffi",
+      "interface": "pytyliki.c-abi.v1",
+      "flow": "response",
+      "status": "implemented"
+    },
+    {
+      "id": "oplague-to-pytyliki",
+      "from": "oplague",
+      "to": "pytyliki",
+      "transport": "native-ffi",
+      "interface": "pytyliki.c-abi.v1",
+      "flow": "request",
+      "status": "implemented"
+    },
+    {
+      "id": "pytyliki-to-oplage",
+      "from": "pytyliki",
+      "to": "oplague",
+      "transport": "native-ffi",
+      "interface": "pytyliki.c-abi.v1",
+      "flow": "response",
+      "status": "implemented"
+    },
+    {
+      "id": "ventusample-to-reaper",
+      "from": "ventusample",
+      "to": "reaper",
+      "transport": "json-file",
+      "interface": "ventusample.pack.v1",
+      "flow": "artifact",
+      "status": "implemented"
+    },
+    {
+      "id": "reaper-to-ventusample",
+      "from": "reaper",
+      "to": "ventusample",
+      "transport": "json-file",
+      "interface": "ventusample.render-request.v1",
+      "flow": "artifact",
+      "status": "planned"
+    },
+    {
+      "id": "ventusample-to-pytyliki",
+      "from": "ventusample",
+      "to": "pytyliki",
+      "transport": "native-ffi",
+      "interface": "pytyliki.c-abi.v1",
+      "flow": "request",
+      "status": "planned"
+    },
+    {
+      "id": "pytyliki-to-ventusample",
+      "from": "pytyliki",
+      "to": "ventusample",
+      "transport": "native-ffi",
+      "interface": "pytyliki.c-abi.v1",
+      "flow": "response",
+      "status": "planned"
+    },
+    {
+      "id": "ventusample-to-oplage",
+      "from": "ventusample",
+      "to": "oplague",
+      "transport": "none",
+      "interface": "not-applicable.v1",
+      "flow": "none",
+      "status": "not_applicable"
+    },
+    {
+      "id": "oplague-to-ventusample",
+      "from": "oplague",
+      "to": "ventusample",
+      "transport": "none",
+      "interface": "not-applicable.v1",
+      "flow": "none",
+      "status": "not_applicable"
+    }
   ],
   "self_loops": [
-    {"project": "reaper", "contract": "reaper.internal-runtime.v1", "surface": "language frontend, modules, IR/VM, resources and audit"},
-    {"project": "pytyliki", "contract": "pytyliki.internal-core.v1", "surface": "C11 processor, memory, DSP, metrics and TRACE"},
-    {"project": "oplague", "contract": "oplague.internal-workbench.v1", "surface": "PnP inventory, package inspection, driver evidence and reports"},
-    {"project": "ventusample", "contract": "ventusample.internal-audio.v1", "surface": "hip-hop pattern engine, sampler-color DSP, WAV I/O, pack generation and desktop UI"}
+    {
+      "project": "reaper",
+      "contract": "reaper.internal-runtime.v1",
+      "surface": "language frontend, modules, IR/VM, resources and audit"
+    },
+    {
+      "project": "pytyliki",
+      "contract": "pytyliki.internal-core.v1",
+      "surface": "C11 processor, memory, DSP, metrics and TRACE"
+    },
+    {
+      "project": "oplague",
+      "contract": "oplague.internal-workbench.v1",
+      "surface": "PnP inventory, package inspection, driver evidence and reports"
+    },
+    {
+      "project": "ventusample",
+      "contract": "ventusample.internal-audio.v1",
+      "surface": "hip-hop pattern engine, shared swing and phrase-cadence scheduler, sampler-color DSP, stereo-linked mastering, WAV I/O, pack generation and desktop UI"
+    }
   ],
   "semantics": {
     "complete_pairwise_product": true,
@@ -52,6 +223,6 @@
     "request_response_edges_are_synchronous": true,
     "no_implicit_native_loading": true,
     "no_driver_mutation_through_mesh": true,
-    "reaper_pack_consumer_implemented": false
+    "reaper_pack_consumer_implemented": true
   }
 }
