@@ -1,38 +1,30 @@
-# VentuSample
+# VentuSample — procedural sample workstation
 
-C++20 · Qt 6 Widgets · Windows/Linux where Qt is available · Offline · Apache-2.0
-**Разработчик:** [Ivan-VHS](https://github.com/Ivan-VHS)
+[CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · Offline · Apache-2.0
 
-Native workstation for deterministic procedural hip-hop sample packs. The scalar renderer exports PCM16 stereo WAV and versioned JSON manifests; it does not require a DAW or audio device.
+VentuSample is a native workstation for deterministic procedural hip-hop sample packs. Its scalar renderer exports PCM16 stereo WAV files and versioned JSON manifests without requiring a DAW, audio device or network connection.
 
-## Internal plugin suite
+## Live Windows desktop
 
-The 19 shared internal products are built-in plugins in the native PluginManager. Open **Плагины → Менеджер плагинов** to inspect, enable/disable and run tools, or discover local extension manifests. The C++20 SDK provides reviewed handler registration, lazy initialization, shutdown and diagnostics. Manifest discovery is metadata-only; arbitrary DLL/SO loading remains disabled. See [Plugin platform and SDK](docs/PLUGINS.md) and the [shared manifest schema](schemas/ivan-vhs.plugin.v1.schema.json).
-
-## Quantum Audio Engine — 133 DSP modules
-
-A native C++ audio lab is available from **Плагины → Quantum Audio Engine — 133 DSP**. It loads PCM16 WAV, builds an ordered processing chain from five families, processes float audio offline, displays signal measurements and exports stereo WAV. The 133 module identities use 21 reusable, tested DSP kernels. This is a local offline processor, not a live DAW or third-party plugin loader. See [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) for the complete catalogue and audio contract.
-
-## Stochastic routing
-
-The optional **Stochastic Router** processes rendered stereo buffers before WAV export. Its weighted pool contains low/high-pass filters, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Choose active effects, hybrid/serial/parallel topology, file/bar/scheduled-onset triggers and intensity. Fixed seed + settings produce repeatable routes; manifest v2 records the selected route names per file. Wet is bounded to 65%, feedback to 72%, transitions fade over 5–20 ms, RMS gain compensation is bounded, and output is clamped to a −0.3 dBFS sample-peak ceiling. This is offline DSP, not a real-time DAW host.
+<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample running on Windows 11" width="100%"></p>
+<sub>Actual 1920×1080 Windows 11 desktop capture from the Qt CI build. The screenshot shows the generator workbench; plugin discovery and the DSP laboratory are separate menu actions.</sub>
 
 ## Generator matrix
 
 | Output | Content |
 |---|---|
-| Full Loop | drums, melody, bass, optional source chops |
+| Full Loop | drums, melody, bass and optional source chops |
 | Melody | chords and seeded note variations |
-| Drums | kick, snare, hats, percussion, rolls |
+| Drums | kick, snare, hats, percussion and rolls |
 | Bass | generated bass patterns and optional glide |
 | One-Shot Kit | 8 hits; tonal labels only for pitched sounds |
 
-14 procedural profiles: Boom Bap, Billionaire Golden Era, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap, Cripple Trill.
+There are 14 procedural profiles: Boom Bap, Billionaire Golden Era, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap and Cripple Trill.
 
-| Control | Range |
+| Control | Supported range |
 |---|---|
 | BPM / bars / variations | 60–190 / 1–16 / 1–32 |
-| Key / scale | C–B / 6 families |
+| Key / scale | C–B / 6 scale families |
 | Swing | 50–68% |
 | Density, grit, saturation, stereo | 0–100% |
 | High-pass / low-pass | 20–300 Hz / 2–20 kHz |
@@ -42,9 +34,35 @@ The optional **Stochastic Router** processes rendered stereo buffers before WAV 
 | Source WAV | PCM16 mono/stereo, 8–192 kHz, ≤128 MiB, ≤20M frames |
 | Chop pitch / mix | −12…+12 semitones / 0–100% |
 
+## Internal plugin platform
+
+The native PluginManager includes 19 built-in internal tools. The **Плагины → Менеджер плагинов** view supports inspection, enable/disable and bounded dispatch. A public C++20 SDK exposes reviewed handler registration, lazy initialization, shutdown callbacks and diagnostics.
+
+Local `plugin.json` manifests can be discovered recursively, but discovery is metadata-only. A discovered entry remains disabled until a reviewed native handler is explicitly attached. Automatic DLL/SO loading, manifest-driven code execution, marketplace installation and sandbox claims are not supported. The public manifest contract is [ivan-vhs.plugin.v1](schemas/ivan-vhs.plugin.v1.schema.json). See [Plugin platform and SDK](docs/PLUGINS.md).
+
+## Quantum Audio Engine — 133 DSP modules
+
+Open **Плагины → Quantum Audio Engine — 133 DSP** for the separate offline audio laboratory. It contains 133 stable module identities across five families and routes them through 21 reusable, tested C++ DSP kernels. Load a supported WAV, assemble an ordered chain, adjust Amount / Tone / Rate / Wet-Dry, process offline and export stereo PCM16 WAV.
+
+The catalogue is a creative signal-processing system, not physical quantum computation. It is not a real-time audio engine, DAW, VST/AU host or arbitrary native-library loader. See [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) for input/output constraints, catalogue and DSP boundaries.
+
+## Stochastic routing
+
+The optional **Stochastic Router** processes rendered audio buffers before PCM16 WAV export. Its weighted pool contains eight selectable processors: low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. It does not load, discover or instantiate arbitrary third-party plugins.
+
+- **Topologies:** hybrid, serial or parallel; parallel routing uses 2–4 branches when enough effects are enabled.
+- **Triggers:** one route per file, per bar, or per scheduled generator event. Event mode uses renderer-supplied event frames; imported WAV files are not separately transient-detected.
+- **Controls:** intensity 0–100%; aggression, space, dirt and chaos follow the generator's grit, stereo, saturation and density controls.
+- **Boundaries:** wet ≤65%, feedback ≤72%, segment fades 5–20 ms, RMS compensation 0.5–2×, and output sample peak guarded at ≤−0.3 dBFS.
+- **Repeatability:** the generator seed, variation, topology, trigger and enabled-effect mask determine the route.
+
+The generator option is off by default. When enabled, routing runs offline on the rendered float buffer before PCM16 encoding; manifest v2 records the settings and selected route names per output file. A Plugin Manager run performs a one-bar in-memory preview and does not write files.
+
+This is an **offline DSP path**. It is not a real-time callback, playback hot-swap system, VST/AU host or arbitrary third-party audio-plugin loader.
+
 ## Build and test
 
-CMake 3.21+, C++20 compiler; Qt 6 Widgets for desktop.
+Requirements: CMake 3.21+, a C++20 compiler and Qt 6 Widgets for the desktop application.
 
 ```sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
@@ -52,22 +70,18 @@ cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
 
-If Qt is unavailable, portable DSP core and tests can still build; the desktop target is skipped.
+Without Qt, the portable DSP core and tests can still build; the desktop target is skipped. CI checks Python project contracts, native C++20 code and the Qt desktop build on Linux and Windows.
 
-## Export and limits
+## Export, determinism and limits
 
-- Fixed seed/settings produce repeatable output; rendering runs on a worker thread. Stochastic routes use the same seed/variation model.
-- Manifest v2 stores effective settings, `musical_key`, `mode_family`, `scale` and per-file peak/RMS/crest. v1 remains available for older packs.
-- Full Loop/Melody/Bass receive key/mode labels; unpitched drums do not. Imported WAV is not automatically key-detected.
-- Master ceiling is approximately −0.3 dBFS sample peak, not an oversampled true-peak limiter.
-- Semitone resampling changes pitch and playback speed together; it is not time-stretch.
+- Fixed seed and settings produce repeatable renders; rendering runs on a worker thread.
+- Manifest v2 records effective settings, `musical_key`, `mode_family`, `scale` and per-file peak/RMS/crest. Manifest v1 remains readable for older packs.
+- Full Loop, Melody and Bass may receive key/mode labels. Unpitched drums do not. Imported WAV files are not automatically key-detected.
+- Master ceiling is approximately −0.3 dBFS sample peak; it is not an oversampled true-peak limiter.
+- Semitone resampling changes pitch and playback speed together; it is not time-stretching.
 - No network telemetry, background audio capture, real-time callback or implicit native-library loading.
-- Import/export requires appropriate source rights; a hash proves byte identity, not ownership.
+- Import/export requires appropriate source rights. A hash proves byte identity, not ownership.
 
-## Live desktop capture
-
-The Windows CI workflow captures the actual 1920×1080 Qt app and uploads `ventusample-live-windows-screenshot`. Open the [CI workflow](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml), choose a successful run and download the artifact. GitHub retains it for 30 days; it is not a permanent repository image.
-
-[Features](docs/FEATURES.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Docs index](docs/README.md)
+[Features](docs/FEATURES.md) · [Plugin SDK](docs/PLUGINS.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) · [Architecture](docs/ARCHITECTURE.md) · [Russian guide](docs/USER_GUIDE_RU.md) · [QMR-20](docs/QUALITY_MONOLITH_RHYTHM.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Source rights](docs/SOURCE_INTEGRATION.md) · [Anatidae design](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) · [Docs index](docs/README.md)
 
 [Apache-2.0](LICENSE)
