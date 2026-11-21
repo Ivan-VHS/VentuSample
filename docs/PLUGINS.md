@@ -1,41 +1,53 @@
-# VentuSample plugin host
+# VentuSample plugin platform
 
-VentuSample now provides the same 18 internal products as built-in native plugins. A plugin is registered with a stable ID, display name, semantic version, area, declared capabilities and a handler. The Qt workstation exposes the registry from the Плагины menu.
+VentuSample contains 18 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
 
-## Shared plugin catalogue
+## Host capabilities
 
-| ID | Plugin | Main responsibility |
-|---|---|---|
-| operandu | Operandu | Typed generator parameter inspection |
-| dropaul | Dropaul | Deterministic export dry-run planning |
-| zdoro | Zdoro | Workspace and settings diagnostics |
-| pyemont | Pyemont | Project and source inventory |
-| dilly | Dilly | Interface and theme contract checks |
-| baplap | Baplap | Exported WAV catalogue |
-| sretuo | Sretuo | Test inventory and quality planning |
-| kali | Kali | Bounded static security scan |
-| zalam | Zalam | Manifest and export contract checks |
-| liur | Liur | Renderer memory estimates |
-| keel-koh | Keel Koh | Documentation index |
-| vorof | Vorof | Static source tree reconstruction |
-| vprof | Vprof | Static code-shape metrics |
-| profe | Profe | Generator standards validation |
-| prossee | Prossee | Export/release planning |
-| vprossee | Vprossee | Requirements/evidence readiness |
-| professiya | Professiya | Contributor learning paths |
-| profevo | Profevo | Manifest and plugin evolution planning |
-
-## Native plugin SDK
-
-The public API is in src/plugin_manager.hpp. Implementations register a PluginDescriptor and a PluginHandler with PluginManager::registerPlugin. Handlers receive an immutable PluginContext containing a copy of the active generator parameters plus workspace and output paths. They return a PluginResult; the host catches plugin exceptions and blocks dispatch to disabled plugins.
-
-Built-ins are compiled into ventusample_core. The current build does not load arbitrary DLL/SO files at runtime. This avoids implicit native-library loading while giving future first-party and reviewed extensions a stable in-process API.
+| Capability | Implementation |
+|---|---|
+| Built-in registry | 18 first-party plugins registered by the core |
+| Public SDK | PluginDescriptor, PluginContext, PluginHandler and lifecycle callbacks |
+| Manifest discovery | metadata-only recursive discovery from the desktop manager |
+| Compatibility | plugin API version 1, host ID ventu and semantic plugin versions |
+| Lifecycle | lazy initialization before first dispatch; shutdown on disable |
+| Handler attachment | reviewed C++ handler registration through registerPlugin or attachHandler |
+| Diagnostics | source, manifest path, enabled/initialized state, handler attachment and last error |
+| Safety | discovered metadata defaults disabled; no automatic DLL/SO loading or manifest-driven code execution |
 
 ## Desktop usage
 
-Open Плагины → Менеджер плагинов to inspect capabilities, enable or disable modules, and run the selected tool against the active settings and selected export directory. Plugin state is stored through QSettings.
+Open **Плагины → Менеджер плагинов**. Use **Обнаружить расширения…** to scan a local directory for plugin.json files. Discovery adds metadata to the list only; it does not execute the manifest entrypoint, load a shared library or grant capabilities. The details pane shows the manifest source, API level and whether a reviewed handler is attached.
 
-All built-in actions are bounded and read-only: they do not start generation, overwrite WAV files, execute shell commands, download code or alter project files. Dropaul returns a dry-run plan. Kali performs a static pattern scan and is not a complete security audit. Vprof reports source-shape estimates, not runtime profiling.
+An extension that has passed code review is connected by a host-side registration function using the public SDK:
+
+```cpp
+ventu::PluginDescriptor descriptor{
+    "studio-tool", "Studio Tool", "Workflow", "1.0.0",
+    "Reviewed in-process extension.", "inspect", {"project.read"}
+};
+manager.registerPlugin(
+    descriptor,
+    [](const ventu::PluginContext& context) {
+        return ventu::PluginResult{true, "Inspection complete", {}};
+    },
+    false,
+    [](const ventu::PluginContext&) { /* initialize resources */ },
+    [](const ventu::PluginContext&) { /* release resources */ }
+);
+```
+
+A discovered manifest can receive a reviewed handler with attachHandler(id, handler, onInitialize, onShutdown). A metadata-only entry cannot be enabled or executed until a handler is attached. Initialization is lazy and occurs before the first successful dispatch. Disabling an initialized module invokes its shutdown callback.
+
+## Manifest contract
+
+The JSON Schema is schemas/ivan-vhs.plugin.v1.schema.json; a metadata-only fixture lives in examples/plugins/metadata-example/plugin.json. IDs are stable kebab-case, versions use SemVer, and api_version must equal 1. The native host currently supports a conservative plain-string subset of JSON manifests; escaped string values are not accepted by its lightweight metadata reader.
+
+## Runtime and security boundary
+
+Ventu handlers execute in-process and therefore share the workstation's OS privileges. The SDK is a reviewed registration interface, not a sandbox. Arbitrary DLL/SO loading, automatic executable discovery, network access and marketplace installation remain disabled. Manifest capabilities are descriptive metadata, not OS-enforced permission grants. Do not register unreviewed native code.
+
+The plugin manager catches handler and lifecycle exceptions, records the last error and prevents a disabled or handler-less manifest from dispatching. A plugin failure is returned as a bounded PluginResult; it is not a guarantee that memory corruption or process-level faults can be contained in-process.
 
 ## Build and tests
 
