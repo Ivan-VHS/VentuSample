@@ -11,7 +11,8 @@
 | Master | sampler color, linked stereo compression, sample-peak ceiling |
 | Manifest | settings snapshot, key/mode, peak/RMS/crest |
 | Plugin host | versioned built-in registry, enable/disable lifecycle, bounded handlers and public registration API |
-| Audio Suite | 66-ID effect catalogue, deterministic stereo float DSP, ordered offline chains and bounded PCM16 WAV I/O |\n| Tests | validation, repeatability, variations, WAV round-trip, schemas and plugin lifecycle |
+| Audio Suite | 66-ID effect catalogue, deterministic stereo float DSP, ordered offline chains and bounded PCM16 WAV I/O |
+| Tests | validation, repeatability, variations, WAV round-trip, schemas, plugin lifecycle and all 66 effect processors |
 
 ## Audio effect processing
 
