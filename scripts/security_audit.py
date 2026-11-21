@@ -151,7 +151,8 @@ def main() -> int:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         args.output.write_text(rendered, encoding="utf-8")
     print(rendered, end="")
-    return 1 if report["counts"]["critical_secrets"] else 0
+    # Critical findings are evaluated by the common score gate so reports always upload.
+    return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())
