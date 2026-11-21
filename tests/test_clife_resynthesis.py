@@ -76,8 +76,8 @@ class CLifeGitRecoveryTests(unittest.TestCase):
             current_branch = subprocess.check_output(["git", "-C", str(repo), "branch", "--show-current"], text=True).strip()
             self.assertEqual(current_branch, initial_branch)
             self.assertEqual(
-                subprocess.check_output(["git", "-C", str(repo), "rev-parse", branch], text=True).strip(),
-                subprocess.check_output(["git", "-C", str(repo), "rev-parse", tag], text=True).strip(),
+                subprocess.check_output(["git", "-C", str(repo), "rev-parse", f"{branch}^{{commit}}"], text=True).strip(),
+                subprocess.check_output(["git", "-C", str(repo), "rev-parse", f"{tag}^{{commit}}"], text=True).strip(),
             )
 
     def test_checkpoint_refuses_dirty_worktree(self) -> None:
