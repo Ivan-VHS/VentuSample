@@ -94,6 +94,7 @@ private:
     std::map<std::string, std::uint64_t> bindings_;
     EventSink events_;
     std::string lastError_;
+    bool failed_{false};
 };
 
 } // namespace ventu
