@@ -59,19 +59,34 @@ jobs:
 
             local state
             state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" --jq '.mergeable_state // "unknown"')"
-            case "$state" in
-              behind)
-                echo "UPDATE PR #$number: branch is behind main."
-                gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$number/update-branch" \
-                  -f "expected_head_sha=$current_sha" >/dev/null
-                ;;
-              dirty)
-                echo "NOTICE PR #$number: merge conflict detected; leaving it for manual resolution."
-                ;;
-              *)
-                echo "OK PR #$number: no branch update needed (mergeable_state=$state)."
-                ;;
-            esac
+
+            if [[ "$state" == "dirty" ]]; then
+              echo "NOTICE PR #$number: merge conflict detected; leaving it for manual resolution."
+              return 0
+            fi
+
+            # A PR can be "blocked" because required checks are expected while
+            # its branch is still behind main. Compare ancestry independently.
+            local comparison
+            comparison="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$current_sha" \
+              --jq '[.ahead_by, .behind_by, .status] | @tsv')"
+
+            local ahead_by behind_by compare_status
+            IFS=$'\t' read -r ahead_by behind_by compare_status <<< "$comparison"
+
+            if [[ ! "$ahead_by" =~ ^[0-9]+$ || ! "$behind_by" =~ ^[0-9]+$ ]]; then
+              echo "ERROR PR #$number: invalid compare response: $comparison"
+              return 1
+            fi
+
+            if (( behind_by > 0 )); then
+              echo "UPDATE PR #$number: branch is behind main by $behind_by commit(s) (ahead=$ahead_by, compare=$compare_status, mergeable_state=$state)."
+              gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$number/update-branch" \
+                -f "expected_head_sha=$current_sha" >/dev/null
+              return 0
+            fi
+
+            echo "OK PR #$number: branch contains current main (ahead=$ahead_by, behind=$behind_by, compare=$compare_status, mergeable_state=$state)."
           }
 
           if [[ "$EVENT_NAME" == "pull_request_target" ]]; then
