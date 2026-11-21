@@ -46,6 +46,7 @@ add_library(ventusample_core STATIC
     src/reaper_expression.hpp
     src/careguard.cpp
     src/careguard.hpp
+    src/clife.cpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -159,4 +160,7 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_careguard_tests tests/test_careguard.cpp)
     target_link_libraries(ventusample_careguard_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-careguard-v1 COMMAND ventusample_careguard_tests)
+    add_executable(ventusample_clife_tests tests/test_clife.cpp)
+    target_link_libraries(ventusample_clife_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-clife-checkpoint-recovery COMMAND ventusample_clife_tests)
 endif()
