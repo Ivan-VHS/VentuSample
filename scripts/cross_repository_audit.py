@@ -68,6 +68,15 @@ def audit(roots: dict[str, Path]) -> dict[str, Any]:
                 problems.append(f"{name}: missing required local guardrail {rel}")
         if not (root / ".github" / "workflows" / "codeql.yml").is_file():
             problems.append(f"{name}: CodeQL workflow is missing")
+        assurance_workflow = root / ".github" / "workflows" / "security-assurance.yml"
+        if assurance_workflow.is_file():
+            assurance_text = assurance_workflow.read_text(encoding="utf-8")
+            if "osv-scanner-reusable-pr.yml@v2.7.1" not in assurance_text:
+                problems.append(f"{name}: OSV pull-request dependency scan is missing")
+            if "osv-scanner-reusable.yml@v2.7.1" not in assurance_text:
+                problems.append(f"{name}: OSV scheduled dependency scan is missing")
+        else:
+            problems.append(f"{name}: security assurance workflow is missing")
         try:
             scanner = load_module(root / "scripts" / "security_audit.py", f"security_audit_{project_id}")
             dependency = load_module(root / "scripts" / "dependency_audit.py", f"dependency_audit_{project_id}")
@@ -117,7 +126,7 @@ def audit(roots: dict[str, Path]) -> dict[str, Any]:
         "aggregate_findings": combined,
         "source_audits": source_reports,
         "dependency_audits": dependency_reports,
-        "limitations": "Static rule matching and offline dependency metadata inventory; no secret values are emitted. Does not prove absence of vulnerabilities or replace CodeQL, fuzzing, tests or expert review.",
+        "limitations": "Static rule matching and offline dependency metadata inventory; known dependency vulnerabilities are separately checked by OSV-Scanner in the shared CI workflow. No secret values are emitted. Does not prove absence of vulnerabilities or replace CodeQL, fuzzing, tests or expert review.",
     }
 
 def main() -> int:
