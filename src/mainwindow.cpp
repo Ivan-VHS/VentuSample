@@ -241,6 +241,8 @@ void MainWindow::buildUi() {
     const auto addSpin = [structureGrid](int row, int col, const QString& label, QWidget* field) {
         auto* text = new QLabel(label);
         text->setObjectName("fieldLabel");
+        text->setBuddy(field);
+        field->setAccessibleName(label);
         structureGrid->addWidget(text, row * 2, col);
         structureGrid->addWidget(field, row * 2 + 1, col);
     };
@@ -305,6 +307,7 @@ void MainWindow::buildUi() {
     auto* sourceGrid = new QGridLayout();
     sourceSamplePath_ = new QLineEdit();
     sourceSamplePath_->setPlaceholderText("Необязательно: исходный PCM16 WAV для chop-нарезки");
+    sourceSamplePath_->setAccessibleName("Исходный PCM16 WAV");
     auto* sourceBrowse = new QPushButton("Загрузить WAV…");
     sourceMixSlider_ = new QSlider(Qt::Horizontal);
     sourceMixSlider_->setRange(0, 100);
@@ -317,10 +320,16 @@ void MainWindow::buildUi() {
     sourcePitchSpin_->setSuffix(" полутонов");
     sourceGrid->addWidget(sourceSamplePath_, 0, 0, 1, 3);
     sourceGrid->addWidget(sourceBrowse, 0, 3);
-    sourceGrid->addWidget(new QLabel("ДОЛЯ ИСХОДНОГО СЭМПЛА"), 1, 0);
+    auto* sourceMixLabel = new QLabel("ДОЛЯ ИСХОДНОГО СЭМПЛА");
+    sourceMixLabel->setBuddy(sourceMixSlider_);
+    sourceMixSlider_->setAccessibleName("Доля исходного сэмпла");
+    sourceGrid->addWidget(sourceMixLabel, 1, 0);
     sourceGrid->addWidget(sourceMixSlider_, 1, 1);
     sourceGrid->addWidget(sourceMixValue_, 1, 2);
-    sourceGrid->addWidget(new QLabel("СДВИГ ВЫСОТЫ"), 1, 3);
+    auto* sourcePitchLabel = new QLabel("СДВИГ ВЫСОТЫ");
+    sourcePitchLabel->setBuddy(sourcePitchSpin_);
+    sourcePitchSpin_->setAccessibleName("Сдвиг высоты в полутонах");
+    sourceGrid->addWidget(sourcePitchLabel, 1, 3);
     sourceGrid->addWidget(sourcePitchSpin_, 1, 4);
     studioLayout->addWidget(makeCard("05  /  ИСХОДНЫЙ СЭМПЛ ДЛЯ НАРЕЗКИ", sourceGrid));
 
@@ -328,6 +337,7 @@ void MainWindow::buildUi() {
     auto* pathRow = new QHBoxLayout();
     outputPath_ = new QLineEdit();
     outputPath_->setPlaceholderText("Папка экспорта WAV + manifest.json");
+    outputPath_->setAccessibleName("Папка экспорта WAV и manifest");
     auto* browseButton = new QPushButton("Выбрать папку…");
     pathRow->addWidget(outputPath_, 1);
     pathRow->addWidget(browseButton);
