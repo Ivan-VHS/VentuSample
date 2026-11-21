@@ -40,6 +40,16 @@ class ScannerRegressionTests(unittest.TestCase):
         correlate(findings, sources, set(sources))
         self.assertFalse([item for item in findings if item["rule_id"].startswith("Q")])
 
+    def test_repository_correlation_uses_only_changed_files(self):
+        findings = [
+            {"path": "legacy/a.py", "severity": "high"},
+            {"path": "legacy/b.py", "severity": "high"},
+            {"path": "legacy/c.py", "severity": "high"},
+            {"path": "legacy/d.py", "severity": "high"},
+        ]
+        correlate(findings, {}, set())
+        self.assertFalse([item for item in findings if item["rule_id"] == "Q14"])
+
     def test_policy_contract_has_66_unique_rules(self):
         findings=[];policy=validate_policy(Path(__file__).resolve().parents[2],findings)
         self.assertEqual(policy.get("codex"),"BEELZEBUL-66")
