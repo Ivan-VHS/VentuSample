@@ -81,18 +81,37 @@ class CLifeTests(unittest.TestCase):
         snapshot = clife.make_snapshot(self.root)
         external = self.root.parent / (self.root.name + "-outside.txt")
         external.write_text("outside", encoding="utf-8")
-        link = self.root / "outside-link.txt"
+        target = self.root / "src" / "engine.py"
+        target.unlink()
         try:
-            link.symlink_to(external)
+            target.symlink_to(external)
         except (OSError, NotImplementedError):
             external.unlink(missing_ok=True)
             self.skipTest("symlinks are unavailable on this platform")
         try:
             with self.assertRaises(clife.CLifeError):
-                clife.restore_snapshot(self.root, snapshot, ["outside-link.txt"], apply=True)
+                clife.restore_snapshot(self.root, snapshot, ["src/engine.py"], apply=True)
+            self.assertEqual(external.read_text(encoding="utf-8"), "outside")
         finally:
-            link.unlink(missing_ok=True)
+            target.unlink(missing_ok=True)
             external.unlink(missing_ok=True)
+
+    def test_clife_store_symlink_is_refused(self):
+        other = self.root.parent / (self.root.name + "-external-store")
+        other.mkdir()
+        store = self.root / ".clife"
+        import shutil
+        shutil.rmtree(store)
+        try:
+            store.symlink_to(other, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest("symlinks are unavailable on this platform")
+        try:
+            with self.assertRaises(clife.CLifeError):
+                clife.make_snapshot(self.root)
+        finally:
+            store.unlink(missing_ok=True)
+            shutil.rmtree(other, ignore_errors=True)
 
 
 if __name__ == "__main__":
