@@ -60,7 +60,8 @@ def validate_profile(source: str | Path | Mapping[str, Any], *, root: str | Path
         expected_id = f"IC-{index + 1:02d}"
         if control.get("id") != expected_id:
             raise ImprovementConflictProfileError(f"control {index + 1} must have identifier {expected_id}")
-        if (control.get("improvement_term"), control.get("dissonance_term"), control.get("conflict_term")) != EXPECTED_TERMS[index]:
+        actual = (control.get("improvement_term"), control.get("dissonance_term"), control.get("conflict_term"))
+        if actual != tuple(EXPECTED_TERMS[index]):
             raise ImprovementConflictProfileError(f"{expected_id} vocabulary does not match the canonical 20-triplet register")
         for field in ("intent", "remediation", "verification"):
             if not isinstance(control.get(field), str) or not control[field].strip():
