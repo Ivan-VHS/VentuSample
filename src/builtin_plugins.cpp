@@ -90,6 +90,16 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
     const auto& p = context.parameters;
     const auto validation = validate(p);
 
+    if (id == "mental-wellbeing-reference") {
+        return ok("Mental Wellbeing & Depression Awareness: transcript-grounded information only.",
+                  {"Source: eбаут video brNbnipJ-i8, published 2025-11-23.",
+                   "Available transcript: 00:00–00:07:55 and 01:17:16–01:19:53; the middle section is unavailable.",
+                   "Topics: destigmatization, participant experiences, social support, movement, professional help.",
+                   "Antidepressant myths: insufficient transcript evidence; no claims are generated from the title.",
+                   "Medication boundary: do not prescribe or alter medication; refer decisions to a qualified prescriber.",
+                   "No audio processing, listening analysis, mood inference, symptom scoring or diagnosis.",
+                   "The 280-million figure is stored only as a figure quoted in the episode, not as current verified statistics."});
+    }
     if (id == "stochastic-router") {
         if (!validation.empty()) return fail("Stochastic Router rejected invalid generator settings: " + validation);
         Parameters previewParameters = p;
@@ -332,7 +342,7 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
 } // namespace
 
 void registerBuiltinPlugins(PluginManager& manager) {
-    const std::array<PluginDescriptor, 19> specs{{
+    const std::array<PluginDescriptor, 20> specs{{
         descriptor("operandu", "Operandu", "Data & logic", "Typed generator values and parameter inspection.", "inspect_parameters", {"typed parameters", "validation report"}),
         descriptor("dropaul", "Dropaul", "Actions & workflows", "Deterministic export planning and dry-run sequencing.", "plan_export", {"DAG-like workflow", "dry-run", "export stages"}),
         descriptor("zdoro", "Zdoro", "Integrity & diagnostics", "Read-only workspace, output and settings health checks.", "inspect_workspace", {"workspace status", "output status", "settings baseline"}),
@@ -351,7 +361,8 @@ void registerBuiltinPlugins(PluginManager& manager) {
         descriptor("vprossee", "Vprossee", "Verification & validation", "Requirement and evidence readiness matrix.", "verify_evidence", {"acceptance evidence", "readiness"}),
         descriptor("professiya", "Professiya", "Learning", "Contributor learning paths for the native workstation.", "learning_paths", {"learning sequence", "developer onboarding"}),
         descriptor("profevo", "Profevo", "Evolution", "Compatibility-aware manifest and plugin migration planning.", "plan_evolution", {"manifest compatibility", "versioned plugins"}),
-        descriptor("stochastic-router", "Stochastic Router", "Audio processing", "Seeded weighted effect-chain generation, safe parameter mutation, offline routing and peak protection.", "stochastic_route_preview", {"weighted plugin pool", "serial and parallel routes", "deterministic trigger mutation", "bounded feedback and wet", "RMS matching", "sample peak guard"})
+        descriptor("stochastic-router", "Stochastic Router", "Audio processing", "Seeded weighted effect-chain generation, safe parameter mutation, offline routing and peak protection.", "stochastic_route_preview", {"weighted plugin pool", "serial and parallel routes", "deterministic trigger mutation", "bounded feedback and wet", "RMS matching", "sample peak guard"}),
+        descriptor("mental-wellbeing-reference", "Mental Wellbeing Reference", "Knowledge & wellbeing", "Transcript-grounded depression awareness and anti-stigma reference with explicit evidence gaps.", "read_awareness_reference", {"source provenance", "transcript coverage", "evidence status", "non-clinical safety boundary"})
     }};
     for (const auto& spec : specs) {
         const auto id = spec.id;
