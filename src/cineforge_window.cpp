@@ -117,7 +117,14 @@ CineforgeWindow::CineforgeWindow(QWidget* parent) : QDialog(parent) {
         generationPending_ = true;
         progress->setVisible(true); status->setText("Rendering coherent dry/wet families and 24-bit preview…");
         worker_=QThread::create([this,s,dir,generate,preview,files,status,progress]{
-            const auto result=ventu::cineforge::generate(s,std::filesystem::u8path(dir.toUtf8().constData()));
+            ventu::cineforge::Result result;
+            try {
+                result=ventu::cineforge::generate(s,std::filesystem::u8path(dir.toUtf8().constData()));
+            } catch (const std::exception& error) {
+                result.error=std::string("CINEFORGE render failed: ")+error.what();
+            } catch (...) {
+                result.error="CINEFORGE render failed with an unknown exception.";
+            }
             QMetaObject::invokeMethod(this,[=]{
                 progress->setVisible(false);
                 generationPending_ = false;
