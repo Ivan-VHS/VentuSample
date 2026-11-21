@@ -47,3 +47,7 @@ The root profile **quality-commercial.v1.json** records all 60 controls. Run **p
 The renderer is offline and deterministic for a fixed seed and parameters. WAV peak/RMS/crest measurements and the pack manifest are technical evidence, not a guarantee of subjective musical quality, loudness compliance on every playback chain, publisher identity or rights clearance. The application does not verify copyright ownership or grant a license for imported material. Generated packs must not be advertised as commercially cleared until the operator has reviewed source rights and applicable license terms.
 
 A commercial maturity score is not revenue, profit, valuation or investment readiness. Progress requires independently reviewable user, rights, cost and distribution evidence.
+
+## Market-development alignment
+
+The dedicated [market-development standard](MARKET_DEVELOPMENT_STANDARD.md) and root [versioned profile](../market-development.v1.json) make the marketing, customer, promotion, distribution and monetization dimensions actionable. The profile complements the 20 × 3 quality/execution/commercial matrix; it does not replace evidence checks. Market validation, pricing and unit economics remain unassessed or unset until supported by observed producer workflows, rights review and measured costs.

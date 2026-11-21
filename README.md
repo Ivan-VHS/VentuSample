@@ -52,3 +52,7 @@ See the [four-project OCTA-8 matrix](https://github.com/Ivan-VHS/Reaper/blob/mai
 ## Anatidae design layer
 
 The shared [Anatidae naming canon](federation/ANATIDAE_NAMING_CANON.md) governs friendly UI vocabulary across the four-project family. The [VentuSample desktop design contract](docs/ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) defines its use without changing audio profiles, parameters or export behavior.
+
+## Market development and positioning
+
+The [market-development standard](docs/MARKET_DEVELOPMENT_STANDARD.md) and [versioned profile](market-development.v1.json) define audience segments, evidence-backed positioning, promotion channels, commercialization gates and privacy-respecting measurement. They do not imply market demand, sales or profitability.
