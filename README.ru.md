@@ -89,3 +89,7 @@ ctest --test-dir build --output-on-failure
 Пример модели бюджета 500 грн с JSON-контрактом и автономным симулятором. Это документационный пример, а не функция runtime самого приложения.
 
 [Мультиязычный справочник](docs/RESOURCE_ALLOCATION_500_UAH.md) · [Интерактивный симулятор](docs/resource-allocation-500-uah.html) · [Пример JSON](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
+
+## Документация по безопасности
+
+[Границы доверия и безопасная эксплуатация](docs/SECURITY_AND_TRUST_BOUNDARIES.md) · [Каталог Beelzebul AppGuard 666](docs/BEELZEBUL_APPGUARD_666.md) · [Полный индекс документации](docs/README.md)
