@@ -36,6 +36,8 @@ if(VENTU_BUILD_DESKTOP)
             src/main.cpp
             src/mainwindow.cpp
             src/mainwindow.hpp
+            src/ui_motion.cpp
+            src/ui_motion.hpp
             src/quantum_audio_lab.cpp
             src/quantum_audio_lab.hpp
         )

@@ -24,6 +24,9 @@
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QTimer>
 #include <QScrollArea>
 #include <QSettings>
 #include <QSlider>
@@ -84,6 +87,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     buildUi();
     loadSettings();
     applyTheme();
+    updateBeatSync();
 }
 
 MainWindow::~MainWindow() {
@@ -122,6 +126,8 @@ void MainWindow::buildUi() {
     pluginsMenu->addAction("Quantum Audio Engine — 133 DSP", this, [this] {
         ventu::showQuantumAudioLab(this);
     });
+    auto* viewMenu = menuBar()->addMenu("Вид");
+    viewMenu->addAction("Настройки движения…", this, &MainWindow::showMotionSettings);
     pluginsMenu->addSeparator();
     pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
     pluginsMenu->addSeparator();
@@ -149,6 +155,11 @@ void MainWindow::buildUi() {
     darkThemeCheck_ = new QCheckBox("Тёмная тема");
     darkThemeCheck_->setCursor(Qt::PointingHandCursor);
     header->addWidget(darkThemeCheck_, 0, Qt::AlignVCenter);
+    beatIndicator_ = new QLabel("● BPM SYNC");
+    beatIndicator_->setObjectName("beatIndicator");
+    beatIndicator_->setVisible(false);
+    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
+    header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
 
     auto* hero = new QHBoxLayout();
@@ -168,7 +179,17 @@ void MainWindow::buildUi() {
     hero->addWidget(badge, 0, Qt::AlignVCenter);
     root->addLayout(hero);
 
-    auto* tabs = new QTabWidget();
+    tabs_ = new QTabWidget();
+    auto* tabs = tabs_;
+    connect(tabs_, &QTabWidget::currentChanged, this, [this](int) {
+        if (tabs_) ventu::ui_motion::fadeIn(tabs_->currentWidget(), motionPreferences_, 180);
+    });
+    beatTimer_ = new QTimer(this);
+    beatTimer_->setTimerType(Qt::PreciseTimer);
+    connect(beatTimer_, &QTimer::timeout, this, [this] {
+        if (motionPreferences_.syncToBpm && !motionPreferences_.reduceMotion && !motionPreferences_.ecoVisuals)
+            ventu::ui_motion::pulse(beatIndicator_, motionPreferences_, 70);
+    });
     auto* studio = new QWidget();
     auto* studioLayout = new QVBoxLayout(studio);
     studioLayout->setContentsMargins(4, 10, 4, 4);
@@ -205,6 +226,7 @@ void MainWindow::buildUi() {
     auto* structureGrid = new QGridLayout();
     structureGrid->setVerticalSpacing(10);
     bpmSpin_ = new QSpinBox(); bpmSpin_->setRange(60, 190); bpmSpin_->setValue(93); bpmSpin_->setSuffix(" BPM");
+    connect(bpmSpin_, qOverload<int>(&QSpinBox::valueChanged), this, [this](int) { updateBeatSync(); });
     barsSpin_ = new QSpinBox(); barsSpin_->setRange(1, 16); barsSpin_->setValue(4); barsSpin_->setSuffix(" тактов");
     variationsSpin_ = new QSpinBox(); variationsSpin_->setRange(1, 32); variationsSpin_->setValue(8);
     seedSpin_ = new QSpinBox(); seedSpin_->setRange(0, 2147483647); seedSpin_->setValue(2500);
@@ -573,6 +595,11 @@ void MainWindow::loadSettings() {
     sourceMixSlider_->setValue(settings.value("source_mix", 65).toInt());
     sourcePitchSpin_->setValue(settings.value("source_pitch", 0).toInt());
     settings.endGroup();
+    settings.beginGroup("ui_motion");
+    motionPreferences_.reduceMotion = settings.value("reduce_motion", false).toBool();
+    motionPreferences_.ecoVisuals = settings.value("eco_visuals", false).toBool();
+    motionPreferences_.syncToBpm = settings.value("sync_to_bpm", false).toBool();
+    settings.endGroup();
     settings.beginGroup("plugins");
     for (const auto& plugin : pluginManager_.plugins()) {
         if (settings.contains(QString::fromStdString(plugin.id)))
@@ -625,7 +652,56 @@ void MainWindow::saveSettings() {
     for (const auto& plugin : pluginManager_.plugins())
         settings.setValue(QString::fromStdString(plugin.id), pluginManager_.isEnabled(plugin.id));
     settings.endGroup();
+    settings.beginGroup("ui_motion");
+    settings.setValue("reduce_motion", motionPreferences_.reduceMotion);
+    settings.setValue("eco_visuals", motionPreferences_.ecoVisuals);
+    settings.setValue("sync_to_bpm", motionPreferences_.syncToBpm);
+    settings.endGroup();
     settings.sync();
+}
+
+void MainWindow::showMotionSettings() {
+    QDialog dialog(this);
+    dialog.setWindowTitle("Настройки движения интерфейса");
+    dialog.setMinimumWidth(440);
+    auto* layout = new QVBoxLayout(&dialog);
+    auto* reduce = new QCheckBox("Reduce Motion — убрать пространственное движение");
+    auto* eco = new QCheckBox("Eco / Low-CPU Visuals — отключить необязательные эффекты");
+    auto* sync = new QCheckBox("Sync to Transport / BPM — ритмический индикатор");
+    reduce->setChecked(motionPreferences_.reduceMotion);
+    eco->setChecked(motionPreferences_.ecoVisuals);
+    sync->setChecked(motionPreferences_.syncToBpm);
+    auto* note = new QLabel("BPM-синхронизация использует темп текущего проекта VentuSample. Внешний транспорт DAW пока не подключён. Reduce Motion и Eco отключают beat-индикатор и ограничивают переходы 80 мс.");
+    note->setWordWrap(true);
+    layout->addWidget(reduce);
+    layout->addWidget(eco);
+    layout->addWidget(sync);
+    layout->addWidget(note);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    layout->addWidget(buttons);
+    if (dialog.exec() != QDialog::Accepted) return;
+    motionPreferences_.reduceMotion = reduce->isChecked();
+    motionPreferences_.ecoVisuals = eco->isChecked();
+    motionPreferences_.syncToBpm = sync->isChecked();
+    saveSettings();
+    updateBeatSync();
+}
+
+void MainWindow::updateBeatSync() {
+    if (!beatIndicator_ || !beatTimer_ || !bpmSpin_) return;
+    const bool enabled = motionPreferences_.syncToBpm
+        && !motionPreferences_.reduceMotion
+        && !motionPreferences_.ecoVisuals;
+    beatIndicator_->setVisible(enabled);
+    if (!enabled) {
+        beatTimer_->stop();
+        return;
+    }
+    const int beatMs = 60000 / std::max(1, bpmSpin_->value());
+    beatTimer_->setInterval(std::clamp(beatMs, 250, 1000));
+    if (!beatTimer_->isActive()) beatTimer_->start();
 }
 
 void MainWindow::applyTheme() {
@@ -816,6 +892,7 @@ void MainWindow::setBusy(bool busy) {
     progress_->setRange(0, busy ? 0 : 100);
     if (!busy) progress_->setValue(100);
     statusLabel_->setText(busy ? "Рендеринг выполняется в рабочем потоке. Интерфейс остаётся отзывчивым." : statusLabel_->text());
+    if (busy) ventu::ui_motion::pulse(statusLabel_, motionPreferences_, 70);
 }
 
 void MainWindow::appendLog(const QString& message) {
