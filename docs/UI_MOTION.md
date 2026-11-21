@@ -34,3 +34,5 @@ Qt animations, spring timers and the beat timer run on the UI thread only. They 
 | Reduced / Eco | no spatial spring | no spatial spring | — | maximum 80 ms |
 
 The solver uses semi-implicit Euler integration with two substeps per timer tick and clamps the frame delta to 32 ms. Its timer is parented to the animated widget, runs on the Qt UI thread, and is stopped when a newer spring replaces it or the widget is destroyed. Existing graphics effects owned by other UI subsystems are never replaced.
+
+Blue is the standard action and focus language; red is reserved for critical states. See [UI_UX_2026_CONVERGENCE.md](UI_UX_2026_CONVERGENCE.md) for canonical light/dark tokens and accessibility targets.

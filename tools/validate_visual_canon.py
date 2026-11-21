@@ -9,6 +9,32 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # Shared 2026 semantic light/dark token extension.
+    "#F4F8FD",
+    "#0F2A45",
+    "#EAF1FA",
+    "#173A5E",
+    "#122C45",
+    "#E8EDF2",
+    "#314B66",
+    "#D0DCE8",
+    "#4D6177",
+    "#B3C4D6",
+    "#004E98",
+    "#70A5FF",
+    "#1A5FDB",
+    "#8AB6FF",
+    "#071A2D",
+    "#B5122D",
+    "#FF7B86",
+    "#9C1026",
+    "#FF9AA2",
+    "#CAD8E8",
+    "#31516F",
+    "#D9E8FF",
+    "#244F82",
+    "#6B7C90",
+    "#9BAFC4",
     "#FFFFFF",
     "#F4F6FA",
     "#0039A6",
@@ -24,6 +50,10 @@ AAA_TEXT_PAIRS = (
     ("#0039A6", "#F4F6FA"),
     ("#FFFFFF", "#0039A6"),
     ("#FFFFFF", "#0A1E46"),
+    ("#122C45", "#F4F8FD"),
+    ("#E8EDF2", "#071A2D"),
+    ("#FFFFFF", "#004E98"),
+    ("#071A2D", "#70A5FF"),
 )
 
 
