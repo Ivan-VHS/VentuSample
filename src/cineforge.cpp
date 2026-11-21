@@ -257,7 +257,7 @@ Result generate(const Settings& s, const std::filesystem::path& outputDirectory)
                  << (i + 1 == s.packSize ? "\n" : ",\n");
     }
     normalize(preview);
-    result.previewPath = outputDirectory / "CF_" + std::to_string(s.bpm) + "bpm_" + keyName(s.rootNote) + "_Preview.wav";
+    result.previewPath = outputDirectory / ("CF_" + std::to_string(s.bpm) + "bpm_" + keyName(s.rootNote) + "_Preview.wav");
     if (!write24(result.previewPath, preview, result.error)) return result;
     manifest << "  ],\n  \"preview\": \"" << result.previewPath.filename().string()
              << "\",\n  \"processing\": {\"mood\": " << s.mood << ", \"space\": " << s.space
