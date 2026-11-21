@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/atomic-quantum-functions.v1.schema.json",
+  "title": "Ivan-VHS Atomic Quantum Functions Catalogue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "title",
+    "function_count",
+    "execution_model",
+    "physical_hardware",
+    "groups",
+    "functions",
+    "safety"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ivan-vhs.atomic-quantum-functions.v1"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "function_count": {
+      "const": 133
+    },
+    "execution_model": {
+      "const": "bounded_classical_simulation"
+    },
+    "physical_hardware": {
+      "const": false
+    },
+    "groups": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "range"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string",
+            "pattern": "^\\d{3}-\\d{3}$"
+          }
+        }
+      }
+    },
+    "functions": {
+      "type": "array",
+      "minItems": 133,
+      "maxItems": 133,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "ordinal",
+          "family"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]+_\\d{2,3}$"
+          },
+          "ordinal": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 133
+          },
+          "family": {
+            "type": "string",
+            "enum": [
+              "state",
+              "entanglement",
+              "measurement",
+              "noise_ecc",
+              "atomic_dynamics",
+              "algorithms_telemetry"
+            ]
+          }
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "no_hardware_claims",
+        "deterministic_seed_supported",
+        "validate_finite_numeric_inputs",
+        "enforce_resource_limits",
+        "hardware_adapters"
+      ],
+      "properties": {
+        "no_hardware_claims": {
+          "const": true
+        },
+        "deterministic_seed_supported": {
+          "type": "boolean"
+        },
+        "validate_finite_numeric_inputs": {
+          "type": "boolean"
+        },
+        "enforce_resource_limits": {
+          "type": "boolean"
+        },
+        "hardware_adapters": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
