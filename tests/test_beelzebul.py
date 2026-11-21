@@ -100,6 +100,39 @@ class BeelzebulTests(unittest.TestCase):
         self.report()
         self.assertEqual((self.root / "src/plain.py").read_bytes(), before)
 
+    def test_metadata_only_pull_request_target_is_review_not_code_execution(self):
+        self.write(".github/workflows/update.yml", """name: updater
+on:
+  pull_request_target:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: gh api repos/example/repo/pulls
+""")
+        report = self.report()
+        rule_ids = {item["rule_id"] for item in report["findings"]}
+        self.assertIn("Y-07", rule_ids)
+        self.assertNotIn("Y-04", rule_ids)
+
+    def test_pull_request_target_checkout_of_head_is_flagged(self):
+        self.write(".github/workflows/unsafe.yml", """name: unsafe
+on:
+  pull_request_target:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+""")
+        report = self.report()
+        self.assertIn("Y-04", {item["rule_id"] for item in report["findings"]})
+
     def test_risk_score_is_bounded(self):
         value = "AK" + "IA" + ("A" * 16)
         self.write("src/credential.py", f'TOKEN = "{value}"\n')
