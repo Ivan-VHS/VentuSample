@@ -40,6 +40,10 @@ Launch `VentuSample` from the build output. Choose a sound profile and output ty
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/QUALITY_MONOLITH_RHYTHM.md`](docs/QUALITY_MONOLITH_RHYTHM.md), [`docs/ENGINEERING_BASELINE.md`](docs/ENGINEERING_BASELINE.md), and [`docs/USER_GUIDE_RU.md`](docs/USER_GUIDE_RU.md). Publication requirements are defined in [`docs/DOCUMENTATION_CONTROL.md`](docs/DOCUMENTATION_CONTROL.md).
 
+## Project stewardship
+
+The [project stewardship standard](docs/PROJECT_STEWARDSHIP_STANDARD.md) turns disciplined execution, clear decision ownership, sustainable collaboration, evidence-led communication and incident learning into practical release gates. It preserves the offline renderer, deterministic output, source-rights and versioned-pack boundaries; it adds no unverified product or commercial claims.
+
 ## Quality and commercial readiness
 
 VentuSample now includes a 20 × 3 evidence-linked matrix for audio/product quality, operational repeatability and commercial pack release. Run **python tools/quality_commercial.py** or add **--format json**. The report does not certify source-sample rights, market demand, sales or profitability. See [the quality-commercial standard](docs/QUALITY_COMMERCIAL_STANDARD.md).
