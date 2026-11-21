@@ -152,9 +152,11 @@ void MainWindow::buildUi() {
     brand->addWidget(subtitle);
     header->addLayout(brand);
     header->addStretch();
-    darkThemeCheck_ = new QCheckBox("Тёмная тема");
-    darkThemeCheck_->setCursor(Qt::PointingHandCursor);
-    header->addWidget(darkThemeCheck_, 0, Qt::AlignVCenter);
+    atmosphereBox_ = new QComboBox();
+    addChoice(atmosphereBox_, {"Рассвет", "Закат", "Ночь"}, 0);
+    atmosphereBox_->setToolTip("Атмосфера интерфейса: рассветная, закатная или ночная палитра");
+    atmosphereBox_->setMinimumWidth(130);
+    header->addWidget(atmosphereBox_, 0, Qt::AlignVCenter);
     beatIndicator_ = new QLabel("● BPM SYNC");
     beatIndicator_->setObjectName("beatIndicator");
     beatIndicator_->setVisible(false);
@@ -421,7 +423,7 @@ void MainWindow::buildUi() {
         const QString path = lastOutputDirectory_.isEmpty() ? outputPath_->text() : lastOutputDirectory_;
         if (!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
     });
-    connect(darkThemeCheck_, &QCheckBox::toggled, this, [this] { applyTheme(); saveSettings(); });
+    connect(atmosphereBox_, &QComboBox::currentTextChanged, this, [this](const QString&) { applyTheme(); saveSettings(); });
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
 }
 
@@ -589,7 +591,8 @@ void MainWindow::loadSettings() {
     for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
         stochasticPoolChecks_[effect]->setChecked((poolMask & (1u << effect)) != 0u);
     stochasticTopologyBox_->setCurrentIndex(std::clamp(settings.value("stochastic_topology", 0).toInt(), 0, 2));
-    darkThemeCheck_->setChecked(settings.value("dark", false).toBool());
+    const QString savedAtmosphere = settings.value("atmosphere", settings.value("dark", false).toBool() ? "Ночь" : "Рассвет").toString();
+    setCombo(atmosphereBox_, savedAtmosphere);
     outputPath_->setText(settings.value("output", QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/VentuSample").toString());
     sourceSamplePath_->setText(settings.value("source_sample", "").toString());
     sourceMixSlider_->setValue(settings.value("source_mix", 65).toInt());
@@ -642,7 +645,8 @@ void MainWindow::saveSettings() {
         if (stochasticPoolChecks_[effect]->isChecked()) poolMask |= (1u << effect);
     settings.setValue("stochastic_pool_mask", static_cast<uint>(poolMask));
     settings.setValue("stochastic_topology", stochasticTopologyBox_->currentIndex());
-    settings.setValue("dark", darkThemeCheck_->isChecked());
+    settings.setValue("atmosphere", atmosphereBox_->currentText());
+    settings.setValue("dark", atmosphereBox_->currentText() == "Ночь");
     settings.setValue("output", outputPath_->text());
     settings.setValue("source_sample", sourceSamplePath_->text());
     settings.setValue("source_mix", sourceMixSlider_->value());
@@ -705,16 +709,19 @@ void MainWindow::updateBeatSync() {
 }
 
 void MainWindow::applyTheme() {
-    const bool dark = darkThemeCheck_->isChecked();
-    const QString page = dark ? "#0A1E46" : "#F4F6FA";
-    const QString surface = dark ? "#0039A6" : "#FFFFFF";
-    const QString ink = dark ? "#FFFFFF" : "#0A1E46";
-    const QString secondary = dark ? "#FFFFFF" : "#0039A6";
-    const QString border = dark ? "#FFFFFF" : "#0039A6";
+    const QString atmosphere = atmosphereBox_ ? atmosphereBox_->currentText() : "Рассвет";
+    const bool night = atmosphere == "Ночь";
+    const bool sunset = atmosphere == "Закат";
+    const QString page = night ? "#081522" : sunset ? "#F5EFE8" : "#F3F6FA";
+    const QString surface = night ? "#10263B" : sunset ? "#FFF9F2" : "#FFFFFF";
+    const QString ink = night ? "#EDF4FA" : sunset ? "#322B2A" : "#10243A";
+    const QString secondary = night ? "#C4D5E4" : sunset ? "#68564F" : "#365A83";
+    const QString border = night ? "#31536B" : sunset ? "#D8C5B5" : "#CBD6E4";
     const QString accent = "#0039A6";
-    const QString signal = "#B51A10";
-    const QString signalBright = "#D52B1E";
-    const QString selection = dark ? "#0A1E46" : "#0039A6";
+    const QString signal = night ? "#FF7D78" : "#B51A10";
+    const QString signalBright = night ? "#FFA39B" : "#D52B1E";
+    const QString selection = night ? "#174C7D" : "#0039A6";
+    const QString hoverAccent = night ? "#9ACBFF" : "#0A1E46";
 
     const QString style = QStringLiteral(R"QSS(
         QWidget {
@@ -844,7 +851,7 @@ void MainWindow::applyTheme() {
         }
         QListWidget::item:selected { background: %8; color: #FFFFFF; }
     )QSS")
-        .arg(page, ink, surface, border, secondary, accent, signal, selection, signalBright, "#0A1E46");
+        .arg(page, ink, surface, border, secondary, accent, signal, selection, signalBright, hoverAccent);
     setStyleSheet(style);
 }
 
