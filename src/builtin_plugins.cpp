@@ -51,6 +51,51 @@ std::vector<fs::path> collectFiles(const fs::path& root, std::size_t limit = 500
     return result;
 }
 
+std::vector<fs::path> collectWellbeingFiles(const fs::path& root, bool& truncated) {
+    constexpr std::size_t maxFiles = 5000u;
+    constexpr int maxDepth = 16;
+    const std::vector<std::string> ignored{
+        ".git", "build", "dist", "target", "vendor", "node_modules",
+        ".venv", "venv", "__pycache__", ".pytest_cache"
+    };
+    std::vector<fs::path> result;
+    std::error_code ec;
+    if (root.empty() || !fs::is_directory(root, ec) || ec) return result;
+    fs::recursive_directory_iterator it(
+        root, fs::directory_options::skip_permission_denied, ec), end;
+    while (!ec && it != end) {
+        const auto path = it->path();
+        std::error_code itemError;
+        const auto status = it->symlink_status(itemError);
+        if (itemError) {
+            it.increment(ec);
+            if (ec) ec.clear();
+            continue;
+        }
+        if (fs::is_symlink(status)) {
+            if (fs::is_directory(it->status(itemError))) it.disable_recursion_pending();
+        } else if (fs::is_directory(status)) {
+            const auto folder = lower(path.filename().string());
+            if (std::find(ignored.begin(), ignored.end(), folder) != ignored.end()) {
+                it.disable_recursion_pending();
+            } else if (it.depth() >= maxDepth) {
+                truncated = true;
+                it.disable_recursion_pending();
+            }
+        } else if (fs::is_regular_file(status)) {
+            if (result.size() >= maxFiles) {
+                truncated = true;
+                break;
+            }
+            result.push_back(path);
+        }
+        it.increment(ec);
+        if (ec) ec.clear();
+    }
+    std::sort(result.begin(), result.end());
+    return result;
+}
+
 std::string extension(const fs::path& path) {
     return lower(path.extension().string());
 }
@@ -94,9 +139,11 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
         if (context.workspaceRoot.empty())
             return fail("Code Wellbeing requires an explicitly selected local workspace.");
         std::error_code rootError;
-        if (!fs::is_directory(context.workspaceRoot, rootError) || rootError)
-            return fail("Code Wellbeing workspace is unavailable or not a directory.");
-        const auto files = collectFiles(context.workspaceRoot, 5000u);
+        if (fs::is_symlink(context.workspaceRoot, rootError) || rootError
+            || !fs::is_directory(context.workspaceRoot, rootError) || rootError)
+            return fail("Code Wellbeing workspace is unavailable, linked or not a directory.");
+        bool fileListTruncated = false;
+        const auto files = collectWellbeingFiles(context.workspaceRoot, fileListTruncated);
         std::size_t source = 0, tests = 0, docs = 0, readmes = 0, workflows = 0;
         std::size_t owners = 0, dependencies = 0, recovery = 0, learning = 0;
         std::size_t scanned = 0, largeUnits = 0, sourceBytes = 0;
@@ -110,13 +157,11 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
         const std::regex sourceExt(R"([.](c|h|cc|cpp|cxx|hpp|hxx|py|js|jsx|ts|tsx|rs|go|java|cs|rpr|qcs|lua)$)", std::regex::icase);
         const std::regex docExt(R"([.](md|mdx|rst|adoc)$)", std::regex::icase);
         const std::regex depName(R"((^|/)(pyproject[.]toml|requirements[.]txt|package(-lock)?[.]json|pnpm-lock[.]yaml|yarn[.]lock|cargo[.]toml|cargo[.]lock|go[.]mod|go[.]sum|poetry[.]lock|pipfile([.]lock)?|vcpkg[.]json|conanfile[.](py|txt))$)", std::regex::icase);
-        const std::regex skipPath(R"((^|/)(.git|build|dist|target|vendor|node_modules|.venv|venv|__pycache__)(/|$))", std::regex::icase);
         for (const auto& file : files) {
             std::error_code ec;
             const auto relative = fs::relative(file, context.workspaceRoot, ec);
             if (ec) continue;
             const auto rel = relative.generic_string();
-            if (std::regex_search(rel, skipPath)) continue;
             const bool isSource = std::regex_search(rel, sourceExt);
             const auto filename = lower(file.filename().string());
             if (isSource) {
@@ -167,7 +212,8 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
             "No contributor ranking, commit-time analysis, audio processing, mood inference or device telemetry.",
             "Presence of tests, CI, docs or runbooks does not prove their quality, freshness or effectiveness.",
             "Source text bytes inspected: " + std::to_string(sourceBytes) + " / 33554432 maximum.",
-            std::string("Source text scan capped: ") + (sourceScanTruncated ? "yes" : "no")
+            std::string("Source text scan capped: ") + (sourceScanTruncated ? "yes" : "no"),
+            std::string("File/depth inventory capped: ") + (fileListTruncated ? "yes" : "no") + " (5000 files / depth 16)"
         };
         return ok("Code Mental Health / Codebase Wellbeing inventory completed.", std::move(details));
     }
