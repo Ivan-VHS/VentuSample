@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CLife Catalytic Resynthesis Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "version", "project", "catalytic_model", "lambda_window",
+    "diagnostics", "mega_projection", "safety", "adoption", "evidence_paths"
+  ],
+  "properties": {
+    "schema": { "const": "clife.catalytic-resynthesis.v1" },
+    "version": { "const": 1 },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "repository", "stack"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "repository": { "type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$" },
+        "stack": { "type": "string", "minLength": 3 }
+      }
+    },
+    "catalytic_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["substrate", "washcoat", "active_sites", "oxygen_buffer"],
+      "properties": {
+        "substrate": {
+          "type": "object",
+          "required": ["role", "protected_paths"],
+          "properties": {
+            "role": { "type": "string", "minLength": 10 },
+            "protected_paths": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+          }
+        },
+        "washcoat": {
+          "type": "object",
+          "required": ["role", "extension_points"],
+          "properties": {
+            "role": { "type": "string", "minLength": 10 },
+            "extension_points": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+          }
+        },
+        "active_sites": {
+          "type": "object",
+          "required": ["role", "quality_gates"],
+          "properties": {
+            "role": { "type": "string", "minLength": 10 },
+            "quality_gates": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+          }
+        },
+        "oxygen_buffer": {
+          "type": "object",
+          "required": ["checkpoint_mode", "recovery_mode", "checkpoint_requires_clean_worktree", "automatic_remote_push"],
+          "properties": {
+            "checkpoint_mode": { "const": "annotated_git_tag" },
+            "recovery_mode": { "const": "new_branch_only" },
+            "checkpoint_requires_clean_worktree": { "const": true },
+            "automatic_remote_push": { "const": false }
+          }
+        }
+      }
+    },
+    "lambda_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["baseline_required", "tests_required", "compatibility_required", "security_review_required"],
+      "properties": {
+        "baseline_required": { "const": true },
+        "tests_required": { "const": true },
+        "compatibility_required": { "const": true },
+        "security_review_required": { "const": true }
+      }
+    },
+    "diagnostics": {
+      "type": "object",
+      "required": ["signals", "measurement_boundary"],
+      "properties": {
+        "signals": { "type": "array", "minItems": 4, "items": { "type": "string", "minLength": 3 } },
+        "measurement_boundary": { "type": "string", "minLength": 20 }
+      }
+    },
+    "mega_projection": {
+      "type": "object",
+      "required": ["horizons_days", "indicators", "forecast_policy", "baseline_status"],
+      "properties": {
+        "horizons_days": { "const": [30, 90, 180, 365] },
+        "indicators": { "type": "array", "minItems": 3, "items": { "type": "string", "minLength": 3 } },
+        "forecast_policy": { "const": "measured_evidence_only" },
+        "baseline_status": { "const": "pending_initial_measurement" }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "automatic_source_rewrite", "force_push", "automatic_merge",
+        "destructive_rollback", "manual_review_required_for_acceptance", "telemetry"
+      ],
+      "properties": {
+        "automatic_source_rewrite": { "const": false },
+        "force_push": { "const": false },
+        "automatic_merge": { "const": false },
+        "destructive_rollback": { "const": false },
+        "manual_review_required_for_acceptance": { "const": true },
+        "telemetry": { "const": "local_only" }
+      }
+    },
+    "adoption": {
+      "type": "object",
+      "required": ["status", "stages"],
+      "properties": {
+        "status": { "enum": ["pilot", "adopted"] },
+        "stages": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": { "enum": ["inventory", "baseline", "checkpoint", "isolate", "transform", "validate", "compare", "accept_or_recover"] }
+        }
+      }
+    },
+    "evidence_paths": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}
