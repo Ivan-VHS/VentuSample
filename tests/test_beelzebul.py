@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -65,6 +66,8 @@ class BeelzebulTests(unittest.TestCase):
         self.write("docs/conflict.md", "before\n" + marker_a + "\nleft\n" + marker_b + "\nright\n" + marker_c + "\n")
         self.assertIn("A-10", {item["rule_id"] for item in self.report()["findings"]})
 
+    @unittest.skipUnless(os.path.normcase("A") != os.path.normcase("a"),
+                         "case-collision paths cannot coexist on a case-insensitive filesystem")
     def test_path_case_collision_is_blocked(self):
         self.write("Config/Readme.txt", "a\n")
         self.write("config/readme.txt", "b\n")
