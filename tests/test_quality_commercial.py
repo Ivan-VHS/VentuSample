@@ -1,6 +1,9 @@
 from __future__ import annotations
-import json, tempfile, unittest
+
+import json
+import unittest
 from pathlib import Path
+
 from tools.quality_commercial import QualityProfileError, assess_profile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,17 +27,15 @@ class QualityCommercialTests(unittest.TestCase):
     def test_missing_evidence_is_reported(self):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["missing/evidence.txt"]
-        with tempfile.TemporaryDirectory() as directory:
-            report = assess_profile(profile, root=directory)
-        self.assertTrue(report["issues"])
+        report = assess_profile(profile, root=ROOT)
         self.assertEqual(report["evidence"]["files_missing"], 1)
+        self.assertTrue(any("missing/evidence.txt" in issue for issue in report["issues"]))
 
     def test_path_traversal_is_rejected(self):
         profile = json.loads(PROFILE.read_text(encoding="utf-8"))
         profile["criteria"][0]["controls"]["quality"]["evidence"] = ["../outside.txt"]
-        with tempfile.TemporaryDirectory() as directory:
-            with self.assertRaises(QualityProfileError):
-                assess_profile(profile, root=directory)
+        with self.assertRaises(QualityProfileError):
+            assess_profile(profile, root=ROOT)
 
     def test_unverified_business_facts_remain_open(self):
         report = assess_profile(PROFILE, root=ROOT)
