@@ -28,7 +28,7 @@ void appguardAudit(const vee_finding *finding, void *context) {
                            finding->decision == VEEELZEVUL_QUARANTINE ? "quarantine" : "degrade";
     std::clog << "[AppGuard] " << decision << " L" << finding->level_id
               << " rule=" << finding->rule_id << " object=" << finding->object_id
-              << " reason=" << finding->reason << '\\n';
+              << " reason=" << finding->reason << '\n';
 }
 
 
