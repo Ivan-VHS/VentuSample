@@ -81,3 +81,9 @@ ctest --test-dir build --output-on-failure
 - 导入和导出必须拥有源素材使用权。哈希只能证明字节一致，不能证明所有权。
 
 [Apache-2.0](LICENSE)
+
+
+## 预算分配参考
+这是一个 500 UAH 预算模型示例，包含 JSON 契约和离线模拟器。它属于文档示例，并非宿主应用运行时功能。
+
+[多语言指南](docs/RESOURCE_ALLOCATION_500_UAH.md) · [交互式模拟器](docs/resource-allocation-500-uah.html) · [JSON 示例](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)

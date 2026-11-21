@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bounded 500 UAH Resource Allocation",
+  "description": "Validates the configuration shape and per-category integer bounds. The consumer must separately assert sum(allocations) <= budget_cap.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "currency",
+    "budget_cap",
+    "period",
+    "mode",
+    "reserve_floor",
+    "allocations"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "currency": {
+      "const": "UAH"
+    },
+    "budget_cap": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "period": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 40
+    },
+    "mode": {
+      "enum": [
+        "needs",
+        "reward",
+        "balanced"
+      ]
+    },
+    "reserve_floor": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "allocations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "groceries_core",
+        "transit_pool",
+        "caffeine_ping",
+        "household_health",
+        "knowledge_or_leisure",
+        "spare_buffer"
+      ],
+      "properties": {
+        "groceries_core": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "transit_pool": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "caffeine_ping": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "household_health": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "knowledge_or_leisure": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        },
+        "spare_buffer": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "string",
+        "maxLength": 240
+      }
+    }
+  }
+}

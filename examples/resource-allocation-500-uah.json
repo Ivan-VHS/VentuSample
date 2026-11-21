@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "currency": "UAH",
+  "budget_cap": 500,
+  "period": "week",
+  "mode": "balanced",
+  "reserve_floor": 50,
+  "allocations": {
+    "groceries_core": 280,
+    "transit_pool": 120,
+    "caffeine_ping": 50,
+    "household_health": 0,
+    "knowledge_or_leisure": 0,
+    "spare_buffer": 50
+  },
+  "assumptions": [
+    "Illustrative allocation only; update to actual needs and local prices.",
+    "No live retail prices or transport tariffs are embedded.",
+    "Reject configurations whose allocation sum exceeds budget_cap."
+  ]
+}
