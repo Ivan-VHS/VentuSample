@@ -8,6 +8,14 @@ Native workstation for deterministic procedural hip-hop sample packs. The scalar
 
 The 18 shared internal products are built-in plugins in the native PluginManager. Open the **Плагины** menu to inspect capabilities, enable/disable modules and run read-only tools. See [Plugin host and SDK](docs/PLUGINS.md). The C++ SDK supports registering reviewed in-process handlers; arbitrary DLL/SO loading is intentionally not enabled.
 
+## Ventu Audio Suite — 66 DSP effects
+
+The native **Ventu Audio Suite** adds 66 separately addressable stereo processors in six families: space/acoustics, granular time, timbre/synthesis, dynamics/punch, frequency/phase, and generative/rhythm. Open **Плагины → Ventu Audio Suite — 66 DSP эффектов** to import a PCM16 WAV, assemble an ordered effect rack, edit per-effect Amount/Wet/Rate/Tone/Width controls, and export a new WAV.
+
+The effects are versioned built-in modules using the portable C++20 offline DSP API in src/audio_suite.hpp. They are processed left-to-right on a worker thread; the source file is never overwritten. The DSP models are deterministic algorithmic approximations, not neural inference or full physical room simulation. This release does not claim VST3/AU hosting, live input monitoring, or real-time playback.
+
+See [Audio Suite guide](docs/AUDIO_SUITE.md) for the full 66-effect catalogue, signal flow, supported WAV contract, and limitations.
+
 ## Generator matrix
 
 | Output | Content |
