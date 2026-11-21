@@ -35,10 +35,10 @@ jobs:
       - name: Parse versioned pack schema and project contract
         run: |
           python -c "import json, pathlib; [json.loads(pathlib.Path(p).read_text(encoding='utf-8')) for p in ('project-contract.json', 'schemas/ventusample.pack.v1.schema.json', 'federation/octa-pyramid.v1.json')]"
-  
+
   native-engine:
-    # The existing repository ruleset requires the historical context "Native C".
-    # VentuSample's compiled product engine is C++20; this gate builds and tests that native engine.
+    # Existing repository rules require this historical status context.
+    # The actual compiled product engine is C++20 and is built/tested below.
     name: Native C
     runs-on: ubuntu-24.04
     steps:
@@ -83,7 +83,6 @@ jobs:
           host: windows
           target: desktop
           arch: win64_msvc2022_64
-          modules: qtbase
           cache: true
       - name: Configure
         run: cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
