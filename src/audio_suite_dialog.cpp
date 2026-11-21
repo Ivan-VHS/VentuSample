@@ -2,6 +2,7 @@
 
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QByteArray>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -190,19 +191,18 @@ void AudioSuiteDialog::loadInput() {
     if (file.isEmpty()) return;
     ventu::AudioBuffer loaded;
     std::string error;
-    if (!ventu::loadPcm16Wav(std::filesystem::path(file.toStdWString()), loaded, error)) {
+    if (!ventu::loadPcm16Wav(pathFromQString(file), loaded, error)) {
         QMessageBox::warning(this, "Не удалось открыть WAV", QString::fromStdString(error));
         return;
     }
-    sourcePath_ = std::filesystem::path(file.toStdWString());
+    sourcePath_ = pathFromQString(file);
     sourceBuffer_ = std::move(loaded);
     const double seconds = static_cast<double>(sourceBuffer_.frames())/sourceBuffer_.sampleRate;
-    sourceLabel_->setText(QString("Источник: %1  ·  %2 Hz  ·  %3 каналов → stereo  ·  %4 с  ·  %5 кадров")
+    sourceLabel_->setText(QString("Источник: %1  ·  %2 Hz  ·  PCM16 → stereo  ·  %3 с  ·  %4 кадров")
         .arg(QFileInfo(file).fileName())
         .arg(sourceBuffer_.sampleRate)
-        .arg("PCM16")
         .arg(seconds,0,'f',2)
-        .arg(sourceBuffer_.frames()));
+        .arg(static_cast<qulonglong>(sourceBuffer_.frames())));
     status_->setText("WAV импортирован. Добавь эффекты в цепочку и запускай офлайн-обработку.");
     renderButton_->setEnabled(!rack_.empty());
 }
@@ -245,16 +245,15 @@ void AudioSuiteDialog::exportProcessedRack() {
     if (worker_.joinable()) worker_.join();
     updateSelectedParameters();
     if (sourceBuffer_.left.empty() || rack_.empty()) return;
-    const QString defaultName = sourcePath_.empty()
-        ? QString("Ventu_processed.wav")
-        : QString::fromStdWString(sourcePath_.stem().wstring() + L"_ventu_fx.wav");
+    const std::filesystem::path defaultPath = sourcePath_.empty()
+        ? std::filesystem::path("Ventu_processed.wav")
+        : sourcePath_.parent_path() / std::filesystem::path(sourcePath_.stem().u8string()+u8"_ventu_fx.wav");
     const QString destination = QFileDialog::getSaveFileName(this, "Экспорт обработанного WAV",
-        sourcePath_.empty() ? defaultName : QString::fromStdWString((sourcePath_.parent_path()/defaultName.toStdWString()).wstring()),
-        "WAV audio (*.wav)");
+        pathToQString(defaultPath), "WAV audio (*.wav)");
     if (destination.isEmpty()) return;
     const auto source = sourceBuffer_;
     const auto chain = rack_;
-    const std::filesystem::path output(destination.toStdWString());
+    const std::filesystem::path output = pathFromQString(destination);
     setProcessingEnabled(false);
     status_->setText("Обработка выполняется в рабочем потоке. Исходный WAV не изменяется.");
     worker_ = std::thread([this, source, chain, output] () mutable {
@@ -269,7 +268,7 @@ void AudioSuiteDialog::exportProcessedRack() {
                 QMessageBox::critical(this, "Ошибка DSP / экспорта", QString::fromStdString(error));
                 return;
             }
-            status_->setText(QString("Готово: %1").arg(QString::fromStdWString(output.wstring())));
+            status_->setText(QString("Готово: %1").arg(pathToQString(output)));
             QMessageBox::information(this, "Ventu Audio Suite", "Обработанный PCM16 WAV экспортирован.");
         }, Qt::QueuedConnection);
     });
