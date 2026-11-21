@@ -35,6 +35,9 @@ The UI delegates pack generation to a worker thread. The audio renderer itself i
 | G-Funk | Longer note envelopes and a more melodic bass register |
 | Boom Trap | Boom-bap backbeat with trap-style subdivisions |
 | Cripple Trill | Broken-grid hybrid, irregular accents and triplet detail |
+| Billionaire Golden Era | Heavy 90s backbeat, late-snare-ready pocket, weight-forward kick/snare voicing, restrained hats and deterministic crate-slice reassembly |
+
+The Billionaire Golden Era profile consolidates the requested golden-era, crate-rebuild, dragged-boom-bap, raw-crunk weight and premium drum-programming direction into one editable profile. It applies a fixed 0-2-1-3 source-slice order when a user supplies a four-slice WAV, gives kick and snare voices a profile-specific level treatment, and keeps hi-hat activity controlled. The user's swing and snare-offset controls remain authoritative; the profile does not silently rewrite them.
 
 The profiles are procedural starting points, not recordings, MIDI transcriptions or exact emulations of any named artist, label, sampler or record.
 
