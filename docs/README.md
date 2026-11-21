@@ -16,6 +16,7 @@
 | [schemas/ventusample.pack.v1.schema.json](../schemas/ventusample.pack.v1.schema.json) | pack schema v1 |
 | [schemas/ventusample.pack.v2.schema.json](../schemas/ventusample.pack.v2.schema.json) | tonal metadata schema v2 |
 | [../schemas/ivan-vhs.plugin.v1.schema.json](../schemas/ivan-vhs.plugin.v1.schema.json) | shared plugin manifest schema |
+| [SECURITY_ASSURANCE_V2.md](SECURITY_ASSURANCE_V2.md) | federated source audit, WAV/DSP fuzz-smoke, dependency review, privacy tests and shared scoring |
 
 The root README contains the live Windows desktop capture and current build commands. Source and tests define actual behavior; a manifest digest does not prove sample ownership. Plugin discovery is metadata-only, and DSP processing is offline.
 
