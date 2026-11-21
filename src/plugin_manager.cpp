@@ -1,6 +1,7 @@
 #include "plugin_manager.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <cctype>
 #include <exception>
 #include <fstream>
@@ -86,6 +87,18 @@ bool readFileBounded(const fs::path& path, std::string& output) {
 
 PluginManager::PluginManager() {
     registerBuiltinPlugins(*this);
+}
+
+PluginManager::~PluginManager() {
+    for (auto& entry : entries_) {
+        if (!entry.initialized) continue;
+        try {
+            if (entry.onShutdown) entry.onShutdown(entry.lifecycleContext);
+        } catch (...) {
+            // Destruction must remain noexcept; explicit shutdown exposes failures.
+        }
+        entry.initialized = false;
+    }
 }
 
 bool PluginManager::registerPlugin(PluginDescriptor descriptor, PluginHandler handler,
@@ -278,8 +291,8 @@ bool PluginManager::initializePlugin(const std::string& idOrName,
     });
     if (found == entries_.end() || !found->enabled || !found->handler) return false;
     if (found->initialized) return true;
-    found->lifecycleContext = context;
     try {
+        found->lifecycleContext = context;
         if (found->onInitialize) found->onInitialize(context);
         found->initialized = true;
         found->lastError.clear();
