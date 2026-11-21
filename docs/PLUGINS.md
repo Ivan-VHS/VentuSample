@@ -1,6 +1,6 @@
 # VentuSample plugin platform
 
-VentuSample contains 18 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
+VentuSample contains 19 first-party built-in plugins and a public C++20 SDK for reviewed, in-process handlers. The host also discovers local plugin.json manifests using the shared ivan-vhs.plugin.v1 contract.
 
 ## Host capabilities
 
@@ -46,6 +46,20 @@ The audio laboratory is opened independently from **Плагины → Quantum A
 The lab loads supported WAV files, offers Amount / Tone / Rate / Wet-Dry controls for each module, builds an ordered processing chain, processes interleaved float samples offline and exports stereo PCM16 WAV. Module settings and chain order are persisted locally with QSettings. The catalogue uses 21 reusable DSP kernels with controlled per-module variants, rather than claiming 133 unrelated low-level algorithms. Each entry has a stable ID, description, category, visual concept and tested dispatch path.
 
 The audio processor is deliberately offline: it does not introduce a real-time callback, device routing, VST/AU hosting or arbitrary native-library loading. Quantum and particle terminology describes creative signal-processing models, not physical quantum computation. The complete catalogue, DSP mapping and audio limitations are in [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md).
+
+## Stochastic Router
+
+The **Stochastic Router** is a first-party offline DSP processor. It does not load or randomly instantiate arbitrary third-party DLLs. Its weighted pool contains eight processors: low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Each entry can be enabled or excluded from the generator UI.
+
+- **Topologies:** hybrid, serial or parallel (2–4 branches when enough effects are selected).
+- **Triggers:** one route per file, one route per bar, or a route per scheduled generator event. Onset mode uses event frames from the procedural renderer; imported WAVs are not independently transient-detected.
+- **Macros:** intensity 0–100%; aggression, space, dirt and chaos follow grit, stereo, saturation and density controls.
+- **Safety:** wet ≤65%, effect feedback ≤72%, 5–20 ms dry/wet fades at segment boundaries, RMS compensation limited to 0.5–2×, sample-peak output guard ≤−0.3 dBFS.
+- **Determinism:** generator seed, variation, topology, trigger and enabled pool mask determine route selection.
+
+The generator checkbox is off by default. When enabled, the engine processes the rendered float buffer before PCM16 WAV encoding. Manifest v2 stores the settings and each output file's selected route names. Running the module from Plugin Manager performs a one-bar in-memory preview; it does not write files.
+
+This path is **offline**. It does not provide a real-time callback, playback hot-swapping, VST/AU hosting or arbitrary third-party audio-plugin loading.
 
 ## Manifest contract
 

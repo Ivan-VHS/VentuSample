@@ -18,9 +18,10 @@ void require(bool condition, const char* message) {
 void testBuiltinRegistry() {
     ventu::PluginManager manager;
     const auto plugins = manager.plugins();
-    require(plugins.size() == 18u, "all eighteen shared products must be registered as plugins");
+    require(plugins.size() == 19u, "all nineteen shared products must be registered as plugins");
     require(manager.find("Dropaul") != nullptr, "display names should resolve");
     require(manager.find("keel-koh") != nullptr, "stable plugin IDs should resolve");
+    require(manager.find("stochastic-router") != nullptr, "Stochastic Router must be registered as a built-in plugin");
     require(manager.find("patakee") == nullptr, "retired workflow names must not be accepted");
     for (const auto& plugin : plugins) {
         require(manager.isEnabled(plugin.id), "built-in plugins should be enabled by default");
@@ -43,6 +44,9 @@ void testEnableDisableAndDispatch() {
     const auto plan = manager.execute("dropaul", context);
     require(plan.success && plan.details.size() >= 5u,
             "Dropaul should create a read-only export dry-run plan");
+    const auto stochastic = manager.execute("stochastic-router", context);
+    require(stochastic.success && stochastic.summary.find("preview route") != std::string::npos,
+            "Stochastic Router should produce a bounded in-memory preview");
 }
 
 void testExtensionRegistration() {

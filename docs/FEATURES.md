@@ -18,6 +18,14 @@
 
 Profiles are original procedural patterns, not artist or recording emulations.
 
+## Stochastic Router
+
+- 8 weighted DSP effects, each independently selectable in the pool.
+- Serial, parallel and hybrid graphs; file, bar and generator-onset triggers.
+- Deterministic routing by seed and variation; manifest v2 route summaries.
+- Wet ≤65%, feedback ≤72%, 5–20 ms fades, bounded RMS compensation and −0.3 dBFS sample-peak protection.
+- Integrated into offline WAV export and exposed as the 19th built-in plugin.
+
 ## Quantum Audio Engine
 
 - 133 named audio DSP modules across five scientific/conceptual families.

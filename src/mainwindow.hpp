@@ -4,6 +4,8 @@
 #include "plugin_manager.hpp"
 
 #include <QMainWindow>
+
+#include <array>
 #include <QSettings>
 #include <QString>
 #include <thread>
@@ -76,6 +78,12 @@ private:
     QCheckBox* tripletCheck_{};
     QCheckBox* humanizeCheck_{};
     QCheckBox* dustCheck_{};
+    QCheckBox* stochasticCheck_{};
+    QSlider* stochasticIntensitySlider_{};
+    QLabel* stochasticIntensityValue_{};
+    QComboBox* stochasticTriggerBox_{};
+    QComboBox* stochasticTopologyBox_{};
+    std::array<QCheckBox*, 8> stochasticPoolChecks_{};
     QCheckBox* darkThemeCheck_{};
     QLineEdit* outputPath_{};
     QLineEdit* sourceSamplePath_{};

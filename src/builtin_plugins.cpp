@@ -1,4 +1,5 @@
 #include "plugin_manager.hpp"
+#include "stochastic_router.hpp"
 
 #include <algorithm>
 #include <array>
@@ -89,6 +90,55 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
     const auto& p = context.parameters;
     const auto validation = validate(p);
 
+    if (id == "stochastic-router") {
+        if (!validation.empty()) return fail("Stochastic Router rejected invalid generator settings: " + validation);
+        Parameters previewParameters = p;
+        previewParameters.bars = 1;
+        auto preview = render(previewParameters, 0);
+        if (preview.samples.empty()) return fail("Stochastic Router could not obtain a valid preview buffer.");
+        StochasticConfig config;
+        config.seed = static_cast<std::uint32_t>(p.seed);
+        config.intensity = std::clamp(
+            static_cast<double>(p.stochasticIntensityPercent) / 100.0, 0.05, 1.0);
+        config.aggression = static_cast<double>(p.gritPercent) / 100.0;
+        config.space = static_cast<double>(p.stereoPercent) / 100.0;
+        config.dirt = static_cast<double>(p.saturationPercent) / 100.0;
+        config.chaos = static_cast<double>(p.densityPercent) / 100.0;
+        config.triggerMode = p.stochasticTriggerMode == 1
+            ? StochasticTriggerMode::FixedBlocks
+            : (p.stochasticTriggerMode == 2
+                ? StochasticTriggerMode::ScheduledOnsets
+                : StochasticTriggerMode::SinglePass);
+        config.topology = p.stochasticTopology == 1
+            ? StochasticTopology::Serial
+            : (p.stochasticTopology == 2 ? StochasticTopology::Parallel : StochasticTopology::Hybrid);
+        for (std::size_t effect = 0; effect < config.pool.size(); ++effect)
+            config.pool[effect].enabled = (p.stochasticPluginMask & (1u << effect)) != 0u;
+        config.blockFrames = std::max<std::size_t>(
+            256u, static_cast<std::size_t>(preview.sampleRate) * 240u
+                / static_cast<std::size_t>(p.bpm));
+        const auto report = processStochastic(preview, config);
+        if (!report.success) return fail(report.error);
+        std::ostringstream peak;
+        peak << std::fixed << std::setprecision(4) << report.peakBefore
+             << " -> " << report.peakAfter;
+        std::ostringstream rms;
+        rms << std::fixed << std::setprecision(4) << report.rmsBefore
+            << " -> " << report.rmsAfter;
+        std::vector<std::string> details{
+            "In-memory preview only: no file was written or overwritten.",
+            "Seed: " + std::to_string(config.seed),
+            "Triggers processed: " + std::to_string(report.triggerCount),
+            "Peak before/after: " + peak.str(),
+            "RMS before/after: " + rms.str(),
+            "Maximum wet ceiling: 65%",
+            "Maximum feedback ceiling: 72%",
+            "Output peak ceiling: -0.3 dBFS"
+        };
+        details.insert(details.end(), report.routes.begin(), report.routes.end());
+        return ok("Stochastic Router generated and processed a deterministic preview route.",
+                  std::move(details));
+    }
     if (id == "operandu") {
         return ok("Operandu inspected the active generator state.",
                   {parameterLine(p), "Typed fields: BPM=int, bars=int, variations=int, seed=int, compression=double.",
@@ -282,7 +332,7 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
 } // namespace
 
 void registerBuiltinPlugins(PluginManager& manager) {
-    const std::array<PluginDescriptor, 18> specs{{
+    const std::array<PluginDescriptor, 19> specs{{
         descriptor("operandu", "Operandu", "Data & logic", "Typed generator values and parameter inspection.", "inspect_parameters", {"typed parameters", "validation report"}),
         descriptor("dropaul", "Dropaul", "Actions & workflows", "Deterministic export planning and dry-run sequencing.", "plan_export", {"DAG-like workflow", "dry-run", "export stages"}),
         descriptor("zdoro", "Zdoro", "Integrity & diagnostics", "Read-only workspace, output and settings health checks.", "inspect_workspace", {"workspace status", "output status", "settings baseline"}),
@@ -300,7 +350,8 @@ void registerBuiltinPlugins(PluginManager& manager) {
         descriptor("prossee", "Prossee", "Project planning", "Dependency-ordered export and release plan.", "plan_project", {"release stages", "ordering"}),
         descriptor("vprossee", "Vprossee", "Verification & validation", "Requirement and evidence readiness matrix.", "verify_evidence", {"acceptance evidence", "readiness"}),
         descriptor("professiya", "Professiya", "Learning", "Contributor learning paths for the native workstation.", "learning_paths", {"learning sequence", "developer onboarding"}),
-        descriptor("profevo", "Profevo", "Evolution", "Compatibility-aware manifest and plugin migration planning.", "plan_evolution", {"manifest compatibility", "versioned plugins"})
+        descriptor("profevo", "Profevo", "Evolution", "Compatibility-aware manifest and plugin migration planning.", "plan_evolution", {"manifest compatibility", "versioned plugins"}),
+        descriptor("stochastic-router", "Stochastic Router", "Audio processing", "Seeded weighted effect-chain generation, safe parameter mutation, offline routing and peak protection.", "stochastic_route_preview", {"weighted plugin pool", "serial and parallel routes", "deterministic trigger mutation", "bounded feedback and wet", "RMS matching", "sample peak guard"})
     }};
     for (const auto& spec : specs) {
         const auto id = spec.id;

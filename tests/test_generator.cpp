@@ -246,6 +246,34 @@ void testWaveAndPackExport() {
     require(json.find("bus_compression_ratio") != std::string::npos, "manifest should include bus compression settings");
     require(json.find("audio_format") != std::string::npos, "manifest should declare its output format");
     require(json.find("crest_db") != std::string::npos, "manifest should include crest measurements");
+    auto stochasticParameters = p;
+    stochasticParameters.variations = 1;
+    stochasticParameters.stochasticEnabled = true;
+    stochasticParameters.stochasticIntensityPercent = 55;
+    stochasticParameters.stochasticTriggerMode = 0;
+    const auto stochasticPack = ventu::generatePack(stochasticParameters, temp / "stochastic-pack");
+    require(static_cast<bool>(stochasticPack), "stochastic-enabled export should succeed");
+    std::ifstream stochasticManifestFile(
+        temp / "stochastic-pack" / "ventusample_manifest.json", std::ios::binary);
+    const std::string stochasticManifest(
+        (std::istreambuf_iterator<char>(stochasticManifestFile)),
+        std::istreambuf_iterator<char>());
+    require(stochasticManifest.find("\"stochastic_enabled\": true") != std::string::npos,
+            "manifest must record that stochastic routing was enabled");
+    require(stochasticManifest.find("\"stochastic_intensity_percent\": 55") != std::string::npos,
+            "manifest must record stochastic intensity");
+    require(stochasticManifest.find("\"stochastic_trigger_mode\": \"file\"") != std::string::npos,
+            "manifest must record the trigger mode");
+    require(stochasticManifest.find("\"stochastic_routes\": [") != std::string::npos,
+            "each exported file must include its selected route list");
+    std::string stochasticReadError;
+    const auto baselineAudio = ventu::loadWave(batch.files.front(), stochasticReadError);
+    require(stochasticReadError.empty(), "baseline WAV should remain readable");
+    const auto stochasticAudio = ventu::loadWave(stochasticPack.files.front(), stochasticReadError);
+    require(stochasticReadError.empty(), "stochastic WAV should remain readable");
+    require(stochasticAudio.samples != baselineAudio.samples,
+            "stochastic routing must alter the actual exported audio samples");
+
     const auto duplicatePack = ventu::generatePack(p, pack);
     require(!duplicatePack && !duplicatePack.error.empty(), "existing pack should never be silently overwritten");
 

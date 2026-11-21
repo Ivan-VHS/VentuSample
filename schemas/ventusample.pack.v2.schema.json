@@ -238,6 +238,41 @@
             "minor",
             "modal"
           ]
+        },
+        "stochastic_enabled": {
+          "type": "boolean",
+          "description": "Whether offline stochastic DSP processing was enabled."
+        },
+        "stochastic_seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "stochastic_intensity_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "stochastic_trigger_mode": {
+          "type": "string",
+          "enum": [
+            "file",
+            "bar",
+            "onset"
+          ]
+        },
+        "stochastic_plugin_mask": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "stochastic_topology": {
+          "type": "string",
+          "enum": [
+            "hybrid",
+            "serial",
+            "parallel"
+          ]
         }
       }
     },
@@ -322,6 +357,15 @@
               "pitched_note",
               null
             ]
+          },
+          "stochastic_routes": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
           }
         }
       }

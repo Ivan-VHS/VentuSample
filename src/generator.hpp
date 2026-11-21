@@ -45,6 +45,13 @@ struct Parameters {
     bool tripletRolls{true};
     bool microHumanize{true};
     bool vinylDust{false};
+    bool stochasticEnabled{false};
+    int stochasticIntensityPercent{45};
+    // 0=file, 1=bar, 2=scheduled transient/onset.
+    int stochasticTriggerMode{0};
+    std::uint32_t stochasticPluginMask{0xFFu};
+    // 0=hybrid, 1=serial, 2=parallel.
+    int stochasticTopology{0};
 };
 
 struct AudioBuffer {

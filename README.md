@@ -6,11 +6,15 @@ Native workstation for deterministic procedural hip-hop sample packs. The scalar
 
 ## Internal plugin suite
 
-The 18 shared internal products are built-in plugins in the native PluginManager. Open **Плагины → Менеджер плагинов** to inspect, enable/disable and run tools, or discover local extension manifests. The C++20 SDK provides reviewed handler registration, lazy initialization, shutdown and diagnostics. Manifest discovery is metadata-only; arbitrary DLL/SO loading remains disabled. See [Plugin platform and SDK](docs/PLUGINS.md) and the [shared manifest schema](schemas/ivan-vhs.plugin.v1.schema.json).
+The 19 shared internal products are built-in plugins in the native PluginManager. Open **Плагины → Менеджер плагинов** to inspect, enable/disable and run tools, or discover local extension manifests. The C++20 SDK provides reviewed handler registration, lazy initialization, shutdown and diagnostics. Manifest discovery is metadata-only; arbitrary DLL/SO loading remains disabled. See [Plugin platform and SDK](docs/PLUGINS.md) and the [shared manifest schema](schemas/ivan-vhs.plugin.v1.schema.json).
 
 ## Quantum Audio Engine — 133 DSP modules
 
 A native C++ audio lab is available from **Плагины → Quantum Audio Engine — 133 DSP**. It loads PCM16 WAV, builds an ordered processing chain from five families, processes float audio offline, displays signal measurements and exports stereo WAV. The 133 module identities use 21 reusable, tested DSP kernels. This is a local offline processor, not a live DAW or third-party plugin loader. See [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md) for the complete catalogue and audio contract.
+
+## Stochastic routing
+
+The optional **Stochastic Router** processes rendered stereo buffers before WAV export. Its weighted pool contains low/high-pass filters, saturator, bitcrusher, delay, reverb, ring modulation and stereo width. Choose active effects, hybrid/serial/parallel topology, file/bar/scheduled-onset triggers and intensity. Fixed seed + settings produce repeatable routes; manifest v2 records the selected route names per file. Wet is bounded to 65%, feedback to 72%, transitions fade over 5–20 ms, RMS gain compensation is bounded, and output is clamped to a −0.3 dBFS sample-peak ceiling. This is offline DSP, not a real-time DAW host.
 
 ## Generator matrix
 
@@ -51,7 +55,7 @@ If Qt is unavailable, portable DSP core and tests can still build; the desktop t
 
 ## Export and limits
 
-- Fixed seed/settings produce repeatable output; rendering runs on a worker thread.
+- Fixed seed/settings produce repeatable output; rendering runs on a worker thread. Stochastic routes use the same seed/variation model.
 - Manifest v2 stores effective settings, `musical_key`, `mode_family`, `scale` and per-file peak/RMS/crest. v1 remains available for older packs.
 - Full Loop/Melody/Bass receive key/mode labels; unpitched drums do not. Imported WAV is not automatically key-detected.
 - Master ceiling is approximately −0.3 dBFS sample peak, not an oversampled true-peak limiter.

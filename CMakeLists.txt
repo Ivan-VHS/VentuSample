@@ -14,6 +14,8 @@ add_library(ventusample_core STATIC
     src/generator.hpp
     src/plugin_manager.cpp
     src/plugin_manager.hpp
+    src/stochastic_router.hpp
+    src/stochastic_router.cpp
     src/builtin_plugins.cpp
     src/quantum_audio.cpp
     src/quantum_audio.hpp
@@ -68,6 +70,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_plugin_tests tests/test_plugins.cpp)
     target_link_libraries(ventusample_plugin_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-plugin-host COMMAND ventusample_plugin_tests)
+    add_executable(ventusample_stochastic_tests tests/test_stochastic_router.cpp)
+    target_link_libraries(ventusample_stochastic_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-stochastic-routing COMMAND ventusample_stochastic_tests)
     add_executable(ventusample_quantum_audio_tests tests/test_quantum_audio.cpp)
     target_link_libraries(ventusample_quantum_audio_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-quantum-audio COMMAND ventusample_quantum_audio_tests)
