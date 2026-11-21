@@ -96,3 +96,7 @@ The checks are integrated into the repository's existing CI workflow. They valid
 ## Change control
 
 Changes to the 20 canonical triples are contract changes: update the manifest, JSON Schema, validator expectations, tests and this document together. Additions must explain migration and compatibility. Do not silently rename a term or mark an unverified domain complete.
+
+## Mainline integration
+
+Keep the feature branch current with `main`. Merge only after every repository ruleset-required status context is green on the exact PR head; use the repository's squash auto-merge path and remove the source branch after successful integration.
