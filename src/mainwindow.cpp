@@ -1,6 +1,7 @@
 #include "mainwindow.hpp"
 #include "quantum_audio_lab.hpp"
 #include "ui_ux.hpp"
+#include "budget_planner_dialog.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -133,6 +134,11 @@ void MainWindow::buildUi() {
     pluginsMenu->addAction("Quantum Audio Engine — 133 DSP", this, [this] {
         ventu::showQuantumAudioLab(this);
     });
+    auto* planningMenu = menuBar()->addMenu("Планирование");
+    planningMenu->addAction("Планировщик бюджета 500 грн…", this, [this] {
+        ventu::showBudgetPlanner(this);
+    });
+
     auto* viewMenu = menuBar()->addMenu("Вид");
     viewMenu->addAction("Настройки движения…", this, &MainWindow::showMotionSettings);
     pluginsMenu->addSeparator();
