@@ -5,6 +5,7 @@
 #include <QComboBox>
 #include <QDesktopServices>
 #include <QDoubleSpinBox>
+#include <QFont>
 #include <QFileDialog>
 #include <QFrame>
 #include <QFileInfo>
@@ -71,7 +72,7 @@ QWidget* makeCard(const QString& title, QLayout* content) {
 }
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
-    setWindowTitle("VentuSample — Hip-Hop Sample Foundry");
+    setWindowTitle("VentuSample — рабочая станция аудиопаков");
     setMinimumSize(980, 720);
     resize(1320, 900);
     buildUi();
@@ -113,12 +114,13 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 void MainWindow::buildUi() {
     auto* central = new QWidget(this);
     auto* root = new QVBoxLayout(central);
-    root->setContentsMargins(24, 20, 24, 20);
-    root->setSpacing(16);
+    root->setContentsMargins(20, 18, 20, 18);
+    root->setSpacing(12);
 
     auto* header = new QHBoxLayout();
     auto* brand = new QVBoxLayout();
     auto* title = new QLabel("VENTUSAMPLE");
+    title->setFont(QFont("Georgia", 18, QFont::Bold));
     title->setObjectName("brandTitle");
     auto* subtitle = new QLabel("HIP-HOP SAMPLE FOUNDRY  /  NATIVE DSP WORKSTATION");
     subtitle->setObjectName("brandSubtitle");
@@ -134,6 +136,7 @@ void MainWindow::buildUi() {
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
     auto* heroTitle = new QLabel("Собери собственный звук.");
+    heroTitle->setFont(QFont("Georgia", 18, QFont::Bold));
     heroTitle->setObjectName("heroTitle");
     auto* heroSub = new QLabel("Генерируй лупы, мелодии, драм-паттерны, бас и наборы one-shots по точным параметрам.");
     heroSub->setObjectName("heroSubtitle");
@@ -153,7 +156,7 @@ void MainWindow::buildUi() {
     studioLayout->setContentsMargins(4, 10, 4, 4);
 
     auto* upper = new QHBoxLayout();
-    upper->setSpacing(14);
+    upper->setSpacing(12);
     auto* musicalGrid = new QGridLayout();
     musicalGrid->setHorizontalSpacing(14);
     musicalGrid->setVerticalSpacing(10);
@@ -205,7 +208,7 @@ void MainWindow::buildUi() {
     studioLayout->addLayout(upper);
 
     auto* detailRow = new QHBoxLayout();
-    detailRow->setSpacing(14);
+    detailRow->setSpacing(12);
     auto* motionGrid = new QGridLayout();
     motionGrid->setVerticalSpacing(4);
     swingSlider_ = addSliderRow(motionGrid, 0, "Swing", 50, 68, 58, &swingValue_);
@@ -423,59 +426,146 @@ void MainWindow::saveSettings() {
 
 void MainWindow::applyTheme() {
     const bool dark = darkThemeCheck_->isChecked();
-    if (dark) {
-        setStyleSheet(R"QSS(
-            QMainWindow, QWidget { background: #071A2D; color: #E8EDF2; }
-            QGroupBox { background: #0F2A45; border: 1px solid #31516F; border-left: 3px solid #FF7B86; border-radius: 12px; margin-top: 14px; padding: 18px 12px 12px; font-weight: 650; }
-            QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 5px; color: #9FC3F3; }
-            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit { min-height: 36px; background: #0A223B; border: 1px solid #31516F; border-radius: 7px; padding: 8px; selection-background-color: #244F82; }
-            QPushButton { background: #173A5E; border: 1px solid #31516F; border-radius: 8px; padding: 10px 16px; min-height: 24px; color: #E8EDF2; }
-            QPushButton:hover { border-color: #8AB6FF; background: #204B75; }
-            QPushButton:disabled { color: #7C91A8; background: #102840; }
-            QPushButton#primaryButton { background: #70A5FF; color: #071A2D; border: none; font-weight: 750; letter-spacing: 1px; }
-            QPushButton#primaryButton:hover { background: #8AB6FF; }
-            QSlider::groove:horizontal { height: 5px; background: #31516F; border-radius: 2px; }
-            QSlider::sub-page:horizontal { background: #70A5FF; border-radius: 2px; }
-            QSlider::handle:horizontal { background: #E8EDF2; width: 15px; margin: -6px 0; border-radius: 7px; }
-            QProgressBar { background: #173A5E; border: 0; border-radius: 4px; }
-            QProgressBar::chunk { background: #70A5FF; border-radius: 4px; }
-            QLabel#brandTitle { color: #FFFFFF; font-size: 22px; font-weight: 850; letter-spacing: 3px; }
-            QLabel#brandSubtitle, QLabel#fieldLabel { color: #9FB4C9; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-            QLabel#heroTitle { font-size: 23px; font-weight: 750; color: #FFFFFF; }
-            QLabel#heroSubtitle, QLabel#mutedText { color: #B3C4D6; }
-            QLabel#statusPill { color: #8AB6FF; background: #0F2A45; border: 1px solid #31516F; border-radius: 12px; padding: 10px 14px; font-size: 10px; font-weight: 800; }
-            QTabBar::tab { background: #0F2A45; color: #B3C4D6; border: 1px solid #31516F; padding: 11px 18px; margin-right: 5px; border-top-left-radius: 7px; border-top-right-radius: 7px; }
-            QTabBar::tab:selected { color: #FFFFFF; background: #173A5E; border-bottom: 3px solid #FF7B86; }
-            QCheckBox { spacing: 8px; }
-            QCheckBox::indicator { width: 17px; height: 17px; }
-        )QSS");
-    } else {
-        setStyleSheet(R"QSS(
-            QMainWindow, QWidget { background: #F4F8FD; color: #122C45; }
-            QGroupBox { background: #FFFFFF; border: 1px solid #CAD8E8; border-left: 3px solid #E62E2D; border-radius: 12px; margin-top: 14px; padding: 18px 12px 12px; font-weight: 650; }
-            QGroupBox::title { subcontrol-origin: margin; left: 14px; padding: 0 5px; color: #004E98; }
-            QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit { min-height: 36px; background: #FFFFFF; border: 1px solid #CAD8E8; border-radius: 7px; padding: 8px; selection-background-color: #D9E8FF; }
-            QPushButton { background: #EAF1FA; border: 1px solid #CAD8E8; border-radius: 8px; padding: 10px 16px; min-height: 24px; color: #004E98; }
-            QPushButton:hover { border-color: #1A5FDB; background: #D9E8FF; }
-            QPushButton:disabled { color: #73869A; background: #EDF2F8; }
-            QPushButton#primaryButton { background: #004E98; color: #FFFFFF; border: none; font-weight: 750; letter-spacing: 1px; }
-            QPushButton#primaryButton:hover { background: #1A5FDB; }
-            QSlider::groove:horizontal { height: 5px; background: #CAD8E8; border-radius: 2px; }
-            QSlider::sub-page:horizontal { background: #004E98; border-radius: 2px; }
-            QSlider::handle:horizontal { background: #FFFFFF; border: 2px solid #004E98; width: 15px; margin: -6px 0; border-radius: 7px; }
-            QProgressBar { background: #EAF1FA; border: 0; border-radius: 4px; }
-            QProgressBar::chunk { background: #004E98; border-radius: 4px; }
-            QLabel#brandTitle { color: #004E98; font-size: 22px; font-weight: 850; letter-spacing: 3px; }
-            QLabel#brandSubtitle, QLabel#fieldLabel { color: #4D6177; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
-            QLabel#heroTitle { font-size: 23px; font-weight: 750; color: #122C45; }
-            QLabel#heroSubtitle, QLabel#mutedText { color: #4D6177; }
-            QLabel#statusPill { color: #004E98; background: #FFFFFF; border: 1px solid #CAD8E8; border-radius: 12px; padding: 10px 14px; font-size: 10px; font-weight: 800; }
-            QTabBar::tab { background: #EAF1FA; color: #314B66; border: 1px solid #CAD8E8; padding: 11px 18px; margin-right: 5px; border-top-left-radius: 7px; border-top-right-radius: 7px; }
-            QTabBar::tab:selected { color: #004E98; background: #FFFFFF; border-bottom: 3px solid #E62E2D; }
-            QCheckBox { spacing: 8px; }
-            QCheckBox::indicator { width: 17px; height: 17px; }
-        )QSS");
-    }
+    const QString page = dark ? "#0A1E46" : "#F4F6FA";
+    const QString surface = dark ? "#0039A6" : "#FFFFFF";
+    const QString ink = dark ? "#FFFFFF" : "#0A1E46";
+    const QString secondary = dark ? "#FFFFFF" : "#0039A6";
+    const QString border = dark ? "#FFFFFF" : "#0039A6";
+    const QString accent = "#0039A6";
+    const QString signal = "#B51A10";
+    const QString signalBright = "#D52B1E";
+    const QString selection = dark ? "#B51A10" : "#0039A6";
+
+    const QString style = QStringLiteral(R"QSS(
+        QWidget {
+            background: %1;
+            color: %2;
+            font-family: "Segoe UI", "Arial", "DejaVu Sans";
+            font-size: 10pt;
+        }
+        QMainWindow { background: %1; }
+        QGroupBox {
+            background: %3;
+            border: 1px solid %4;
+            border-left: 3px solid %7;
+            border-radius: 3px;
+            margin-top: 12px;
+            padding: 14px 10px 10px;
+            font-weight: 650;
+        }
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            left: 12px;
+            padding: 0 5px;
+            color: %5;
+            font-family: "Georgia", "Cambria", "Times New Roman";
+            font-size: 10pt;
+            font-weight: 700;
+        }
+        QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit {
+            min-height: 36px;
+            background: %3;
+            color: %2;
+            border: 1px solid %4;
+            border-radius: 3px;
+            padding: 7px;
+            selection-background-color: %8;
+            selection-color: #FFFFFF;
+        }
+        QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus,
+        QListWidget:focus, QPlainTextEdit:focus, QPushButton:focus {
+            border: 2px solid %9;
+        }
+        QPushButton {
+            background: %3;
+            color: %2;
+            border: 1px solid %4;
+            border-radius: 3px;
+            padding: 9px 14px;
+            min-height: 24px;
+        }
+        QPushButton:hover { border-color: %9; }
+        QPushButton:disabled {
+            color: %5;
+            background: %1;
+            border: 1px solid %4;
+        }
+        QPushButton#primaryButton {
+            background: %6;
+            color: #FFFFFF;
+            border: 1px solid %6;
+            font-weight: 750;
+        }
+        QPushButton#primaryButton:hover { background: %10; }
+        QSlider::groove:horizontal {
+            height: 4px;
+            background: %4;
+            border-radius: 2px;
+        }
+        QSlider::sub-page:horizontal { background: %6; border-radius: 2px; }
+        QSlider::handle:horizontal {
+            background: #FFFFFF;
+            border: 2px solid %6;
+            width: 15px;
+            margin: -6px 0;
+            border-radius: 3px;
+        }
+        QProgressBar {
+            background: %1;
+            color: %2;
+            border: 1px solid %4;
+            border-radius: 3px;
+            min-height: 10px;
+            text-align: center;
+        }
+        QProgressBar::chunk { background: %6; border-radius: 2px; }
+        QLabel#brandTitle {
+            color: %5;
+            font-family: "Georgia", "Cambria", "Times New Roman";
+            font-size: 22px;
+            font-weight: 800;
+        }
+        QLabel#brandSubtitle, QLabel#fieldLabel { color: %5; font-size: 10px; font-weight: 700; }
+        QLabel#heroTitle {
+            color: %5;
+            font-family: "Georgia", "Cambria", "Times New Roman";
+            font-size: 20px;
+            font-weight: 750;
+        }
+        QLabel#heroSubtitle, QLabel#mutedText { color: %5; }
+        QLabel#statusPill {
+            color: #FFFFFF;
+            background: %6;
+            border: 1px solid %6;
+            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+        QTabBar::tab {
+            background: %3;
+            color: %5;
+            border: 1px solid %4;
+            padding: 10px 16px;
+            margin-right: 4px;
+            border-top-left-radius: 3px;
+            border-top-right-radius: 3px;
+        }
+        QTabBar::tab:selected {
+            color: %5;
+            background: %1;
+            border-bottom: 3px solid %7;
+        }
+        QCheckBox { spacing: 8px; }
+        QCheckBox::indicator { width: 17px; height: 17px; }
+        QCheckBox::indicator:checked {
+            background: %6;
+            border: 2px solid %6;
+        }
+        QListWidget::item:selected { background: %8; color: #FFFFFF; }
+    )QSS")
+        .arg(page, ink, surface, border, secondary, accent, signal, selection, signalBright, "#0A1E46");
+    setStyleSheet(style);
 }
 
 ventu::Parameters MainWindow::parameters() const {
