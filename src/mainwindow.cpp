@@ -49,7 +49,7 @@ QString pathToQString(const std::filesystem::path& value) {
 QStringList styleNames() {
     return {"Boom Bap", "East Coast", "Harlem Dip-Trap", "G-Unit", "Modern Trap",
             "Atlanta Trap", "UK Drill", "UK Grime", "Memphis", "Jazz Rap", "G-Funk",
-            "Boom Trap", "Cripple Trill"};
+            "Boom Trap", "Cripple Trill", "Billionaire Golden Era"};
 }
 QStringList targetNames() { return {"Полный луп", "Мелодия", "Ударные", "Бас", "One-shot kit"}; }
 QStringList scaleNames() { return {"Natural Minor", "Harmonic Minor", "Dorian", "Phrygian", "Major", "Minor Pentatonic"}; }
