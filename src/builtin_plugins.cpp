@@ -115,7 +115,6 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
             if (ec) continue;
             const auto rel = relative.generic_string();
             if (std::regex_search(rel, skipPath)) continue;
-            const auto ext = extension(file);
             const bool isSource = std::regex_search(rel, sourceExt);
             const auto filename = lower(file.filename().string());
             if (isSource) {
