@@ -15,8 +15,8 @@ class ClifeSnapshotTests(unittest.TestCase):
             root = Path(temporary) / "project"
             root.mkdir()
             (root / "src").mkdir()
-            (root / "src" / "main.txt").write_text("stable source\n", encoding="utf-8")
-            (root / "notes.txt").write_text("project notes\n", encoding="utf-8")
+            (root / "src" / "main.txt").write_bytes(b"stable source\n")
+            (root / "notes.txt").write_bytes(b"project notes\n")
             (root / ".git").mkdir()
             (root / ".git" / "secret").write_text("excluded", encoding="utf-8")
 
@@ -30,8 +30,8 @@ class ClifeSnapshotTests(unittest.TestCase):
             target = Path(temporary) / "recovered"
             result = restore(archive, target)
             self.assertFalse(result["overwrote_existing_files"])
-            self.assertEqual((target / "src" / "main.txt").read_text(encoding="utf-8"), "stable source\n")
-            self.assertEqual((target / "notes.txt").read_text(encoding="utf-8"), "project notes\n")
+            self.assertEqual((target / "src" / "main.txt").read_bytes(), b"stable source\n")
+            self.assertEqual((target / "notes.txt").read_bytes(), b"project notes\n")
             self.assertFalse((target / ".git").exists())
 
     def test_refuses_to_overwrite_existing_restore_directory(self):
