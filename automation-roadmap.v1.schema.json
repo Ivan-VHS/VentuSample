@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/shared-contracts/automation-roadmap.v1.schema.json",
+  "title": "ANATIDAE Automation Roadmap v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "project",
+    "principles",
+    "safety",
+    "phases",
+    "tasks"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.automation-roadmap.v1"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "repository",
+        "default_branch",
+        "stack",
+        "focus"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "default_branch": {
+          "const": "main"
+        },
+        "stack": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "focus": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "principles": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_token_permissions",
+        "auto_merge_requires_successful_checks",
+        "automatic_production_deploy",
+        "automatic_driver_or_firmware_install",
+        "automatic_secret_rotation",
+        "automatic_destructive_cleanup",
+        "automatic_publication_without_release_gate"
+      ],
+      "properties": {
+        "default_token_permissions": {
+          "const": "read"
+        },
+        "auto_merge_requires_successful_checks": {
+          "const": true
+        },
+        "automatic_production_deploy": {
+          "const": false
+        },
+        "automatic_driver_or_firmware_install": {
+          "const": false
+        },
+        "automatic_secret_rotation": {
+          "const": false
+        },
+        "automatic_destructive_cleanup": {
+          "const": false
+        },
+        "automatic_publication_without_release_gate": {
+          "const": false
+        }
+      }
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "exit_criteria"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "exit_criteria": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "intent_ru",
+          "automation",
+          "priority",
+          "status",
+          "objective",
+          "target",
+          "trigger",
+          "current_controls",
+          "guardrails",
+          "acceptance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9]{2}-[a-z0-9-]+$"
+          },
+          "intent_ru": {
+            "type": "string",
+            "minLength": 1
+          },
+          "automation": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "priority": {
+            "enum": [
+              "P0",
+              "P1",
+              "P2"
+            ]
+          },
+          "status": {
+            "enum": [
+              "active",
+              "extend",
+              "planned"
+            ]
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "trigger": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "current_controls": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "guardrails": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "acceptance": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
