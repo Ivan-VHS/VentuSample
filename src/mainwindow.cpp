@@ -599,6 +599,7 @@ void MainWindow::loadSettings() {
     motionPreferences_.reduceMotion = settings.value("reduce_motion", false).toBool();
     motionPreferences_.ecoVisuals = settings.value("eco_visuals", false).toBool();
     motionPreferences_.syncToBpm = settings.value("sync_to_bpm", false).toBool();
+    motionPreferences_.expressiveMotion = settings.value("expressive_motion", false).toBool();
     settings.endGroup();
     settings.beginGroup("plugins");
     for (const auto& plugin : pluginManager_.plugins()) {
@@ -656,6 +657,7 @@ void MainWindow::saveSettings() {
     settings.setValue("reduce_motion", motionPreferences_.reduceMotion);
     settings.setValue("eco_visuals", motionPreferences_.ecoVisuals);
     settings.setValue("sync_to_bpm", motionPreferences_.syncToBpm);
+    settings.setValue("expressive_motion", motionPreferences_.expressiveMotion);
     settings.endGroup();
     settings.sync();
 }
@@ -663,18 +665,21 @@ void MainWindow::saveSettings() {
 void MainWindow::showMotionSettings() {
     QDialog dialog(this);
     dialog.setWindowTitle("Настройки движения интерфейса");
-    dialog.setMinimumWidth(440);
+    dialog.setMinimumWidth(460);
     auto* layout = new QVBoxLayout(&dialog);
     auto* reduce = new QCheckBox("Reduce Motion — убрать пространственное движение");
     auto* eco = new QCheckBox("Eco / Low-CPU Visuals — отключить необязательные эффекты");
+    auto* expressive = new QCheckBox("Expressive Motion — усиленная пружинная кинетика");
     auto* sync = new QCheckBox("Sync to Transport / BPM — ритмический индикатор");
     reduce->setChecked(motionPreferences_.reduceMotion);
     eco->setChecked(motionPreferences_.ecoVisuals);
+    expressive->setChecked(motionPreferences_.expressiveMotion);
     sync->setChecked(motionPreferences_.syncToBpm);
-    auto* note = new QLabel("BPM-синхронизация использует темп текущего проекта VentuSample. Внешний транспорт DAW пока не подключён. Reduce Motion и Eco отключают beat-индикатор и ограничивают переходы 80 мс.");
+    auto* note = new QLabel("BPM-синхронизация использует темп текущего проекта VentuSample. Внешний транспорт DAW пока не подключён. Reduce Motion и Eco отключают beat-индикатор и ограничивают переходы 80 мс; эти режимы имеют приоритет над Expressive Motion.");
     note->setWordWrap(true);
     layout->addWidget(reduce);
     layout->addWidget(eco);
+    layout->addWidget(expressive);
     layout->addWidget(sync);
     layout->addWidget(note);
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel);
@@ -684,6 +689,7 @@ void MainWindow::showMotionSettings() {
     if (dialog.exec() != QDialog::Accepted) return;
     motionPreferences_.reduceMotion = reduce->isChecked();
     motionPreferences_.ecoVisuals = eco->isChecked();
+    motionPreferences_.expressiveMotion = expressive->isChecked();
     motionPreferences_.syncToBpm = sync->isChecked();
     saveSettings();
     updateBeatSync();
