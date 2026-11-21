@@ -1,6 +1,7 @@
 # VentuSample
 
 C++20 · Qt 6 Widgets · Windows/Linux where Qt is available · Offline · Apache-2.0
+**Разработчик:** [Ivan-VHS](https://github.com/Ivan-VHS)
 
 Native workstation for deterministic procedural hip-hop sample packs. The scalar renderer exports PCM16 stereo WAV and versioned JSON manifests; it does not require a DAW or audio device.
 
