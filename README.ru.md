@@ -83,3 +83,9 @@ ctest --test-dir build --output-on-failure
 - Для импорта/экспорта нужны права на исходный материал. Хеш подтверждает идентичность байтов, но не право собственности.
 
 [Apache-2.0](LICENSE)
+
+
+## Справочник распределения бюджета
+Пример модели бюджета 500 грн с JSON-контрактом и автономным симулятором. Это документационный пример, а не функция runtime самого приложения.
+
+[Мультиязычный справочник](docs/RESOURCE_ALLOCATION_500_UAH.md) · [Интерактивный симулятор](docs/resource-allocation-500-uah.html) · [Пример JSON](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
