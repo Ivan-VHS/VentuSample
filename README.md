@@ -147,3 +147,8 @@ This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.
 ## Transactional runtime
 
 Bounded in-memory state transitions, integrity checks, optimistic generation commits and rollback are documented in [Transactional Runtime Contract v1](docs/TRANSACTIONAL_RUNTIME.md). This does not enable firmware flashing or unrestricted executable loading.
+
+
+## CLife — offline checkpoint and recovery
+
+The C++20 CLife adapter captures bounded render/project payloads, checks project identity and integrity, and exposes recovery decisions outside the real-time audio path. It does not load checkpoint bytes as plugin code. See [CLife contract](clife/contract.v1.json) and [adapter guide](docs/CLIFE_IMMORTALITY_POD.md).
