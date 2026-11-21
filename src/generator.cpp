@@ -28,6 +28,9 @@ struct StyleProfile {
     double hatProbability;
     double toneDecay;
     double bassWeight;
+    double kickWeight{1.0};
+    double snareWeight{1.0};
+    double hatWeight{1.0};
 };
 
 StyleProfile profile(Style style) {
@@ -45,6 +48,9 @@ StyleProfile profile(Style style) {
     case Style::Gfunk:         return {{{0, 6, 8, 12, 14, 0}}, 5, 4, 12, false, 0.50, 1.00, 0.82};
     case Style::BoomTrap:      return {{{0, 6, 8, 10, 14, 0}}, 5, 4, 12, false, 0.65, 0.74, 0.96};
     case Style::CrippleTrill:  return {{{0, 3, 8, 11, 14, 0}}, 5, 4, 12, false, 0.70, 0.62, 0.95};
+    case Style::BillionaireGoldenEra:
+        return {{{0, 6, 8, 14, 0, 0}}, 4, 4, 12, false, 0.34, 0.90, 0.95,
+                1.10, 1.12, 0.78};
     }
     return {{{0, 5, 8, 14, 0, 0}}, 4, 4, 12, false, 0.52, 0.8, 0.8};
 }
@@ -193,7 +199,10 @@ void mixSourceChops(AudioBuffer& output, const AudioBuffer& source, const Parame
     for (int bar = 0; bar < p.bars; ++bar) {
         for (int beat = 0; beat < 4; ++beat) {
             const int rotation = (variation * 3 + bar * 2) % 4;
-            const std::size_t sliceIndex = static_cast<std::size_t>((beat + rotation) % 4);
+            constexpr std::array<std::size_t, 4> crateOrder{0u, 2u, 1u, 3u};
+            const std::size_t sliceIndex = p.style == Style::BillionaireGoldenEra
+                ? crateOrder[static_cast<std::size_t>(beat)]
+                : static_cast<std::size_t>((beat + rotation) % 4);
             const std::size_t sourceStart = sliceIndex * sliceFrames;
             const auto outputStart = static_cast<std::size_t>(
                 (static_cast<double>(bar * 4 + beat) * beatFrames));
@@ -381,6 +390,7 @@ std::string toString(Style value) {
     case Style::Gfunk: return "G-Funk";
     case Style::BoomTrap: return "Boom Trap";
     case Style::CrippleTrill: return "Cripple Trill";
+    case Style::BillionaireGoldenEra: return "Billionaire Golden Era";
     }
     return "East Coast";
 }
@@ -583,12 +593,20 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     && uniform(rng, 0.0, 1.0) < 0.18;
                 const bool snare = baseSnare || ghostSnare;
 
-                if (drumsOn && kick) { audio.eventFrames.push_back(at); addKick(audio, at, (cadenceKick && !baseKick) ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08), rng, width); }
+                if (drumsOn && kick) {
+                    audio.eventFrames.push_back(at);
+                    const double kickLevel = (cadenceKick && !baseKick)
+                        ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08);
+                    addKick(audio, at, kickLevel * spec.kickWeight, rng, width);
+                }
                 if (drumsOn && snare) {
                     audio.eventFrames.push_back(at);
                     const auto offset = static_cast<long long>(p.snareOffsetMs) * p.sampleRate / 1000;
                     const auto shifted = static_cast<std::size_t>(std::max<long long>(0, static_cast<long long>(at) + offset));
-                    addSnare(audio, shifted, ghostSnare ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07), rng, uniform(rng, -0.08, 0.08), width);
+                    const double snareLevel = ghostSnare
+                        ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07);
+                    addSnare(audio, shifted, snareLevel * spec.snareWeight,
+                             rng, uniform(rng, -0.08, 0.08), width);
                 }
 
                 const bool regularHat = drumsOn && (step % 2 == 0
@@ -596,7 +614,8 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                 const bool turnaroundHat = phraseTurnaround && step >= 13 && density >= 0.40;
                 if (drumsOn && (regularHat || turnaroundHat)) {
                     audio.eventFrames.push_back(at);
-                    const double accent = (step % 4 == 0) ? 0.52 : (turnaroundHat ? 0.27 : 0.34);
+                    const double accent = ((step % 4 == 0) ? 0.52
+                        : (turnaroundHat ? 0.27 : 0.34)) * spec.hatWeight;
                     const double decay = turnaroundHat ? 0.026 : (step % 4 == 0 ? 0.065 : 0.042);
                     addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, decay);
                 }
