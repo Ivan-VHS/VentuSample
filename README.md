@@ -25,6 +25,12 @@ ctest --test-dir build --output-on-failure
 
 When Qt 6 Widgets is unavailable, the portable DSP core and test executable still build; CMake reports that the desktop target was skipped. On Windows, use a Qt 6 desktop development kit and a current MSVC or MinGW toolchain.
 
+## Live Windows desktop capture
+
+Each successful Windows desktop CI run launches the built Qt application, captures the real 1920×1080 desktop view and uploads the PNG as the `ventusample-live-windows-screenshot` artifact.
+
+To view it, open the [VentuSample CI workflow](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml), select the latest successful run and download that artifact. GitHub retains the artifact for **30 days**; it is not a permanent image stored in this repository.
+
 ## Run
 
 Launch `VentuSample` from the build output. Choose a sound profile and output type, set the musical and sound-design parameters, select an export folder and press **Create Sample Pack**. Generation runs on a worker thread so the interface remains responsive. Optional source audio accepts PCM16 mono/stereo WAV up to 128 MiB; 24-bit/float/MP3/FLAC imports are not supported yet. The exported folder contains `.wav` files and `ventusample_manifest.json`.
