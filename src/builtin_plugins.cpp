@@ -90,15 +90,77 @@ PluginResult runBuiltin(const std::string& id, const PluginContext& context) {
     const auto& p = context.parameters;
     const auto validation = validate(p);
 
-    if (id == "mental-wellbeing-reference") {
-        return ok("Mental Wellbeing & Depression Awareness: transcript-grounded information only.",
-                  {"Source: eбаут video brNbnipJ-i8, published 2025-11-23.",
-                   "Available transcript: 00:00–00:07:55 and 01:17:16–01:19:53; the middle section is unavailable.",
-                   "Topics: destigmatization, participant experiences, social support, movement, professional help.",
-                   "Antidepressant myths: insufficient transcript evidence; no claims are generated from the title.",
-                   "Medication boundary: do not prescribe or alter medication; refer decisions to a qualified prescriber.",
-                   "No audio processing, listening analysis, mood inference, symptom scoring or diagnosis.",
-                   "The 280-million figure is stored only as a figure quoted in the episode, not as current verified statistics."});
+    if (id == "code-wellbeing") {
+        if (context.workspaceRoot.empty())
+            return fail("Code Wellbeing requires an explicitly selected local workspace.");
+        std::error_code rootError;
+        if (!fs::is_directory(context.workspaceRoot, rootError) || rootError)
+            return fail("Code Wellbeing workspace is unavailable or not a directory.");
+        const auto files = collectFiles(context.workspaceRoot, 5000u);
+        std::size_t source = 0, tests = 0, docs = 0, readmes = 0, workflows = 0;
+        std::size_t owners = 0, dependencies = 0, recovery = 0, learning = 0;
+        std::size_t scanned = 0, largeUnits = 0;
+        std::size_t todo = 0, fixme = 0, hack = 0, xxx = 0;
+        const std::regex testPath(R"((^|/)(tests?|testing|specs?)/|(^|/)test_[^/]*$|(^|/)[^/]*[.]test[.])", std::regex::icase);
+        const std::regex workflowPath(R"((^|/)[.]github/workflows/|(^|/)[.]gitlab-ci[.]yml$|(^|/)azure-pipelines[.]yml$)", std::regex::icase);
+        const std::regex recoveryName(R"(rollback|runbook|recovery|release-process)", std::regex::icase);
+        const std::regex learningName(R"(postmortem|post-mortem|incident|(^|[-_.])adr([-.]|$))", std::regex::icase);
+        const std::regex sourceExt(R"([.](c|h|cc|cpp|cxx|hpp|hxx|py|js|jsx|ts|tsx|rs|go|java|cs|rpr|qcs|lua)$)", std::regex::icase);
+        const std::regex docExt(R"([.](md|mdx|rst|adoc)$)", std::regex::icase);
+        const std::regex depName(R"((^|/)(pyproject[.]toml|requirements[.]txt|package(-lock)?[.]json|pnpm-lock[.]yaml|yarn[.]lock|cargo[.]toml|cargo[.]lock|go[.]mod|go[.]sum|poetry[.]lock|pipfile([.]lock)?|vcpkg[.]json|conanfile[.](py|txt))$)", std::regex::icase);
+        const std::regex skipPath(R"((^|/)(.git|build|dist|target|vendor|node_modules|.venv|venv|__pycache__)(/|$))", std::regex::icase);
+        for (const auto& file : files) {
+            std::error_code ec;
+            const auto relative = fs::relative(file, context.workspaceRoot, ec);
+            if (ec) continue;
+            const auto rel = relative.generic_string();
+            if (std::regex_search(rel, skipPath)) continue;
+            const auto ext = extension(file);
+            const bool isSource = std::regex_search(rel, sourceExt);
+            const auto filename = lower(file.filename().string());
+            if (isSource) {
+                ++source;
+                if (std::regex_search(rel, testPath)) ++tests;
+                std::string content;
+                if (readBounded(file, content, 1024u * 1024u)) {
+                    ++scanned;
+                    const auto lines = static_cast<std::size_t>(std::count(content.begin(), content.end(), '\\n')) + 1u;
+                    if (lines > 1000u) ++largeUnits;
+                    std::istringstream input(content);
+                    std::string line;
+                    while (std::getline(input, line)) {
+                        if (line.find("TODO") != std::string::npos) ++todo;
+                        if (line.find("FIXME") != std::string::npos) ++fixme;
+                        if (line.find("HACK") != std::string::npos) ++hack;
+                        if (line.find("XXX") != std::string::npos) ++xxx;
+                    }
+                }
+            }
+            if (std::regex_search(rel, docExt)) ++docs;
+            if (filename.rfind("readme", 0u) == 0u) ++readmes;
+            if (std::regex_search(rel, workflowPath)) ++workflows;
+            if (filename == "codeowners") ++owners;
+            if (std::regex_search(rel, depName)) ++dependencies;
+            if (std::regex_search(filename, recoveryName)) ++recovery;
+            if (std::regex_search(filename, learningName)) ++learning;
+        }
+        std::vector<std::string> details{
+            "Read-only local inventory; no files were changed or uploaded.",
+            "Files inventoried: " + std::to_string(files.size()),
+            "Source files: " + std::to_string(source) + " | test files: " + std::to_string(tests),
+            "Documentation files: " + std::to_string(docs) + " | README files: " + std::to_string(readmes),
+            "CI workflows: " + std::to_string(workflows) + " | ownership files: " + std::to_string(owners),
+            "Dependency manifests: " + std::to_string(dependencies) + " | recovery guides: " + std::to_string(recovery),
+            "Incident / decision records: " + std::to_string(learning),
+            "Source text scanned (bounded to 1 MiB per file): " + std::to_string(scanned),
+            "Review prompts: TODO=" + std::to_string(todo) + ", FIXME=" + std::to_string(fixme)
+                + ", HACK=" + std::to_string(hack) + ", XXX=" + std::to_string(xxx)
+                + ", large source units (>1000 lines)=" + std::to_string(largeUnits),
+            "No aggregate wellbeing score: missing evidence is a review prompt, not a diagnosis or quality verdict.",
+            "No contributor ranking, commit-time analysis, audio processing, mood inference or device telemetry.",
+            "Presence of tests, CI, docs or runbooks does not prove their quality, freshness or effectiveness."
+        };
+        return ok("Code Mental Health / Codebase Wellbeing inventory completed.", std::move(details));
     }
     if (id == "stochastic-router") {
         if (!validation.empty()) return fail("Stochastic Router rejected invalid generator settings: " + validation);
@@ -362,7 +424,7 @@ void registerBuiltinPlugins(PluginManager& manager) {
         descriptor("professiya", "Professiya", "Learning", "Contributor learning paths for the native workstation.", "learning_paths", {"learning sequence", "developer onboarding"}),
         descriptor("profevo", "Profevo", "Evolution", "Compatibility-aware manifest and plugin migration planning.", "plan_evolution", {"manifest compatibility", "versioned plugins"}),
         descriptor("stochastic-router", "Stochastic Router", "Audio processing", "Seeded weighted effect-chain generation, safe parameter mutation, offline routing and peak protection.", "stochastic_route_preview", {"weighted plugin pool", "serial and parallel routes", "deterministic trigger mutation", "bounded feedback and wet", "RMS matching", "sample peak guard"}),
-        descriptor("mental-wellbeing-reference", "Mental Wellbeing Reference", "Knowledge & wellbeing", "Transcript-grounded depression awareness and anti-stigma reference with explicit evidence gaps.", "read_awareness_reference", {"source provenance", "transcript coverage", "evidence status", "non-clinical safety boundary"})
+        descriptor("code-wellbeing", "Code Wellbeing", "Engineering sustainability", "Read-only repository maintenance inventory with evidence limits and non-blaming review cues.", "inspect_codebase_wellbeing", {"source and test inventory", "documentation and CI evidence", "maintainer support signals", "read-only bounded scan"})
     }};
     for (const auto& spec : specs) {
         const auto id = spec.id;
