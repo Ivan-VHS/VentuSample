@@ -100,3 +100,5 @@ Changes to the 20 canonical triples are contract changes: update the manifest, J
 ## Mainline integration
 
 Keep the feature branch current with `main`. Merge only after every repository ruleset-required status context is green on the exact PR head; use the repository's squash auto-merge path and remove the source branch after successful integration.
+
+The canonical validator and contract tests are part of the existing project CI and must pass on this exact, up-to-date PR head before squash merge.
