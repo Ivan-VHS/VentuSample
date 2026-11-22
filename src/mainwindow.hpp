@@ -2,11 +2,13 @@
 
 #include "generator.hpp"
 #include "plugin_manager.hpp"
+#include "preset_store.hpp"
 #include "ui_motion.hpp"
 
 #include <QMainWindow>
 
 #include <array>
+#include <optional>
 #include <QSettings>
 #include <QString>
 #include <thread>
@@ -46,6 +48,12 @@ private:
     void showMotionSettings();
     void updateBeatSync();
     ventu::Parameters parameters() const;
+    void applyParameters(const ventu::Parameters& parameters);
+    void savePreset();
+    void loadPreset();
+    void capturePresetA();
+    void capturePresetB();
+    void switchPresetSlots();
     void startGeneration();
     void setBusy(bool busy);
     void appendLog(const QString& message);
@@ -111,5 +119,8 @@ private:
     QPlainTextEdit* log_{};
     ventu::PluginManager pluginManager_;
     std::thread worker_;
+    std::optional<ventu::Parameters> presetA_;
+    std::optional<ventu::Parameters> presetB_;
+    bool presetShowsA_{true};
     QString lastOutputDirectory_;
 };
