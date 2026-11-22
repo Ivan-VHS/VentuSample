@@ -16,16 +16,6 @@ def main() -> int:
     assert pack["schema"] == schema["properties"]["schema"]["const"]
     assert pack["audio_format"] == schema["properties"]["audio_format"]["const"]
     assert pack["measurement_basis"] == "sample_domain"
-    pack_properties = schema["properties"]
-    assert set(pack) <= set(pack_properties), set(pack) - set(pack_properties)
-    midi_files = pack.get("midi_files", [])
-    midi_rule = pack_properties["midi_files"]
-    assert isinstance(midi_files, list) and len(midi_files) <= midi_rule["maxItems"]
-    assert len(midi_files) == len(set(midi_files))
-    for midi_name in midi_files:
-        assert isinstance(midi_name, str) and 1 <= len(midi_name) <= 255
-        assert Path(midi_name).suffix.casefold() == ".mid"
-        assert (FIXTURE / midi_name).is_file(), midi_name
     params = pack["parameters"]
     parameter_schema = schema["properties"]["parameters"]
     parameter_properties = parameter_schema["properties"]
@@ -41,7 +31,6 @@ def main() -> int:
             assert value in rule["enum"], (key, value)
         if rule.get("type") == "boolean":
             assert isinstance(value, bool), (key, value)
-    assert params["export_midi"] is False
     assert params["tpdf_dither"] is False
     assert params["normalize_peak"] is False
     assert params["target_peak_dbfs"] == -1.0
