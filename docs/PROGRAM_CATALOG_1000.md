@@ -17,6 +17,8 @@ This file assigns the sound, music, sample, effects and audio-analysis portion o
 
 - **Offline Spectrum Analysis** — pure C11 radix-2 FFT with a Hann window, caller-owned output bins, peak frequency/magnitude, spectral centroid and 85% rolloff.
 - FFT size is limited to powers of two from 256 to 65,536. The analyzer reads an existing in-memory buffer and never opens a device or modifies samples.
+- **Linear Sample-Rate Conversion** — a bounded C11 preview-quality resampler for mono/stereo in-memory buffers from 8–192 kHz. It uses deterministic linear interpolation and explicitly does not claim band-limited production quality.
+- **Standard MIDI File Inspection** — a C11 parser for SMF format 0/1 with note events, tempo, time signature, program changes and running status. The parser is bounded, read-only and has no device playback path.
 
 ## Adoption rules
 
