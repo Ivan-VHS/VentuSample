@@ -204,8 +204,12 @@ Plugin Manager 内置 19 个工具。可以递归发现本地 `plugin.json` 元�
 | 路径 | 内容 |
 |---|---|
 | `src/` | C++20 生成器、渲染器、音频缓冲区、DSP 内核、插件管理器、Qt 桌面 UI 和可选 Reaper Bridge |
+| `src/compat/pytyliki-dsp/` | 迁入的 C11 缓冲区处理库 |
+| `integrations/cockos-reaper/` | 可选的 Cockos REAPER Lua 辅助操作 |
 | `tests/` | 原生 DSP、生成器、manifest、UI、插件生命周期和回归测试 |
 | `docs/` | 架构、功能、插件 SDK、UI 行为和音频合同 |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | 迁入的 C11 模块所有权与构建约定 |
+| `docs/integrations/COCKOS_REAPER.md` | 可选 Cockos REAPER 辅助脚本 |
 | `schemas/` | 版本化采样包与插件 manifest Schema |
 | `tools/` | project-contract、fixture、visual-canon 和工程验证脚本 |
 | `federation/` | 显式互操作与适配器 manifest |
