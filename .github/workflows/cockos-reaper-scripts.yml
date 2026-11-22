@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: "3.12"
       - name: Test script safety contract
-        run: python -m unittest tests.test_cockos_reaper_scripts -v
+        run: python -m unittest discover -s tests -p test_cockos_reaper_scripts.py -v
       - name: Package Lua actions
         run: |
           mkdir -p dist/cockos-reaper-kora
