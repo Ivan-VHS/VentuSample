@@ -63,12 +63,13 @@
       ]
     },
     {
-      "id": "reaper_pack_exchange",
+      "id": "pack_manifest_audit",
       "status": "implemented",
-      "summary": "Exports versioned ventusample.pack.v1 manifests and WAV assets that Reaper validates and compares read-only; the Reaper consumer reads manifest metadata only and leaves WAV files untouched.",
+      "summary": "Validates bounded pack manifests, derives reproducible normalized parameter and measurement metrics, and produces read-only comparisons locally inside VentuSample. The metadata audit never opens or alters referenced media files.",
       "evidence": [
-        "schemas/ventusample.pack.v1.schema.json",
-        "federation/octa-pyramid.v1.json"
+        "tools/ventusample_pack_audit.py",
+        "tests/test_ventusample_pack_audit.py",
+        "schemas/ventusample.pack.v1.schema.json"
       ]
     },
     {
@@ -139,10 +140,10 @@
   "integrations": [
     {
       "peer": "reaper",
-      "interface": "ventusample.pack.v1",
-      "transport": "json-file-plus-wav-assets",
+      "interface": "octa.pyramid.peer-mesh.v1",
+      "transport": "shared-contract",
       "status": "implemented",
-      "opt_in": true
+      "opt_in": false
     },
     {
       "peer": "pytyliki",

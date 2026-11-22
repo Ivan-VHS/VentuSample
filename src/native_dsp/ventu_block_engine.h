@@ -3,12 +3,8 @@
 #include <stddef.h>
 #ifdef __cplusplus
 extern "C" {
-#ifdef __cplusplus
-}
 #endif
-
-#endif
-typedef enum { PL_DSP_BACKEND_SCALAR = 0 } ventu_dsp_backend;
+typedef enum { VENTU_DSP_BACKEND_SCALAR = 0 } ventu_dsp_backend;
 typedef struct { ventu_dsp_backend backend; unsigned sample_rate; unsigned max_block_frames; } ventu_dsp_engine;
 typedef struct { double b0,b1,b2,a1,a2,z1,z2; } ventu_dsp_biquad;
 typedef struct { const float *coefficients; float *state; size_t taps,cursor; } ventu_dsp_fir;
@@ -31,4 +27,8 @@ int ventu_dsp_engine_biquad_process(const ventu_dsp_engine *,ventu_dsp_biquad *,
 int ventu_dsp_engine_fir_process(const ventu_dsp_engine *,ventu_dsp_fir *,const float *,float *,size_t);
 int ventu_dsp_engine_limiter_process(const ventu_dsp_engine *,ventu_dsp_limiter *,const float *,float *,size_t);
 int ventu_dsp_measure_block(const float *,size_t,ventu_dsp_block_stats *);
+#ifdef __cplusplus
+}
+#endif
+
 #endif

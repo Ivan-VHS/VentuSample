@@ -4,10 +4,10 @@
 #include <string.h>
 #define PI 3.14159265358979323846
 static int valid(const float *x,size_t n){size_t i;if(!x||!n)return 0;for(i=0;i<n;i++)if(!isfinite((double)x[i]))return 0;return 1;}
-int ventu_dsp_engine_init(ventu_dsp_engine *e,unsigned rate,unsigned block){if(!e||rate<8000u||rate>384000u||!block||block>65536u)return -1;e->backend=PL_DSP_BACKEND_SCALAR;e->sample_rate=rate;e->max_block_frames=block;return 0;}
-const char *ventu_dsp_backend_name(ventu_dsp_backend b){return b==PL_DSP_BACKEND_SCALAR?"portable-c11-scalar":"unknown";}
+int ventu_dsp_engine_init(ventu_dsp_engine *e,unsigned rate,unsigned block){if(!e||rate<8000u||rate>384000u||!block||block>65536u)return -1;e->backend=VENTU_DSP_BACKEND_SCALAR;e->sample_rate=rate;e->max_block_frames=block;return 0;}
+const char *ventu_dsp_backend_name(ventu_dsp_backend b){return b==VENTU_DSP_BACKEND_SCALAR?"portable-c11-scalar":"unknown";}
 static int engine_accepts_block(const ventu_dsp_engine *e,size_t n){
-    return e && e->backend==PL_DSP_BACKEND_SCALAR &&
+    return e && e->backend==VENTU_DSP_BACKEND_SCALAR &&
            e->sample_rate>=8000u && e->sample_rate<=384000u &&
            e->max_block_frames>0u && n>0u &&
            n<=(size_t)e->max_block_frames;

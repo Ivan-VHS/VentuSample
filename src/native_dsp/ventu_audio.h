@@ -4,10 +4,6 @@
 #include <stdint.h>
 #ifdef __cplusplus
 extern "C" {
-#ifdef __cplusplus
-}
-#endif
-
 #endif
 #define VENTU_AUDIO_MAX_FRAMES 4800000u
 typedef struct { float *samples; size_t frames; unsigned sample_rate; unsigned channels; } ventu_audio_buffer;
@@ -21,4 +17,8 @@ int ventu_audio_apply_lowpass(ventu_audio_buffer *audio,double cutoff_hz);
 int ventu_audio_apply_compressor(ventu_audio_buffer *audio,double threshold_db,double ratio);
 int ventu_audio_apply_saturation(ventu_audio_buffer *audio,double drive);
 int ventu_audio_measure(const ventu_audio_buffer *audio,ventu_audio_stats *stats);
+#ifdef __cplusplus
+}
+#endif
+
 #endif
