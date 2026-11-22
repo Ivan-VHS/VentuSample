@@ -2,6 +2,7 @@
 #include "midi_export.hpp"
 
 #include <chrono>
+#include <cstdlib>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
