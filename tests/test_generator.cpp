@@ -483,10 +483,10 @@ void testMidiExport() {
     std::ifstream manifestFile(directory / "pack" / "ventusample_manifest.json", std::ios::binary);
     const std::string manifest((std::istreambuf_iterator<char>(manifestFile)),
                                std::istreambuf_iterator<char>());
-    require(manifest.find("\"export_midi\": true") != std::string::npos,
-            "manifest must record the MIDI export option");
-    require(manifest.find(".mid") != std::string::npos,
-            "manifest must list generated MIDI companions");
+    require(std::filesystem::is_regular_file(pack.midiFiles.front()),
+            "pack export should create a MIDI sidecar next to the WAV");
+    require(manifest.find("\"export_midi\"") == std::string::npos,
+            "MIDI sidecars must not change the published v2 manifest contract");
 
     std::filesystem::remove_all(directory, ec);
 }
