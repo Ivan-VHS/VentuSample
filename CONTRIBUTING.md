@@ -23,3 +23,7 @@ The DSP core and its tests should remain buildable when Qt 6 is unavailable. Whe
 ## Pull request expectations
 
 Describe changes to sound, parameter ranges, file formats and reproducibility. Include a sample manifest or screenshot when it improves review, but do not commit large rendered audio packs. Avoid issue-closing keywords in PR descriptions; maintainers close issues after review.
+
+## Shared report format
+
+To wrap an existing JSON result in the common report metadata contract, run python tools/report_envelope.py --tool ventusample --version VERSION < result.json. Keep the tool-specific payload unchanged. Tests live in tests/test_report_envelope.py.

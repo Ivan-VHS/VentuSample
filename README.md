@@ -267,3 +267,11 @@ The web-stand checklist is documented against the actual offline desktop/audio p
 | 56–66 · operations and support | links the real CI workflow, explains screenshot-artifact limits and rollback, troubleshooting, known issues, contribution path and license |
 
 **There is no public VentuSample web-stand URL.** The desktop screenshot and CI screenshot artifact are not an interactive browser demo.
+
+## Unified report envelope
+
+Wrap a JSON result using the shared ivan-vhs.report.v1 format:
+
+    python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
+
+See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json. The tool-specific result remains unchanged.
