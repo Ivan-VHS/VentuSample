@@ -153,4 +153,4 @@ Bounded in-memory state transitions, integrity checks, optimistic generation com
 
 CLife creates bounded, SHA-256-verified snapshots of project files, manifests, presets and exported packs. Recovery is an offline copy to a new directory; it never runs in the audio callback or changes rendered audio.
 
-[CLife documentation](docs/CLIFE.md) · Run `python tools/clife.py snapshot .`.
+[OCTA-8 native adapter](docs/OCTA8.md) · [CLife documentation](docs/CLIFE.md) · Run `python tools/clife.py snapshot .`.
