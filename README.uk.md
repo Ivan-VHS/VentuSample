@@ -47,6 +47,7 @@ VentuSample створює локальні hip-hop sample packs на основ
 | Експорт аудіо | stereo PCM16 WAV і версійований JSON-manifest | локальні файли; наявні файли не перезаписуються |
 | Імпорт WAV | підтримувані вихідні PCM16 mono/stereo файли | перевіряються розмір, кількість кадрів, sample rate і формат |
 | Quantum Audio Engine | 133 типізовані ідентифікатори модулів та 21 повторно використовуване DSP-ядро | творча офлайн-DSP, не фізичні квантові обчислення |
+| Migrated C11 processing | обмежений WAV I/O, фільтри, компресор, насичення, limiter і вимірювання | окрема C11-ціль, офлайн-буфери |
 | Stochastic Router | необов’язкова seeded-маршрутизація через вісім вбудованих процесорів | офлайн-обробка буфера; вимкнено за замовчуванням |
 | Plugin Manager | 19 вбудованих інструментів і перевірений C++20 handler API | виявлення manifest — лише метадані; без довільного DLL/SO loading |
 | Atomic-Quantum 133 | окрема обмежена класична симуляція | без доступу до квантового обладнання |
@@ -204,8 +205,12 @@ Plugin Manager має 19 вбудованих інструментів. Лока
 | Шлях | Вміст |
 |---|---|
 | `src/` | C++20 generator, renderer, audio buffers, DSP kernels, plugin manager, Qt desktop UI й optional Reaper bridge |
+| `src/compat/pytyliki-dsp/` | перенесена бібліотека обробки буферів на C11 |
+| `integrations/cockos-reaper/` | необов’язкові Lua-дії для Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle та regression tests |
 | `docs/` | архітектура, функції, plugin SDK, UI behavior та audio contracts |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | власність і правила збирання перенесених C11-модулів |
+| `docs/integrations/COCKOS_REAPER.md` | необов’язкові скрипти Cockos REAPER |
 | `schemas/` | версійовані sample-pack і plugin manifest schemas |
 | `tools/` | project-contract, fixture, visual-canon та engineering validators |
 | `federation/` | явні interoperability й adapter manifests |

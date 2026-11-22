@@ -25,7 +25,7 @@ Genuine screenshot of VentuSample running on the Windows CI desktop. The image i
 
 <p align="center"><img src="assets/readme/workflow.svg" alt="VentuSample implemented data flow" width="100%"></p>
 
-Implemented path: parameters and seed → C++20 renderer → stereo buffer → optional offline DSP → PCM16 WAV and JSON manifest.
+Implemented path: parameters and seed → C++20 renderer → stereo buffer → offline processing → PCM16 WAV and JSON manifest.
 
 
 [![C++20 CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=C%2B%2B20%20CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![Qt desktop jobs](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=Qt%20desktop%20jobs)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
@@ -46,7 +46,8 @@ The intended audience is beatmakers, sound designers, audio developers, QA engin
 | Procedural generator | Full Loop, Melody, Drums, Bass and One-Shot Kit outputs | local rendering; fixed seed/settings reproduce the same render |
 | Audio export | stereo PCM16 WAV and versioned JSON manifest | local files; existing output files are not overwritten |
 | WAV import | supported PCM16 mono/stereo source files | validated size, frame count, sample rate and format |
-| Quantum Audio Engine | 133 typed module identities and 21 reusable DSP kernels | creative offline DSP, not physical quantum computation |
+| Quantum Audio Engine | 133 typed module identities and 21 reusable processing kernels | creative offline processing, not physical quantum computation |
+| Migrated C11 processing | bounded WAV I/O, filters, compressor, saturation, limiter and measurements | isolated C11 target, offline buffers |
 | Stochastic Router | optional seeded routing through eight built-in processors | offline buffer processing; disabled by default |
 | Plugin Manager | 19 built-in tools and a reviewed C++20 handler API | manifest discovery is metadata-only; no arbitrary DLL/SO loading |
 | Atomic-Quantum 133 | separate bounded classical simulation subset | no quantum hardware access |
@@ -116,7 +117,7 @@ The Windows CI runner installs Qt and configures the matching MSVC toolchain bef
 
 ### First smoke check
 
-A successful `ctest` run is the general build check. The tests cover parameter validation, deterministic repeatability, variations, WAV round-trips, stochastic DSP, schemas, plugin lifecycle and Quantum Audio Engine behavior.
+A successful `ctest` run is the general build check. The tests cover parameter validation, deterministic repeatability, variations, WAV round-trips, stochastic DSP, migrated C11 module boundaries, manifest validation, plugin lifecycle and Quantum Audio Engine behavior.
 
 There is no default HTTP port, localhost URL, browser launch command, database seed or remote mock service. All generation and processing are local.
 
@@ -203,9 +204,13 @@ The data path is: **parameters + seed → procedural renderer → stereo float b
 
 | Path | Contents |
 |---|---|
-| `src/` | C++20 generator, renderer, audio buffers, DSP kernels, plugin manager, Qt desktop UI and optional Reaper bridge |
+| `src/` | C++20 generator, renderer, processing kernels, plugin manager, Qt desktop UI and optional Reaper bridge |
+| `src/compat/pytyliki-dsp/` | migrated C11 buffer-processing library |
+| `integrations/cockos-reaper/` | optional Lua helper actions for Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle and regression tests |
-| `docs/` | architecture, features, plugin SDK, UI behavior and audio contracts |
+| `docs/` | architecture, features, plugin SDK, UI behavior and processing contracts |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | ownership and build contract for the migrated C11 modules |
+| `docs/integrations/COCKOS_REAPER.md` | optional Cockos REAPER helper scripts |
 | `schemas/` | versioned sample-pack and plugin manifest schemas |
 | `tools/` | project-contract, fixture, visual-canon and engineering validators |
 | `federation/` | explicit interoperability and adapter manifests |
@@ -214,7 +219,7 @@ The data path is: **parameters + seed → procedural renderer → stereo float b
 | `CMakeLists.txt` | C++20 build graph and optional feature switches |
 | `project-contract.json` | machine-readable project contract |
 
-The desktop uses Qt 6 Widgets. The generator and DSP engine are C++20. Python in CI validates repository contracts; it is not a Python web backend. There is no frontend/backend deployment, web server, mock server, browser bundle, port binding, CORS or public live preview. Browser support and responsive viewport rules are not applicable.
+The desktop uses Qt 6 Widgets. The generator is C++20. The migrated compatibility processing library is compiled as C11; Python in CI validates repository contracts and runs the manifest-audit suite. There is no frontend/backend deployment, web server, mock server, browser bundle, port binding, CORS or public live preview. Browser support and responsive viewport rules are not applicable.
 
 ## CI, artifacts and operations
 
