@@ -73,6 +73,8 @@ if(VENTU_BUILD_DESKTOP)
             src/main.cpp
             src/mainwindow.cpp
             src/mainwindow.hpp
+            src/preset_store.cpp
+            src/preset_store.hpp
             src/ui_motion.cpp
             src/ui_motion.hpp
             src/ui_ux.cpp
