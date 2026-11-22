@@ -163,6 +163,24 @@ void MainWindow::buildUi() {
     root->setContentsMargins(20, 18, 20, 18);
     root->setSpacing(12);
 
+    auto* brandStripe = new QWidget(central);
+    brandStripe->setObjectName("brandStripe");
+    brandStripe->setFixedHeight(5);
+    auto* brandStripeLayout = new QHBoxLayout(brandStripe);
+    brandStripeLayout->setContentsMargins(0, 0, 0, 0);
+    brandStripeLayout->setSpacing(0);
+    for (const QString& color : {
+             QStringLiteral("#0039A6"),
+             QStringLiteral("#FFFFFF"),
+             QStringLiteral("#D52B1E")
+         }) {
+        auto* segment = new QFrame(brandStripe);
+        segment->setFrameShape(QFrame::NoFrame);
+        segment->setStyleSheet(QStringLiteral("background-color: %1; border: 0;").arg(color));
+        brandStripeLayout->addWidget(segment, 1);
+    }
+    root->addWidget(brandStripe);
+
     auto* header = new QHBoxLayout();
     auto* brand = new QVBoxLayout();
     auto* title = new QLabel("VENTUSAMPLE");
