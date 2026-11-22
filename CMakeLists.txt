@@ -61,6 +61,8 @@ add_library(ventusample_core STATIC
     src/builtin_plugins.cpp
     src/quantum_audio.cpp
     src/quantum_audio.hpp
+    src/audio_diagnostics.cpp
+    src/audio_diagnostics.hpp
     src/atomic_quantum.cpp
     src/atomic_quantum.hpp
     src/budget_planner.cpp
@@ -213,4 +215,11 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_careguard_tests tests/test_careguard.cpp)
     target_link_libraries(ventusample_careguard_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-careguard-v1 COMMAND ventusample_careguard_tests)
+endif()
+
+
+if(VENTU_BUILD_TESTS)
+    add_executable(ventusample_audio_diagnostics_tests tests/test_audio_diagnostics.cpp)
+    target_link_libraries(ventusample_audio_diagnostics_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-audio-diagnostics-analysis COMMAND ventusample_audio_diagnostics_tests)
 endif()
