@@ -1206,7 +1206,6 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
              << ", \"triplet_rolls\": " << (p.tripletRolls ? "true" : "false")
              << ", \"micro_humanize\": " << (p.microHumanize ? "true" : "false")
              << ", \"tpdf_dither\": " << (p.tpdfDither ? "true" : "false")
-             << ", \"export_midi\": " << (p.exportMidi ? "true" : "false")
              << ", \"normalize_peak\": " << (p.normalizePeak ? "true" : "false")
              << ", \"target_peak_dbfs\": " << p.targetPeakDbfs
              << ", \"vinyl_dust\": " << (p.vinylDust ? "true" : "false")
@@ -1298,13 +1297,7 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                      << ", \"mode_family\": " << (tonalTarget ? "\"" + modeFamily(p.scale) + "\"" : "null") << "}";
         }
     }
-    manifest << "\n  ],\n  \"midi_files\": [";
-    for (std::size_t index = 0; index < result.midiFiles.size(); ++index) {
-        if (index != 0u) manifest << ", ";
-        manifest << "\n    \"" << jsonEscape(result.midiFiles[index].filename().string()) << "\"";
-    }
-    if (!result.midiFiles.empty()) manifest << "\n  ";
-    manifest << "]\n}\n";
+    manifest << "\n  ]\n}\n";
     std::ofstream json(manifestPath, std::ios::binary | std::ios::trunc);
     if (!json) { result.error = "Не удалось записать manifest.json."; return result; }
     json << manifest.str();
