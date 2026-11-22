@@ -1,0 +1,36 @@
+name: README parity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "README*.md"
+      - "CONTRIBUTING.md"
+      - ".github/scripts/check_readme_parity.py"
+      - ".github/workflows/readme-parity.yml"
+      - "tests/test_readme_parity.py"
+  pull_request:
+    paths:
+      - "README*.md"
+      - "CONTRIBUTING.md"
+      - ".github/scripts/check_readme_parity.py"
+      - ".github/workflows/readme-parity.yml"
+      - "tests/test_readme_parity.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parity:
+    name: Localized documentation checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check README structure, code examples, and table numbers
+        run: python .github/scripts/check_readme_parity.py
+      - name: Test the parity checker
+        run: python -m unittest discover -s tests -p "test_readme_parity.py" -v
