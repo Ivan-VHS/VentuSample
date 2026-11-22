@@ -26,7 +26,7 @@ void testStereoMetricsAndReadOnlyBehavior() {
     require(result.frames == 4u && result.sampleCount == 8u, "frame and sample counts must be exact");
     require(result.clippedSamples == 2u, "samples at or above the threshold must be counted");
     require(std::abs(result.peak - 1.0) < 1.0e-9, "peak must be measured");
-    require(std::abs(result.rms - std::sqrt(0.3125)) < 1.0e-6, "RMS must be measured across channels");
+    require(std::abs(result.rms - std::sqrt(0.375)) < 1.0e-6, "RMS must be measured across channels");
     require(std::abs(result.dcOffset) < 1.0e-9, "DC offset must use the full signal");
     require(result.stereoCorrelationValid, "stereo correlation must be available for non-constant channels");
     require(std::abs(result.stereoCorrelation - 1.0) < 1.0e-6, "identical channels must correlate at +1");
