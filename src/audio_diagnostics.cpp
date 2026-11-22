@@ -1,7 +1,6 @@
 #include "audio_diagnostics.hpp"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <limits>
 #include <vector>
@@ -12,7 +11,7 @@ constexpr std::size_t kMaxFrames = 20u * 1000u * 1000u;
 constexpr double kSilenceFloor = 1.0e-12;
 }
 
-AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold) noexcept {
+AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold) {
     AudioDiagnostics report;
 
     if (audio.sampleRate < 1000 || audio.sampleRate > 768000) {
@@ -40,7 +39,6 @@ AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold
         return report;
     }
 
-    std::array<double, 8> sums{};
     double totalSquareSum = 0.0;
     double totalSum = 0.0;
     double crossSum = 0.0;
@@ -63,7 +61,6 @@ AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold
             }
             totalSum += sample;
             totalSquareSum += sample * sample;
-            sums[channel] += sample;
 
             if (channel == 0u) {
                 leftSum += sample;
