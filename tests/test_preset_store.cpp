@@ -55,6 +55,17 @@ int main(int argc, char** argv) {
             "portable preset should load");
     require(name == "Harlem 150", "preset name should round trip");
     require(restored.seed == 1234, "portable preset should preserve the current seed");
+
+    auto legacyPreset = portable;
+    auto legacyValues = legacyPreset.value("parameters").toObject();
+    legacyValues.remove("export_midi");
+    legacyPreset.insert("parameters", legacyValues);
+    ventu::Parameters legacyRestored;
+    legacyRestored.exportMidi = true;
+    require(ventu::presets::fromJson(legacyPreset, source, legacyRestored, name, error),
+            "older presets without the MIDI field should remain loadable");
+    require(!legacyRestored.exportMidi,
+            "older presets should default the new MIDI setting to off");
     require(restored.bpm == source.bpm && restored.rootNote == source.rootNote,
             "musical settings should round trip");
     require(restored.style == source.style && restored.target == source.target
