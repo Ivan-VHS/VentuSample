@@ -2,6 +2,11 @@
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
+<p align="center"><img src="assets/readme/dashboard.svg" alt="VentuSample 2026 project visual overview" width="100%"></p>
+<sub>Project visual overview · README refreshed 2026-11-22 · project palette · accessible data-dense diagrams</sub>
+
+
+
 [CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · Offline · Apache-2.0
 
 VentuSample is a native workstation for deterministic procedural hip-hop sample packs. Its scalar renderer exports PCM16 stereo WAV files and versioned JSON manifests without requiring a DAW, audio device or network connection. An optional build-time bridge can link Reaper's native C17 expression runtime for deterministic integer control expressions; all audio generation and DSP remain in C++20.
@@ -26,6 +31,9 @@ flowchart TD
     E --> G[Versioned JSON manifest]
     H[Imported supported WAV] --> I[Quantum Audio Engine]
     I --> J[Processed PCM16 WAV]
+  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  class A,B,C,D,E,F,G,H,I,J readmeNode;
+  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
 ```
 
 ## Plugin discovery and execution boundary
@@ -38,6 +46,9 @@ flowchart LR
     B --> C[Entry stays disabled]
     C --> D[Reviewed native handler attached]
     D --> E[Bounded dispatch or one-bar preview]
+  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  class A,B,C,D,E readmeNode;
+  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
 ```
 
 ## Generator matrix
