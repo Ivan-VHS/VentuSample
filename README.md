@@ -6,6 +6,23 @@
 
 [Source](https://github.com/Ivan-VHS/VentuSample) · [CI workflow](.github/workflows/ci.yml) · [Documentation index](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Live desktop capture
+
+<p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="Real Windows desktop capture of VentuSample" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · Click the image to open the original PNG.</sub></p>
+
+Genuine screenshot of VentuSample running on the Windows CI desktop. The image is captured from the built Qt application; the banner and data-flow diagram are separate original SVG illustrations.
+
+### Architecture at a glance
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="VentuSample implemented data flow" width="100%"></p>
+
+Implemented path: parameters and seed → C++20 renderer → stereo buffer → optional offline DSP → PCM16 WAV and JSON manifest.
+
+
+[![C++20 CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=C%2B%2B20%20CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![Qt desktop jobs](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=Qt%20desktop%20jobs)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
+
+
 > **Scope:** VentuSample is a native C++20 workstation for deterministic, procedural sample-pack generation and offline WAV processing. It has a Qt 6 desktop interface when Qt is available and a portable DSP/core build. It is not a hosted web demo, browser sandbox, DAW, audio-device host or production audio service. Documentation was checked against `main` on **2026-11-22**.
 
 ## Purpose and boundaries
@@ -33,8 +50,6 @@ The application is not a real-time audio engine. Rendering and DSP run offline o
 
 The Windows screenshot below is a capture of the desktop application, not a browser preview.
 
-<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample running on Windows 11" width="100%"></p>
-<sub>Desktop capture · 1920×1080 source image. This is not a hosted web stand.</sub>
 
 ## Quick Start
 
