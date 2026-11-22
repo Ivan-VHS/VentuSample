@@ -37,6 +37,8 @@ add_library(ventusample_pytyliki_dsp STATIC
     src/compat/pytyliki-dsp/dsp.h
     src/compat/pytyliki-dsp/dsp_engine.c
     src/compat/pytyliki-dsp/dsp_engine.h
+    src/compat/pytyliki-dsp/audio_errors.c
+    src/compat/pytyliki-dsp/audio_errors.h
 )
 target_include_directories(ventusample_pytyliki_dsp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/compat/pytyliki-dsp)
 set_target_properties(ventusample_pytyliki_dsp PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
@@ -165,6 +167,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_pytyliki_dsp_engine_tests tests/compat/test_pytyliki_dsp_engine.c)
     target_link_libraries(ventusample_pytyliki_dsp_engine_tests PRIVATE ventusample_pytyliki_dsp)
     add_test(NAME ventusample-pytyliki-dsp-engine COMMAND ventusample_pytyliki_dsp_engine_tests)
+    add_executable(ventusample_audio_error_tests tests/compat/test_audio_errors.c)
+    target_link_libraries(ventusample_audio_error_tests PRIVATE ventusample_pytyliki_dsp)
+    add_test(NAME ventusample-audio-diagnostics COMMAND ventusample_audio_error_tests)
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-generator COMMAND ventusample_tests)
