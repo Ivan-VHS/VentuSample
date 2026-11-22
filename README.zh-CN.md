@@ -30,9 +30,9 @@ flowchart TD
     E --> G[带版本号的 JSON 清单]
     H[导入的受支持 WAV] --> I[Quantum Audio Engine]
     I --> J[处理后的 PCM16 WAV]
-  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  classDef readmeNode fill:#EEF4FF,stroke:#165AC4,color:#182F50,stroke-width:1.5px;
   class A,B,C,D,E,F,G,H,I,J readmeNode;
-  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
+  linkStyle default stroke:#165AC4,stroke-width:1.8px;
 ```
 
 ## 插件发现与执行边界
@@ -45,9 +45,9 @@ flowchart LR
     B --> C[条目保持禁用]
     C --> D[关联经过审查的原生处理器]
     D --> E[有界调度或一个小节的预览]
-  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  classDef readmeNode fill:#EEF4FF,stroke:#165AC4,color:#182F50,stroke-width:1.5px;
   class A,B,C,D,E readmeNode;
-  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
+  linkStyle default stroke:#165AC4,stroke-width:1.8px;
 ```
 
 ## 生成器
