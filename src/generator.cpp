@@ -503,6 +503,8 @@ std::string validate(const Parameters& p) {
         return "Уровень исходного сэмпла должен быть 0–100%, а транспонирование — ±12 полутонов.";
     if (!std::isfinite(p.busCompressionRatio) || p.busCompressionRatio < 1.0 || p.busCompressionRatio > 12.0)
         return "Коэффициент компрессии должен находиться в диапазоне 1:1–12:1.";
+    if (!std::isfinite(p.targetPeakDbfs) || p.targetPeakDbfs < -24.0 || p.targetPeakDbfs > -0.3)
+        return "Целевой пик должен находиться в диапазоне -24.0…-0.3 dBFS.";
     const double durationSeconds = p.target == Target::OneShotKit ? 1.35 : (60.0 / p.bpm) * 4.0 * p.bars;
     const double outputCount = static_cast<double>(p.variations) * (p.target == Target::OneShotKit ? 8.0 : 1.0);
     const double estimatedBytes = durationSeconds * p.sampleRate * 4.0 * outputCount;
@@ -808,9 +810,11 @@ AudioStats measure(const AudioBuffer& audio) {
     return stats;
 }
 
-bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error) {
+bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio,
+               std::string& error, const WavExportOptions& options) {
     error.clear();
-    if (audio.channels != 2 || audio.samples.size() % 2u != 0u || audio.frames() == 0 || audio.sampleRate < 8000 || audio.sampleRate > 192000) {
+    if (audio.channels != 2 || audio.samples.size() % 2u != 0u ||
+        audio.frames() == 0 || audio.sampleRate < 8000 || audio.sampleRate > 192000) {
         error = "Некорректная структура PCM-аудио.";
         return false;
     }
@@ -819,24 +823,62 @@ bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std:
         error = "WAV превышает предел RIFF PCM16.";
         return false;
     }
+
     std::ofstream file(path, std::ios::binary | std::ios::trunc);
-    if (!file) { error = "Не удалось открыть файл для записи: " + path.string(); return false; }
-    const auto write16 = [&file](std::uint16_t v) { file.put(static_cast<char>(v & 0xffu)); file.put(static_cast<char>((v >> 8u) & 0xffu)); };
-    const auto write32 = [&file](std::uint32_t v) {
-        for (unsigned shift = 0; shift < 32; shift += 8) file.put(static_cast<char>((v >> shift) & 0xffu));
+    if (!file) {
+        error = "Не удалось открыть файл для записи: " + path.string();
+        return false;
+    }
+    const auto write16 = [&file](std::uint16_t value) {
+        file.put(static_cast<char>(value & 0xffu));
+        file.put(static_cast<char>((value >> 8u) & 0xffu));
     };
+    const auto write32 = [&file](std::uint32_t value) {
+        for (unsigned shift = 0; shift < 32; shift += 8)
+            file.put(static_cast<char>((value >> shift) & 0xffu));
+    };
+    const auto nextRandom = [](std::uint32_t& state) {
+        if (state == 0u) state = 0x6D2B79F5u;
+        state ^= state << 13u;
+        state ^= state >> 17u;
+        state ^= state << 5u;
+        return state;
+    };
+
+    std::uint32_t randomState = options.ditherSeed;
     const auto dataBytes = static_cast<std::uint32_t>(dataBytes64);
-    file.write("RIFF", 4); write32(36u + dataBytes); file.write("WAVEfmt ", 8);
-    write32(16u); write16(1u); write16(2u); write32(static_cast<std::uint32_t>(audio.sampleRate));
-    write32(static_cast<std::uint32_t>(audio.sampleRate * 4)); write16(4u); write16(16u);
-    file.write("data", 4); write32(dataBytes);
+    file.write("RIFF", 4);
+    write32(36u + dataBytes);
+    file.write("WAVEfmt ", 8);
+    write32(16u);
+    write16(1u);
+    write16(2u);
+    write32(static_cast<std::uint32_t>(audio.sampleRate));
+    write32(static_cast<std::uint32_t>(audio.sampleRate * 4));
+    write16(4u);
+    write16(16u);
+    file.write("data", 4);
+    write32(dataBytes);
+
     for (float sample : audio.samples) {
-        const double clean = std::clamp(std::isfinite(sample) ? static_cast<double>(sample) : 0.0, -1.0, 1.0);
-        const auto pcm = static_cast<std::int16_t>(std::lrint(clean * 32767.0));
+        const double clean = std::clamp(
+            std::isfinite(sample) ? static_cast<double>(sample) : 0.0, -1.0, 1.0);
+        double shaped = clean;
+        if (options.tpdfDither) {
+            const double first = static_cast<double>(nextRandom(randomState)) / 4294967295.0;
+            const double second = static_cast<double>(nextRandom(randomState)) / 4294967295.0;
+            shaped += (first - second) / 32767.0;
+        }
+        shaped = std::clamp(shaped, -1.0, 1.0);
+        const auto pcm = static_cast<std::int16_t>(std::lrint(shaped * 32767.0));
         write16(static_cast<std::uint16_t>(pcm));
     }
+
     file.flush();
-    if (!file.good()) { error = "Ошибка записи WAV: " + path.string(); return false; }
+    if (!file.good()) {
+        error = "Ошибка записи WAV: " + path.string();
+        return false;
+    }
     return true;
 }
 
@@ -916,6 +958,34 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
         }
         return true;
     };
+    struct ExportMetadata {
+        std::uint32_t ditherSeed{0};
+        bool normalized{false};
+        bool normalizationSkipped{false};
+    };
+    const auto prepareExport = [&](AudioBuffer& audio, int variation,
+                                   const std::string& fileName) {
+        ExportMetadata metadata;
+        std::uint32_t seed = static_cast<std::uint32_t>(p.seed)
+            ^ (static_cast<std::uint32_t>(variation + 1) * 0x9E3779B9u);
+        for (unsigned char character : fileName)
+            seed = (seed ^ static_cast<std::uint32_t>(character)) * 16777619u;
+        metadata.ditherSeed = seed == 0u ? 0x6D2B79F5u : seed;
+
+        if (p.normalizePeak) {
+            const double currentPeak = measure(audio).peak;
+            if (currentPeak <= 1e-9) {
+                metadata.normalizationSkipped = true;
+            } else {
+                const double target = std::pow(10.0, p.targetPeakDbfs / 20.0);
+                const double gain = target / currentPeak;
+                for (float& sample : audio.samples)
+                    sample = static_cast<float>(static_cast<double>(sample) * gain);
+                metadata.normalized = true;
+            }
+        }
+        return metadata;
+    };
     std::ostringstream manifest;
     manifest << "{\n  \"schema\": \"ventusample.pack.v2\",\n  \"generator\": \"VentuSample native DSP 0.2.0\",\n  \"audio_format\": \"wav_pcm16_stereo\",\n";
     manifest << "  \"parameters\": {\"style\": \"" << jsonEscape(toString(p.style)) << "\", \"target\": \"" << jsonEscape(toString(p.target))
@@ -928,6 +998,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
              << ", \"snare_offset_ms\": " << p.snareOffsetMs << ", \"bus_compression_ratio\": " << p.busCompressionRatio
              << ", \"triplet_rolls\": " << (p.tripletRolls ? "true" : "false")
              << ", \"micro_humanize\": " << (p.microHumanize ? "true" : "false")
+             << ", \"tpdf_dither\": " << (p.tpdfDither ? "true" : "false")
+             << ", \"normalize_peak\": " << (p.normalizePeak ? "true" : "false")
+             << ", \"target_peak_dbfs\": " << p.targetPeakDbfs
              << ", \"vinyl_dust\": " << (p.vinylDust ? "true" : "false")
              << ", \"stochastic_enabled\": " << (p.stochasticEnabled ? "true" : "false")
              << ", \"stochastic_seed\": " << p.seed
@@ -951,16 +1024,22 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 const bool pitchedHit = std::string(hit) == "bass" || std::string(hit) == "pluck";
                 const std::string hitKeyTag = pitchedHit ? "_" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) : "";
                 const auto path = outputDirectory / (packPrefix + hitKeyTag + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
+                const auto exportMetadata = prepareExport(audio, variation, path.filename().string());
+                const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
                 std::string error;
-                if (!writeWave(path, audio, error)) { result.error = error; return result; }
+                if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
                 const auto stats = measure(audio);
                 result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
                 result.files.push_back(path);
                 if (!first) manifest << ",\n";
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
-                         << ", \"stochastic_routes\": [";
+                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", "variation": " << variation + 1
+                         << ", "dither": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
+                         << ", "dither_seed": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
+                         << ", "normalized": " << (exportMetadata.normalized ? "true" : "false")
+                         << ", "normalization_skipped_silence": " << (exportMetadata.normalizationSkipped ? "true" : "false")
+                         << ", "stochastic_routes": [;
                 for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
                     if (route != 0u) manifest << ", ";
                     manifest << "\"" << jsonEscape(stochasticReport.routes[route]) << "\"";
@@ -973,8 +1052,10 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             StochasticResult stochasticReport;
             if (!applyStochastic(audio, variation, stochasticReport)) return result;
             const auto path = outputDirectory / (packPrefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
+            const auto exportMetadata = prepareExport(audio, variation, path.filename().string());
+            const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
             std::string error;
-            if (!writeWave(path, audio, error)) { result.error = error; return result; }
+            if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
             const auto stats = measure(audio);
             result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
             result.files.push_back(path);
