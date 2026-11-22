@@ -75,6 +75,8 @@ if(VENTU_BUILD_DESKTOP)
             src/main.cpp
             src/mainwindow.cpp
             src/mainwindow.hpp
+            src/preset_store.cpp
+            src/preset_store.hpp
             src/ui_motion.cpp
             src/ui_motion.hpp
             src/ui_ux.cpp
@@ -87,6 +89,13 @@ if(VENTU_BUILD_DESKTOP)
         target_link_libraries(VentuSample PRIVATE ventusample_core Qt6::Widgets)
         target_include_directories(VentuSample PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
         if(VENTU_BUILD_TESTS)
+            add_executable(ventusample_preset_tests
+                tests/test_preset_store.cpp
+                src/preset_store.cpp
+                src/preset_store.hpp
+            )
+            target_link_libraries(ventusample_preset_tests PRIVATE ventusample_core Qt6::Core)
+            target_include_directories(ventusample_preset_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
             add_executable(ventusample_ui_motion_tests
                 tests/test_ui_motion.cpp
                 src/ui_motion.cpp
@@ -126,6 +135,7 @@ endif()
 if(VENTU_BUILD_TESTS)
     enable_testing()
     if(VENTU_BUILD_DESKTOP AND Qt6Widgets_FOUND)
+        add_test(NAME ventusample-preset-store COMMAND ventusample_preset_tests)
         add_test(NAME ventusample-ui-motion COMMAND ventusample_ui_motion_tests)
         add_test(NAME ventusample-ui-ux-40026 COMMAND ventusample_ui_ux_tests)
     endif()

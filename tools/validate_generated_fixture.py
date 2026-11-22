@@ -15,6 +15,7 @@ def main() -> int:
     pack = json.loads((FIXTURE / "ventusample_manifest.json").read_text(encoding="utf-8"))
     assert pack["schema"] == schema["properties"]["schema"]["const"]
     assert pack["audio_format"] == schema["properties"]["audio_format"]["const"]
+    assert pack["measurement_basis"] == "sample_domain"
     params = pack["parameters"]
     parameter_schema = schema["properties"]["parameters"]
     parameter_properties = parameter_schema["properties"]
@@ -30,6 +31,9 @@ def main() -> int:
             assert value in rule["enum"], (key, value)
         if rule.get("type") == "boolean":
             assert isinstance(value, bool), (key, value)
+    assert params["tpdf_dither"] is False
+    assert params["normalize_peak"] is False
+    assert params["target_peak_dbfs"] == -1.0
     assert pack["source_sample"] == "single.wav"
     assert 1 <= len(pack["files"]) <= schema["properties"]["files"]["maxItems"]
     file_schema = schema["properties"]["files"]["items"]
@@ -45,6 +49,10 @@ def main() -> int:
         assert math.isfinite(entry["peak"]) and 0 <= entry["peak"] <= 1
         assert math.isfinite(entry["rms"]) and 0 <= entry["rms"] <= 1
         assert math.isfinite(entry["crest_db"]) and entry["crest_db"] >= 0
+        assert 0 <= entry["left_rms"] <= 1 and 0 <= entry["right_rms"] <= 1
+        assert -1 <= entry["stereo_correlation"] <= 1
+        assert entry["dither"] == "off" and entry["dither_seed"] == 0
+        assert entry["normalized"] is False and entry["normalization_skipped_silence"] is False
         assert entry["musical_key"] is None or isinstance(entry["musical_key"], str)
         assert entry["scale"] is None or isinstance(entry["scale"], str)
         assert entry["mode_family"] in (None, "major", "minor", "modal", "pitched_note")

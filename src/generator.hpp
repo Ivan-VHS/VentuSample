@@ -42,6 +42,9 @@ struct Parameters {
     int sourceMixPercent{65};
     int sourcePitchSemitones{0};
     double busCompressionRatio{4.0};
+    bool tpdfDither{false};
+    bool normalizePeak{false};
+    double targetPeakDbfs{-1.0};
     bool tripletRolls{true};
     bool microHumanize{true};
     bool vinylDust{false};
@@ -52,6 +55,11 @@ struct Parameters {
     std::uint32_t stochasticPluginMask{0xFFu};
     // 0=hybrid, 1=serial, 2=parallel.
     int stochasticTopology{0};
+};
+
+struct WavExportOptions {
+    bool tpdfDither{false};
+    std::uint32_t ditherSeed{0};
 };
 
 struct AudioBuffer {
@@ -67,6 +75,10 @@ struct AudioStats {
     double peak{0.0};
     double rms{0.0};
     double crestDb{0.0};
+    double leftRms{0.0};
+    double rightRms{0.0};
+    double stereoCorrelation{0.0};
+    bool stereoCorrelationValid{false};
 };
 
 struct CadenceStats {
@@ -100,7 +112,8 @@ AudioBuffer render(const Parameters& parameters, int variation, const std::strin
 CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent,
                             double toleranceMs = 3.0);
 AudioStats measure(const AudioBuffer& audio);
-bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error);
+bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error,
+               const WavExportOptions& options = {});
 BatchResult generatePack(const Parameters& parameters, const std::filesystem::path& outputDirectory);
 
 } // namespace ventu

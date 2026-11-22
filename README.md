@@ -6,6 +6,14 @@
 
 [Source](https://github.com/Ivan-VHS/VentuSample) · [CI workflow](.github/workflows/ci.yml) · [Documentation index](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Versioned presets and A/B comparison
+
+The desktop app can save and load local JSON presets using `ventusample.preset.v1`. Presets retain the musical profile, rhythm, filters, sampler and DSP routing settings. The random seed is omitted by default so a preset describes the sound setup rather than fixing every generated variation; the save dialog offers an explicit option to include it.
+
+Use **Presets → Save preset** or **Presets → Load preset**. Two additional in-session slots, A and B, let you capture and switch between parameter sets without writing them to disk. Presets are validated with the same generator rules before they are accepted. Local source-sample paths are intentionally not exported because they are machine-specific.
+
+The schema is published at `schemas/ventusample.preset.v1.schema.json`. Presets are local files; there is no cloud sync or claim of authorship over the audio they describe.
+
 ## Live desktop capture
 
 <p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="Real Windows desktop capture of VentuSample" width="100%"></a></p>
@@ -259,3 +267,11 @@ The web-stand checklist is documented against the actual offline desktop/audio p
 | 56–66 · operations and support | links the real CI workflow, explains screenshot-artifact limits and rollback, troubleshooting, known issues, contribution path and license |
 
 **There is no public VentuSample web-stand URL.** The desktop screenshot and CI screenshot artifact are not an interactive browser demo.
+
+## Unified report envelope
+
+Wrap a JSON result using the shared ivan-vhs.report.v1 format:
+
+    python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
+
+See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json. The tool-specific result remains unchanged.

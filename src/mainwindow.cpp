@@ -23,6 +23,7 @@
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <QPlainTextEdit>
 #include <QProgressBar>
 #include <QPushButton>
@@ -138,6 +139,14 @@ void MainWindow::buildUi() {
     planningMenu->addAction("Планировщик бюджета 500 грн…", this, [this] {
         ventu::showBudgetPlanner(this);
     });
+
+    auto* presetMenu = menuBar()->addMenu("Пресеты");
+    presetMenu->addAction("Сохранить пресет…", this, &MainWindow::savePreset);
+    presetMenu->addAction("Загрузить пресет…", this, &MainWindow::loadPreset);
+    presetMenu->addSeparator();
+    presetMenu->addAction("Сохранить текущие параметры как A", this, &MainWindow::capturePresetA);
+    presetMenu->addAction("Сохранить текущие параметры как B", this, &MainWindow::capturePresetB);
+    presetMenu->addAction("Переключить A / B", this, &MainWindow::switchPresetSlots);
 
     auto* viewMenu = menuBar()->addMenu("Вид");
     viewMenu->addAction("Настройки движения…", this, &MainWindow::showMotionSettings);
@@ -285,6 +294,20 @@ void MainWindow::buildUi() {
     stochasticCheck_ = new QCheckBox("Включить стохастическую цепь эффектов");
     stochasticCheck_->setToolTip("Меняет DSP-цепочку при офлайн-экспорте WAV. Realtime-аудиопоток не используется.");
     stochasticIntensitySlider_ = addSliderRow(filterGrid, 6, "Интенсивность стохастики", 0, 100, 45, &stochasticIntensityValue_);
+    tpdfDitherCheck_ = new QCheckBox("TPDF-дизеринг при PCM16-экспорте");
+    tpdfDitherCheck_->setToolTip("Опциональный детерминированный шум квантования. Seed записывается в manifest.");
+    normalizePeakCheck_ = new QCheckBox("Нормализовать пиковый уровень при экспорте");
+    targetPeakSpin_ = new QDoubleSpinBox();
+    targetPeakSpin_->setRange(-24.0, -0.3);
+    targetPeakSpin_->setDecimals(1);
+    targetPeakSpin_->setSingleStep(0.5);
+    targetPeakSpin_->setValue(-1.0);
+    targetPeakSpin_->setSuffix(" dBFS");
+    targetPeakSpin_->setAccessibleName("Целевой пиковый уровень dBFS");
+    targetPeakSpin_->setEnabled(false);
+    QObject::connect(normalizePeakCheck_, &QCheckBox::toggled,
+                     targetPeakSpin_, &QDoubleSpinBox::setEnabled);
+    filterGrid->addWidget(tpdfDitherCheck_, 7, 0, 1, 3);
     stochasticTriggerBox_ = new QComboBox();
     addChoice(stochasticTriggerBox_, {"Весь файл", "Каждый такт", "Музыкальные транзиенты"}, 0, "Триггер стохастического эффекта");
     stochasticTopologyBox_ = new QComboBox();
@@ -310,6 +333,8 @@ void MainWindow::buildUi() {
     filterGrid->addWidget(stochasticPoolGroup, 9, 0, 1, 3);
     filterGrid->addWidget(new QLabel("ТОПОЛОГИЯ ЦЕПИ"), 10, 0);
     filterGrid->addWidget(stochasticTopologyBox_, 10, 1, 1, 2);
+    filterGrid->addWidget(normalizePeakCheck_, 11, 0, 1, 2);
+    filterGrid->addWidget(targetPeakSpin_, 11, 2);
     detailRow->addWidget(makeCard("04  /  ОБРАБОТКА И ДВИЖЕНИЕ", filterGrid), 1);
     studioLayout->addLayout(detailRow);
 
@@ -613,6 +638,9 @@ void MainWindow::loadSettings() {
     humanizeCheck_->setChecked(settings.value("humanize", true).toBool());
     dustCheck_->setChecked(settings.value("dust", false).toBool());
     stochasticCheck_->setChecked(settings.value("stochastic_enabled", false).toBool());
+    tpdfDitherCheck_->setChecked(settings.value("tpdf_dither", false).toBool());
+    normalizePeakCheck_->setChecked(settings.value("normalize_peak", false).toBool());
+    targetPeakSpin_->setValue(settings.value("target_peak_dbfs", -1.0).toDouble());
     stochasticIntensitySlider_->setValue(settings.value("stochastic_intensity", 45).toInt());
     stochasticTriggerBox_->setCurrentIndex(std::clamp(settings.value("stochastic_trigger", 0).toInt(), 0, 2));
     const auto poolMask = static_cast<unsigned int>(settings.value("stochastic_pool_mask", 255).toUInt());
@@ -666,6 +694,9 @@ void MainWindow::saveSettings() {
     settings.setValue("humanize", humanizeCheck_->isChecked());
     settings.setValue("dust", dustCheck_->isChecked());
     settings.setValue("stochastic_enabled", stochasticCheck_->isChecked());
+    settings.setValue("tpdf_dither", tpdfDitherCheck_->isChecked());
+    settings.setValue("normalize_peak", normalizePeakCheck_->isChecked());
+    settings.setValue("target_peak_dbfs", targetPeakSpin_->value());
     settings.setValue("stochastic_intensity", stochasticIntensitySlider_->value());
     settings.setValue("stochastic_trigger", stochasticTriggerBox_->currentIndex());
     unsigned int poolMask = 0u;
@@ -842,6 +873,9 @@ ventu::Parameters MainWindow::parameters() const {
     p.microHumanize = humanizeCheck_->isChecked();
     p.vinylDust = dustCheck_->isChecked();
     p.stochasticEnabled = stochasticCheck_->isChecked();
+    p.tpdfDither = tpdfDitherCheck_->isChecked();
+    p.normalizePeak = normalizePeakCheck_->isChecked();
+    p.targetPeakDbfs = targetPeakSpin_->value();
     p.stochasticIntensityPercent = stochasticIntensitySlider_->value();
     p.stochasticTriggerMode = stochasticTriggerBox_->currentIndex();
     p.stochasticTopology = stochasticTopologyBox_->currentIndex();
@@ -849,6 +883,140 @@ ventu::Parameters MainWindow::parameters() const {
     for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
         if (stochasticPoolChecks_[effect]->isChecked()) p.stochasticPluginMask |= (1u << effect);
     return p;
+}
+
+void MainWindow::applyParameters(const ventu::Parameters& p) {
+    styleBox_->setCurrentIndex(static_cast<int>(p.style));
+    targetBox_->setCurrentIndex(static_cast<int>(p.target));
+    keyBox_->setCurrentIndex(p.rootNote);
+    scaleBox_->setCurrentIndex(static_cast<int>(p.scale));
+    samplerBox_->setCurrentIndex(static_cast<int>(p.sampler));
+    timbreBox_->setCurrentIndex(static_cast<int>(p.timbre));
+    rateBox_->setCurrentText(QString::number(p.sampleRate));
+    bpmSpin_->setValue(p.bpm);
+    barsSpin_->setValue(p.bars);
+    variationsSpin_->setValue(p.variations);
+    seedSpin_->setValue(p.seed);
+    snareOffsetSpin_->setValue(p.snareOffsetMs);
+    ratioSpin_->setValue(p.busCompressionRatio);
+    swingSlider_->setValue(p.swingPercent);
+    densitySlider_->setValue(p.densityPercent);
+    gritSlider_->setValue(p.gritPercent);
+    saturationSlider_->setValue(p.saturationPercent);
+    stereoSlider_->setValue(p.stereoPercent);
+    hpSlider_->setValue(p.highPassHz);
+    lpSlider_->setValue(p.lowPassHz);
+    tripletCheck_->setChecked(p.tripletRolls);
+    humanizeCheck_->setChecked(p.microHumanize);
+    dustCheck_->setChecked(p.vinylDust);
+    stochasticCheck_->setChecked(p.stochasticEnabled);
+    tpdfDitherCheck_->setChecked(p.tpdfDither);
+    normalizePeakCheck_->setChecked(p.normalizePeak);
+    targetPeakSpin_->setValue(p.targetPeakDbfs);
+    stochasticIntensitySlider_->setValue(p.stochasticIntensityPercent);
+    stochasticTriggerBox_->setCurrentIndex(p.stochasticTriggerMode);
+    stochasticTopologyBox_->setCurrentIndex(p.stochasticTopology);
+    for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
+        stochasticPoolChecks_[effect]->setChecked((p.stochasticPluginMask & (1u << effect)) != 0u);
+    sourceMixSlider_->setValue(p.sourceMixPercent);
+    sourceMixValue_->setText(QString::number(p.sourceMixPercent));
+    sourcePitchSpin_->setValue(p.sourcePitchSemitones);
+    updateBeatSync();
+}
+
+void MainWindow::savePreset() {
+    const auto current = parameters();
+    const auto issue = ventu::validate(current);
+    if (!issue.empty()) {
+        QMessageBox::warning(this, "Нельзя сохранить пресет", q(issue));
+        return;
+    }
+    const QString name = QInputDialog::getText(
+        this, "Сохранить пресет", "Название пресета:",
+        QLineEdit::Normal, QString(), nullptr).trimmed();
+    if (name.isEmpty()) return;
+
+    const QString directory = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+        + "/presets";
+    if (!QDir().mkpath(directory)) {
+        QMessageBox::warning(this, "Папка пресетов", "Не удалось создать локальную папку пресетов.");
+        return;
+    }
+    const QString path = QFileDialog::getSaveFileName(
+        this, "Сохранить пресет", QDir(directory).filePath(name + ".json"),
+        "VentuSample preset (*.json)");
+    if (path.isEmpty()) return;
+    const bool includeSeed = QMessageBox::question(
+        this, "Seed вариации",
+        "Зафиксировать seed в файле пресета? По умолчанию seed не сохраняется.",
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes;
+    QString error;
+    if (!ventu::presets::saveToFile(path, name, current, includeSeed, error)) {
+        QMessageBox::warning(this, "Не удалось сохранить пресет", error);
+        return;
+    }
+    appendLog(QString("PRESET SAVED  %1").arg(QFileInfo(path).fileName()));
+    statusLabel_->setText(QString("Пресет «%1» сохранён локально.").arg(name));
+}
+
+void MainWindow::loadPreset() {
+    const QString directory = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
+        + "/presets";
+    const QString path = QFileDialog::getOpenFileName(
+        this, "Загрузить пресет", directory, "VentuSample preset (*.json)");
+    if (path.isEmpty()) return;
+    ventu::Parameters restored;
+    QString name;
+    QString error;
+    if (!ventu::presets::loadFromFile(path, parameters(), restored, name, error)) {
+        QMessageBox::warning(this, "Пресет не загружен", error);
+        return;
+    }
+    applyParameters(restored);
+    saveSettings();
+    appendLog(QString("PRESET LOADED  %1").arg(name));
+    statusLabel_->setText(QString("Загружен пресет «%1».").arg(name));
+}
+
+void MainWindow::capturePresetA() {
+    const auto current = parameters();
+    const auto issue = ventu::validate(current);
+    if (!issue.empty()) {
+        QMessageBox::warning(this, "Слот A", q(issue));
+        return;
+    }
+    presetA_ = current;
+    presetShowsA_ = true;
+    statusLabel_->setText("Параметры текущей сессии сохранены в слот A.");
+}
+
+void MainWindow::capturePresetB() {
+    const auto current = parameters();
+    const auto issue = ventu::validate(current);
+    if (!issue.empty()) {
+        QMessageBox::warning(this, "Слот B", q(issue));
+        return;
+    }
+    presetB_ = current;
+    presetShowsA_ = false;
+    statusLabel_->setText("Параметры текущей сессии сохранены в слот B.");
+}
+
+void MainWindow::switchPresetSlots() {
+    if (!presetA_ || !presetB_) {
+        QMessageBox::information(this, "Сравнение A / B",
+            "Сначала сохрани параметры в оба слота A и B.");
+        return;
+    }
+    if (presetShowsA_) {
+        applyParameters(*presetB_);
+        presetShowsA_ = false;
+        statusLabel_->setText("Активен набор B.");
+    } else {
+        applyParameters(*presetA_);
+        presetShowsA_ = true;
+        statusLabel_->setText("Активен набор A.");
+    }
 }
 
 void MainWindow::setBusy(bool busy) {
