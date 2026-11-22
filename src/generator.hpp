@@ -62,12 +62,23 @@ struct WavExportOptions {
     std::uint32_t ditherSeed{0};
 };
 
+enum class MidiPart : std::uint8_t { Drums, Bass, Melody };
+
+struct MidiNoteEvent {
+    std::size_t startFrame{0};
+    std::size_t durationFrames{1};
+    int note{60};
+    int velocity{80};
+    MidiPart part{MidiPart::Melody};
+};
+
 struct AudioBuffer {
     int sampleRate{44100};
     int channels{2};
     std::vector<float> samples;
     /* Scheduled musical onsets; not inferred from imported audio or noise. */
     std::vector<std::size_t> eventFrames;
+    std::vector<MidiNoteEvent> midiNotes;
     std::size_t frames() const noexcept { return samples.size() / static_cast<std::size_t>(channels); }
 };
 
