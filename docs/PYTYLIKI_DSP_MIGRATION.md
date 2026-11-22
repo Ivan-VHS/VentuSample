@@ -23,6 +23,8 @@ ctest --test-dir build --output-on-failure
 
 The module remains offline and buffer-based. It does not add an audio-device host, real-time callback, plugin loader or network service.
 
+Audio-only diagnostics formerly in Pytyliki are now exposed through `audio_errors.h` / `audio_errors.c`, with Ventu-owned identifiers `VNT-A0107`–`VNT-A0109`. Their documentation and C tests live under `docs/audio-errors/` and `tests/compat/test_audio_errors.c`; CTest runs them as `ventusample-audio-diagnostics`.
+
 ## Manifest audit
 
 Pack-v1 validation and normalized metadata comparison are maintained in `tools/ventusample_pack_audit.py`. The JSON Schema is in `schemas/ventusample.pack.v1.schema.json`; test coverage is in `tests/test_ventusample_pack_audit.py`. The audit reads manifest JSON only and does not open or modify files listed by the manifest.
