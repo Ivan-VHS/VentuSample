@@ -6,6 +6,23 @@
 
 [Вихідний код](https://github.com/Ivan-VHS/VentuSample) · [CI workflow](.github/workflows/ci.yml) · [Індекс документації](docs/README.md) · [Apache-2.0](LICENSE)
 
+## Реальний знімок desktop-застосунку
+
+<p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="Реальний знімок VentuSample у Windows" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · Натисніть зображення, щоб відкрити оригінальний PNG.</sub></p>
+
+Справжній скріншот VentuSample, запущеного на Windows CI desktop. Зображення захоплене зібраним Qt-застосунком; банер і схема потоку даних — окремі авторські SVG-ілюстрації.
+
+### Архітектура одним поглядом
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="VentuSample implemented data flow" width="100%"></p>
+
+Реальний шлях: параметри й seed → C++20 renderer → stereo buffer → необов’язковий офлайн-DSP → PCM16 WAV і JSON manifest.
+
+
+[![C++20 CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=C%2B%2B20%20CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![Qt desktop jobs](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=Qt%20desktop%20jobs)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
+
+
 > **Призначення:** VentuSample — нативна робоча станція на C++20 для детермінованої процедурної генерації семпл-паків і офлайн-обробки WAV. За наявності Qt доступний desktop-інтерфейс Qt 6; ядро DSP можна збирати окремо. Це не hosted web demo, browser sandbox, DAW, host аудіопристроїв або production audio service. Документацію звірено з `main` **22.11.2026**.
 
 ## Призначення та межі
@@ -33,8 +50,6 @@ VentuSample створює локальні hip-hop sample packs на основ
 
 Скріншот Windows нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
-<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample у Windows 11" width="100%"></p>
-<sub>Знімок desktop-програми · вихідне зображення 1920×1080. Це не hosted web stand.</sub>
 
 ## Швидкий старт
 

@@ -1,5 +1,75 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="420" viewBox="0 0 1440 420" role="img" aria-labelledby="title desc">
-<title id="title">VentuSample — 2026 project overview</title><desc id="desc">Original light dashboard-style project overview with bespoke workflow and data visualizations.</desc>
-<defs><linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F8FAFE"/><stop offset="1" stop-color="#EAF1FA"/></linearGradient><radialGradient id="glow"><stop stop-color="#165AC4" stop-opacity=".13"/><stop offset="1" stop-color="#165AC4" stop-opacity="0"/></radialGradient><linearGradient id="accent"><stop stop-color="#165AC4"/><stop offset=".55" stop-color="#8062D1"/><stop offset="1" stop-color="#25A797"/></linearGradient><pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="#52708F" stroke-opacity=".07"/></pattern><style>.brand{font:700 66px Inter,Segoe UI,Arial,sans-serif;letter-spacing:-2.2px;fill:#142B49}.sub{font:600 17px Inter,Segoe UI,Arial,sans-serif;letter-spacing:2.1px;fill:#405875}.eyebrow{font:600 11px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:2.2px;fill:#165AC4}.pill{font:600 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.3px;fill:#264664}.panel{font:600 10px Inter,Segoe UI,Arial,sans-serif;letter-spacing:1.3px;fill:#304D6B}.micro{font:500 8px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.1px;fill:#60758E}</style></defs>
-<rect width="1440" height="420" rx="26" fill="url(#background)"/><rect width="1440" height="420" rx="26" fill="url(#grid)"/><circle cx="425" cy="95" r="310" fill="url(#glow)"/><path d="M0 348C190 275 340 425 570 333S1000 278 1440 362" fill="none" stroke="url(#accent)" stroke-width="1.5" opacity=".25"/><path d="M0 358C190 285 340 435 570 343S1000 288 1440 372" fill="none" stroke="url(#accent)" stroke-width="1" opacity=".14"/>
-<rect x="58" y="55" width="4" height="270" rx="2" fill="url(#accent)"/><text x="88" y="91" class="eyebrow">C++20 / OFFLINE DSP / QT 6</text><text x="84" y="178" class="brand">VentuSample</text><text x="88" y="216" class="sub">PROCEDURAL SAMPLE WORKSTATION</text><rect x="88" y="251" width="222" height="32" rx="16" fill="#FFFFFF" stroke="#D8E3F0"/><circle cx="106" cy="267" r="4" fill="#25A797"/><text x="119" y="271" class="pill">PROJECT VISUAL SYSTEM · 2026</text><text x="88" y="352" class="eyebrow" opacity=".8">ARCHITECTURE / WORKFLOW / EVIDENCE</text><g transform="translate(660 102)"><rect width="204" height="216" rx="18" fill="#FFFFFF" stroke="#D8E3F0"/><rect x="18" y="17" width="5" height="18" rx="2.5" fill="#165AC4"/><text x="34" y="31" class="panel">GENERATED WAVE</text><path d="M21 113 L21 113 L25.3 133.21292935309972 L29.6 135.50512216354312 L33.9 94.79160179737016 L38.2 69.17084723601849 L42.5 101.42030931772521 L46.8 139.87734994316912 L51.099999999999994 132.14515305826376 L55.4 111.46988587935158 L59.699999999999996 92.43498232352596 L64 95.42209563832584 L68.3 137.17793733927186 L72.6 155.47070941159183 L76.9 117.49575027357024 L81.19999999999999 82.46827341674214 L85.5 95.64355475997719 L89.8 116.28009532766755 L94.1 133.23234877896857 L98.39999999999999 125.272285898154 L102.7 83.69140961240194 L107 73.20204020845684 L111.3 115.82184520925922 L115.6 146.3252137887262 L119.89999999999999 127.86858164765243 L124.19999999999999 107.81632784350926 L128.5 93.73072456633267 L132.8 106.22784953127417 L137.1 146.45053300455976 L141.39999999999998 148.89768350895739 L145.7 102.85887003244952 L150 77.8598777851941 L154.29999999999998 101.26932275387506 L158.6 120.16188626752883 L162.9 130.7504875496307 L167.2 114.26214031140876 L171.5 76.51157743004427" fill="none" stroke="#165AC4" stroke-width="3" stroke-linecap="round"/><path d="M21 113H174" stroke="#94A3B8" stroke-opacity=".38" stroke-dasharray="3 5"/><text x="22" y="185" class="micro">SEEDED / REPEATABLE</text></g><g transform="translate(886 102)"><rect width="204" height="216" rx="18" fill="#FFFFFF" stroke="#D8E3F0"/><rect x="18" y="17" width="5" height="18" rx="2.5" fill="#8062D1"/><text x="34" y="31" class="panel">RHYTHM / VARIATION</text><g><rect x="22" y="72" width="12" height="12" rx="3" fill="#8062D1" opacity="0.94"/><rect x="41" y="72" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="60" y="72" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="79" y="72" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="98" y="72" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="117" y="72" width="12" height="12" rx="3" fill="#8062D1" opacity="0.3"/><rect x="136" y="72" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="155" y="72" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="22" y="94" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="41" y="94" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="60" y="94" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="79" y="94" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="98" y="94" width="12" height="12" rx="3" fill="#8062D1" opacity="0.3"/><rect x="117" y="94" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="136" y="94" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="155" y="94" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="22" y="116" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="41" y="116" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="60" y="116" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="79" y="116" width="12" height="12" rx="3" fill="#8062D1" opacity="0.3"/><rect x="98" y="116" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="117" y="116" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="136" y="116" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="155" y="116" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="22" y="138" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="41" y="138" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="60" y="138" width="12" height="12" rx="3" fill="#8062D1" opacity="0.3"/><rect x="79" y="138" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="98" y="138" width="12" height="12" rx="3" fill="#165AC4" opacity="0.3"/><rect x="117" y="138" width="12" height="12" rx="3" fill="#165AC4" opacity="0.94"/><rect x="136" y="138" width="12" height="12" rx="3" fill="#25A797" opacity="0.3"/><rect x="155" y="138" width="12" height="12" rx="3" fill="#8062D1" opacity="0.3"/></g><text x="22" y="185" class="micro">LOOP / BAR / VARIATION</text></g><g transform="translate(1112 102)"><rect width="204" height="216" rx="18" fill="#FFFFFF" stroke="#D8E3F0"/><rect x="18" y="17" width="5" height="18" rx="2.5" fill="#25A797"/><text x="34" y="31" class="panel">DSP CHAIN</text><g><rect x="20" y="91" width="30" height="40" rx="8" fill="#165AC4" fill-opacity=".13" stroke="#165AC4" stroke-width="2"/><rect x="60" y="91" width="30" height="40" rx="8" fill="#8062D1" fill-opacity=".13" stroke="#8062D1" stroke-width="2"/><rect x="100" y="91" width="30" height="40" rx="8" fill="#25A797" fill-opacity=".13" stroke="#25A797" stroke-width="2"/><rect x="140" y="91" width="30" height="40" rx="8" fill="#165AC4" fill-opacity=".13" stroke="#165AC4" stroke-width="2"/><path d="M50 111H60M90 111H100M130 111H140" stroke="#165AC4" stroke-width="2"/><circle cx="35" cy="111" r="4" fill="#165AC4"/><circle cx="155" cy="111" r="4" fill="#25A797"/></g><text x="22" y="185" class="micro">ORDERED / OFFLINE DSP</text></g><path d="M660 76H1358" stroke="url(#accent)" stroke-width="2" opacity=".62"/><circle cx="1358" cy="76" r="4" fill="#25A797"/><text x="1358" y="57" text-anchor="end" class="eyebrow">PROJECT MAP</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="500" viewBox="0 0 1440 500" role="img" aria-labelledby="title desc">
+<title id="title">VentuSample — project visual overview</title>
+<desc id="desc">Original vector overview of the actual VentuSample workflow and implementation boundaries.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071629"/><stop offset=".55" stop-color="#0B2038"/><stop offset="1" stop-color="#122B47"/></linearGradient>
+ <radialGradient id="halo"><stop stop-color="#9C8CFA" stop-opacity=".22"/><stop offset="1" stop-color="#9C8CFA" stop-opacity="0"/></radialGradient>
+ <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9C8CFA"/><stop offset=".52" stop-color="#39CFB1"/><stop offset="1" stop-color="#82B6FF"/></linearGradient>
+ <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#B8D0E8" stroke-opacity=".055"/></pattern>
+ <style>
+ .eyebrow{font:600 11px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:2.3px;fill:#9C8CFA}
+ .brand{font:750 72px Inter,Segoe UI,Arial,sans-serif;letter-spacing:-2.7px;fill:#F4F8FF}
+ .tagline{font:600 15px Inter,Segoe UI,Arial,sans-serif;letter-spacing:2.1px;fill:#B9CADB}
+ .body{font:400 13px Inter,Segoe UI,Arial,sans-serif;fill:#8FA6BD}
+ .pill{font:600 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.4px;fill:#D7E5F2}
+ .stage{font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.7px;fill:#91A9C1}
+ .cardTitle{font:650 17px Inter,Segoe UI,Arial,sans-serif;fill:#F1F6FD}
+ .cardSub{font:450 11px Inter,Segoe UI,Arial,sans-serif;fill:#9FB2C7}
+ .micro{font:600 9px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.3px;fill:#83A0BA}
+ </style>
+</defs>
+<rect width="1440" height="500" rx="28" fill="url(#bg)"/>
+<rect width="1440" height="500" rx="28" fill="url(#grid)"/>
+<circle cx="455" cy="110" r="360" fill="url(#halo)"/>
+<circle cx="1245" cy="228" r="300" fill="url(#halo)" opacity=".4"/>
+<path d="M0 398C210 327 380 467 570 388S1010 353 1440 425" fill="none" stroke="url(#rail)" stroke-width="1.5" opacity=".26"/>
+<path d="M0 410C210 339 380 479 570 400S1010 365 1440 437" fill="none" stroke="url(#rail)" stroke-width="1" opacity=".13"/>
+<rect x="58" y="64" width="4" height="290" rx="2" fill="url(#rail)"/>
+<text x="88" y="103" class="eyebrow">C++20  /  QT 6  /  OFFLINE AUDIO</text>
+<text x="82" y="196" class="brand">VentuSample</text>
+<text x="88" y="237" class="tagline">PROCEDURAL SAMPLE WORKSTATION</text>
+<text x="88" y="282" class="body">A practical view of the product pipeline</text>
+<text x="88" y="303" class="body">— not a mock interface or a hosted demo.</text>
+<rect x="88" y="332" width="176" height="32" rx="16" fill="#102B48" stroke="#34516E"/>
+<circle cx="106" cy="348" r="4" fill="#39CFB1"/>
+<text x="120" y="352" class="pill">REAL IMPLEMENTATION</text>
+<text x="88" y="431" class="eyebrow">SYSTEM MAP / 2026</text>
+<text x="88" y="452" class="micro">ACTUAL MODULES • VERIFIED DATA FLOW</text>
+<path d="M662 130H1362" stroke="url(#rail)" stroke-width="2" opacity=".75"/>
+<circle cx="662" cy="130" r="4" fill="#9C8CFA"/>
+<circle cx="1362" cy="130" r="4" fill="#82B6FF"/>
+<g transform="translate(662 164)">
+  <rect width="220" height="190" rx="20" fill="#102B48" stroke="#294A6A" stroke-width="1.2"/>
+  <rect x="20" y="20" width="34" height="4" rx="2" fill="#9C8CFA"/>
+  <text x="20" y="55" class="stage">GENERATE</text>
+  <text x="20" y="91" class="cardTitle">seeded patterns</text>
+  <text x="20" y="118" class="cardSub">loops • stems • kits</text>
+  <path d="M20 148H200" stroke="#36516D" stroke-opacity=".75"/>
+  <circle cx="30" cy="169" r="5" fill="#9C8CFA"/>
+  <path d="M43 169H104" stroke="#9C8CFA" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <text x="200" y="173" class="micro" text-anchor="end">01</text>
+  </g><g transform="translate(902 164)">
+  <rect width="220" height="190" rx="20" fill="#102B48" stroke="#294A6A" stroke-width="1.2"/>
+  <rect x="20" y="20" width="34" height="4" rx="2" fill="#39CFB1"/>
+  <text x="20" y="55" class="stage">PROCESS</text>
+  <text x="20" y="91" class="cardTitle">offline DSP</text>
+  <text x="20" y="118" class="cardSub">router • 133 modules</text>
+  <path d="M20 148H200" stroke="#36516D" stroke-opacity=".75"/>
+  <circle cx="30" cy="169" r="5" fill="#39CFB1"/>
+  <path d="M43 169H104" stroke="#39CFB1" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <text x="200" y="173" class="micro" text-anchor="end">02</text>
+  </g><g transform="translate(1142 164)">
+  <rect width="220" height="190" rx="20" fill="#102B48" stroke="#294A6A" stroke-width="1.2"/>
+  <rect x="20" y="20" width="34" height="4" rx="2" fill="#82B6FF"/>
+  <text x="20" y="55" class="stage">EXPORT</text>
+  <text x="20" y="91" class="cardTitle">PCM16 stereo WAV</text>
+  <text x="20" y="118" class="cardSub">versioned JSON manifest</text>
+  <path d="M20 148H200" stroke="#36516D" stroke-opacity=".75"/>
+  <circle cx="30" cy="169" r="5" fill="#82B6FF"/>
+  <path d="M43 169H104" stroke="#82B6FF" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+  <text x="200" y="173" class="micro" text-anchor="end">03</text>
+  </g>
+<g stroke="#9C8CFA" stroke-width="2.2" fill="none" opacity=".9"><path d="M882 259H896"/><path d="M890 253L896 259L890 265"/></g><g stroke="#9C8CFA" stroke-width="2.2" fill="none" opacity=".9"><path d="M1122 259H1136"/><path d="M1130 253L1136 259L1130 265"/></g>
+<text x="662" y="402" class="micro">OFFLINE PIPELINE — no DAW host, audio-device callback, cloud project or browser playback</text>
+<text x="1362" y="454" class="micro" text-anchor="end">IVAN-VHS / VENTUSAMPLE</text>
+</svg>
