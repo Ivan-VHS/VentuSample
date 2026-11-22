@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Ivan-VHS/Reaper
-          ref: feat/clife-catalytic-resynthesis-2026-11
+          ref: 0903c60e8831477d98583ab1d2927c5f318f8038
           path: _deps/Reaper
       - uses: actions/setup-python@v5
         with:
