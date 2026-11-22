@@ -18,7 +18,7 @@ void testStereoMetricsAndReadOnlyBehavior() {
     ventu::AudioBuffer audio;
     audio.sampleRate = 48000;
     audio.channels = 2;
-    audio.samples = {0.5F, 0.5F, -0.5F, -0.5F, 1.0F, 1.0F, 0.0F, 0.0F};
+    audio.samples = {1.0F, 1.0F, 0.0F, 0.0F, -0.5F, -0.5F, -0.5F, -0.5F};
     const auto original = audio.samples;
 
     const auto result = ventu::analyzeAudio(audio);
