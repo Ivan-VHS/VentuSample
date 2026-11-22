@@ -431,6 +431,66 @@ void testWaveAndPackExport() {
 }
 }
 
+void testMidiExport() {
+    ventu::Parameters p;
+    p.target = ventu::Target::FullLoop;
+    p.bpm = 120;
+    p.bars = 1;
+    p.variations = 1;
+    p.sampleRate = 22050;
+    p.lowPassHz = 10000;
+    p.microHumanize = false;
+    const auto audio = ventu::render(p, 0);
+    require(!audio.midiNotes.empty(), "render should expose scheduled MIDI note events");
+
+    const auto directory = std::filesystem::temp_directory_path() / "ventusample-midi-export-test";
+    std::error_code ec;
+    std::filesystem::remove_all(directory, ec);
+    std::filesystem::create_directories(directory, ec);
+    require(!ec, "MIDI test directory should be created");
+
+    std::string error;
+    const auto firstPath = directory / "first.mid";
+    const auto repeatedPath = directory / "repeated.mid";
+    const auto otherTempoPath = directory / "other-tempo.mid";
+    require(ventu::writeMidi(firstPath, audio, p.bpm, error), "standard MIDI file should be written");
+    require(ventu::writeMidi(repeatedPath, audio, p.bpm, error), "repeat MIDI file should be written");
+    require(ventu::writeMidi(otherTempoPath, audio, 100, error), "MIDI with another tempo should be written");
+
+    const auto bytes = [](const std::filesystem::path& path) {
+        std::ifstream stream(path, std::ios::binary);
+        return std::vector<char>(std::istreambuf_iterator<char>(stream),
+                                 std::istreambuf_iterator<char>());
+    };
+    const auto firstBytes = bytes(firstPath);
+    require(firstBytes.size() > 32u, "MIDI track should contain note events");
+    const std::string firstText(firstBytes.begin(), firstBytes.end());
+    require(firstText.find("MThd") == 0u, "export should use the Standard MIDI File header");
+    require(firstText.find("MTrk") != std::string::npos, "export should contain a MIDI track chunk");
+    require(firstBytes == bytes(repeatedPath), "fixed seed should produce byte-identical MIDI");
+    require(firstBytes != bytes(otherTempoPath), "tempo change should alter MIDI tempo metadata");
+
+    auto invalid = audio;
+    invalid.midiNotes.front().note = 200;
+    require(!ventu::writeMidi(directory / "invalid.mid", invalid, p.bpm, error),
+            "invalid MIDI note numbers should be rejected");
+
+    p.exportMidi = true;
+    const auto pack = ventu::generatePack(p, directory / "pack");
+    require(static_cast<bool>(pack), "MIDI-enabled pack export should succeed");
+    require(pack.files.size() == 1u && pack.midiFiles.size() == 1u,
+            "one variation should export one WAV and one MIDI file");
+    std::ifstream manifestFile(directory / "pack" / "ventusample_manifest.json", std::ios::binary);
+    const std::string manifest((std::istreambuf_iterator<char>(manifestFile)),
+                               std::istreambuf_iterator<char>());
+    require(manifest.find("\\"export_midi\\": true") != std::string::npos,
+            "manifest must record the MIDI export option");
+    require(manifest.find(".mid") != std::string::npos,
+            "manifest must list generated MIDI companions");
+
+    std::filesystem::remove_all(directory, ec);
+}
+
 int main() {
     testValidation();
     testDeterministicRender();
@@ -441,6 +501,7 @@ int main() {
     testPeakNormalizationIsOptInAndRecorded();
     testBillionaireGoldenEraProfile();
     testWaveAndPackExport();
+    testMidiExport();
     std::cout << "VentuSample generator tests passed.\n";
     return 0;
 }
