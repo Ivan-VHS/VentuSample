@@ -1,5 +1,13 @@
 # VentuSample — 程序化采样工作站
 
+## 版本化预设与 A/B 对比
+
+桌面应用支持保存和加载本地 JSON 预设，格式为 `ventusample.preset.v1`。预设保留音乐配置、节奏、滤波器、采样器和 DSP 路由设置。默认不包含随机 seed，因此预设描述的是声音配置，而不是锁定每一次生成变化；保存对话框提供显式包含 seed 的选项。
+
+使用 **Presets → Save preset** 或 **Presets → Load preset**。两个额外的 A、B 会话槽可在不写入磁盘的情况下捕获并切换参数集。预设在接受前会按照与生成器相同的规则进行验证。由于本地源采样路径与具体机器绑定，因此不会导出。
+
+Schema 发布于 `schemas/ventusample.preset.v1.schema.json`。预设是本地文件，不提供云同步，也不主张拥有其所描述音频的著作权。
+
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
 <p align="center"><img src="assets/readme/dashboard.svg" alt="VentuSample 项目概览" width="100%"></p>
@@ -241,7 +249,7 @@ Windows 桌面任务会截取正在运行的应用并上传保留 30 天的截�
 
 VentuSample 是离线采样工作站，不是 DAW 或实时音频主机。采样生成器输出 PCM16 立体声 WAV 和 manifest；它不会调用外部 API、向浏览器流式传输音频或管理云端项目。Stochastic Router 使用八个内置处理器，不托管第三方插件。Quantum Audio Engine 是创意 DSP 目录；Atomic-Quantum 是独立的经典模拟层，不是物理量子计算。导入或导出音频必须拥有相应源素材使用权；哈希只能证明字节一致，不能证明所有权。
 
-仓库中未找到单独的 `CONTRIBUTING.md`。请通过 [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) 或 Pull Request 提出改进。请附上操作系统、编译器/CMake/Qt 版本、seed 和准确设置、安全的输入 WAV 描述，以及准确命令/结果。提交前运行 CTest 和 project-contract 检查。
+仓库的贡献流程、变更验证和 Pull Request 要求见 [CONTRIBUTING.md](CONTRIBUTING.md)。请通过 [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) 或 Pull Request 提出改进。请附上操作系统、编译器/CMake/Qt 版本、seed 和准确设置、安全的输入 WAV 描述，以及准确命令/结果。提交前运行 CTest 和 project-contract 检查。
 
 许可证：[Apache-2.0](LICENSE)。
 
@@ -259,3 +267,11 @@ Web Stand 检查清单根据实际离线桌面/音频产品进行映射；纯 We
 | 56–66 · 运维与支持 | 链接真实 CI 工作流，说明截图 Artifact 限制与回滚、故障排查、已知问题、贡献方式和许可证 |
 
 **VentuSample 没有公开的 Web Stand URL。** 桌面截图和 CI 截图 Artifact 并不是交互式浏览器 Demo。
+
+## 统一报告封装
+
+可以将 JSON 结果包装为通用的 ivan-vhs.report.v1 元数据格式：
+
+    python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
+
+请参阅 docs/REPORT_ENVELOPE.md 和 schemas/ivan-vhs.report.v1.schema.json。工具自身的结果内容保持不变。
