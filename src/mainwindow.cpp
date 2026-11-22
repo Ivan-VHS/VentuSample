@@ -296,6 +296,8 @@ void MainWindow::buildUi() {
     stochasticIntensitySlider_ = addSliderRow(filterGrid, 6, "Интенсивность стохастики", 0, 100, 45, &stochasticIntensityValue_);
     tpdfDitherCheck_ = new QCheckBox("TPDF-дизеринг при PCM16-экспорте");
     tpdfDitherCheck_->setToolTip("Опциональный детерминированный шум квантования. Seed записывается в manifest.");
+    midiExportCheck_ = new QCheckBox("Экспортировать MIDI-события вместе с WAV");
+    midiExportCheck_->setToolTip("Создаёт стандартный MIDI-файл из тех же детерминированных нот и ударных событий, что использовались при генерации аудио.");
     normalizePeakCheck_ = new QCheckBox("Нормализовать пиковый уровень при экспорте");
     targetPeakSpin_ = new QDoubleSpinBox();
     targetPeakSpin_->setRange(-24.0, -0.3);
@@ -335,6 +337,7 @@ void MainWindow::buildUi() {
     filterGrid->addWidget(stochasticTopologyBox_, 10, 1, 1, 2);
     filterGrid->addWidget(normalizePeakCheck_, 11, 0, 1, 2);
     filterGrid->addWidget(targetPeakSpin_, 11, 2);
+    filterGrid->addWidget(midiExportCheck_, 12, 0, 1, 3);
     detailRow->addWidget(makeCard("04  /  ОБРАБОТКА И ДВИЖЕНИЕ", filterGrid), 1);
     studioLayout->addLayout(detailRow);
 
@@ -639,6 +642,7 @@ void MainWindow::loadSettings() {
     dustCheck_->setChecked(settings.value("dust", false).toBool());
     stochasticCheck_->setChecked(settings.value("stochastic_enabled", false).toBool());
     tpdfDitherCheck_->setChecked(settings.value("tpdf_dither", false).toBool());
+    midiExportCheck_->setChecked(settings.value("export_midi", false).toBool());
     normalizePeakCheck_->setChecked(settings.value("normalize_peak", false).toBool());
     targetPeakSpin_->setValue(settings.value("target_peak_dbfs", -1.0).toDouble());
     stochasticIntensitySlider_->setValue(settings.value("stochastic_intensity", 45).toInt());
@@ -695,6 +699,7 @@ void MainWindow::saveSettings() {
     settings.setValue("dust", dustCheck_->isChecked());
     settings.setValue("stochastic_enabled", stochasticCheck_->isChecked());
     settings.setValue("tpdf_dither", tpdfDitherCheck_->isChecked());
+    settings.setValue("export_midi", midiExportCheck_->isChecked());
     settings.setValue("normalize_peak", normalizePeakCheck_->isChecked());
     settings.setValue("target_peak_dbfs", targetPeakSpin_->value());
     settings.setValue("stochastic_intensity", stochasticIntensitySlider_->value());
@@ -874,6 +879,7 @@ ventu::Parameters MainWindow::parameters() const {
     p.vinylDust = dustCheck_->isChecked();
     p.stochasticEnabled = stochasticCheck_->isChecked();
     p.tpdfDither = tpdfDitherCheck_->isChecked();
+    p.exportMidi = midiExportCheck_->isChecked();
     p.normalizePeak = normalizePeakCheck_->isChecked();
     p.targetPeakDbfs = targetPeakSpin_->value();
     p.stochasticIntensityPercent = stochasticIntensitySlider_->value();
@@ -911,6 +917,7 @@ void MainWindow::applyParameters(const ventu::Parameters& p) {
     dustCheck_->setChecked(p.vinylDust);
     stochasticCheck_->setChecked(p.stochasticEnabled);
     tpdfDitherCheck_->setChecked(p.tpdfDither);
+    midiExportCheck_->setChecked(p.exportMidi);
     normalizePeakCheck_->setChecked(p.normalizePeak);
     targetPeakSpin_->setValue(p.targetPeakDbfs);
     stochasticIntensitySlider_->setValue(p.stochasticIntensityPercent);
@@ -1076,10 +1083,12 @@ void MainWindow::startGeneration() {
                 result.error = "Неизвестная ошибка рендеринга.";
             }
             QStringList files;
+            QStringList midiFiles;
             for (const auto& file : result.files) files.push_back(pathToQString(file));
+            for (const auto& file : result.midiFiles) midiFiles.push_back(pathToQString(file));
             const QString error = QString::fromUtf8(result.error.c_str());
             const auto cadence = result.cadence;
-            QMetaObject::invokeMethod(this, [this, files, error, p, cadence] {
+            QMetaObject::invokeMethod(this, [this, files, midiFiles, error, p, cadence] {
             if (worker_.joinable()) worker_.join();
             setBusy(false);
             if (!error.isEmpty()) {
@@ -1090,6 +1099,10 @@ void MainWindow::startGeneration() {
             }
             for (const auto& path : files) {
                 auto* item = new QListWidgetItem(QFileInfo(path).fileName(), filesList_);
+                item->setData(Qt::UserRole, path);
+            }
+            for (const auto& path : midiFiles) {
+                auto* item = new QListWidgetItem(QFileInfo(path).fileName() + "  ·  MIDI", filesList_);
                 item->setData(Qt::UserRole, path);
             }
             const QString manifest = QDir(lastOutputDirectory_).filePath("ventusample_manifest.json");
@@ -1106,13 +1119,15 @@ void MainWindow::startGeneration() {
             const QString cadenceLabel = cadenceCount > 0
                 ? QString("grid %1%").arg(cadenceTotal / cadenceCount, 0, 'f', 1)
                 : QString("grid n/a");
-            summaryLabel_->setText(QString("Создано файлов: %1 WAV + manifest · %2 BPM · %3 · %4 / %5 · seed %6 · %7 · предел пика −0,3 dBFS")
-                .arg(files.size()).arg(p.bpm).arg(q(ventu::toString(p.style)))
+            summaryLabel_->setText(QString("Создано файлов: %1 WAV + %2 MIDI + manifest · %3 BPM · %4 · %5 / %6 · seed %7 · %8 · предел пика −0,3 dBFS")
+                .arg(files.size()).arg(midiFiles.size()).arg(p.bpm).arg(q(ventu::toString(p.style)))
                 .arg(keyBox_->currentText(), q(ventu::toString(p.scale))).arg(p.seed).arg(cadenceLabel));
             appendLog(QString("QMR CADENCE  %1 analyzed loop exports · %2")
                 .arg(cadenceCount).arg(cadenceLabel));
-            statusLabel_->setText(QString("Готово · %1 аудиофайлов сохранено локально.").arg(files.size()));
-            appendLog(QString("DONE  %1 audio files + ventusample_manifest.json").arg(files.size()));
+            statusLabel_->setText(QString("Готово · %1 WAV и %2 MIDI сохранено локально.")
+                .arg(files.size()).arg(midiFiles.size()));
+            appendLog(QString("DONE  %1 WAV + %2 MIDI + ventusample_manifest.json")
+                .arg(files.size()).arg(midiFiles.size()));
                 openFolderButton_->setEnabled(true);
             }, Qt::QueuedConnection);
         });
