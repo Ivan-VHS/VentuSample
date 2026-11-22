@@ -1,0 +1,29 @@
+# Read-only VentuSample pack audit using Reaper 0.2.
+# This consumes a generated v2 manifest only; no WAV is opened or modified.
+
+let manifest_path = absolute_path(path_join("..", "..", "build", "reaper-fixtures", "ventusample.pack.v2.json"))
+let pack = read_json(manifest_path)
+
+let metrics = ventusample_metrics(pack)
+let report = ventusample_compare(pack, pack)
+
+assert(pack.schema == "ventusample.pack.v2", "expected VentuSample v2 manifest")
+assert(report.schema == "reaper.ventusample-comparison.v1", "unexpected Reaper comparison report")
+assert(report.mode == "read_only", "VentuSample federation must remain read-only")
+assert(report.same_schema == true, "identical packs must have matching schema")
+assert(report.same_style == true, "identical packs must have matching style")
+assert(report.same_musical_key == true, "identical packs must have matching musical key")
+assert(report.same_mode_family == true, "identical packs must have matching mode family")
+assert(report.euclidean_distance == 0, "identical pack distance must be zero")
+assert(metrics.file_count == size(pack.files), "file count metric mismatch")
+
+let output_path = absolute_path(path_join("..", "..", "build", "reaper-ventusample-report.json"))
+write_json(output_path, report)
+
+emit "VentuSample / Reaper language integration: PASS"
+emit "Pack schema: " ++ pack.schema
+emit "Musical key: " ++ pack.parameters.musical_key
+emit "Mode family: " ++ pack.parameters.mode_family
+emit "BPM: " ++ text(pack.parameters.bpm)
+emit "Normalized peak: " ++ text(metrics.mean_peak)
+emit "Comparison distance: " ++ text(report.euclidean_distance)
