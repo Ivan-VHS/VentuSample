@@ -1,5 +1,7 @@
 # CLife — sample workstation savepoints
 
+The shared OCTA-8 typed-value contract is documented in [OCTA8.md](OCTA8.md); its native C++20 adapter is intentionally kept outside the audio callback.
+
 CLife v1 adds bounded savepoints for VentuSample source trees, project manifests, presets and exported sample-pack assets.
 
 ## Software mapping
