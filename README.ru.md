@@ -204,8 +204,12 @@ Plugin Manager включает 19 встроенных инструментов
 | Путь | Содержимое |
 |---|---|
 | `src/` | C++20 generator, renderer, audio buffers, DSP kernels, plugin manager, Qt desktop UI и optional Reaper bridge |
+| `src/compat/pytyliki-dsp/` | перенесённая библиотека обработки буферов на C11 |
+| `integrations/cockos-reaper/` | необязательные Lua-действия для Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle и regression tests |
 | `docs/` | архитектура, функции, plugin SDK, UI behavior и audio contracts |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | владение и правила сборки перенесённых C11-модулей |
+| `docs/integrations/COCKOS_REAPER.md` | необязательные скрипты Cockos REAPER |
 | `schemas/` | версионированные sample-pack и plugin manifest schemas |
 | `tools/` | project-contract, fixture, visual-canon и engineering validators |
 | `federation/` | явные interoperability и adapter manifests |
