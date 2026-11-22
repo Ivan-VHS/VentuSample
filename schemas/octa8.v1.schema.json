@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/contracts/octa8.v1.schema.json",
+  "title": "OCTA-8 Portable Typed Value",
+  "description": "Canonical cross-platform JSON value envelope. Limits: depth 64, 100000 aggregate nodes, 1 MiB text, 16 MiB bytes, signed 64-bit integers.",
+  "type": "object",
+  "required": [
+    "schema",
+    "kind",
+    "value"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "ivan-vhs.octa8.v1"
+    },
+    "kind": {
+      "enum": [
+        "null",
+        "boolean",
+        "integer",
+        "number",
+        "text",
+        "bytes",
+        "sequence",
+        "record"
+      ]
+    },
+    "value": {
+      "$ref": "#/$defs/value"
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "required": [
+        "kind",
+        "value"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "null",
+            "boolean",
+            "integer",
+            "number",
+            "text",
+            "bytes",
+            "sequence",
+            "record"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/value"
+        }
+      }
+    },
+    "value": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "integer",
+          "minimum": -9223372036854776000,
+          "maximum": 9223372036854776000
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "maxLength": 1000000
+        },
+        {
+          "type": "string",
+          "contentEncoding": "base64",
+          "maxLength": 22369624
+        },
+        {
+          "type": "array",
+          "maxItems": 100000,
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        {
+          "type": "object",
+          "maxProperties": 100000,
+          "additionalProperties": {
+            "$ref": "#/$defs/node"
+          }
+        }
+      ]
+    }
+  }
+}
