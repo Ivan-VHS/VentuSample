@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <vector>
 
 namespace {
 void require(bool condition, const char* message) {
@@ -184,6 +185,25 @@ void testBillionaireGoldenEraProfile() {
     require(manifestText.find("Billionaire Golden Era") != std::string::npos,
             "exported manifest must retain the shared Billionaire Golden Era profile name");
     std::filesystem::remove_all(packDirectory, cleanupError);
+}
+
+void testStereoMetering() {
+    ventu::AudioBuffer audio;
+    audio.sampleRate = 48000;
+    audio.channels = 2;
+    audio.samples = {0.5F, 0.5F, -0.5F, -0.5F, 0.25F, 0.25F};
+    auto stats = ventu::measure(audio);
+    require(stats.stereoCorrelationValid, "stereo correlation should be available for stereo buffers");
+    require(std::abs(stats.stereoCorrelation - 1.0) < 1e-9,
+            "identical left and right channels should correlate at +1");
+    require(std::abs(stats.leftRms - stats.rightRms) < 1e-9,
+            "identical channels should have matching RMS");
+
+    for (std::size_t index = 1; index < audio.samples.size(); index += 2u)
+        audio.samples[index] = -audio.samples[index];
+    stats = ventu::measure(audio);
+    require(std::abs(stats.stereoCorrelation + 1.0) < 1e-9,
+            "polarity-inverted channels should correlate at -1");
 }
 
 void testTpdfDitherIsDeterministic() {
@@ -416,6 +436,7 @@ int main() {
     testDeterministicRender();
     testPhraseGridAndSwing();
     testCadenceGridAudit();
+    testStereoMetering();
     testTpdfDitherIsDeterministic();
     testPeakNormalizationIsOptInAndRecorded();
     testBillionaireGoldenEraProfile();
