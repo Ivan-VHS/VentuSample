@@ -29,6 +29,6 @@ struct AudioDiagnostics {
 AudioDiagnostics analyzeAudio(
     const AudioBuffer& audio,
     double clippingThreshold = 0.999
-) noexcept;
+);
 
 } // namespace ventu
