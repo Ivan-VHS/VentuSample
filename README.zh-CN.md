@@ -27,6 +27,8 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 | Atomic-Quantum 133 | 独立的有界经典模拟子集 | 不访问量子硬件 |
 | Reaper Bridge | 构建时可选的 C17 integer-expression ABI | 显式本地源码路径；不进入音频 DSP 路径 |
 
+生成器包含 14 种配置：Boom Bap、Billionaire Golden Era、East Coast、Harlem Dip-Trap、G-Unit、Modern Trap、Atlanta Trap、UK Drill、UK Grime、Memphis、Jazz Rap、G-Funk、Boom Trap 和 Cripple Trill。
+
 该应用不是实时音频引擎。渲染和 DSP 在工作线程中离线执行；没有音频设备回调、播放热切换、VST/AU 主机、任意第三方插件加载器或 DAW 自动化。
 
 下方 Windows 图片是桌面应用截屏，不是浏览器预览。
@@ -63,7 +65,7 @@ cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
 ```
 
-桌面可执行文件由配置好的 CMake 构建生成。GUI 的确切输出路径取决于生成器和构建配置；使用 Ninja 的 Linux 构建可在 `build/` 中检查目标输出。
+桌面可执行文件由配置好的 CMake 构建生成。Linux Ninja 构建可通过 `./build/VentuSample` 启动；Windows Release 构建可通过 `build\\Release\\VentuSample.exe` 启动。
 
 ### 不使用 Qt 构建可移植核心
 
@@ -222,7 +224,7 @@ Windows 桌面任务会截取正在运行的应用并上传保留 30 天的截�
 
 ## 已知限制、贡献与许可证
 
-VentuSample 是离线采样工作站，不是 DAW 或实时音频主机。采样生成器输出 PCM16 立体声 WAV 和 manifest；它不会调用外部 API、向浏览器流式传输音频或管理云端项目。Stochastic Router 使用八个内置处理器，不托管第三方插件。Quantum Audio Engine 是创意 DSP 目录；Atomic-Quantum 是独立的经典模拟层，不是物理量子计算。
+VentuSample 是离线采样工作站，不是 DAW 或实时音频主机。采样生成器输出 PCM16 立体声 WAV 和 manifest；它不会调用外部 API、向浏览器流式传输音频或管理云端项目。Stochastic Router 使用八个内置处理器，不托管第三方插件。Quantum Audio Engine 是创意 DSP 目录；Atomic-Quantum 是独立的经典模拟层，不是物理量子计算。导入或导出音频必须拥有相应源素材使用权；哈希只能证明字节一致，不能证明所有权。
 
 仓库中未找到单独的 `CONTRIBUTING.md`。请通过 [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) 或 Pull Request 提出改进。请附上操作系统、编译器/CMake/Qt 版本、seed 和准确设置、安全的输入 WAV 描述，以及准确命令/结果。提交前运行 CTest 和 project-contract 检查。
 
