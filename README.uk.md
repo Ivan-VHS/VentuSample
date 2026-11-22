@@ -27,6 +27,8 @@ VentuSample створює локальні hip-hop sample packs на основ
 | Atomic-Quantum 133 | окрема обмежена класична симуляція | без доступу до квантового обладнання |
 | Reaper bridge | необов’язковий C17 integer-expression ABI під час збірки | явний локальний шлях до source; не є частиною audio DSP |
 
+14 профілів генератора: Boom Bap, Billionaire Golden Era, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap і Cripple Trill.
+
 Застосунок не є real-time аудіорушієм. Рендеринг і DSP виконуються офлайн у worker threads; немає callback аудіопристрою, playback hot-swap, VST/AU host, довільного завантажувача сторонніх плагінів чи DAW automation.
 
 Скріншот Windows нижче — знімок desktop-застосунку, а не браузерне прев’ю.
@@ -63,7 +65,7 @@ cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
 ```
 
-Desktop executable створюється налаштованою збіркою CMake. Точний шлях до GUI залежить від генератора та конфігурації; для Ninja у Linux перевірте output target у `build/`.
+Desktop executable створюється налаштованою збіркою CMake. Для Linux-збірки Ninja запустіть `./build/VentuSample`; для Windows Release — `build\\Release\\VentuSample.exe`.
 
 ### Переносиме ядро без Qt
 
@@ -222,7 +224,7 @@ Windows desktop job захоплює запущений застосунок і 
 
 ## Відомі обмеження, внесок і ліцензія
 
-VentuSample — офлайн-робоча станція семплів, а не DAW або real-time audio host. Генератор створює PCM16 stereo WAV і manifest; він не звертається до зовнішніх API, не стримить аудіо в браузер і не керує cloud projects. Stochastic router використовує вісім вбудованих процесорів і не хостить сторонні плагіни. Quantum Audio Engine — творчий DSP-каталог; Atomic-Quantum — окрема класична симуляція, не фізичні квантові обчислення.
+VentuSample — офлайн-робоча станція семплів, а не DAW або real-time audio host. Генератор створює PCM16 stereo WAV і manifest; він не звертається до зовнішніх API, не стримить аудіо в браузер і не керує cloud projects. Stochastic router використовує вісім вбудованих процесорів і не хостить сторонні плагіни. Quantum Audio Engine — творчий DSP-каталог; Atomic-Quantum — окрема класична симуляція, не фізичні квантові обчислення. Для імпорту й експорту аудіо потрібні відповідні права на вихідний матеріал; хеш підтверджує ідентичність байтів, але не право власності.
 
 Окремого `CONTRIBUTING.md` не знайдено. Пропонуйте зміни через [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) або Pull Request. Додавайте ОС, версії compiler/CMake/Qt, seed та точні налаштування, безпечний опис вхідного WAV і точну команду/результат. Перед надсиланням запускайте CTest і project-contract checks.
 
