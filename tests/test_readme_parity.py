@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
+import sys
 from pathlib import Path
 
 SCRIPT = Path(__file__).resolve().parents[1] / ".github" / "scripts" / "check_readme_parity.py"
 SPEC = importlib.util.spec_from_file_location("readme_parity", SCRIPT)
 assert SPEC is not None and SPEC.loader is not None
 readme_parity = importlib.util.module_from_spec(SPEC)
+sys.modules[SPEC.name] = readme_parity
 SPEC.loader.exec_module(readme_parity)
 
 
