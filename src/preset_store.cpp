@@ -250,17 +250,18 @@ bool fromJson(const QJsonObject& document, const Parameters& current,
     if (hasSeed && !readInteger(values, "seed", candidate.seed, 0, std::numeric_limits<int>::max(), error))
         return false;
 
+    if (values.contains("export_midi")) {
+        if (!readBoolean(values, "export_midi", candidate.exportMidi, error)) return false;
+    } else {
+        candidate.exportMidi = false;
+    }
+
     if (!readDecimal(values, "bus_compression_ratio", candidate.busCompressionRatio, 1.0, 12.0, error)
         || !readDecimal(values, "target_peak_dbfs", candidate.targetPeakDbfs, -24.0, -0.3, error)
         || !readBoolean(values, "tpdf_dither", candidate.tpdfDither, error)
         || !readBoolean(values, "normalize_peak", candidate.normalizePeak, error)
         || !readBoolean(values, "triplet_rolls", candidate.tripletRolls, error)
         || !readBoolean(values, "micro_humanize", candidate.microHumanize, error)
-    if (values.contains("export_midi")) {
-        if (!readBoolean(values, "export_midi", candidate.exportMidi, error)) return false;
-    } else {
-        candidate.exportMidi = false;
-    }
         || !readBoolean(values, "vinyl_dust", candidate.vinylDust, error)
         || !readBoolean(values, "stochastic_enabled", candidate.stochasticEnabled, error)) return false;
 
