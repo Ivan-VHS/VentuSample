@@ -37,6 +37,7 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 |---|---|---|
 | 程序化生成器 | Full Loop、Melody、Drums、Bass 和 One-Shot Kit 输出 | 本地渲染；相同 seed/设置会生成相同结果 |
 | 音频导出 | 立体声 PCM16 WAV 和版本化 JSON manifest | 本地文件；不会覆盖已有输出文件 |
+| MIDI 导出 | 使用相同的确定性音符事件和速度生成独立的标准 MIDI 文件，与 WAV 共用文件名主干 | 本地应用设置，默认关闭；preset v1 和 manifest v2 保持不变；One-Shot Kit 仍仅导出 WAV |
 | WAV 导入 | 受支持的 PCM16 mono/stereo 源文件 | 验证大小、帧数、采样率和格式 |
 | Quantum Audio Engine | 133 个类型化模块 ID 和 21 个可复用 DSP 内核 | 创意离线 DSP，不是物理量子计算 |
 | Stochastic Router | 可选的 seeded 路由，使用八个内置处理器 | 离线缓冲区处理；默认关闭 |
