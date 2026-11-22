@@ -41,7 +41,6 @@ AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold
     }
 
     std::array<double, 8> sums{};
-    std::array<double, 8> squareSums{};
     double totalSquareSum = 0.0;
     double totalSum = 0.0;
     double crossSum = 0.0;
@@ -65,7 +64,6 @@ AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold
             totalSum += sample;
             totalSquareSum += sample * sample;
             sums[channel] += sample;
-            squareSums[channel] += sample * sample;
 
             if (channel == 0u) {
                 leftSum += sample;
@@ -73,7 +71,7 @@ AudioDiagnostics analyzeAudio(const AudioBuffer& audio, double clippingThreshold
             } else if (channel == 1u) {
                 rightSum += sample;
                 rightSquareSum += sample * sample;
-                crossSum += static_cast<double>(audio.samples[frame * channelCount]);
+                crossSum += sample * static_cast<double>(audio.samples[frame * channelCount]);
             }
         }
     }
