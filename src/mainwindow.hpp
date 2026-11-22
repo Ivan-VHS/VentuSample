@@ -93,6 +93,7 @@ private:
     QCheckBox* dustCheck_{};
     QCheckBox* stochasticCheck_{};
     QCheckBox* tpdfDitherCheck_{};
+    QCheckBox* midiExportCheck_{};
     QCheckBox* normalizePeakCheck_{};
     QDoubleSpinBox* targetPeakSpin_{};
     QSlider* stochasticIntensitySlider_{};
