@@ -1,10 +1,15 @@
 # VentuSample — 程序化采样工作站
 
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+
+<p align="center"><img src="assets/readme/dashboard.svg" alt="VentuSample 2026 项目视觉概览" width="100%"></p>
+<sub>项目视觉概览 · README 更新于 2026-11-22 · 项目配色 · 清晰的数据图表</sub>
+
+
 [CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · 离线 · Apache-2.0
 
 VentuSample 是一款用于确定性生成嘻哈采样包的原生工作站。标量渲染器可导出 PCM16 立体声 WAV 和带版本号的 JSON 清单，无需 DAW、音频设备或网络连接。
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
 
 ## Windows 实际运行截图
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="运行于 Windows 11 的 VentuSample" width="100%"></p>
@@ -25,6 +30,9 @@ flowchart TD
     E --> G[带版本号的 JSON 清单]
     H[导入的受支持 WAV] --> I[Quantum Audio Engine]
     I --> J[处理后的 PCM16 WAV]
+  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  class A,B,C,D,E,F,G,H,I,J readmeNode;
+  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
 ```
 
 ## 插件发现与执行边界
@@ -37,6 +45,9 @@ flowchart LR
     B --> C[条目保持禁用]
     C --> D[关联经过审查的原生处理器]
     D --> E[有界调度或一个小节的预览]
+  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  class A,B,C,D,E readmeNode;
+  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
 ```
 
 ## 生成器

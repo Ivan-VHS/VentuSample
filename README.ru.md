@@ -1,10 +1,15 @@
 # VentuSample — процедурная рабочая станция сэмплов
 
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
+
+<p align="center"><img src="assets/readme/dashboard.svg" alt="Визуальный обзор VentuSample 2026" width="100%"></p>
+<sub>Визуальный обзор проекта · README обновлён 22.11.2026 · палитра проекта · читаемые схемы данных</sub>
+
+
 [CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · офлайн · Apache-2.0
 
 VentuSample — нативная рабочая станция для детерминированной генерации хип-хоп-сэмпл-паков. Скалярный рендерер экспортирует стерео PCM16 WAV и версионированные JSON-манифесты без DAW, аудиоустройства или сети.
 
-[English](README.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md) · [Русский](README.ru.md)
 
 ## Реальный снимок Windows
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample в Windows 11" width="100%"></p>
@@ -25,6 +30,9 @@ flowchart TD
     E --> G[Версионируемый JSON manifest]
     H[Импортированный поддерживаемый WAV] --> I[Quantum Audio Engine]
     I --> J[Обработанный PCM16 WAV]
+  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  class A,B,C,D,E,F,G,H,I,J readmeNode;
+  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
 ```
 
 ## Обнаружение плагинов и границы исполнения
@@ -37,6 +45,9 @@ flowchart LR
     B --> C[Запись остаётся выключенной]
     C --> D[Подключён проверенный нативный обработчик]
     D --> E[Ограниченная диспетчеризация или превью в один такт]
+  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  class A,B,C,D,E readmeNode;
+  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
 ```
 
 ## Генератор
