@@ -4,6 +4,8 @@
 |---|---|
 | [OCTA8.md](OCTA8.md) | OCTA-8 native C++20 typed-value contract and adapter |
 | [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
+| [OFFLINE_SPECTRUM_ANALYSIS.md](OFFLINE_SPECTRUM_ANALYSIS.md) | bounded C11 FFT and spectral descriptors |
+| [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | sound-project adoption map for the 1,000-item catalogue |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
 | [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
 | [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |
