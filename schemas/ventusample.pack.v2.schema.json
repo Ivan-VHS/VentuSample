@@ -286,6 +286,10 @@
           "type": "number",
           "minimum": -24,
           "maximum": -0.3
+        },
+        "export_midi": {
+          "type": "boolean",
+          "description": "Whether a deterministic Standard MIDI companion was exported for each WAV variation."
         }
       }
     },
@@ -422,6 +426,17 @@
         "sample_domain"
       ],
       "description": "Metering values are based on stored PCM samples; no LUFS or oversampled true-peak claim is implied."
+    },
+    "midi_files": {
+      "type": "array",
+      "description": "Optional Standard MIDI companions generated from the same deterministic musical events as the WAV files.",
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 255
+      }
     }
   }
 }
