@@ -1124,6 +1124,14 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 result.error = "Файл уже существует или недоступен: " + path.string();
                 return result;
             }
+            if (p.exportMidi) {
+                auto midiPath = path;
+                midiPath.replace_extension(".mid");
+                if (std::filesystem::exists(midiPath, ec) || ec) {
+                    result.error = "MIDI-файл уже существует или недоступен: " + midiPath.string();
+                    return result;
+                }
+            }
         }
     }
     const auto applyStochastic = [&](AudioBuffer& audio, int variation, StochasticResult& report) -> bool {
@@ -1198,6 +1206,7 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
              << ", \"triplet_rolls\": " << (p.tripletRolls ? "true" : "false")
              << ", \"micro_humanize\": " << (p.microHumanize ? "true" : "false")
              << ", \"tpdf_dither\": " << (p.tpdfDither ? "true" : "false")
+             << ", \"export_midi\": " << (p.exportMidi ? "true" : "false")
              << ", \"normalize_peak\": " << (p.normalizePeak ? "true" : "false")
              << ", \"target_peak_dbfs\": " << p.targetPeakDbfs
              << ", \"vinyl_dust\": " << (p.vinylDust ? "true" : "false")
@@ -1257,6 +1266,15 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
             std::string error;
             if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
+            if (p.exportMidi) {
+                auto midiPath = path;
+                midiPath.replace_extension(".mid");
+                if (!writeMidi(midiPath, audio, p.bpm, error)) {
+                    result.error = error;
+                    return result;
+                }
+                result.midiFiles.push_back(midiPath);
+            }
             const auto stats = measure(audio);
             result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
             result.files.push_back(path);
@@ -1280,7 +1298,13 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                      << ", \"mode_family\": " << (tonalTarget ? "\"" + modeFamily(p.scale) + "\"" : "null") << "}";
         }
     }
-    manifest << "\n  ]\n}\n";
+    manifest << "\n  ],\n  \"midi_files\": [";
+    for (std::size_t index = 0; index < result.midiFiles.size(); ++index) {
+        if (index != 0u) manifest << ", ";
+        manifest << "\n    \"" << jsonEscape(result.midiFiles[index].filename().string()) << "\"";
+    }
+    if (!result.midiFiles.empty()) manifest << "\n  ";
+    manifest << "]\n}\n";
     std::ofstream json(manifestPath, std::ios::binary | std::ios::trunc);
     if (!json) { result.error = "Не удалось записать manifest.json."; return result; }
     json << manifest.str();
