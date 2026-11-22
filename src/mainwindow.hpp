@@ -84,6 +84,9 @@ private:
     QCheckBox* humanizeCheck_{};
     QCheckBox* dustCheck_{};
     QCheckBox* stochasticCheck_{};
+    QCheckBox* tpdfDitherCheck_{};
+    QCheckBox* normalizePeakCheck_{};
+    QDoubleSpinBox* targetPeakSpin_{};
     QSlider* stochasticIntensitySlider_{};
     QLabel* stochasticIntensityValue_{};
     QComboBox* stochasticTriggerBox_{};
