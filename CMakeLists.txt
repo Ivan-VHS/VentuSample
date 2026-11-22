@@ -54,6 +54,8 @@ endif()
 add_library(ventusample_core STATIC
     src/generator.cpp
     src/generator.hpp
+    src/midi_export.cpp
+    src/midi_export.hpp
     src/plugin_manager.cpp
     src/plugin_manager.hpp
     src/stochastic_router.hpp
@@ -173,6 +175,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-generator COMMAND ventusample_tests)
+    add_executable(ventusample_midi_export_tests tests/test_midi_export.cpp)
+    target_link_libraries(ventusample_midi_export_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-midi-export COMMAND ventusample_midi_export_tests)
     add_executable(ventusample_plugin_tests tests/test_plugins.cpp)
     target_link_libraries(ventusample_plugin_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-plugin-host COMMAND ventusample_plugin_tests)

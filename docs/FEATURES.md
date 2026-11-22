@@ -11,12 +11,15 @@
 | Timing | shared drum/melody swing, snare offset, micro-humanization |
 | Processing | filters, saturation, linked stereo bus compression |
 | Export | PCM16 WAV + manifest v2; v1 compatibility retained |
+| MIDI | Standard MIDI File type 1, 480 PPQ, conductor + separate drums/bass/melody tracks; notes from the local renderer |
 | Analysis | peak, RMS, crest per file |
 | Key labels | key/mode on pitched material; no fabricated drum key |
 | Reaper | v1 manifest metrics/comparison; JSON only, no waveform audit |
 | QMR-20 | 20 quality × cohesion × rhythm controls and regression gates |
 
 Profiles are original procedural patterns, not artist or recording emulations.
+
+MIDI is a note arrangement, not an audio transcription. Imported WAV chops and sample content are not embedded or represented as copied media. The one-shot target exports an original eight-slot MIDI kit pattern.
 
 ## Stochastic Router
 

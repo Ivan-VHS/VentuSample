@@ -648,6 +648,9 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     audio.eventFrames.push_back(at);
                     const double kickLevel = (cadenceKick && !baseKick)
                         ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08);
+                    audio.midiNotes.push_back({at,
+                        static_cast<std::size_t>(p.sampleRate * 0.22), 36,
+                        static_cast<int>(std::lround(kickLevel * 110.0)), MidiPart::Drums});
                     addKick(audio, at, kickLevel * spec.kickWeight, rng, width);
                 }
                 if (drumsOn && snare) {
@@ -656,6 +659,9 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const auto shifted = static_cast<std::size_t>(std::max<long long>(0, static_cast<long long>(at) + offset));
                     const double snareLevel = ghostSnare
                         ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07);
+                    audio.midiNotes.push_back({shifted,
+                        static_cast<std::size_t>(p.sampleRate * 0.16), 38,
+                        static_cast<int>(std::lround(snareLevel * 112.0)), MidiPart::Drums});
                     addSnare(audio, shifted, snareLevel * spec.snareWeight,
                              rng, uniform(rng, -0.08, 0.08), width);
                 }
@@ -668,16 +674,26 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const double accent = ((step % 4 == 0) ? 0.52
                         : (turnaroundHat ? 0.27 : 0.34)) * spec.hatWeight;
                     const double decay = turnaroundHat ? 0.026 : (step % 4 == 0 ? 0.065 : 0.042);
+                    audio.midiNotes.push_back({at,
+                        static_cast<std::size_t>(p.sampleRate * std::max(0.025, decay)),
+                        42, static_cast<int>(std::lround(accent * 110.0)), MidiPart::Drums});
                     addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, decay);
                 }
                 if (drumsOn && step % 4 == 3 && uniform(rng, 0.0, 1.0) < density * 0.25) {
                     audio.eventFrames.push_back(at);
+                    audio.midiNotes.push_back({at,
+                        static_cast<std::size_t>(p.sampleRate * 0.08), 76, 76, MidiPart::Drums});
                     addPerc(audio, at, 0.22, rng, uniform(rng, -0.85, 0.85), width);
                 }
                 if (drumsOn && p.tripletRolls && (p.style == Style::ModernTrap || p.style == Style::AtlantaTrap || p.style == Style::UKDrill || p.style == Style::Memphis || p.style == Style::CrippleTrill) && (step == 7 || step == 15)) {
                     for (int roll = 1; roll <= 2; ++roll) {
                         const auto rollAt = at + static_cast<std::size_t>(stepFrames * roll / 3.0);
-                        if (rollAt < audio.frames()) addHat(audio, rollAt, 0.22, rng, uniform(rng, -0.8, 0.8), width, 0.023);
+                        if (rollAt < audio.frames()) {
+                            audio.midiNotes.push_back({rollAt,
+                                static_cast<std::size_t>(p.sampleRate * 0.025), 42, 56,
+                                MidiPart::Drums});
+                            addHat(audio, rollAt, 0.22, rng, uniform(rng, -0.8, 0.8), width, 0.023);
+                        }
                     }
                 }
             }
@@ -693,6 +709,9 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                 for (int i = 0; i < 3; ++i) {
                     const int degree = (chordNotes[i] + chordDegree) % 12;
                     const int midi = rootMidi + degree + (i == 2 ? 12 : 0);
+                    audio.midiNotes.push_back({barStart,
+                        static_cast<std::size_t>(std::max(1.0, padLength * p.sampleRate)),
+                        midi, 68, MidiPart::Melody});
                     addTone(audio, barStart, midiHz(midi), padLength, 0.12 + density * 0.04,
                             p.timbre, (i - 1) * 0.34, width, grit, rng);
                 }
@@ -705,8 +724,15 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     if (p.microHumanize) noteOnset += uniform(rng, -0.001, 0.001) * p.sampleRate;
                     const auto noteAt = static_cast<std::size_t>(std::max(0.0, noteOnset));
                     audio.eventFrames.push_back(noteAt);
-                    addTone(audio, noteAt, midiHz(rootMidi + degree + octave), (60.0 / p.bpm) * uniform(rng, 0.12, 0.42),
-                            uniform(rng, 0.12, 0.27), p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
+                    const int midi = rootMidi + degree + octave;
+                    const double noteLength = (60.0 / p.bpm) * uniform(rng, 0.12, 0.42);
+                    const double noteAmplitude = uniform(rng, 0.12, 0.27);
+                    audio.midiNotes.push_back({noteAt,
+                        static_cast<std::size_t>(std::max(1.0, noteLength * p.sampleRate)),
+                        midi, std::clamp(static_cast<int>(std::lround(noteAmplitude * 150.0)) + 45,
+                                         1, 127), MidiPart::Melody});
+                    addTone(audio, noteAt, midiHz(midi), noteLength, noteAmplitude,
+                            p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
                 }
             }
             if (bassOn) {
@@ -715,7 +741,12 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     audio.eventFrames.push_back(bassAt);
                     const double slide = (p.style == Style::UKDrill || p.style == Style::ModernTrap || p.style == Style::AtlantaTrap) ? uniform(rng, -5.0, 7.0) : 0.0;
                     const int octave = (p.style == Style::JazzRap || p.style == Style::Gfunk) ? 1 : 0;
-                    addBass(audio, bassAt, midiHz(rootMidi - 12 + octave * 12), (60.0 / p.bpm) * 1.6,
+                    const int bassNote = rootMidi - 12 + octave * 12;
+                    const double bassLength = (60.0 / p.bpm) * 1.6;
+                    audio.midiNotes.push_back({bassAt,
+                        static_cast<std::size_t>(std::max(1.0, bassLength * p.sampleRate)),
+                        bassNote, 88, MidiPart::Bass});
+                    addBass(audio, bassAt, midiHz(bassNote), bassLength,
                             0.38 * spec.bassWeight, uniform(rng, -0.08, 0.08), width, slide);
                 }
             }

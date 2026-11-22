@@ -54,6 +54,7 @@ private:
     void capturePresetA();
     void capturePresetB();
     void switchPresetSlots();
+    void exportMidi();
     void startGeneration();
     void setBusy(bool busy);
     void appendLog(const QString& message);

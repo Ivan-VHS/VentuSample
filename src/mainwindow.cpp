@@ -2,6 +2,7 @@
 #include "quantum_audio_lab.hpp"
 #include "ui_ux.hpp"
 #include "budget_planner_dialog.hpp"
+#include "midi_export.hpp"
 
 #include <QCheckBox>
 #include <QCloseEvent>
@@ -131,6 +132,9 @@ QSlider* MainWindow::addSliderRow(QGridLayout* grid, int row, const QString& lab
 }
 
 void MainWindow::buildUi() {
+    auto* fileMenu = menuBar()->addMenu("Файл");
+    fileMenu->addAction("Экспортировать MIDI…", this, &MainWindow::exportMidi);
+
     auto* pluginsMenu = menuBar()->addMenu("Плагины");
     pluginsMenu->addAction("Quantum Audio Engine — 133 DSP", this, [this] {
         ventu::showQuantumAudioLab(this);
@@ -478,6 +482,44 @@ void MainWindow::buildUi() {
     });
     connect(darkThemeCheck_, &QCheckBox::toggled, this, [this] { applyTheme(); saveSettings(); });
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
+}
+
+void MainWindow::exportMidi() {
+    if (generateButton_ && !generateButton_->isEnabled()) {
+        QMessageBox::information(this, "Экспорт MIDI",
+            "Дождитесь завершения текущей генерации аудиопака.");
+        return;
+    }
+
+    const QString filename = QFileDialog::getSaveFileName(
+        this, "Экспортировать MIDI",
+        QStandardPaths::writableLocation(QStandardPaths::MusicLocation)
+            + QStringLiteral("/VentuSample.mid"),
+        "Standard MIDI File (*.mid *.midi)");
+    if (filename.isEmpty()) return;
+
+    const ventu::Parameters current = parameters();
+    if (const auto issue = ventu::validate(current); !issue.empty()) {
+        QMessageBox::warning(this, "Параметры генератора", q(issue));
+        return;
+    }
+
+    ventu::AudioBuffer audio;
+    if (current.target != ventu::Target::OneShotKit)
+        audio = ventu::render(current, 0);
+
+    std::string error;
+    if (!ventu::writeMidiFile(pathFromQString(filename), current, audio, error)) {
+        statusLabel_->setText("Не удалось экспортировать MIDI");
+        QMessageBox::warning(this, "Экспорт MIDI", q(error));
+        return;
+    }
+
+    const QString message = "MIDI экспортирован: " + QFileInfo(filename).fileName();
+    appendLog(message);
+    statusLabel_->setText(message + " · 480 PPQ · 4 дорожки");
+    QMessageBox::information(this, "Экспорт MIDI",
+        message + "\nФайл содержит отдельные дорожки ударных, баса и мелодии.");
 }
 
 void MainWindow::showPlugins(const QString& selected) {
