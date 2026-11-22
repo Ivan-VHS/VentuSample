@@ -11,6 +11,7 @@
 
 #include <cmath>
 #include <limits>
+#include <utility>
 
 namespace ventu::presets {
 namespace {
@@ -177,6 +178,7 @@ QJsonObject toJson(const Parameters& p, const QString& name, bool includeSeed) {
 bool fromJson(const QJsonObject& document, const Parameters& current,
               Parameters& restored, QString& name, QString& error) {
     error.clear();
+    if (!knownFieldsOnly(document, {"schema", "name", "seed_policy", "parameters"}, error)) return false;
     if (document.value("schema").toString() != QLatin1String(SchemaId)) {
         error = QStringLiteral("Unsupported preset schema. Expected %1.").arg(QLatin1String(SchemaId));
         return false;
