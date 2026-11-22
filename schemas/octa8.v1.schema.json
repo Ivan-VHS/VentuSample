@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Ivan-VHS/contracts/octa8.v1.schema.json",
   "title": "OCTA-8 Portable Typed Value",
-  "description": "Canonical cross-platform JSON value envelope. Limits: depth 64, 100000 aggregate nodes, 1 MiB text, 16 MiB bytes, signed 64-bit integers.",
+  "description": "Cross-platform JSON value envelope. Runtime limits: depth 64, 100000 aggregate nodes, 1 MiB text, 16 MiB bytes, signed 64-bit integers; JSON Schema validates shape while runtimes enforce aggregate depth/count.",
   "type": "object",
   "required": [
     "schema",
@@ -26,10 +26,176 @@
         "record"
       ]
     },
-    "value": {
-      "$ref": "#/$defs/value"
-    }
+    "value": {}
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "null"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "boolean"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "integer"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "integer",
+            "minimum": -9223372036854776000,
+            "maximum": 9223372036854776000
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "number"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "text"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "maxLength": 1000000
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "bytes"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "contentEncoding": "base64",
+            "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+            "maxLength": 22369624
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "sequence"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "array",
+            "maxItems": 100000,
+            "items": {
+              "$ref": "#/$defs/node"
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "record"
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "then": {
+        "properties": {
+          "value": {
+            "type": "object",
+            "maxProperties": 100000,
+            "additionalProperties": {
+              "$ref": "#/$defs/node"
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
     "node": {
       "type": "object",
@@ -51,48 +217,173 @@
             "record"
           ]
         },
-        "value": {
-          "$ref": "#/$defs/value"
-        }
-      }
-    },
-    "value": {
-      "oneOf": [
+        "value": {}
+      },
+      "allOf": [
         {
-          "type": "null"
-        },
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "integer",
-          "minimum": -9223372036854776000,
-          "maximum": 9223372036854776000
-        },
-        {
-          "type": "number"
-        },
-        {
-          "type": "string",
-          "maxLength": 1000000
-        },
-        {
-          "type": "string",
-          "contentEncoding": "base64",
-          "maxLength": 22369624
-        },
-        {
-          "type": "array",
-          "maxItems": 100000,
-          "items": {
-            "$ref": "#/$defs/node"
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "null"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
           }
         },
         {
-          "type": "object",
-          "maxProperties": 100000,
-          "additionalProperties": {
-            "$ref": "#/$defs/node"
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "boolean"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "integer"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": -9223372036854776000,
+                "maximum": 9223372036854776000
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "number"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "text"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "maxLength": 1000000
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "bytes"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "contentEncoding": "base64",
+                "pattern": "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$",
+                "maxLength": 22369624
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "sequence"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "array",
+                "maxItems": 100000,
+                "items": {
+                  "$ref": "#/$defs/node"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "record"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "maxProperties": 100000,
+                "additionalProperties": {
+                  "$ref": "#/$defs/node"
+                }
+              }
+            }
           }
         }
       ]
