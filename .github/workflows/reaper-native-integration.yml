@@ -15,8 +15,8 @@ jobs:
   reaper-abi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: Ivan-VHS/Reaper
           ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
