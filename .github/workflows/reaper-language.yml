@@ -1,0 +1,61 @@
+name: Reaper language / VentuSample federation
+
+on:
+  pull_request:
+    paths:
+      - "automation/reaper/**"
+      - "schemas/ventusample.pack.v2.schema.json"
+      - "src/generator.cpp"
+      - "src/generator.hpp"
+      - "tests/test_generator.cpp"
+      - ".github/workflows/reaper-language.yml"
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - "automation/reaper/**"
+      - "schemas/ventusample.pack.v2.schema.json"
+      - "src/generator.cpp"
+      - "src/generator.hpp"
+      - "tests/test_generator.cpp"
+      - ".github/workflows/reaper-language.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reaper-ventusample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Ivan-VHS/Reaper
+          ref: 0903c60e8831477d98583ab1d2927c5f318f8038
+          path: _deps/Reaper
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Configure native VentuSample generator
+        run: cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Build native generator test
+        run: cmake --build build --parallel --target ventusample_tests
+      - name: Generate the actual v2 pack manifest
+        run: ctest --test-dir build --output-on-failure -R '^ventusample-generator$'
+      - name: Prepare bounded v2 fixture for Reaper
+        run: python automation/reaper/prepare_fixture.py
+      - name: Parse Reaper program
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper --check automation/reaper/pack_audit.rpr
+      - name: Execute in Reaper tree-walk reference runtime
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper automation/reaper/pack_audit.rpr
+      - name: Execute in Reaper bytecode VM
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper --engine vm automation/reaper/pack_audit.rpr
+      - name: Verify both Reaper engines emitted the versioned report
+        run: |
+          python -c "import json,pathlib; p=json.loads(pathlib.Path('build/reaper-ventusample-report.json').read_text()); assert p['schema']=='reaper.ventusample-comparison.v1'; assert p['mode']=='read_only'; assert p['same_schema'] is True; assert p['euclidean_distance']==0.0"

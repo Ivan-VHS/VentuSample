@@ -65,6 +65,12 @@ There are 14 procedural profiles: Boom Bap, Billionaire Golden Era, East Coast, 
 | Source WAV | PCM16 mono/stereo, 8–192 kHz, ≤128 MiB, ≤20M frames |
 | Chop pitch / mix | −12…+12 semitones / 0–100% |
 
+## Reaper 0.2 offline language integration
+
+The native C++20 generator remains the audio engine. An optional Reaper 0.2 `.rpr` script audits generated v2 pack metadata, including tonal and stochastic fields, and writes a read-only comparison report. CI runs the script after generating a real C++ pack fixture; it does not enter the audio callback or open WAV content.
+
+See [Reaper language integration](docs/REAPER_LANGUAGE_INTEGRATION.md).
+
 ## Optional Reaper C17 runtime
 
 VentuSample can optionally link Reaper's standalone C17 integer-expression ABI. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md). The bridge is configured explicitly at build time with `-DREAPER_SOURCE_DIR=/absolute/path/to/Reaper`; it is disabled by default, does not discover or download libraries at runtime, and does not replace the C++20 audio engine or enter the real-time DSP path.
