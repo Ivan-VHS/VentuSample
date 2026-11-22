@@ -51,6 +51,26 @@ void testAntiphaseAndMonoInputs() {
     require(!monoResult.stereoCorrelationValid, "mono input must not claim stereo correlation");
 }
 
+void testSilenceAndCustomThreshold() {
+    ventu::AudioBuffer silence;
+    silence.sampleRate = 44100;
+    silence.channels = 2;
+    silence.samples = std::vector<float>(128u, 0.0F);
+    const auto silent = ventu::analyzeAudio(silence);
+    require(silent.valid && silent.silent, "all-zero input must be identified as silence");
+    require(silent.peak == 0.0 && silent.rms == 0.0, "silence metrics must remain zero");
+    require(!silent.stereoCorrelationValid, "silence must not claim a meaningful stereo correlation");
+
+    ventu::AudioBuffer nearFullScale;
+    nearFullScale.sampleRate = 44100;
+    nearFullScale.channels = 1;
+    nearFullScale.samples = {0.98F};
+    require(ventu::analyzeAudio(nearFullScale).clippedSamples == 0u,
+            "default threshold must leave a 0.98 sample unclipped");
+    require(ventu::analyzeAudio(nearFullScale, 0.95).clippedSamples == 1u,
+            "custom clipping threshold must be honored");
+}
+
 void testInvalidInputIsRejected() {
     ventu::AudioBuffer malformed;
     malformed.sampleRate = 48000;
@@ -76,6 +96,7 @@ int main() {
     testStereoMetricsAndReadOnlyBehavior();
     testAntiphaseAndMonoInputs();
     testInvalidInputIsRejected();
+    testSilenceAndCustomThreshold();
     std::cout << "VentuSample audio diagnostics tests passed.\n";
     return 0;
 }
