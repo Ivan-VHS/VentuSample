@@ -155,7 +155,6 @@ QJsonObject toJson(const Parameters& p, const QString& name, bool includeSeed) {
         {"source_pitch_semitones", p.sourcePitchSemitones},
         {"bus_compression_ratio", p.busCompressionRatio},
         {"tpdf_dither", p.tpdfDither},
-        {"export_midi", p.exportMidi},
         {"normalize_peak", p.normalizePeak},
         {"target_peak_dbfs", p.targetPeakDbfs},
         {"triplet_rolls", p.tripletRolls},
@@ -201,7 +200,7 @@ bool fromJson(const QJsonObject& document, const Parameters& current,
         "style","target","scale","sampler","timbre","bpm","root_note","bars","variations",
         "seed","swing_percent","density_percent","grit_percent","saturation_percent","stereo_percent",
         "high_pass_hz","low_pass_hz","snare_offset_ms","sample_rate","source_mix_percent",
-        "source_pitch_semitones","bus_compression_ratio","tpdf_dither","export_midi","normalize_peak",
+        "source_pitch_semitones","bus_compression_ratio","tpdf_dither","normalize_peak",
         "target_peak_dbfs","triplet_rolls","micro_humanize","vinyl_dust","stochastic_enabled",
         "stochastic_intensity_percent","stochastic_trigger_mode","stochastic_plugin_mask","stochastic_topology"
     };
@@ -249,12 +248,6 @@ bool fromJson(const QJsonObject& document, const Parameters& current,
     candidate.stochasticPluginMask = static_cast<std::uint32_t>(value);
     if (hasSeed && !readInteger(values, "seed", candidate.seed, 0, std::numeric_limits<int>::max(), error))
         return false;
-
-    if (values.contains("export_midi")) {
-        if (!readBoolean(values, "export_midi", candidate.exportMidi, error)) return false;
-    } else {
-        candidate.exportMidi = false;
-    }
 
     if (!readDecimal(values, "bus_compression_ratio", candidate.busCompressionRatio, 1.0, 12.0, error)
         || !readDecimal(values, "target_peak_dbfs", candidate.targetPeakDbfs, -24.0, -0.3, error)
