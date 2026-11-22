@@ -57,7 +57,7 @@ def make_pack() -> dict[str, object]:
     }
 
 
-class VentuSampleFederationTests(unittest.TestCase):
+class VentuSamplePackAuditTests(unittest.TestCase):
     def test_billionaire_golden_era_profile_and_schema_stay_in_sync(self) -> None:
         pack = make_pack()
         pack["parameters"]["style"] = "Billionaire Golden Era"
@@ -132,8 +132,6 @@ class VentuSampleFederationTests(unittest.TestCase):
         ]
         with self.assertRaisesRegex(ValueError, "exactly 8 file"):
             ventusample_metrics(pack)
-
-
 
 
 if __name__ == "__main__":
