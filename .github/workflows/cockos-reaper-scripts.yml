@@ -1,0 +1,39 @@
+name: Cockos REAPER script bundle
+on:
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - "integrations/cockos-reaper/**"
+      - "tests/test_cockos_reascripts.py"
+      - "docs/COCKOS_REAPER_INTEGRATION.md"
+      - ".github/workflows/cockos-reaper-scripts.yml"
+  pull_request:
+    paths:
+      - "integrations/cockos-reaper/**"
+      - "tests/test_cockos_reascripts.py"
+      - "docs/COCKOS_REAPER_INTEGRATION.md"
+      - ".github/workflows/cockos-reaper-scripts.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify scripts
+        run: python -m unittest tests.test_cockos_reascripts -v
+      - name: Package REAPER actions
+        run: |
+          mkdir -p dist/ventusample-cockos-reaper
+          cp integrations/cockos-reaper/*.lua dist/ventusample-cockos-reaper/
+          cp docs/COCKOS_REAPER_INTEGRATION.md dist/ventusample-cockos-reaper/README.md
+          cd dist && zip -r ventusample-cockos-reaper.zip ventusample-cockos-reaper
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ventusample-cockos-reaper
+          path: dist/ventusample-cockos-reaper.zip
+          if-no-files-found: error

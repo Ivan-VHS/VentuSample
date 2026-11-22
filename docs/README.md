@@ -7,10 +7,12 @@
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
 | [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
 | [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |
+| [NATIVE_DSP.md](NATIVE_DSP.md) | migrated C11 WAV processor and bounded block-processing engine |
+| [PACK_AUDIT.md](PACK_AUDIT.md) | local pack v1 validation, normalized metrics and deterministic comparisons |
 | [USER_GUIDE_RU.md](USER_GUIDE_RU.md) | operation, profile selection and Russian UI labels |
 | [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md) | 20×3 quality/cohesion/rhythm acceptance matrix |
 | [SOURCE_INTEGRATION.md](SOURCE_INTEGRATION.md) | WAV constraints and source-rights requirements |
-| [REAPER_PACK_AUDIT.md](REAPER_PACK_AUDIT.md) | manifest-only interoperability with Reaper |
+| [COCKOS_REAPER_INTEGRATION.md](COCKOS_REAPER_INTEGRATION.md) | optional host-side action scripts and their safety boundaries |
 | [UI_MOTION.md](UI_MOTION.md) | persisted Qt motion preferences, project-BPM indicator and accessibility limits |
 | [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) | visual tokens and workbench UX |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | release, privacy and communication rules |

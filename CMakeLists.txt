@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-project(VentuSample VERSION 0.2.0 LANGUAGES CXX)
+project(VentuSample VERSION 0.2.0 LANGUAGES C CXX)
 
 option(VENTU_BUILD_DESKTOP "Build the native Qt desktop workstation when Qt 6 is available" ON)
 option(VENTU_BUILD_TESTS "Build deterministic generator tests" ON)
@@ -9,6 +9,9 @@ set(REAPER_SOURCE_DIR "" CACHE PATH "Optional local Reaper source tree for nativ
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
 
 if(REAPER_SOURCE_DIR)
     if(NOT EXISTS "${REAPER_SOURCE_DIR}/CMakeLists.txt")
@@ -36,6 +39,10 @@ add_library(ventusample_core STATIC
     src/stochastic_router.hpp
     src/stochastic_router.cpp
     src/builtin_plugins.cpp
+    src/native_dsp/wav_processor.c
+    src/native_dsp/ventu_audio.h
+    src/native_dsp/block_engine.c
+    src/native_dsp/ventu_block_engine.h
     src/quantum_audio.cpp
     src/quantum_audio.hpp
     src/atomic_quantum.cpp
@@ -50,7 +57,10 @@ add_library(ventusample_core STATIC
     src/runtime_transaction.hpp
     src/octa8.hpp
 )
-target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(ventusample_core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/native_dsp
+)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
 if(REAPER_SOURCE_DIR)
     target_link_libraries(ventusample_core PUBLIC reaper_ffi)
@@ -155,6 +165,12 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_quantum_audio_tests tests/test_quantum_audio.cpp)
     target_link_libraries(ventusample_quantum_audio_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-quantum-audio COMMAND ventusample_quantum_audio_tests)
+    add_executable(ventusample_wav_boundary_tests tests/test_wav_boundaries.c)
+    target_link_libraries(ventusample_wav_boundary_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-wav-boundaries COMMAND ventusample_wav_boundary_tests)
+    add_executable(ventusample_block_dsp_tests tests/test_dsp_engine.c)
+    target_link_libraries(ventusample_block_dsp_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-block-dsp-engine COMMAND ventusample_block_dsp_tests)
     add_executable(ventusample_budget_tests tests/test_budget_planner.cpp)
     target_link_libraries(ventusample_budget_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-budget-planner COMMAND ventusample_budget_tests)
@@ -170,6 +186,7 @@ if(VENTU_BUILD_TESTS)
         add_test(NAME ventusample-clife-contract COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_clife.py)
         add_test(NAME ventusample-plugin-federation COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_plugin_federation.py)
         add_test(NAME ventusample-manifest-fixture COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tools/validate_generated_fixture.py)
+        add_test(NAME ventusample-pack-audit COMMAND ${Python3_EXECUTABLE} -m unittest tests.test_ventusample_pack_audit -v)
         set_tests_properties(ventusample-manifest-fixture PROPERTIES DEPENDS ventusample-generator)
     endif()
 endif()
