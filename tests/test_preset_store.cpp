@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
     source.stochasticTopology = 2;
     source.stochasticPluginMask = 0x35u;
     source.stochasticEnabled = true;
+    source.exportMidi = true;
 
     QString error;
     QString name;
@@ -59,6 +60,8 @@ int main(int argc, char** argv) {
     require(restored.style == source.style && restored.target == source.target
             && restored.scale == source.scale && restored.sampler == source.sampler,
             "enum selections should round trip");
+    require(restored.exportMidi == source.exportMidi,
+            "MIDI export preference should round trip through portable presets");
     require(restored.stochasticPluginMask == source.stochasticPluginMask
             && restored.stochasticTopology == source.stochasticTopology,
             "stochastic routing settings should round trip");
@@ -68,6 +71,8 @@ int main(int argc, char** argv) {
     require(ventu::presets::fromJson(fixed, source, fixedResult, name, error),
             "fixed-seed preset should load");
     require(fixedResult.seed == source.seed, "explicit seed should round trip");
+    require(fixedResult.exportMidi == source.exportMidi,
+            "MIDI export preference should round trip through fixed presets");
 
     auto broken = fixed;
     broken.insert("schema", "ventusample.preset.v99");
