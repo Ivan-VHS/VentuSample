@@ -76,6 +76,24 @@ int choose(std::mt19937& rng, int lo, int hi) {
     return std::uniform_int_distribution<int>(lo, hi)(rng);
 }
 
+void addMidiNote(AudioBuffer& audio, std::size_t frame, double seconds,
+                  int note, int velocity, int channel) {
+    if (frame >= audio.frames() || !std::isfinite(seconds) || seconds <= 0.0 ||
+        note < 0 || note > 127 || velocity < 1 || velocity > 127 ||
+        channel < 0 || channel > 15) {
+        return;
+    }
+    const double requestedFrames = std::max(1.0, std::round(seconds * audio.sampleRate));
+    const auto availableFrames = audio.frames() - frame;
+    const auto duration = static_cast<std::size_t>(std::min(
+        requestedFrames, static_cast<double>(availableFrames)));
+    if (duration == 0u) return;
+    audio.midiNotes.push_back({
+        frame, duration, static_cast<std::uint8_t>(note),
+        static_cast<std::uint8_t>(velocity), static_cast<std::uint8_t>(channel)
+    });
+}
+
 void addStereo(AudioBuffer& audio, std::size_t frame, double value, double pan, double width) {
     if (frame >= audio.frames()) return;
     pan = std::clamp(pan * width, -1.0, 1.0);
@@ -649,6 +667,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const double kickLevel = (cadenceKick && !baseKick)
                         ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08);
                     addKick(audio, at, kickLevel * spec.kickWeight, rng, width);
+                    addMidiNote(audio, at, 0.10, 36, 100, 9);
                 }
                 if (drumsOn && snare) {
                     audio.eventFrames.push_back(at);
@@ -658,6 +677,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                         ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07);
                     addSnare(audio, shifted, snareLevel * spec.snareWeight,
                              rng, uniform(rng, -0.08, 0.08), width);
+                    addMidiNote(audio, shifted, 0.12, 38, ghostSnare ? 58 : 94, 9);
                 }
 
                 const bool regularHat = drumsOn && (step % 2 == 0
@@ -669,15 +689,20 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                         : (turnaroundHat ? 0.27 : 0.34)) * spec.hatWeight;
                     const double decay = turnaroundHat ? 0.026 : (step % 4 == 0 ? 0.065 : 0.042);
                     addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, decay);
+                    addMidiNote(audio, at, decay, 42, step % 4 == 0 ? 78 : 58, 9);
                 }
                 if (drumsOn && step % 4 == 3 && uniform(rng, 0.0, 1.0) < density * 0.25) {
                     audio.eventFrames.push_back(at);
                     addPerc(audio, at, 0.22, rng, uniform(rng, -0.85, 0.85), width);
+                    addMidiNote(audio, at, 0.07, 37, 62, 9);
                 }
                 if (drumsOn && p.tripletRolls && (p.style == Style::ModernTrap || p.style == Style::AtlantaTrap || p.style == Style::UKDrill || p.style == Style::Memphis || p.style == Style::CrippleTrill) && (step == 7 || step == 15)) {
                     for (int roll = 1; roll <= 2; ++roll) {
                         const auto rollAt = at + static_cast<std::size_t>(stepFrames * roll / 3.0);
-                        if (rollAt < audio.frames()) addHat(audio, rollAt, 0.22, rng, uniform(rng, -0.8, 0.8), width, 0.023);
+                        if (rollAt < audio.frames()) {
+                            addHat(audio, rollAt, 0.22, rng, uniform(rng, -0.8, 0.8), width, 0.023);
+                            addMidiNote(audio, rollAt, 0.023, 42, 48, 9);
+                        }
                     }
                 }
             }
@@ -695,6 +720,8 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const int midi = rootMidi + degree + (i == 2 ? 12 : 0);
                     addTone(audio, barStart, midiHz(midi), padLength, 0.12 + density * 0.04,
                             p.timbre, (i - 1) * 0.34, width, grit, rng);
+                    addMidiNote(audio, barStart, padLength, midi,
+                                static_cast<int>(66 + density * 18), 0);
                 }
                 const int notesPerBar = density < 0.3 ? 2 : (density < 0.7 ? 4 : 6);
                 for (int n = 0; n < notesPerBar; ++n) {
@@ -705,8 +732,13 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     if (p.microHumanize) noteOnset += uniform(rng, -0.001, 0.001) * p.sampleRate;
                     const auto noteAt = static_cast<std::size_t>(std::max(0.0, noteOnset));
                     audio.eventFrames.push_back(noteAt);
-                    addTone(audio, noteAt, midiHz(rootMidi + degree + octave), (60.0 / p.bpm) * uniform(rng, 0.12, 0.42),
-                            uniform(rng, 0.12, 0.27), p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
+                    const double noteLength = (60.0 / p.bpm) * uniform(rng, 0.12, 0.42);
+                    const double noteLevel = uniform(rng, 0.12, 0.27);
+                    const int noteNumber = rootMidi + degree + octave;
+                    addTone(audio, noteAt, midiHz(noteNumber), noteLength,
+                            noteLevel, p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
+                    addMidiNote(audio, noteAt, noteLength, noteNumber,
+                                static_cast<int>(55 + noteLevel * 230.0), 0);
                 }
             }
             if (bassOn) {
@@ -715,8 +747,11 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     audio.eventFrames.push_back(bassAt);
                     const double slide = (p.style == Style::UKDrill || p.style == Style::ModernTrap || p.style == Style::AtlantaTrap) ? uniform(rng, -5.0, 7.0) : 0.0;
                     const int octave = (p.style == Style::JazzRap || p.style == Style::Gfunk) ? 1 : 0;
-                    addBass(audio, bassAt, midiHz(rootMidi - 12 + octave * 12), (60.0 / p.bpm) * 1.6,
+                    const int bassNote = rootMidi - 12 + octave * 12;
+                    const double bassLength = (60.0 / p.bpm) * 1.6;
+                    addBass(audio, bassAt, midiHz(bassNote), bassLength,
                             0.38 * spec.bassWeight, uniform(rng, -0.08, 0.08), width, slide);
+                    addMidiNote(audio, bassAt, bassLength, bassNote, 92, 1);
                 }
             }
         }
