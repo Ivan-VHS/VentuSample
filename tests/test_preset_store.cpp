@@ -48,6 +48,7 @@ int main(int argc, char** argv) {
     QString name;
     ventu::Parameters restored;
     restored.seed = 1234;
+    restored.exportMidi = true;
     const auto portable = ventu::presets::toJson(source, "Harlem 150", false);
     require(!portable.value("parameters").toObject().contains("seed"),
             "seed must be omitted by default");
@@ -56,23 +57,15 @@ int main(int argc, char** argv) {
     require(name == "Harlem 150", "preset name should round trip");
     require(restored.seed == 1234, "portable preset should preserve the current seed");
 
-    auto legacyPreset = portable;
-    auto legacyValues = legacyPreset.value("parameters").toObject();
-    legacyValues.remove("export_midi");
-    legacyPreset.insert("parameters", legacyValues);
-    ventu::Parameters legacyRestored;
-    legacyRestored.exportMidi = true;
-    require(ventu::presets::fromJson(legacyPreset, source, legacyRestored, name, error),
-            "older presets without the MIDI field should remain loadable");
-    require(!legacyRestored.exportMidi,
-            "older presets should default the new MIDI setting to off");
+    require(!portable.value("parameters").toObject().contains("export_midi"),
+            "application MIDI preference must not alter the strict preset v1 schema");
     require(restored.bpm == source.bpm && restored.rootNote == source.rootNote,
             "musical settings should round trip");
     require(restored.style == source.style && restored.target == source.target
             && restored.scale == source.scale && restored.sampler == source.sampler,
             "enum selections should round trip");
-    require(restored.exportMidi == source.exportMidi,
-            "MIDI export preference should round trip through portable presets");
+    require(restored.exportMidi,
+            "loading a portable preset must preserve the application-wide MIDI preference");
     require(restored.stochasticPluginMask == source.stochasticPluginMask
             && restored.stochasticTopology == source.stochasticTopology,
             "stochastic routing settings should round trip");
@@ -82,8 +75,8 @@ int main(int argc, char** argv) {
     require(ventu::presets::fromJson(fixed, source, fixedResult, name, error),
             "fixed-seed preset should load");
     require(fixedResult.seed == source.seed, "explicit seed should round trip");
-    require(fixedResult.exportMidi == source.exportMidi,
-            "MIDI export preference should round trip through fixed presets");
+    require(fixedResult.exportMidi,
+            "loading a fixed preset must preserve the application-wide MIDI preference");
 
     auto broken = fixed;
     broken.insert("schema", "ventusample.preset.v99");
