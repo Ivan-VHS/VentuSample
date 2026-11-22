@@ -75,6 +75,10 @@ struct AudioStats {
     double peak{0.0};
     double rms{0.0};
     double crestDb{0.0};
+    double leftRms{0.0};
+    double rightRms{0.0};
+    double stereoCorrelation{0.0};
+    bool stereoCorrelationValid{false};
 };
 
 struct CadenceStats {
