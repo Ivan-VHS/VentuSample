@@ -47,6 +47,7 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 | 音频导出 | 立体声 PCM16 WAV 和版本化 JSON manifest | 本地文件；不会覆盖已有输出文件 |
 | WAV 导入 | 受支持的 PCM16 mono/stereo 源文件 | 验证大小、帧数、采样率和格式 |
 | Quantum Audio Engine | 133 个类型化模块 ID 和 21 个可复用 DSP 内核 | 创意离线 DSP，不是物理量子计算 |
+| Migrated C11 processing | 有界 WAV I/O、滤波器、压缩器、饱和处理、限幅器和测量 | 独立 C11 构建目标，离线缓冲区 |
 | Stochastic Router | 可选的 seeded 路由，使用八个内置处理器 | 离线缓冲区处理；默认关闭 |
 | Plugin Manager | 19 个内置工具和经过审查的 C++20 handler API | manifest 发现仅读取元数据；不任意加载 DLL/SO |
 | Atomic-Quantum 133 | 独立的有界经典模拟子集 | 不访问量子硬件 |
@@ -204,8 +205,12 @@ Plugin Manager 内置 19 个工具。可以递归发现本地 `plugin.json` 元�
 | 路径 | 内容 |
 |---|---|
 | `src/` | C++20 生成器、渲染器、音频缓冲区、DSP 内核、插件管理器、Qt 桌面 UI 和可选 Reaper Bridge |
+| `src/compat/pytyliki-dsp/` | 迁入的 C11 缓冲区处理库 |
+| `integrations/cockos-reaper/` | 可选的 Cockos REAPER Lua 辅助操作 |
 | `tests/` | 原生 DSP、生成器、manifest、UI、插件生命周期和回归测试 |
 | `docs/` | 架构、功能、插件 SDK、UI 行为和音频合同 |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | 迁入的 C11 模块所有权与构建约定 |
+| `docs/integrations/COCKOS_REAPER.md` | 可选 Cockos REAPER 辅助脚本 |
 | `schemas/` | 版本化采样包与插件 manifest Schema |
 | `tools/` | project-contract、fixture、visual-canon 和工程验证脚本 |
 | `federation/` | 显式互操作与适配器 manifest |
