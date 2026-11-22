@@ -1,5 +1,13 @@
 # VentuSample — процедурна робоча станція семплів
 
+## Версійні пресети та порівняння A/B
+
+Десктопний застосунок зберігає та завантажує локальні JSON-пресети формату `ventusample.preset.v1`. Вони містять музичний профіль, ритм, фільтри, семплер і маршрутизацію DSP. Випадковий seed за замовчуванням не додається: пресет описує налаштування звучання, а не фіксує кожну згенеровану варіацію; під час збереження seed можна додати окремо.
+
+Використовуйте **Presets → Save preset** або **Presets → Load preset**. Два додаткові слоти A і B дають змогу зберігати й перемикати набори параметрів у межах поточного сеансу без запису на диск. Перед прийняттям пресет перевіряється за тими самими правилами, що й генератор. Локальні шляхи до вихідних семплів навмисно не експортуються, оскільки залежать від конкретної машини.
+
+Схему опубліковано в `schemas/ventusample.preset.v1.schema.json`. Пресети залишаються локальними файлами: хмарної синхронізації немає, а право власності на описане ними аудіо не заявляється.
+
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
 <p align="center"><img src="assets/readme/dashboard.svg" alt="Огляд проєкту VentuSample" width="100%"></p>
@@ -241,7 +249,7 @@ Windows desktop job захоплює запущений застосунок і 
 
 VentuSample — офлайн-робоча станція семплів, а не DAW або real-time audio host. Генератор створює PCM16 stereo WAV і manifest; він не звертається до зовнішніх API, не стримить аудіо в браузер і не керує cloud projects. Stochastic router використовує вісім вбудованих процесорів і не хостить сторонні плагіни. Quantum Audio Engine — творчий DSP-каталог; Atomic-Quantum — окрема класична симуляція, не фізичні квантові обчислення. Для імпорту й експорту аудіо потрібні відповідні права на вихідний матеріал; хеш підтверджує ідентичність байтів, але не право власності.
 
-Окремого `CONTRIBUTING.md` не знайдено. Пропонуйте зміни через [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) або Pull Request. Додавайте ОС, версії compiler/CMake/Qt, seed та точні налаштування, безпечний опис вхідного WAV і точну команду/результат. Перед надсиланням запускайте CTest і project-contract checks.
+Правила розробки, перевірки змін і оформлення Pull Request описані в [CONTRIBUTING.md](CONTRIBUTING.md). Пропонуйте зміни через [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) або Pull Request. Додавайте ОС, версії compiler/CMake/Qt, seed та точні налаштування, безпечний опис вхідного WAV і точну команду/результат. Перед надсиланням запускайте CTest і project-contract checks.
 
 Ліцензія: [Apache-2.0](LICENSE).
 
@@ -259,3 +267,11 @@ VentuSample — офлайн-робоча станція семплів, а не
 | 56–66 · експлуатація та підтримка | додано реальний CI workflow, межі screenshot artifact і rollback, troubleshooting, відомі проблеми, шлях внеску й ліцензію |
 
 **Публічного URL VentuSample web-stand немає.** Desktop-скріншот і CI screenshot artifact не є інтерактивним браузерним демо.
+
+## Єдина оболонка звіту
+
+JSON-результат можна обгорнути в загальний формат метаданих ivan-vhs.report.v1:
+
+    python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
+
+Див. docs/REPORT_ENVELOPE.md і schemas/ivan-vhs.report.v1.schema.json. Результат самого інструмента залишається без змін.
