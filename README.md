@@ -147,3 +147,10 @@ This repository uses the versioned [Beelzebul 66-rule security policy](SECURITY.
 ## Transactional runtime
 
 Bounded in-memory state transitions, integrity checks, optimistic generation commits and rollback are documented in [Transactional Runtime Contract v1](docs/TRANSACTIONAL_RUNTIME.md). This does not enable firmware flashing or unrestricted executable loading.
+
+
+## CLife sample-workstation savepoints
+
+CLife creates bounded, SHA-256-verified snapshots of project files, manifests, presets and exported packs. Recovery is an offline copy to a new directory; it never runs in the audio callback or changes rendered audio.
+
+[CLife documentation](docs/CLIFE.md) · Run `python tools/clife.py snapshot .`.
