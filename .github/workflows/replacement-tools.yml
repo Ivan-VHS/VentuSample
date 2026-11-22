@@ -1,0 +1,21 @@
+name: Original replacement tools
+on:
+  push:
+    branches: ["feat/original-replacement-tools"]
+  pull_request:
+    paths:
+      - "tools/ventu_wav_inspect.py"
+      - "tests/test_ventu_wav_inspect.py"
+      - ".github/workflows/replacement-tools.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Run streaming WAV analyzer tests
+        run: python -m unittest discover -s tests -p "test_ventu_wav_inspect.py" -v
