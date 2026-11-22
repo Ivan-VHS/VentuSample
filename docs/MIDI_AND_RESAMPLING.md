@@ -25,7 +25,7 @@ The parser:
 - rejects SMPTE time division, format 2 and malformed/truncated chunks;
 - never opens a MIDI device, schedules playback or modifies an input file.
 
-The event buffer is supplied by the caller. If it is too small, parsing returns \`-2\` without publishing a partial event list or summary.
+The parser is an importer, not a player or sequencer. The event buffer is supplied by the caller. If it is too small, parsing returns \`-2\` without publishing a partial event list or summary.
 
 ## Build and test
 
