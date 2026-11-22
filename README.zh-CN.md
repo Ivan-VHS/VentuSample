@@ -6,6 +6,23 @@
 
 [源代码仓库](https://github.com/Ivan-VHS/VentuSample) · [CI 工作流](.github/workflows/ci.yml) · [文档索引](docs/README.md) · [Apache-2.0](LICENSE)
 
+## 桌面应用实际截屏
+
+<p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample 在 Windows 上运行的实际截屏" width="100%"></a></p>
+<p align="center"><sub>1920×1080 · 点击图片可打开原始 PNG 文件。</sub></p>
+
+这是 VentuSample 在 Windows CI 桌面上运行时的真实截图，来自构建后的 Qt 应用。横幅和数据流图是另外制作的原创 SVG 矢量插图。
+
+### 架构一览
+
+<p align="center"><img src="assets/readme/workflow.svg" alt="VentuSample implemented data flow" width="100%"></p>
+
+实际流程：参数与 seed → C++20 渲染器 → 立体声缓冲区 → 可选离线 DSP → PCM16 WAV 与 JSON manifest。
+
+
+[![C++20 CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=C%2B%2B20%20CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![Qt desktop jobs](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=Qt%20desktop%20jobs)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
+
+
 > **项目范围：** VentuSample 是一款基于 C++20 的原生工作站，用于确定性程序化生成采样包并离线处理 WAV。安装 Qt 时可使用 Qt 6 桌面界面，也可以单独构建可移植的 DSP/核心库。它不是托管 Web Demo、浏览器 Sandbox、DAW、音频设备主机或生产音频服务。文档已于 **2026-11-22** 对照 `main` 分支核对。
 
 ## 项目用途与边界
@@ -33,8 +50,6 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 
 下方 Windows 图片是桌面应用截屏，不是浏览器预览。
 
-<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="运行于 Windows 11 的 VentuSample" width="100%"></p>
-<sub>桌面程序截屏 · 原始图像 1920×1080。这不是托管 Web Stand。</sub>
 
 ## 快速开始
 
