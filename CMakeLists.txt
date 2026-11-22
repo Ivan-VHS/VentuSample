@@ -48,6 +48,7 @@ add_library(ventusample_core STATIC
     src/careguard.hpp
     src/runtime_transaction.cpp
     src/runtime_transaction.hpp
+    src/octa8.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_compile_features(ventusample_core PUBLIC cxx_std_20)
@@ -135,6 +136,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_runtime_transaction_tests tests/test_runtime_transaction.cpp)
     target_link_libraries(ventusample_runtime_transaction_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-runtime-transaction COMMAND ventusample_runtime_transaction_tests)
+    add_executable(ventusample_octa8_tests tests/test_octa8.cpp)
+    target_link_libraries(ventusample_octa8_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-octa8-types COMMAND ventusample_octa8_tests)
     add_executable(ventusample_stochastic_tests tests/test_stochastic_router.cpp)
     target_link_libraries(ventusample_stochastic_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-stochastic-routing COMMAND ventusample_stochastic_tests)
