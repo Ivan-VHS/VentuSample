@@ -249,7 +249,7 @@ For test or build failures, retain the exact CMake command, compiler/Qt versions
 
 VentuSample is an offline sample workstation, not a DAW or real-time audio host. The sample generator produces PCM16 stereo WAV and manifests; it does not contact external APIs, stream audio to a browser or manage cloud projects. The stochastic router uses eight built-in processors and does not host third-party plugins. Quantum Audio Engine is a creative DSP catalogue; Atomic-Quantum is a separate classical simulation layer, not physical quantum computation. Importing or exporting audio requires appropriate rights to the source material; a hash can establish byte identity but does not establish ownership.
 
-No separate `CONTRIBUTING.md` was found. Propose improvements through [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) or a Pull Request. Include OS, compiler/CMake/Qt versions, the seed and exact settings, a safe input WAV description, and the exact command/output. Run CTest and the project-contract checks before submitting.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository's contribution workflow and validation requirements. Propose improvements through [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) or a Pull Request. Include OS, compiler/CMake/Qt versions, the seed and exact settings, a safe input WAV description, and the exact command/output. Run CTest and the project-contract checks before submitting.
 
 License: [Apache-2.0](LICENSE).
 
