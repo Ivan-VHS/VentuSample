@@ -285,6 +285,20 @@ void MainWindow::buildUi() {
     stochasticCheck_ = new QCheckBox("Включить стохастическую цепь эффектов");
     stochasticCheck_->setToolTip("Меняет DSP-цепочку при офлайн-экспорте WAV. Realtime-аудиопоток не используется.");
     stochasticIntensitySlider_ = addSliderRow(filterGrid, 6, "Интенсивность стохастики", 0, 100, 45, &stochasticIntensityValue_);
+    tpdfDitherCheck_ = new QCheckBox("TPDF-дизеринг при PCM16-экспорте");
+    tpdfDitherCheck_->setToolTip("Опциональный детерминированный шум квантования. Seed записывается в manifest.");
+    normalizePeakCheck_ = new QCheckBox("Нормализовать пиковый уровень при экспорте");
+    targetPeakSpin_ = new QDoubleSpinBox();
+    targetPeakSpin_->setRange(-24.0, -0.3);
+    targetPeakSpin_->setDecimals(1);
+    targetPeakSpin_->setSingleStep(0.5);
+    targetPeakSpin_->setValue(-1.0);
+    targetPeakSpin_->setSuffix(" dBFS");
+    targetPeakSpin_->setAccessibleName("Целевой пиковый уровень dBFS");
+    targetPeakSpin_->setEnabled(false);
+    QObject::connect(normalizePeakCheck_, &QCheckBox::toggled,
+                     targetPeakSpin_, &QDoubleSpinBox::setEnabled);
+    filterGrid->addWidget(tpdfDitherCheck_, 7, 0, 1, 3);
     stochasticTriggerBox_ = new QComboBox();
     addChoice(stochasticTriggerBox_, {"Весь файл", "Каждый такт", "Музыкальные транзиенты"}, 0, "Триггер стохастического эффекта");
     stochasticTopologyBox_ = new QComboBox();
@@ -310,6 +324,8 @@ void MainWindow::buildUi() {
     filterGrid->addWidget(stochasticPoolGroup, 9, 0, 1, 3);
     filterGrid->addWidget(new QLabel("ТОПОЛОГИЯ ЦЕПИ"), 10, 0);
     filterGrid->addWidget(stochasticTopologyBox_, 10, 1, 1, 2);
+    filterGrid->addWidget(normalizePeakCheck_, 11, 0, 1, 2);
+    filterGrid->addWidget(targetPeakSpin_, 11, 2);
     detailRow->addWidget(makeCard("04  /  ОБРАБОТКА И ДВИЖЕНИЕ", filterGrid), 1);
     studioLayout->addLayout(detailRow);
 
@@ -613,6 +629,9 @@ void MainWindow::loadSettings() {
     humanizeCheck_->setChecked(settings.value("humanize", true).toBool());
     dustCheck_->setChecked(settings.value("dust", false).toBool());
     stochasticCheck_->setChecked(settings.value("stochastic_enabled", false).toBool());
+    tpdfDitherCheck_->setChecked(settings.value("tpdf_dither", false).toBool());
+    normalizePeakCheck_->setChecked(settings.value("normalize_peak", false).toBool());
+    targetPeakSpin_->setValue(settings.value("target_peak_dbfs", -1.0).toDouble());
     stochasticIntensitySlider_->setValue(settings.value("stochastic_intensity", 45).toInt());
     stochasticTriggerBox_->setCurrentIndex(std::clamp(settings.value("stochastic_trigger", 0).toInt(), 0, 2));
     const auto poolMask = static_cast<unsigned int>(settings.value("stochastic_pool_mask", 255).toUInt());
@@ -666,6 +685,9 @@ void MainWindow::saveSettings() {
     settings.setValue("humanize", humanizeCheck_->isChecked());
     settings.setValue("dust", dustCheck_->isChecked());
     settings.setValue("stochastic_enabled", stochasticCheck_->isChecked());
+    settings.setValue("tpdf_dither", tpdfDitherCheck_->isChecked());
+    settings.setValue("normalize_peak", normalizePeakCheck_->isChecked());
+    settings.setValue("target_peak_dbfs", targetPeakSpin_->value());
     settings.setValue("stochastic_intensity", stochasticIntensitySlider_->value());
     settings.setValue("stochastic_trigger", stochasticTriggerBox_->currentIndex());
     unsigned int poolMask = 0u;
@@ -842,6 +864,9 @@ ventu::Parameters MainWindow::parameters() const {
     p.microHumanize = humanizeCheck_->isChecked();
     p.vinylDust = dustCheck_->isChecked();
     p.stochasticEnabled = stochasticCheck_->isChecked();
+    p.tpdfDither = tpdfDitherCheck_->isChecked();
+    p.normalizePeak = normalizePeakCheck_->isChecked();
+    p.targetPeakDbfs = targetPeakSpin_->value();
     p.stochasticIntensityPercent = stochasticIntensitySlider_->value();
     p.stochasticTriggerMode = stochasticTriggerBox_->currentIndex();
     p.stochasticTopology = stochasticTopologyBox_->currentIndex();
