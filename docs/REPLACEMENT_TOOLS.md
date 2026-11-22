@@ -1,16 +1,23 @@
-# Original replacement tools
+# VentuSample Meter Lab — integrated WAV analysis
 
-The new tools/ventu_wav_inspect.py utility is an independently written, read-only PCM WAV analyzer for the VentuSample audio workflow. It streams audio blocks and reports per-channel peak, RMS, DC offset, crest factor and near-full-scale sample counts for supported uncompressed PCM files.
+VentuSample Meter Lab is the measurement and comparison layer for the native sample workstation. Its pipeline stays local and streaming:
 
-Run:
+1. Decode supported integer PCM blocks without loading the whole recording into memory.
+2. Accumulate per-channel sample peak, RMS energy, DC offset, crest factor, near-full-scale counts and the frame at which each peak occurred.
+3. For stereo files, estimate left/right correlation, Mid/Side energy ratio and the peak of a simple mono fold-down.
+4. Produce a versioned measurement report or compare two renders by channel-level peak, RMS and DC deltas.
 
-    python tools/ventu_wav_inspect.py sample.wav --json
+Examples:
 
-It supports PCM sample widths of 8, 16, 24 and 32 bit, mono or multichannel WAV up to eight channels, and bounded file sizes. It does not alter, normalize, play or upload audio. It does not claim BS.1770 integrated loudness, oversampled true peak, restoration or mastering compliance; those require separate algorithms and validation.
+    python tools/ventu_wav_inspect.py sample.wav
+    python tools/ventu_wav_inspect.py sample.wav --json --output reports/meter.json
+    python tools/ventu_wav_inspect.py before.wav --compare after.wav --output reports/ab-comparison.json
 
-This is not a clone of RX, WaveLab, SPAN, Youlean Loudness Meter, FFmpeg or another named product. It implements original measurements without third-party source code, artwork, UI layout or trademarks. Product names in the source catalogue are reference points for broad use-cases only.
+The analysis report schema is ventusample.meter-report.v2. A/B reports use ventusample.meter-comparison.v1. PCM integer widths of 8, 16, 24 and 32 bit are supported, with one to eight channels and sample rates up to 768 kHz. The reader processes a bounded block at a time and records a SHA-256 fingerprint for each input.
 
-The new source and tests are original VentuSample contributions, copyright (c) 2026 Ivan-VHS, under Apache License 2.0. The repository LICENSE remains authoritative.
+Peak is sample-peak, not oversampled true peak. RMS is not BS.1770 integrated loudness or LUFS. The A/B comparison does not time-align edits, loudness-match renders or produce a perceptual quality score. Stereo correlation and Mid/Side figures describe the first two channels of a multichannel file. No audio is modified, normalized, played or uploaded.
+
+This is an original VentuSample analysis subsystem, not a clone of an audio editor or mastering product. It contains no third-party source, artwork, interface layout or copied trademarks. Copyright (c) 2026 Ivan-VHS. The repository Apache-2.0 LICENSE remains authoritative.
 
 Test:
 
