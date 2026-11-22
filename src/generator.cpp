@@ -1034,12 +1034,12 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 if (!first) manifest << ",\n";
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", "variation": " << variation + 1
-                         << ", "dither": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
-                         << ", "dither_seed": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
-                         << ", "normalized": " << (exportMetadata.normalized ? "true" : "false")
-                         << ", "normalization_skipped_silence": " << (exportMetadata.normalizationSkipped ? "true" : "false")
-                         << ", "stochastic_routes": [;
+                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                         << ", \"dither\": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
+                         << ", \"dither_seed\": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
+                         << ", \"normalized\": " << (exportMetadata.normalized ? "true" : "false")
+                         << ", \"normalization_skipped_silence\": " << (exportMetadata.normalizationSkipped ? "true" : "false")
+                         << ", \"stochastic_routes\": [";
                 for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
                     if (route != 0u) manifest << ", ";
                     manifest << "\"" << jsonEscape(stochasticReport.routes[route]) << "\"";
@@ -1063,6 +1063,10 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             first = false;
             manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
                      << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                     << ", \"dither\": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
+                     << ", \"dither_seed\": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
+                     << ", \"normalized\": " << (exportMetadata.normalized ? "true" : "false")
+                     << ", \"normalization_skipped_silence\": " << (exportMetadata.normalizationSkipped ? "true" : "false")
                      << ", \"stochastic_routes\": [";
             for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
                 if (route != 0u) manifest << ", ";
