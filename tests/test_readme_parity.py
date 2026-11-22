@@ -75,8 +75,10 @@ class ReadmeParityTests(unittest.TestCase):
 
     def test_thousands_separators_are_equivalent(self) -> None:
         items = documents()
-        items["README.md"] = items["README.md"].replace("128 MiB", "10,000 MiB")
-        items["README.uk.md"] = items["README.uk.md"].replace("128 MiB", "10 000 MiB")
+        for locale in readme_parity.README_FILES:
+            items[locale] = items[locale].replace("128 MiB", "10,000 MiB")
+        items["README.uk.md"] = items["README.uk.md"].replace("10,000 MiB", "10 000 MiB")
+        items["README.ru.md"] = items["README.ru.md"].replace("10,000 MiB", "10 000 MiB")
         self.assertEqual(readme_parity.compare_documents(items), [])
 
     def test_unclosed_code_fence_is_rejected(self) -> None:
