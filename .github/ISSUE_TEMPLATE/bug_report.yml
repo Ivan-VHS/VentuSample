@@ -1,0 +1,29 @@
+name: Bug report
+description: Report a reproducible DSP, export or desktop issue.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: parameters
+    attributes:
+      label: Parameter set and exact reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected audio or UI behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed result, logs and manifest
+    validations:
+      required: true
+  - type: input
+    id: build
+    attributes:
+      label: OS, compiler and Qt version (if desktop)
+    validations:
+      required: true

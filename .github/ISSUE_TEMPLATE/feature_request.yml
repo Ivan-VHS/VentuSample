@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose a focused sound-generation or workflow improvement.
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Creative or workflow goal
+    validations:
+      required: true
+  - type: textarea
+    id: design
+    attributes:
+      label: Proposed controls, output and interaction
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Determinism, resource bounds and acceptance tests
+    validations:
+      required: true
