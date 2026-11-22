@@ -1,0 +1,39 @@
+name: DuckStory
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: duckstory-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-review:
+    name: DuckStory quality review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+
+      - name: Check DuckStory itself
+        run: python3 scripts/duckstory.py self-test
+
+      - name: Review project quality
+        run: |
+          python3 scripts/duckstory.py audit \
+            --json "$RUNNER_TEMP/duckstory-report.json" \
+            --markdown "$RUNNER_TEMP/duckstory-report.md" \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            --fail-on error
