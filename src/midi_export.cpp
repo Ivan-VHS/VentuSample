@@ -4,8 +4,10 @@
 #include <array>
 #include <cstdint>
 #include <fstream>
+#include <initializer_list>
 #include <limits>
 #include <system_error>
+#include <utility>
 #include <vector>
 
 namespace ventu {
