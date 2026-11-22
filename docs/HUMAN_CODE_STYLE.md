@@ -31,7 +31,7 @@ When a behavior change is required, isolate it from formatting or naming work an
 
 - Python: Ruff formatter settings in `pyproject.toml`.
 - C and C++: the repository's `.clang-format` profile.
-- All text files: the repository's `.editorconfig` rules.
+- All text files: the repository's existing `.editorconfig` rules.
 - Formatter configuration is a convention, not permission to reformat the entire history in one sweep. Apply formatting in small, reviewed groups after confirming that the tool version and project tests are available.
 
 ## Scope of this baseline change
