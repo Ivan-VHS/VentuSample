@@ -45,6 +45,7 @@ The intended audience is beatmakers, sound designers, audio developers, QA engin
 |---|---|---|
 | Procedural generator | Full Loop, Melody, Drums, Bass and One-Shot Kit outputs | local rendering; fixed seed/settings reproduce the same render |
 | Audio export | stereo PCM16 WAV and versioned JSON manifest | local files; existing output files are not overwritten |
+| MIDI export | separate Standard MIDI companion from the same deterministic note events and tempo, sharing the WAV basename | optional setting, disabled by default; the v2 manifest remains unchanged; one-shot kits stay WAV-only |
 | WAV import | supported PCM16 mono/stereo source files | validated size, frame count, sample rate and format |
 | Quantum Audio Engine | 133 typed module identities and 21 reusable DSP kernels | creative offline DSP, not physical quantum computation |
 | Stochastic Router | optional seeded routing through eight built-in processors | offline buffer processing; disabled by default |
