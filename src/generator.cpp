@@ -494,6 +494,8 @@ std::string toString(Timbre value) {
 }
 
 std::string validate(const Parameters& p) {
+    if (p.exportMidi && p.target == Target::OneShotKit)
+        return "MIDI-экспорт нот доступен для лупов и отдельных музыкальных слоёв, но не для one-shot набора.";
     if (p.bpm < 60 || p.bpm > 190) return "BPM должен находиться в диапазоне 60–190.";
     if (p.rootNote < 0 || p.rootNote > 11) return "Тональность должна быть в диапазоне 0–11.";
     if (p.bars < 1 || p.bars > 16) return "Длина должна составлять 1–16 тактов.";
@@ -939,6 +941,140 @@ bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio,
     file.flush();
     if (!file.good()) {
         error = "Ошибка записи WAV: " + path.string();
+        return false;
+    }
+    return true;
+}
+
+
+bool writeMidi(const std::filesystem::path& path, const AudioBuffer& audio,
+               int bpm, std::string& error) {
+    error.clear();
+    if (audio.sampleRate < 8000 || audio.sampleRate > 192000 ||
+        audio.channels != 2 || audio.samples.empty() ||
+        audio.samples.size() % 2u != 0u || bpm < 60 || bpm > 190 ||
+        audio.midiNotes.empty() || audio.midiNotes.size() > 500000u) {
+        error = "Некорректные параметры или пустой список MIDI-событий.";
+        return false;
+    }
+
+    struct Event {
+        std::uint64_t tick;
+        std::uint8_t status;
+        std::uint8_t note;
+        std::uint8_t velocity;
+        unsigned order;
+    };
+    std::vector<Event> events;
+    events.reserve(audio.midiNotes.size() * 2u);
+    const long double ticksPerFrame =
+        static_cast<long double>(bpm) * 480.0L /
+        (60.0L * static_cast<long double>(audio.sampleRate));
+
+    for (const auto& note : audio.midiNotes) {
+        if (note.frame >= audio.frames() || note.durationFrames == 0u ||
+            note.note > 127u || note.velocity == 0u || note.velocity > 127u ||
+            note.channel > 15u) {
+            error = "MIDI-событие содержит недопустимую ноту, канал или длительность.";
+            return false;
+        }
+        const auto endFrame = note.frame + note.durationFrames;
+        if (endFrame < note.frame) {
+            error = "Переполнение длительности MIDI-события.";
+            return false;
+        }
+        const auto startTick = static_cast<std::uint64_t>(std::llround(
+            static_cast<long double>(note.frame) * ticksPerFrame));
+        const auto endTick = std::max(startTick + 1u, static_cast<std::uint64_t>(
+            std::llround(static_cast<long double>(endFrame) * ticksPerFrame)));
+        events.push_back({startTick, static_cast<std::uint8_t>(0x90u | note.channel),
+                          note.note, note.velocity, 1u});
+        events.push_back({endTick, static_cast<std::uint8_t>(0x80u | note.channel),
+                          note.note, 0u, 0u});
+    }
+    std::stable_sort(events.begin(), events.end(), [](const Event& left, const Event& right) {
+        if (left.tick != right.tick) return left.tick < right.tick;
+        if (left.order != right.order) return left.order < right.order;
+        if (left.status != right.status) return left.status < right.status;
+        return left.note < right.note;
+    });
+
+    std::vector<std::uint8_t> track;
+    track.reserve(events.size() * 5u + 64u);
+    const auto appendByte = [&track](std::uint8_t value) { track.push_back(value); };
+    const auto appendVlq = [&track](std::uint32_t value) -> bool {
+        if (value > 0x0FFFFFFFu) return false;
+        std::uint32_t buffer = value & 0x7Fu;
+        while ((value >>= 7u) != 0u) {
+            buffer <<= 8u;
+            buffer |= ((value & 0x7Fu) | 0x80u);
+        }
+        while (true) {
+            track.push_back(static_cast<std::uint8_t>(buffer & 0xFFu));
+            if ((buffer & 0x80u) == 0u) break;
+            buffer >>= 8u;
+        }
+        return true;
+    };
+
+    const auto microsPerQuarter =
+        static_cast<std::uint32_t>(std::llround(60000000.0 / bpm));
+    appendByte(0x00u); appendByte(0xFFu); appendByte(0x51u); appendByte(0x03u);
+    appendByte(static_cast<std::uint8_t>((microsPerQuarter >> 16u) & 0xFFu));
+    appendByte(static_cast<std::uint8_t>((microsPerQuarter >> 8u) & 0xFFu));
+    appendByte(static_cast<std::uint8_t>(microsPerQuarter & 0xFFu));
+    appendByte(0x00u); appendByte(0xFFu); appendByte(0x03u);
+    const std::string trackName = "VentuSample generated events";
+    appendByte(static_cast<std::uint8_t>(trackName.size()));
+    track.insert(track.end(), trackName.begin(), trackName.end());
+
+    std::uint64_t previousTick = 0u;
+    for (const auto& event : events) {
+        if (event.tick < previousTick || event.tick - previousTick > 0x0FFFFFFFu) {
+            error = "Слишком большой интервал между MIDI-событиями.";
+            return false;
+        }
+        if (!appendVlq(static_cast<std::uint32_t>(event.tick - previousTick))) {
+            error = "Не удалось закодировать временной интервал MIDI.";
+            return false;
+        }
+        appendByte(event.status);
+        appendByte(event.note);
+        appendByte(event.velocity);
+        previousTick = event.tick;
+    }
+    appendByte(0x00u); appendByte(0xFFu); appendByte(0x2Fu); appendByte(0x00u);
+    if (track.size() > std::numeric_limits<std::uint32_t>::max()) {
+        error = "MIDI-трек превышает допустимый размер.";
+        return false;
+    }
+
+    std::ofstream file(path, std::ios::binary | std::ios::trunc);
+    if (!file) {
+        error = "Не удалось открыть MIDI-файл для записи: " + path.string();
+        return false;
+    }
+    const auto write16 = [&file](std::uint16_t value) {
+        file.put(static_cast<char>((value >> 8u) & 0xFFu));
+        file.put(static_cast<char>(value & 0xFFu));
+    };
+    const auto write32 = [&file](std::uint32_t value) {
+        file.put(static_cast<char>((value >> 24u) & 0xFFu));
+        file.put(static_cast<char>((value >> 16u) & 0xFFu));
+        file.put(static_cast<char>((value >> 8u) & 0xFFu));
+        file.put(static_cast<char>(value & 0xFFu));
+    };
+    file.write("MThd", 4);
+    write32(6u);
+    write16(0u);
+    write16(1u);
+    write16(480u);
+    file.write("MTrk", 4);
+    write32(static_cast<std::uint32_t>(track.size()));
+    for (const auto value : track) file.put(static_cast<char>(value));
+    file.flush();
+    if (!file.good()) {
+        error = "Ошибка записи MIDI-файла: " + path.string();
         return false;
     }
     return true;
