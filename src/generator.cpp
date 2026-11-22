@@ -797,19 +797,46 @@ CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent,
 AudioStats measure(const AudioBuffer& audio) {
     AudioStats stats;
     if (audio.samples.empty()) return stats;
+
     double sum = 0.0;
     double square = 0.0;
-    for (float sample : audio.samples) {
-        const double value = std::isfinite(sample) ? static_cast<double>(sample) : 0.0;
+    double leftSquare = 0.0;
+    double rightSquare = 0.0;
+    double crossProduct = 0.0;
+    for (std::size_t index = 0; index < audio.samples.size(); ++index) {
+        const double value = std::isfinite(audio.samples[index])
+            ? static_cast<double>(audio.samples[index]) : 0.0;
         stats.peak = std::max(stats.peak, std::abs(value));
         sum += value;
         square += value * value;
+
+        if (audio.channels == 2) {
+            if (index % 2u == 0u) {
+                leftSquare += value * value;
+            } else {
+                rightSquare += value * value;
+                const double left = std::isfinite(audio.samples[index - 1u])
+                    ? static_cast<double>(audio.samples[index - 1u]) : 0.0;
+                crossProduct += left * value;
+            }
+        }
     }
+
     stats.rms = std::sqrt(square / static_cast<double>(audio.samples.size()));
-    stats.crestDb = stats.rms > 0.0 && stats.peak > 0.0 ? 20.0 * std::log10(stats.peak / stats.rms) : 0.0;
+    stats.crestDb = stats.rms > 0.0 && stats.peak > 0.0
+        ? 20.0 * std::log10(stats.peak / stats.rms) : 0.0;
+
+    if (audio.channels == 2 && audio.samples.size() % 2u == 0u) {
+        const double frameCount = static_cast<double>(audio.samples.size() / 2u);
+        stats.leftRms = std::sqrt(leftSquare / frameCount);
+        stats.rightRms = std::sqrt(rightSquare / frameCount);
+        const double denominator = std::sqrt(leftSquare * rightSquare);
+        stats.stereoCorrelation = denominator > 0.0
+            ? std::clamp(crossProduct / denominator, -1.0, 1.0) : 0.0;
+        stats.stereoCorrelationValid = true;
+    }
     return stats;
 }
-
 bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio,
                std::string& error, const WavExportOptions& options) {
     error.clear();
@@ -988,6 +1015,7 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
     };
     std::ostringstream manifest;
     manifest << "{\n  \"schema\": \"ventusample.pack.v2\",\n  \"generator\": \"VentuSample native DSP 0.2.0\",\n  \"audio_format\": \"wav_pcm16_stereo\",\n";
+    manifest << "  \"measurement_basis\": \"sample_domain\",\n";
     manifest << "  \"parameters\": {\"style\": \"" << jsonEscape(toString(p.style)) << "\", \"target\": \"" << jsonEscape(toString(p.target))
              << "\", \"bpm\": " << p.bpm << ", \"key\": \"" << noteNames[static_cast<std::size_t>(p.rootNote)]
              << "\", \"scale\": \"" << toString(p.scale) << "\", \"musical_key\": \"" << jsonEscape(selectedKeyLabel)
@@ -1034,7 +1062,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                 if (!first) manifest << ",\n";
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb
+                         << ", \"left_rms\": " << stats.leftRms << ", \"right_rms\": " << stats.rightRms
+                         << ", \"stereo_correlation\": " << stats.stereoCorrelation << ", \"variation\": " << variation + 1
                          << ", \"dither\": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
                          << ", \"dither_seed\": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
                          << ", \"normalized\": " << (exportMetadata.normalized ? "true" : "false")
@@ -1062,7 +1092,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             if (!first) manifest << ",\n";
             first = false;
             manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                     << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                     << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb
+                         << ", \"left_rms\": " << stats.leftRms << ", \"right_rms\": " << stats.rightRms
+                         << ", \"stereo_correlation\": " << stats.stereoCorrelation << ", \"variation\": " << variation + 1
                      << ", \"dither\": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
                      << ", \"dither_seed\": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
                      << ", \"normalized\": " << (exportMetadata.normalized ? "true" : "false")
