@@ -73,6 +73,12 @@ class ReadmeParityTests(unittest.TestCase):
         translated = documents()["README.uk.md"].replace(f"{fence}text\nInput -> Core -> Report\n{fence}\n", "")
         self.assertTrue(any("code-fence count" in item for item in readme_parity.compare_documents(documents(uk=translated))))
 
+    def test_thousands_separators_are_equivalent(self) -> None:
+        items = documents()
+        items["README.md"] = items["README.md"].replace("128 MiB", "10,000 MiB")
+        items["README.uk.md"] = items["README.uk.md"].replace("128 MiB", "10 000 MiB")
+        self.assertEqual(readme_parity.compare_documents(items), [])
+
     def test_unclosed_code_fence_is_rejected(self) -> None:
         sample = chr(96) * 3 + "python\nprint('hello')\n"
         with self.assertRaisesRegex(ValueError, "unclosed Markdown code fence"):

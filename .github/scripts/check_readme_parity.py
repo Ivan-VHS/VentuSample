@@ -12,7 +12,7 @@ README_FILES = ("README.md", "README.uk.md", "README.ru.md", "README.zh-CN.md")
 FENCE_RE = re.compile(r"^ {0,3}(\x60{3,}|~{3,})(.*)$")
 HEADING_RE = re.compile(r"^ {0,3}(#{1,6})[ \t]+")
 PIPE_ROW_RE = re.compile(r"^ *\|.*\| *$")
-NUMBER_RE = re.compile(r"[0-9]+(?:[.,][0-9]+)?")
+NUMBER_RE = re.compile(r"[0-9]+(?:[ ,][0-9]{3})*(?:[.,][0-9]+)?")
 SHELL_LANGUAGES = {"sh", "bash", "shell", "powershell", "pwsh"}
 TRANSLATION_NEUTRAL_LANGUAGES = {"text", "plain"}
 
@@ -40,6 +40,13 @@ def _shell_body(body: str) -> str:
             continue
         useful_lines.append(line.rstrip())
     return "\n".join(useful_lines)
+
+
+def _normalise_number(value: str) -> str:
+    compact = value.replace(" ", "")
+    if re.fullmatch(r"[0-9]{1,3}(?:,[0-9]{3})+(?:[.][0-9]+)?", compact):
+        return compact.replace(",", "")
+    return compact
 
 
 def analyze_markdown(markdown: str) -> Snapshot:
@@ -97,7 +104,7 @@ def analyze_markdown(markdown: str) -> Snapshot:
                 table_count += 1
                 in_table = True
             if not _is_table_separator(line):
-                numbers = tuple(NUMBER_RE.findall(line))
+                numbers = tuple(_normalise_number(value) for value in NUMBER_RE.findall(line))
                 if numbers:
                     numeric_rows.append(numbers)
         else:
