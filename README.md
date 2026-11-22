@@ -27,6 +27,8 @@ The intended audience is beatmakers, sound designers, audio developers, QA engin
 | Atomic-Quantum 133 | separate bounded classical simulation subset | no quantum hardware access |
 | Reaper bridge | optional C17 integer-expression ABI at build time | explicit local source path; not part of the audio DSP path |
 
+The 14 generator profiles are Boom Bap, Billionaire Golden Era, East Coast, Harlem Dip-Trap, G-Unit, Modern Trap, Atlanta Trap, UK Drill, UK Grime, Memphis, Jazz Rap, G-Funk, Boom Trap and Cripple Trill.
+
 The application is not a real-time audio engine. Rendering and DSP run offline on worker threads; there is no audio-device callback, playback hot-swap, VST/AU host, arbitrary third-party plugin loader or DAW project automation.
 
 The Windows screenshot below is a capture of the desktop application, not a browser preview.
@@ -63,7 +65,7 @@ cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
 ```
 
-The desktop executable is produced by the configured CMake build. The exact GUI launch path depends on the generator and configuration; for Ninja on Linux, inspect the target output under `build/`.
+The desktop executable is produced by the configured CMake build. For the Ninja Linux build, launch it with `./build/VentuSample`; for the Windows Release build, launch `build\\Release\\VentuSample.exe`.
 
 ### Build the portable core without Qt
 
@@ -222,7 +224,7 @@ For test or build failures, retain the exact CMake command, compiler/Qt versions
 
 ## Known limitations, contribution and license
 
-VentuSample is an offline sample workstation, not a DAW or real-time audio host. The sample generator produces PCM16 stereo WAV and manifests; it does not contact external APIs, stream audio to a browser or manage cloud projects. The stochastic router uses eight built-in processors and does not host third-party plugins. Quantum Audio Engine is a creative DSP catalogue; Atomic-Quantum is a separate classical simulation layer, not physical quantum computation.
+VentuSample is an offline sample workstation, not a DAW or real-time audio host. The sample generator produces PCM16 stereo WAV and manifests; it does not contact external APIs, stream audio to a browser or manage cloud projects. The stochastic router uses eight built-in processors and does not host third-party plugins. Quantum Audio Engine is a creative DSP catalogue; Atomic-Quantum is a separate classical simulation layer, not physical quantum computation. Importing or exporting audio requires appropriate rights to the source material; a hash can establish byte identity but does not establish ownership.
 
 No separate `CONTRIBUTING.md` was found. Propose improvements through [GitHub Issues](https://github.com/Ivan-VHS/VentuSample/issues) or a Pull Request. Include OS, compiler/CMake/Qt versions, the seed and exact settings, a safe input WAV description, and the exact command/output. Run CTest and the project-contract checks before submitting.
 
