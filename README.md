@@ -49,6 +49,8 @@ The intended audience is beatmakers, sound designers, audio developers, QA engin
 | Quantum Audio Engine | 133 typed module identities and 21 reusable processing kernels | creative offline processing, not physical quantum computation |
 | Migrated C11 processing | bounded WAV I/O, filters, compressor, saturation, limiter and measurements | isolated C11 target, offline buffers |
 | Offline spectrum analysis | FFT peak, spectral centroid and 85% rolloff from an existing buffer | bounded 256–65,536 point FFT; no device access |
+| Sample-rate conversion | bounded linear interpolation for mono/stereo buffers | preview-quality only; no anti-alias filtering |
+| MIDI file inspection | parses Standard MIDI File format 0/1, notes, tempo and time signature | bounded read-only parser; no MIDI device or playback path |
 | Stochastic Router | optional seeded routing through eight built-in processors | offline buffer processing; disabled by default |
 | Plugin Manager | 19 built-in tools and a reviewed C++20 handler API | manifest discovery is metadata-only; no arbitrary DLL/SO loading |
 | Atomic-Quantum 133 | separate bounded classical simulation subset | no quantum hardware access |
