@@ -31,9 +31,9 @@ flowchart TD
     E --> G[Versioned JSON manifest]
     H[Imported supported WAV] --> I[Quantum Audio Engine]
     I --> J[Processed PCM16 WAV]
-  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  classDef readmeNode fill:#EEF4FF,stroke:#165AC4,color:#182F50,stroke-width:1.5px;
   class A,B,C,D,E,F,G,H,I,J readmeNode;
-  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
+  linkStyle default stroke:#165AC4,stroke-width:1.8px;
 ```
 
 ## Plugin discovery and execution boundary
@@ -46,9 +46,9 @@ flowchart LR
     B --> C[Entry stays disabled]
     C --> D[Reviewed native handler attached]
     D --> E[Bounded dispatch or one-bar preview]
-  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  classDef readmeNode fill:#EEF4FF,stroke:#165AC4,color:#182F50,stroke-width:1.5px;
   class A,B,C,D,E readmeNode;
-  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
+  linkStyle default stroke:#165AC4,stroke-width:1.8px;
 ```
 
 ## Generator matrix

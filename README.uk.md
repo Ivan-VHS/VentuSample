@@ -30,9 +30,9 @@ flowchart TD
     E --> G[Версіонований JSON manifest]
     H[Імпортований підтримуваний WAV] --> I[Quantum Audio Engine]
     I --> J[Оброблений PCM16 WAV]
-  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  classDef readmeNode fill:#EEF4FF,stroke:#165AC4,color:#182F50,stroke-width:1.5px;
   class A,B,C,D,E,F,G,H,I,J readmeNode;
-  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
+  linkStyle default stroke:#165AC4,stroke-width:1.8px;
 ```
 
 ## Виявлення плагінів і межі виконання
@@ -45,9 +45,9 @@ flowchart LR
     B --> C[Запис залишається вимкненим]
     C --> D[Під’єднано перевірений нативний обробник]
     D --> E[Обмежена диспетчеризація або прев’ю на один такт]
-  classDef readmeNode fill:#2A1B2A,stroke:#FFB65E,color:#FFF9F2,stroke-width:1.5px;
+  classDef readmeNode fill:#EEF4FF,stroke:#165AC4,color:#182F50,stroke-width:1.5px;
   class A,B,C,D,E readmeNode;
-  linkStyle default stroke:#FFB65E,stroke-width:1.8px;
+  linkStyle default stroke:#165AC4,stroke-width:1.8px;
 ```
 
 ## Генератор
