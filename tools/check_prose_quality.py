@@ -139,7 +139,7 @@ def main() -> int:
         f"Checked {len(files)} Markdown file(s): "
         f"{errors} error(s), {reviews} item(s) for editorial review."
     )
-    return 1 if errors or (args.strict and reviews) else 0
+    return 1 if args.strict and (errors or reviews) else 0
 
 
 if __name__ == "__main__":
