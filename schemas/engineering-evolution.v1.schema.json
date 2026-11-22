@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Engineering Evolution Framework v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "title",
+    "purpose",
+    "adoption",
+    "pillars",
+    "guardrails"
+  ],
+  "properties": {
+    "schema": {
+      "const": "engineering-evolution.v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "title": {
+      "const": "Engineering Evolution Framework"
+    },
+    "purpose": {
+      "type": "string",
+      "minLength": 40
+    },
+    "adoption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sequence",
+        "statuses",
+        "rule"
+      ],
+      "properties": {
+        "sequence": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "string"
+          }
+        },
+        "statuses": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "not_assessed",
+              "planned",
+              "implemented",
+              "not_applicable"
+            ]
+          }
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 80
+        }
+      }
+    },
+    "pillars": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "terms",
+          "intent",
+          "practices",
+          "acceptance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "terms": {
+            "type": "array",
+            "minItems": 3,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 2
+            }
+          },
+          "intent": {
+            "type": "string",
+            "minLength": 40
+          },
+          "practices": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "term",
+                "guidance"
+              ],
+              "properties": {
+                "term": {
+                  "type": "string",
+                  "minLength": 2
+                },
+                "guidance": {
+                  "type": "string",
+                  "minLength": 20
+                }
+              }
+            }
+          },
+          "acceptance": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 4,
+            "items": {
+              "type": "string",
+              "minLength": 20
+            }
+          }
+        }
+      }
+    },
+    "guardrails": {
+      "type": "array",
+      "minItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 30
+      }
+    }
+  }
+}

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <vector>
 
 namespace {
 void require(bool condition, const char* message) {
@@ -186,6 +187,115 @@ void testBillionaireGoldenEraProfile() {
     std::filesystem::remove_all(packDirectory, cleanupError);
 }
 
+void testStereoMetering() {
+    ventu::AudioBuffer audio;
+    audio.sampleRate = 48000;
+    audio.channels = 2;
+    audio.samples = {0.5F, 0.5F, -0.5F, -0.5F, 0.25F, 0.25F};
+    auto stats = ventu::measure(audio);
+    require(stats.stereoCorrelationValid, "stereo correlation should be available for stereo buffers");
+    require(std::abs(stats.stereoCorrelation - 1.0) < 1e-9,
+            "identical left and right channels should correlate at +1");
+    require(std::abs(stats.leftRms - stats.rightRms) < 1e-9,
+            "identical channels should have matching RMS");
+
+    for (std::size_t index = 1; index < audio.samples.size(); index += 2u)
+        audio.samples[index] = -audio.samples[index];
+    stats = ventu::measure(audio);
+    require(std::abs(stats.stereoCorrelation + 1.0) < 1e-9,
+            "polarity-inverted channels should correlate at -1");
+}
+
+void testTpdfDitherIsDeterministic() {
+    const auto temp = std::filesystem::temp_directory_path() / "ventusample-dither-tests";
+    std::error_code ec;
+    std::filesystem::remove_all(temp, ec);
+    std::filesystem::create_directories(temp, ec);
+    require(!ec, "dither test folder should be created");
+
+    ventu::AudioBuffer audio;
+    audio.sampleRate = 48000;
+    audio.channels = 2;
+    audio.samples.reserve(4096);
+    for (std::size_t index = 0; index < 2048u; ++index) {
+        const float sample = static_cast<float>(0.00002 * std::sin(
+            2.0 * 3.14159265358979323846 * static_cast<double>(index) / 67.0));
+        audio.samples.push_back(sample);
+        audio.samples.push_back(sample * 0.73F);
+    }
+
+    std::string error;
+    const auto plainA = temp / "plain-a.wav";
+    const auto plainB = temp / "plain-b.wav";
+    const auto ditherA = temp / "dither-a.wav";
+    const auto ditherB = temp / "dither-b.wav";
+    const auto ditherOther = temp / "dither-other.wav";
+    require(ventu::writeWave(plainA, audio, error), "default PCM16 export should succeed");
+    require(ventu::writeWave(plainB, audio, error, {false, 123u}),
+            "explicitly disabled dither export should succeed");
+    require(ventu::writeWave(ditherA, audio, error, {true, 12345u}),
+            "TPDF export should succeed");
+    require(ventu::writeWave(ditherB, audio, error, {true, 12345u}),
+            "repeated TPDF export should succeed");
+    require(ventu::writeWave(ditherOther, audio, error, {true, 54321u}),
+            "TPDF export with a different seed should succeed");
+
+    const auto readBytes = [](const std::filesystem::path& path) {
+        std::ifstream stream(path, std::ios::binary);
+        return std::vector<char>(std::istreambuf_iterator<char>(stream),
+                                 std::istreambuf_iterator<char>());
+    };
+    require(readBytes(plainA) == readBytes(plainB),
+            "disabled dither must preserve the default PCM16 output bytes");
+    require(readBytes(ditherA) == readBytes(ditherB),
+            "the same dither seed must reproduce identical WAV bytes");
+    require(readBytes(ditherA) != readBytes(ditherOther),
+            "different dither seeds should produce distinct quantization noise");
+
+    std::filesystem::remove_all(temp, ec);
+}
+
+void testPeakNormalizationIsOptInAndRecorded() {
+    ventu::Parameters p;
+    p.sampleRate = 22050;
+    p.lowPassHz = 10000;
+    p.bpm = 120;
+    p.bars = 1;
+    p.variations = 1;
+    p.normalizePeak = true;
+    p.targetPeakDbfs = -6.0;
+    require(ventu::validate(p).empty(), "valid peak normalization options should pass validation");
+
+    const auto output = std::filesystem::temp_directory_path() / "ventusample-normalize-test";
+    std::error_code ec;
+    std::filesystem::remove_all(output, ec);
+    const auto result = ventu::generatePack(p, output);
+    require(static_cast<bool>(result), "peak-normalized pack should export");
+    require(result.files.size() == 1u, "normalization test should produce one WAV");
+
+    std::string error;
+    const auto audio = ventu::loadWave(result.files.front(), error);
+    require(error.empty() && !audio.samples.empty(), "normalized WAV should reopen");
+    const auto stats = ventu::measure(audio);
+    const double targetPeak = std::pow(10.0, p.targetPeakDbfs / 20.0);
+    require(std::abs(stats.peak - targetPeak) < 0.001,
+            "exported sample peak should match the requested dBFS target");
+
+    std::ifstream manifestFile(output / "ventusample_manifest.json", std::ios::binary);
+    const std::string manifest((std::istreambuf_iterator<char>(manifestFile)),
+                               std::istreambuf_iterator<char>());
+    require(manifest.find("\"normalize_peak\": true") != std::string::npos,
+            "manifest should record the normalization option");
+    require(manifest.find("\"normalized\": true") != std::string::npos,
+            "file metadata should confirm normalization was applied");
+    require(manifest.find("\"target_peak_dbfs\": -6") != std::string::npos,
+            "manifest should retain the exact target peak");
+
+    p.targetPeakDbfs = -25.0;
+    require(!ventu::validate(p).empty(), "normalization targets below -24 dBFS should be rejected");
+    std::filesystem::remove_all(output, ec);
+}
+
 void testWaveAndPackExport() {
     const auto temp = std::filesystem::temp_directory_path() / "ventusample-tests";
     std::error_code ec;
@@ -246,6 +356,34 @@ void testWaveAndPackExport() {
     require(json.find("bus_compression_ratio") != std::string::npos, "manifest should include bus compression settings");
     require(json.find("audio_format") != std::string::npos, "manifest should declare its output format");
     require(json.find("crest_db") != std::string::npos, "manifest should include crest measurements");
+    auto stochasticParameters = p;
+    stochasticParameters.variations = 1;
+    stochasticParameters.stochasticEnabled = true;
+    stochasticParameters.stochasticIntensityPercent = 55;
+    stochasticParameters.stochasticTriggerMode = 0;
+    const auto stochasticPack = ventu::generatePack(stochasticParameters, temp / "stochastic-pack");
+    require(static_cast<bool>(stochasticPack), "stochastic-enabled export should succeed");
+    std::ifstream stochasticManifestFile(
+        temp / "stochastic-pack" / "ventusample_manifest.json", std::ios::binary);
+    const std::string stochasticManifest(
+        (std::istreambuf_iterator<char>(stochasticManifestFile)),
+        std::istreambuf_iterator<char>());
+    require(stochasticManifest.find("\"stochastic_enabled\": true") != std::string::npos,
+            "manifest must record that stochastic routing was enabled");
+    require(stochasticManifest.find("\"stochastic_intensity_percent\": 55") != std::string::npos,
+            "manifest must record stochastic intensity");
+    require(stochasticManifest.find("\"stochastic_trigger_mode\": \"file\"") != std::string::npos,
+            "manifest must record the trigger mode");
+    require(stochasticManifest.find("\"stochastic_routes\": [") != std::string::npos,
+            "each exported file must include its selected route list");
+    std::string stochasticReadError;
+    const auto baselineAudio = ventu::loadWave(batch.files.front(), stochasticReadError);
+    require(stochasticReadError.empty(), "baseline WAV should remain readable");
+    const auto stochasticAudio = ventu::loadWave(stochasticPack.files.front(), stochasticReadError);
+    require(stochasticReadError.empty(), "stochastic WAV should remain readable");
+    require(stochasticAudio.samples != baselineAudio.samples,
+            "stochastic routing must alter the actual exported audio samples");
+
     const auto duplicatePack = ventu::generatePack(p, pack);
     require(!duplicatePack && !duplicatePack.error.empty(), "existing pack should never be silently overwritten");
 
@@ -298,6 +436,9 @@ int main() {
     testDeterministicRender();
     testPhraseGridAndSwing();
     testCadenceGridAudit();
+    testStereoMetering();
+    testTpdfDitherIsDeterministic();
+    testPeakNormalizationIsOptInAndRecorded();
     testBillionaireGoldenEraProfile();
     testWaveAndPackExport();
     std::cout << "VentuSample generator tests passed.\n";

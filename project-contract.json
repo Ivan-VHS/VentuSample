@@ -105,6 +105,21 @@
         "schemas/ventusample.pack.v2.schema.json",
         "tests/test_generator.cpp"
       ]
+    },
+    {
+      "id": "stochastic_plugin_routing",
+      "status": "implemented",
+      "summary": "Seeded weighted offline DSP routing with configurable effect pool, serial/parallel graphs, bar/onset triggers, bounded feedback/wet, RMS matching and sample-peak guarding.",
+      "evidence": [
+        "src/stochastic_router.hpp",
+        "src/stochastic_router.cpp",
+        "src/generator.cpp",
+        "src/mainwindow.cpp",
+        "tests/test_stochastic_router.cpp",
+        "tests/test_generator.cpp",
+        "docs/PLUGINS.md",
+        "schemas/ventusample.pack.v2.schema.json"
+      ]
     }
   ],
   "interfaces": [

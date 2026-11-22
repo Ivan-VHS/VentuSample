@@ -238,6 +238,54 @@
             "minor",
             "modal"
           ]
+        },
+        "stochastic_enabled": {
+          "type": "boolean",
+          "description": "Whether offline stochastic DSP processing was enabled."
+        },
+        "stochastic_seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "stochastic_intensity_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "stochastic_trigger_mode": {
+          "type": "string",
+          "enum": [
+            "file",
+            "bar",
+            "onset"
+          ]
+        },
+        "stochastic_plugin_mask": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "stochastic_topology": {
+          "type": "string",
+          "enum": [
+            "hybrid",
+            "serial",
+            "parallel"
+          ]
+        },
+        "tpdf_dither": {
+          "type": "boolean",
+          "description": "Whether deterministic TPDF noise was added during PCM16 quantization."
+        },
+        "normalize_peak": {
+          "type": "boolean",
+          "description": "Whether linear sample-peak normalization was requested."
+        },
+        "target_peak_dbfs": {
+          "type": "number",
+          "minimum": -24,
+          "maximum": -0.3
         }
       }
     },
@@ -322,9 +370,58 @@
               "pitched_note",
               null
             ]
+          },
+          "stochastic_routes": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          "left_rms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "right_rms": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "stereo_correlation": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "dither": {
+            "type": "string",
+            "enum": [
+              "off",
+              "tpdf"
+            ]
+          },
+          "dither_seed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4294967295
+          },
+          "normalized": {
+            "type": "boolean"
+          },
+          "normalization_skipped_silence": {
+            "type": "boolean"
           }
         }
       }
+    },
+    "measurement_basis": {
+      "type": "string",
+      "enum": [
+        "sample_domain"
+      ],
+      "description": "Metering values are based on stored PCM samples; no LUFS or oversampled true-peak claim is implied."
     }
   }
 }

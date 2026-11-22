@@ -1,0 +1,799 @@
+{
+  "schema": "beelzebul.security.v1",
+  "id": "beelzebul",
+  "name": "Веельзевул",
+  "version": "1.0.0",
+  "rule_count": 66,
+  "levels": [
+    {
+      "id": "atomic",
+      "label": "Атомарный",
+      "rules": 15
+    },
+    {
+      "id": "atom",
+      "label": "Атомный",
+      "rules": 15
+    },
+    {
+      "id": "nuclear",
+      "label": "Ядерный",
+      "rules": 15
+    },
+    {
+      "id": "quantum",
+      "label": "Квантовый",
+      "rules": 15
+    },
+    {
+      "id": "general",
+      "label": "Общий",
+      "rules": 6
+    }
+  ],
+  "policy": {
+    "fail_on": [
+      "critical"
+    ],
+    "merge_states": [
+      "blocked",
+      "review",
+      "clear"
+    ],
+    "scan_is_read_only": true,
+    "default_action": "report",
+    "external_code_loading": false,
+    "secret_values_in_reports": false
+  },
+  "limits": {
+    "max_files": 5000,
+    "max_file_bytes": 2097152,
+    "max_total_bytes": 52428800,
+    "max_line_length": 1000,
+    "entropy_min_length": 40,
+    "entropy_threshold": 4.6,
+    "max_risk_score": 100,
+    "large_change_files": 40
+  },
+  "excluded_directories": [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "node_modules",
+    ".pytest_cache",
+    ".mypy_cache",
+    "coverage"
+  ],
+  "exceptions": [],
+  "rules": [
+    {
+      "number": 1,
+      "id": "A-01",
+      "level": "atomic",
+      "title": "Неделимость токена",
+      "description": "Секреты, ключи и учётные данные запрещены в коммитах, включая тестовые фикстуры.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "secret-scan",
+      "remediation": "Удалить значение, отозвать credential и использовать менеджер секретов."
+    },
+    {
+      "number": 2,
+      "id": "A-02",
+      "level": "atomic",
+      "title": "Константный префикс",
+      "description": "Распознанные префиксы API-ключей и PEM-приватных ключей требуют немедленной блокировки и ротации.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "secret-prefix",
+      "remediation": "Отозвать и перевыпустить секрет; удалить его из истории по отдельной процедуре."
+    },
+    {
+      "number": 3,
+      "id": "A-03",
+      "level": "atomic",
+      "title": "Нулевая энтропийная вспышка",
+      "description": "Подозрительно случайные длинные строки проверяются на секреты с учётом контекста и allowlist хэшей.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "entropy",
+      "remediation": "Проверить источник строки; не добавлять секрет в allowlist."
+    },
+    {
+      "number": 4,
+      "id": "A-04",
+      "level": "atomic",
+      "title": "Чистота байтового потока",
+      "description": "Текстовые файлы должны быть валидным UTF-8 без NUL и запрещённых управляющих байтов.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "encoding",
+      "remediation": "Исправить кодировку и проверить происхождение файла."
+    },
+    {
+      "number": 5,
+      "id": "A-05",
+      "level": "atomic",
+      "title": "Атомарность правки",
+      "description": "Изменения коммита должны соответствовать заявленной области и не содержать посторонних бинарных хвостов.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "commit-scope",
+      "remediation": "Сверить diff, описание PR и список изменённых файлов."
+    },
+    {
+      "number": 6,
+      "id": "A-06",
+      "level": "atomic",
+      "title": "Запрет скрытых символов направления",
+      "description": "Bidi override/isolate и zero-width символы в исходниках и комментариях запрещены без документированного исключения.",
+      "severity": "high",
+      "enforcement": "block",
+      "check": "unicode-hidden",
+      "remediation": "Удалить невидимые символы либо вынести намеренный текст в явно разрешённый ресурс."
+    },
+    {
+      "number": 7,
+      "id": "A-07",
+      "level": "atomic",
+      "title": "Валидность литералов",
+      "description": "Опасные regex-конструкции и выход числовых литералов за установленные границы требуют ревью.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "regex-literal",
+      "remediation": "Упростить regex, ограничить вход и добавить тест на worst-case."
+    },
+    {
+      "number": 8,
+      "id": "A-08",
+      "level": "atomic",
+      "title": "Целостность констант",
+      "description": "Изменение таймаутов, лимитов и security-порогов требует объяснения и дополнительного ревью.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "sensitive-constants",
+      "remediation": "Зафиксировать причину, влияние и тесты в PR."
+    },
+    {
+      "number": 9,
+      "id": "A-09",
+      "level": "atomic",
+      "title": "Единообразие переносов строк",
+      "description": "Смешанные CRLF/LF в одном текстовом файле считаются дефектом консистентности.",
+      "severity": "medium",
+      "enforcement": "block",
+      "check": "line-endings",
+      "remediation": "Нормализовать окончания строк одним способом."
+    },
+    {
+      "number": 10,
+      "id": "A-10",
+      "level": "atomic",
+      "title": "Отсутствие мусорных маркеров",
+      "description": "Неразрешённые маркеры merge conflict и временные дампы не допускаются.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "conflict-markers",
+      "remediation": "Разрешить конфликт и удалить временные артефакты."
+    },
+    {
+      "number": 11,
+      "id": "A-11",
+      "level": "atomic",
+      "title": "Изоляция бинарных артефактов",
+      "description": "Неожиданные бинарные объекты в каталогах исходников требуют подтверждения формата и назначения.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "binary-source",
+      "remediation": "Переместить артефакт в assets/releases или зарегистрировать разрешённый формат."
+    },
+    {
+      "number": 12,
+      "id": "A-12",
+      "level": "atomic",
+      "title": "Проверка длины строк",
+      "description": "Чрезмерно длинные строки в обычных исходниках помечаются как риск минификации/обфускации.",
+      "severity": "low",
+      "enforcement": "review",
+      "check": "long-lines",
+      "remediation": "Перенести данные в отдельный ресурс или форматировать исходник."
+    },
+    {
+      "number": 13,
+      "id": "A-13",
+      "level": "atomic",
+      "title": "Контроль кодировки метаданных",
+      "description": "Пути должны быть уникальны без учёта регистра и Unicode-нормализации; зарезервированные Windows-имена запрещены.",
+      "severity": "high",
+      "enforcement": "block",
+      "check": "path-collisions",
+      "remediation": "Переименовать конфликтующие пути в каноническую NFC-форму."
+    },
+    {
+      "number": 14,
+      "id": "A-14",
+      "level": "atomic",
+      "title": "Жёсткая типизация входных узлов",
+      "description": "Слабо типизированные публичные границы функций требуют явных проверок типов, диапазонов и форматов.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "untyped-boundaries",
+      "remediation": "Добавить типы, валидаторы и негативные тесты на входной границе."
+    },
+    {
+      "number": 15,
+      "id": "A-15",
+      "level": "atomic",
+      "title": "Неизменяемость эталонного хэша",
+      "description": "Зафиксированные эталонные хэши должны совпадать; обновление допускается только с обоснованным baseline change.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "reference-hashes",
+      "remediation": "Обновить baseline отдельным ревью с доказательством происхождения."
+    },
+    {
+      "number": 16,
+      "id": "M-01",
+      "level": "atom",
+      "title": "Граница доверия модуля",
+      "description": "Каждый модуль документирует недоверенные источники и проверку данных на границе доверия.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "trust-boundaries",
+      "remediation": "Обозначить источники данных, доверенные границы и обязательную валидацию."
+    },
+    {
+      "number": 17,
+      "id": "M-02",
+      "level": "atom",
+      "title": "Запрет опасных динамических вызовов",
+      "description": "Неконтролируемое динамическое исполнение и небезопасная десериализация блокируются или требуют обоснованного исключения.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "dynamic-execution",
+      "remediation": "Удалить динамическое выполнение либо изолировать и строго валидировать вход."
+    },
+    {
+      "number": 18,
+      "id": "M-03",
+      "level": "atom",
+      "title": "Валидация на входе границы",
+      "description": "Внешние и межмодульные функции проверяют тип, диапазон, длину и формат входных данных.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "boundary-validation",
+      "remediation": "Добавить runtime checks и тесты граничных значений."
+    },
+    {
+      "number": 19,
+      "id": "M-04",
+      "level": "atom",
+      "title": "Контроль циклических зависимостей",
+      "description": "Циклические импорты и модульные зависимости выявляются и рассматриваются как нарушение изоляции.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "import-cycles",
+      "remediation": "Разорвать цикл через интерфейс, инверсию зависимостей или отдельный модуль."
+    },
+    {
+      "number": 20,
+      "id": "M-05",
+      "level": "atom",
+      "title": "Прозрачность сторонних пакетов",
+      "description": "Новые зависимости проходят проверку происхождения, advisories, install scripts и состояния сопровождения.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "dependency-review",
+      "remediation": "Провести dependency review и зафиксировать версию/источник."
+    },
+    {
+      "number": 21,
+      "id": "M-06",
+      "level": "atom",
+      "title": "Фиксация версий зависимостей",
+      "description": "Критические зависимости должны иметь фиксированные версии и воспроизводимый lock/manifest.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "unpinned-dependencies",
+      "remediation": "Зафиксировать версии и обновить lock-файл."
+    },
+    {
+      "number": 22,
+      "id": "M-07",
+      "level": "atom",
+      "title": "Принцип минимальных привилегий модуля",
+      "description": "Файловый, сетевой и environment-доступ должен быть необходимым, ограниченным и явным.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "least-privilege",
+      "remediation": "Сократить scope доступа и описать необходимость оставшихся привилегий."
+    },
+    {
+      "number": 23,
+      "id": "M-08",
+      "level": "atom",
+      "title": "Безопасная обработка ошибок",
+      "description": "Пустые обработчики исключений, утечка секретов и неограниченное раскрытие внутренних деталей запрещены.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "silent-exceptions",
+      "remediation": "Логировать безопасный контекст, сохранять причину и не выдавать секреты."
+    },
+    {
+      "number": 24,
+      "id": "M-09",
+      "level": "atom",
+      "title": "Защита путей и файловых операций",
+      "description": "Проверять path traversal, symlink escape и безопасное извлечение архивов.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "path-traversal",
+      "remediation": "Канонизировать путь, проверять containment и безопасно обрабатывать symlink."
+    },
+    {
+      "number": 25,
+      "id": "M-10",
+      "level": "atom",
+      "title": "Параметризация запросов и команд",
+      "description": "Данные пользователя не конкатенируются в SQL/shell/LDAP/template команды; применяются параметры и безопасные API.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "injection",
+      "remediation": "Использовать параметризованные запросы и отказаться от shell interpolation."
+    },
+    {
+      "number": 26,
+      "id": "M-11",
+      "level": "atom",
+      "title": "Контроль сложности и связности",
+      "description": "Чрезмерно большие или глубоко вложенные функции выделяются для декомпозиции и ревью.",
+      "severity": "low",
+      "enforcement": "review",
+      "check": "complexity",
+      "remediation": "Разделить функцию, снизить ветвление и покрыть отдельные ветви тестами."
+    },
+    {
+      "number": 27,
+      "id": "M-12",
+      "level": "atom",
+      "title": "Чистота побочных эффектов",
+      "description": "Чистые и детерминированные операции не изменяют глобальное состояние или внешние ресурсы.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "side-effects",
+      "remediation": "Явно отделить pure core от I/O и инъецировать внешние зависимости."
+    },
+    {
+      "number": 28,
+      "id": "M-13",
+      "level": "atom",
+      "title": "Проверка криптографических примитивов",
+      "description": "MD5/SHA1 для безопасности, ECB и слабые алгоритмы запрещены для новых защитных применений.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "weak-crypto",
+      "remediation": "Использовать актуальные алгоритмы и протоколы; хэшировать пароли специализированной KDF."
+    },
+    {
+      "number": 29,
+      "id": "M-14",
+      "level": "atom",
+      "title": "Синхронизация контрактов",
+      "description": "Изменения API/схем сопровождаются обновлением совместимых тестов, миграций и документации.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "contract-sync",
+      "remediation": "Обновить schema, compatibility tests и документацию потребителей."
+    },
+    {
+      "number": 30,
+      "id": "M-15",
+      "level": "atom",
+      "title": "Очистка временных ресурсов",
+      "description": "Файлы, потоки, сокеты и временные каталоги освобождаются гарантированно во всех ветках.",
+      "severity": "low",
+      "enforcement": "review",
+      "check": "resource-cleanup",
+      "remediation": "Использовать RAII/context managers/finally и тестировать аварийные пути."
+    },
+    {
+      "number": 31,
+      "id": "Y-01",
+      "level": "nuclear",
+      "title": "Неприкосновенность защищённых веток",
+      "description": "main и release защищены от прямого push и force-push; изменения только через PR.",
+      "severity": "critical",
+      "enforcement": "governance",
+      "check": "branch-protection",
+      "remediation": "Включить required reviews/checks и запрет force pushes на protected branches."
+    },
+    {
+      "number": 32,
+      "id": "Y-02",
+      "level": "nuclear",
+      "title": "Обязательная верификация коммитов",
+      "description": "Критические ветки требуют подтверждённого авторства/подписей и обязательных checks.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "commit-verification",
+      "remediation": "Настроить signed commits и required status checks."
+    },
+    {
+      "number": 33,
+      "id": "Y-03",
+      "level": "nuclear",
+      "title": "Целостность Git-истории",
+      "description": "Переписывание истории, скрытие объектов и подмена авторства должны быть запрещены правилами репозитория.",
+      "severity": "critical",
+      "enforcement": "governance",
+      "check": "git-history",
+      "remediation": "Ограничить force-push/deletion и аудитить чувствительные изменения."
+    },
+    {
+      "number": 34,
+      "id": "Y-04",
+      "level": "nuclear",
+      "title": "Изоляция пайплайнов CI/CD",
+      "description": "Код недоверенных fork PR не получает secrets или write token; pull_request_target используется с изоляцией.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "workflow-isolation",
+      "remediation": "Использовать read-only permissions и не исполнять недоверенный код с секретами."
+    },
+    {
+      "number": 35,
+      "id": "Y-05",
+      "level": "nuclear",
+      "title": "Защита секретов в раннерах",
+      "description": "Секреты не печатаются в логи и не пересылаются шагам без необходимости.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "runner-secrets",
+      "remediation": "Передавать секреты минимальному шагу через env и маскировать значения."
+    },
+    {
+      "number": 36,
+      "id": "Y-06",
+      "level": "nuclear",
+      "title": "Контроль прав доступа и ролей",
+      "description": "Изменения collaborators, teams, GitHub Apps и repository security settings требуют одобрения.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "access-control",
+      "remediation": "Проверить минимальные роли, audit log и владельца изменения."
+    },
+    {
+      "number": 37,
+      "id": "Y-07",
+      "level": "nuclear",
+      "title": "Безопасность workflow-файлов",
+      "description": "Workflow, Dockerfile, build scripts и инфраструктура считаются критическими файлами.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "workflow-changes",
+      "remediation": "Запросить security review и проверить permissions, refs и command interpolation."
+    },
+    {
+      "number": 38,
+      "id": "Y-08",
+      "level": "nuclear",
+      "title": "Подлинность релизных тегов и артефактов",
+      "description": "Релизные теги и артефакты связаны с конкретным проверенным commit и provenance.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "release-provenance",
+      "remediation": "Подписывать релизные теги и публиковать provenance/SBOM."
+    },
+    {
+      "number": 39,
+      "id": "Y-09",
+      "level": "nuclear",
+      "title": "Контроль вебхуков и интеграций",
+      "description": "Внешние интеграции проверяются по владельцу, scope прав, rotate/revoke и сроку действия.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "integration-permissions",
+      "remediation": "Проверить scopes и удалить неиспользуемые интеграции."
+    },
+    {
+      "number": 40,
+      "id": "Y-10",
+      "level": "nuclear",
+      "title": "Защита от отравления кэша",
+      "description": "Кэши сборки и зависимостей разделяются по доверенному контексту и проверяются на целостность.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "cache-isolation",
+      "remediation": "Не делить write cache между fork PR и доверенными релизными workflow."
+    },
+    {
+      "number": 41,
+      "id": "Y-11",
+      "level": "nuclear",
+      "title": "Контроль конфигурации окружений",
+      "description": "Env examples, Dockerfiles, deployment manifests и ports сканируются на секреты и небезопасные настройки.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "environment-config",
+      "remediation": "Удалить secrets, минимизировать ports и документировать exposure."
+    },
+    {
+      "number": 42,
+      "id": "Y-12",
+      "level": "nuclear",
+      "title": "Аудит массовых изменений",
+      "description": "Аномально крупные PR/коммиты требуют дополнительного reviewer и обоснования.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "change-volume",
+      "remediation": "Разбить изменение либо приложить пофайловое обоснование."
+    },
+    {
+      "number": 43,
+      "id": "Y-13",
+      "level": "nuclear",
+      "title": "Ограничение времени и ресурсов сборок",
+      "description": "Jobs имеют timeout, минимальные permissions и разумные resource limits.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "workflow-timeout",
+      "remediation": "Задать timeout-minutes и ограничить параллелизм/сетевые операции."
+    },
+    {
+      "number": 44,
+      "id": "Y-14",
+      "level": "nuclear",
+      "title": "Невозможность обхода проверок",
+      "description": "Критические checks не пропускаются через continue-on-error или несанкционированный bypass.",
+      "severity": "critical",
+      "enforcement": "review",
+      "check": "check-bypass",
+      "remediation": "Удалить обход или зарегистрировать исключение с ограниченным сроком."
+    },
+    {
+      "number": 45,
+      "id": "Y-15",
+      "level": "nuclear",
+      "title": "Воспроизводимость сборки",
+      "description": "Версии toolchain и dependencies контролируются; сборка воспроизводима в одинаковом окружении.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "reproducible-build",
+      "remediation": "Зафиксировать toolchain, lockfiles и provenance входных артефактов."
+    },
+    {
+      "number": 46,
+      "id": "Q-01",
+      "level": "quantum",
+      "title": "Суперпозиция ветвей и состояний",
+      "description": "Перед merge рассматриваются открытые PR, draft branches и риск конфликтующих комбинаций изменений.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "branch-interference",
+      "remediation": "Проверить связанные PR и конфликтные изменения перед интеграцией."
+    },
+    {
+      "number": 47,
+      "id": "Q-02",
+      "level": "quantum",
+      "title": "Квантовая запутанность зависимостей",
+      "description": "Найденная уязвимость проверяется в транзитивных, mirror и vendored компонентах.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "transitive-dependencies",
+      "remediation": "Распространить advisory на lockfiles, vendored и mirrored dependencies."
+    },
+    {
+      "number": 48,
+      "id": "Q-03",
+      "level": "quantum",
+      "title": "Коллапс неопределённости при слиянии",
+      "description": "Кандидат PR получает однозначный статус: block, review или clear; merge разрешён только по политике.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "merge-verdict",
+      "remediation": "Не сливать блокирующие срабатывания; закрыть review-пункты до merge."
+    },
+    {
+      "number": 49,
+      "id": "Q-04",
+      "level": "quantum",
+      "title": "Эффект наблюдателя при сканировании",
+      "description": "Сканер работает read-only и не меняет исходники, тесты или рабочие данные.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "read-only-scan",
+      "remediation": "Хранить отчёт отдельно; исходники анализировать без записи."
+    },
+    {
+      "number": 50,
+      "id": "Q-05",
+      "level": "quantum",
+      "title": "Туннелирование через обходные пути",
+      "description": "Проверяются комментарии, документация, тесты, генераторы и резервные скрипты, а не только production source.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "scan-surface",
+      "remediation": "Не исключать документацию/тесты из секретного и скрытого Unicode сканирования."
+    },
+    {
+      "number": 51,
+      "id": "Q-06",
+      "level": "quantum",
+      "title": "Интерференция параллельных изменений",
+      "description": "Одновременные изменения смежных модулей в разных PR оцениваются на логический и security конфликт.",
+      "severity": "medium",
+      "enforcement": "governance",
+      "check": "parallel-change",
+      "remediation": "Проверить пересекающиеся пути, API и зависимости связанных PR."
+    },
+    {
+      "number": 52,
+      "id": "Q-07",
+      "level": "quantum",
+      "title": "Вероятностная оценка риска",
+      "description": "Изменению назначается explainable score на основе находок, критичных путей и масштаба diff; score не определяет личность автора.",
+      "severity": "medium",
+      "enforcement": "observe",
+      "check": "risk-score",
+      "remediation": "Просмотреть компоненты score; не использовать его как единственное основание доверия."
+    },
+    {
+      "number": 53,
+      "id": "Q-08",
+      "level": "quantum",
+      "title": "Декогеренция контекста при рефакторинге",
+      "description": "При переносе/переименовании отслеживается сохранение security инвариантов, ownership и тестов.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "refactor-invariants",
+      "remediation": "Сопоставить rename map, тесты, CODEOWNERS и security policy до/после."
+    },
+    {
+      "number": 54,
+      "id": "Q-09",
+      "level": "quantum",
+      "title": "Нелокальные корреляции паттернов",
+      "description": "Мелкие изменения в разных файлах анализируются совместно на цепочки внедрения и обхода.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "correlated-changes",
+      "remediation": "Проверить diff как единое целое и связать события в одном отчёте."
+    },
+    {
+      "number": 55,
+      "id": "Q-10",
+      "level": "quantum",
+      "title": "Квантовая телепортация конфигурации",
+      "description": "Изменения конфигурации отслеживаются до связанных сервисов, feature flags и access policies.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "config-propagation",
+      "remediation": "Построить impact map и покрыть связанные конфиги контрактными тестами."
+    },
+    {
+      "number": 56,
+      "id": "Q-11",
+      "level": "quantum",
+      "title": "Спектр аномалий временных рядов",
+      "description": "Необычные всплески активности и последовательности событий анализируются только по доступной audit evidence.",
+      "severity": "low",
+      "enforcement": "observe",
+      "check": "activity-anomaly",
+      "remediation": "Использовать audit logs с прозрачным хранением и не выводить мотивы по времени коммитов."
+    },
+    {
+      "number": 57,
+      "id": "Q-12",
+      "level": "quantum",
+      "title": "Многомерный граф угроз",
+      "description": "Код, зависимости, права, CI/CD, история и интеграции анализируются как единая модель угроз.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "threat-graph",
+      "remediation": "Объединить результаты модульных, dependency и repository governance проверок."
+    },
+    {
+      "number": 58,
+      "id": "Q-13",
+      "level": "quantum",
+      "title": "Порог когерентности политики",
+      "description": "Каталог правил, исключения, schema и enforcement mode должны быть согласованы.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "policy-coherence",
+      "remediation": "Исправить противоречие в едином источнике правил и повторить валидацию."
+    },
+    {
+      "number": 59,
+      "id": "Q-14",
+      "level": "quantum",
+      "title": "Вероятностный карантин спорных изменений",
+      "description": "Неопределённые высокорисковые изменения направляются на изолированный review, а не запускаются автоматически.",
+      "severity": "high",
+      "enforcement": "review",
+      "check": "review-quarantine",
+      "remediation": "Запросить дополнительную проверку/свидетельства; не исполнять неподтверждённый код."
+    },
+    {
+      "number": 60,
+      "id": "Q-15",
+      "level": "quantum",
+      "title": "Сохранение унитарности проверок",
+      "description": "Отключение слоя защиты допускается только с анализом остаточного покрытия и компенсирующей проверкой.",
+      "severity": "high",
+      "enforcement": "governance",
+      "check": "control-removal",
+      "remediation": "Зафиксировать причину, срок, риск и компенсирующий контроль."
+    },
+    {
+      "number": 61,
+      "id": "O-01",
+      "level": "general",
+      "title": "Единая точка истины",
+      "description": "Версионируемый каталог правил является единым источником для локального и CI сканирования.",
+      "severity": "high",
+      "enforcement": "block",
+      "check": "single-source",
+      "remediation": "Обновлять каталог и schema вместе, не создавать локальные расхождения."
+    },
+    {
+      "number": 62,
+      "id": "O-02",
+      "level": "general",
+      "title": "Приоритет безопасности над скоростью",
+      "description": "Блокирующие угрозы имеют приоритет над скоростью доставки и не могут быть проигнорированы без исключения.",
+      "severity": "critical",
+      "enforcement": "block",
+      "check": "security-priority",
+      "remediation": "Устранить блокер или пройти формальный exception workflow."
+    },
+    {
+      "number": 63,
+      "id": "O-03",
+      "level": "general",
+      "title": "Чёткая классификация срабатываний",
+      "description": "Каждая находка имеет severity, enforcement, rule ID, путь, причину и remediation.",
+      "severity": "medium",
+      "enforcement": "block",
+      "check": "finding-classification",
+      "remediation": "Не выпускать обезличенные или беспричинные предупреждения."
+    },
+    {
+      "number": 64,
+      "id": "O-04",
+      "level": "general",
+      "title": "Прозрачность и воспроизводимость вердикта",
+      "description": "JSON/SARIF отчёт воспроизводит версию политики, commit, путь, строку и логику решения без утечки секрета.",
+      "severity": "medium",
+      "enforcement": "block",
+      "check": "reproducible-verdict",
+      "remediation": "Сохранять отчёт артефактом и не включать secret values."
+    },
+    {
+      "number": 65,
+      "id": "O-05",
+      "level": "general",
+      "title": "Управляемые исключения с конечным сроком",
+      "description": "Исключения требуют точного rule/path, владельца, причины и UTC expiry; просроченные исключения недействительны.",
+      "severity": "high",
+      "enforcement": "block",
+      "check": "expiring-exceptions",
+      "remediation": "Удалить исключение или продлить его через review до истечения срока."
+    },
+    {
+      "number": 66,
+      "id": "O-06",
+      "level": "general",
+      "title": "Непрерывная калибровка под репозиторий",
+      "description": "Пороги адаптируются по языку и роли репозитория, но базовые критические правила остаются включёнными.",
+      "severity": "medium",
+      "enforcement": "review",
+      "check": "repository-calibration",
+      "remediation": "Калибровать только параметры, не отключая baseline critical controls."
+    }
+  ]
+}

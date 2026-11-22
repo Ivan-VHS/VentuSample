@@ -1,0 +1,12 @@
+{
+  "schema": "ivan-vhs.plugin.v1",
+  "id": "metadata-example",
+  "name": "Metadata Example",
+  "version": "1.0.0",
+  "api_version": 1,
+  "host": { "id": "ventu", "min_version": "0.2.0" },
+  "domain": "examples",
+  "description": "Manifest-only extension example; Ventu does not load its entrypoint automatically.",
+  "capabilities": ["commands"],
+  "entrypoint": "plugin.cpp:register_plugin"
+}

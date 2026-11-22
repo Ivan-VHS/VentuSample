@@ -1,33 +1,27 @@
 # Anatidae desktop design — VentuSample
 
-Qt 6 light/dark theme and scrollable generator are implemented. Responsive reflow, keyboard/focus regression and physical HiDPI review remain acceptance work until tested.
+Qt 6 Widgets desktop workstation with a scrollable generator and native light/dark appearance. The canonical palette and accessibility rules now live in [UI_UX_2026_CONVERGENCE.md](UI_UX_2026_CONVERGENCE.md).
 
-## Semantic palette
+## Implementation
 
-| Token | Light | Dark |
-|---|---|---|
-| Workspace | #F4F8FD | #071A2D |
-| Surface | #FFFFFF | #0F2A45 |
-| Controls | #EAF1FA | #173A5E |
-| Primary text | #122C45 | #E8EDF2 |
-| Secondary | #314B66 | #D0DCE8 |
-| Muted | #4D6177 | #B3C4D6 |
-| Blue | #004E98 | #70A5FF |
-| Blue focus | #1A5FDB | #8AB6FF |
-| Red | #B5122D | #FF7B86 |
-| Red hover | #9C1026 | #FF9AA2 |
-| Border | #CAD8E8 | #31516F |
-| Selection | #D9E8FF | #244F82 |
+- Semantic light/dark tokens replace saturated full-blue work surfaces.
+- Blue represents primary actions, navigation and visible keyboard focus.
+- Red is reserved for critical or destructive states.
+- Opaque, clearly separated cards keep parameter groups and values legible.
+- Inputs expose accessible names; field labels are linked to controls.
+- Preferred target sizes: 40–44 px actions, 38–44 px inputs; numeric sliders remain readable.
+- Generator stays scrollable; logs/results and status remain distinct.
+- The render worker, DSP callbacks and audio buffers remain independent from all UI animation.
 
-No teal/amber/green/violet brand accents. Status is text/icon plus color; target WCAG AA for actionable controls and AAA for body text where achievable.
+## Acceptance still required
 
-## Layout and interaction
+Responsive reflow, keyboard-only traversal, contrast on real displays and physical HiDPI review must be manually checked at 100%, 125%, 150% and 200% before being marked verified. The code being DPI-capable is not proof that every monitor scale has passed review.
 
-1. Sound identity → 2. grid/structure → 3. groove/texture → 4. master/motion → 5. optional source → 6. export.
-- 8px spacing rhythm; 8–12px radii; 44px preferred action targets.
-- Persistent labels and units; opaque surfaces; generator stays scrollable.
-- While rendering, prevent duplicate requests and keep UI responsive.
-- Brand imagery stays in chrome/empty states, never behind controls.
-- UI never implies live playback, audio capture or online telemetry.
 
-Duck vocabulary is an internal design map for clear entry, grouping and restrained geometry—not mandatory mascots or novelty labels.
+## Motion Constitution v2026 precedence
+
+The normative shared motion, layout and telemetry contract is [Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md). This design document supplies visual-language guidance; it does not override the canonical token ranges or product-specific implementation status.
+
+Shared tokens: `--ease-spring`, `--ease-snappy`, `--motion-scale` (0.4–2.2) and normalized `--spring-stiffness` (0.7–1.4). Operating-system reduced-motion and `UI_REDUCED_MOTION` take precedence; nonessential spatial/ambient motion is removed and the underlying state change is retained. Light/dark parity, keyboard focus and high-DPI readability apply to every supported visual state.
+
+The 2×2 overview and focus scene are showcase layout targets. SVG/Canvas or native-paint graphics must be driven by real model values, expose units and textual equivalents, and distinguish unknown, stale and error states. Product-specific `docs/UI_MOTION.md` remains authoritative for shipped native behavior and safety boundaries.

@@ -1,0 +1,28 @@
+{
+  "schema": "duckstory.config.v1",
+  "project": "VentuSample",
+  "repository": "Ivan-VHS/VentuSample",
+  "profile": "cpp20-qt6-audio-workstation",
+  "languages": [
+    "C++20",
+    "Qt 6 Widgets",
+    "CMake"
+  ],
+  "platforms": [
+    "Windows",
+    "Linux"
+  ],
+  "ui": true,
+  "automation": {
+    "mode": "report-only",
+    "allow_source_rewrites": false,
+    "allow_dependency_updates": false,
+    "allow_project_command_execution": false,
+    "allow_network_access": false
+  },
+  "standards": {
+    "application_security": "OWASP ASVS 5.0.0 where applicable",
+    "secure_development": "NIST SP 800-218 v1.1 final; Rev. 1 v1.2 tracked as draft",
+    "accessibility": "WCAG 2.2 and ISO/IEC 40500:2025 where applicable"
+  }
+}
