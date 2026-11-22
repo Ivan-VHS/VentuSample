@@ -15,7 +15,7 @@ assert(report.same_style == true, "identical packs must have matching style")
 assert(report.same_musical_key == true, "identical packs must have matching musical key")
 assert(report.same_mode_family == true, "identical packs must have matching mode family")
 assert(report.euclidean_distance == 0, "identical pack distance must be zero")
-assert(metrics.file_count == size(pack.files), "file count metric mismatch")
+assert(report.reference.file_count == size(pack.files), "file count metadata mismatch")
 
 let output_path = absolute_path(path_join("..", "..", "build", "reaper-ventusample-report.json"))
 write_json(output_path, report)
