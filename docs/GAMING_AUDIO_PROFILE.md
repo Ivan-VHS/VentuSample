@@ -17,3 +17,8 @@ cmake -S . -B build -DVENTU_BUILD_TESTS=ON
 cmake --build build --parallel
 ctest --test-dir build --output-on-failure
 ```
+
+
+## Sequential rollout
+
+Rollout gate: this PR stays in draft until DuckOS #75, OPlague #166, Pytyliki #213 and Reaper #253 are merged. Then it is the fifth stage of the gaming-policy rollout.
