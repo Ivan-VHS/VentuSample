@@ -293,3 +293,7 @@ Use the [documentation index](docs/README.md) as the entry point and the [inform
 ## Mora desktop integration
 
 VentuSample is available from the shared Mora workspace when its Qt 6 desktop target has been built. Mora provides the catalogue and startup theme; sample generation and offline DSP remain native VentuSample functions. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
+
+## Shared DuckOS visual system
+
+VentuSample uses the fixed [DuckOS black/white/yellow palette](docs/DUCK_PALETTE.md). The decorative drapery respects Reduce Motion and Eco Visuals; it runs only on the UI thread and does not enter the audio rendering path.
