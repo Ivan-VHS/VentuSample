@@ -309,7 +309,7 @@ void showQuantumAudioLab(QWidget* parent) {
         QStringList saved;
         for (const auto& step : chain) {
             saved.push_back(QStringList{
-                QString::fromStdString(step.id),
+                QString::fromStdString(step.pluginId),
                 QString::number(step.parameters.amount, 'g', 12),
                 QString::number(step.parameters.tone, 'g', 12),
                 QString::number(step.parameters.rate, 'g', 12),
@@ -348,12 +348,12 @@ void showQuantumAudioLab(QWidget* parent) {
     const auto refreshChain = [&] {
         chainList->clear();
         for (const auto& step : chain) {
-            const auto* plugin = findQuantumAudioPlugin(step.id);
+            const auto* plugin = findQuantumAudioPlugin(step.pluginId);
             if (!plugin) continue;
             auto* item = new QListWidgetItem(
                 q(plugin->name) + QString("   ·   wet %1%").arg(step.parameters.mix * 100.0, 0, 'f', 0),
                 chainList);
-            item->setData(Qt::UserRole, QString::fromStdString(step.id));
+            item->setData(Qt::UserRole, QString::fromStdString(step.pluginId));
         }
         removeButton->setEnabled(!chain.empty());
         clearButton->setEnabled(!chain.empty());
