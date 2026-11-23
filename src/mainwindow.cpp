@@ -90,6 +90,13 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     buildUi();
     ventu::ui_ux::applyAccessibleDefaults(this);
     loadSettings();
+
+    const QString moraTheme = qEnvironmentVariable("MORA_THEME_MODE").trimmed().toLower();
+    if (moraTheme == QStringLiteral("dark"))
+        darkThemeCheck_->setChecked(true);
+    else if (moraTheme == QStringLiteral("light"))
+        darkThemeCheck_->setChecked(false);
+
     applyTheme();
     updateBeatSync();
 }
