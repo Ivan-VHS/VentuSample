@@ -113,6 +113,7 @@ private:
     QLabel* summaryLabel_{};
     QLabel* beatIndicator_{};
     QTabWidget* tabs_{};
+    ventu::ui_motion::DraperyBanner* draperyBanner_{};
     QTimer* beatTimer_{};
     ventu::ui_motion::Preferences motionPreferences_{};
     QListWidget* filesList_{};
