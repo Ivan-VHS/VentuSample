@@ -18,6 +18,7 @@
 | [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md) | 20×3 quality/cohesion/rhythm acceptance matrix |
 | [SOURCE_INTEGRATION.md](SOURCE_INTEGRATION.md) | WAV constraints and source-rights requirements |
 | [REAPER_PACK_AUDIT.md](REAPER_PACK_AUDIT.md) | manifest-only interoperability with Reaper |
+| [Mora integration](../integrations/mora/README.md) | optional launch manifest for the Mora desktop shell |
 | [UI_MOTION.md](UI_MOTION.md) | persisted Qt motion preferences, project-BPM indicator and accessibility limits |
 | [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) | visual tokens and workbench UX |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | release, privacy and communication rules |
