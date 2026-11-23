@@ -15,7 +15,7 @@
 
 ## Related OS product
 
-[DuckOS — Mora application suite](https://github.com/Ivan-VHS/DuckOS/blob/docs/unified-documentation-standard/docs/PREINSTALLED_APPLICATIONS.md) documents the seven applications provided by the OS layer. This is a related product reference only; it does not add app-suite capabilities to VentuSample.
+[DuckOS — Mora application suite](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md) documents the seven applications provided by the OS layer. This is a related product reference only; it does not add app-suite capabilities to VentuSample.
 
 ## Normative documentation standard
 
