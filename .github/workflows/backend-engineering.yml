@@ -1,0 +1,24 @@
+name: Backend engineering contract
+
+on:
+  pull_request:
+  push:
+    branches: [main, "feat/**", "fix/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate backend engineering profile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate profile, schema and repository evidence
+        run: python tools/validate_backend_engineering.py
+      - name: Run validator negative-case tests
+        run: python tools/validate_backend_engineering.py --self-test
