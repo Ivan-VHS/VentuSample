@@ -13,6 +13,10 @@
 
 # Documentation
 
+## Related OS product
+
+[DuckOS — Mora application suite](https://github.com/Ivan-VHS/DuckOS/blob/docs/unified-documentation-standard/docs/PREINSTALLED_APPLICATIONS.md) documents the seven applications provided by the OS layer. This is a related product reference only; it does not add app-suite capabilities to VentuSample.
+
 ## Normative documentation standard
 
 [Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
