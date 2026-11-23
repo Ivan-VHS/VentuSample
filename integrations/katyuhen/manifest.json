@@ -1,0 +1,70 @@
+{
+  "schema": "katyuhen.project.v1",
+  "version": 1,
+  "id": "ventusample",
+  "name": "VentuSample",
+  "role": "audio-workstation",
+  "repository": "https://github.com/Ivan-VHS/VentuSample",
+  "entrypoints": [
+    {
+      "id": "ventusample-studio",
+      "path": "README.md",
+      "kind": "project-index",
+      "maturity": "implemented"
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "ventusample.pack.v1",
+      "direction": "provides",
+      "version": "1",
+      "transport": "versioned-json-file",
+      "maturity": "implemented",
+      "description": "Deterministic offline sample-pack metadata consumed by Reaper's manifest-only audit."
+    },
+    {
+      "id": "ventusample.pack.v2",
+      "direction": "provides",
+      "version": "2",
+      "transport": "versioned-json-file",
+      "maturity": "implemented",
+      "description": "Extended tonal metadata export; remains a distinct schema contract."
+    },
+    {
+      "id": "reaper.cabi.v1",
+      "direction": "consumes",
+      "version": "1",
+      "transport": "explicit-trusted-c-abi",
+      "maturity": "partial",
+      "description": "Optional bounded expression runtime enabled at build time from an explicit local Reaper checkout."
+    },
+    {
+      "id": "pytyliki.cabi.v1",
+      "direction": "consumes",
+      "version": "1",
+      "transport": "explicit-trusted-c-abi",
+      "maturity": "partial",
+      "description": "Optional explicit-library cross-check path; not required for the standalone audio workstation."
+    }
+  ],
+  "capabilities": [
+    "procedural.sample-generation",
+    "offline.wav-processing",
+    "deterministic.presets",
+    "offline.spectrum-analysis",
+    "midi.file-inspection",
+    "cpp20.plugin-api",
+    "versioned.pack-export"
+  ],
+  "limits": [
+    "DSP remains an offline buffer pipeline; the optional Reaper bridge is not on the real-time audio path.",
+    "The pack audit reads metadata only; it does not compare waveforms or assess musical quality.",
+    "Native library integrations are opt-in and require an explicit trusted source path."
+  ],
+  "security": {
+    "network_policy": "not_required",
+    "native_library_policy": "explicit_path_only",
+    "driver_mutation_policy": "not_supported",
+    "process_execution_policy": "local_runtime"
+  }
+}
