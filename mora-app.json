@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "id": "ventusample",
+  "name": "VentuSample",
+  "summary": "Процедурная аудиостанция",
+  "description": "Нативная C++20-станция для генерации сэмпл-паков, офлайн-DSP, WAV-анализа и локальных пресетов.",
+  "category": "audio",
+  "accent": "#266FC7",
+  "capabilities": ["Sample generation", "Offline DSP", "WAV processing", "Presets A/B", "JSON manifests"],
+  "entrypoint": {
+    "kind": "native",
+    "path": "build/VentuSample",
+    "platforms": ["windows", "linux", "macos"],
+    "requires": ["CMake 3.21+", "Qt 6 Widgets"]
+  },
+  "integration": {
+    "theme_environment": "MORA_THEME_MODE",
+    "themes": ["dark", "light"],
+    "window_mode": "separate-native-window",
+    "local_only": true
+  }
+}

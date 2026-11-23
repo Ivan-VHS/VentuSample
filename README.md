@@ -283,3 +283,13 @@ Wrap a JSON result using the shared ivan-vhs.report.v1 format:
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json. The tool-specific result remains unchanged.
+
+
+## Documentation map
+
+Use the [documentation index](docs/README.md) as the entry point and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md) to navigate audio/DSP, Studio workflows, presets and plugins, architecture, UX and integrations. Topic hubs lead to detailed contracts; supported formats and implementation status remain governed by source, tests, manifests and schemas.
+
+
+## Mora desktop integration
+
+VentuSample is available from the shared Mora workspace when its Qt 6 desktop target has been built. Mora provides the catalogue and startup theme; sample generation and offline DSP remain native VentuSample functions. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).

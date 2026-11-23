@@ -283,3 +283,13 @@ JSON-результат можна обгорнути в загальний фо
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 Див. docs/REPORT_ENVELOPE.md і schemas/ivan-vhs.report.v1.schema.json. Результат самого інструмента залишається без змін.
+
+
+## Карта документації
+
+Використовуйте [індекс документації](docs/README.md) як точку входу, а [карту інформаційної архітектури](docs/INFORMATION_ARCHITECTURE.md) — для навігації аудіо/DSP, робочими процесами Studio, пресетами й плагінами, архітектурою, UX та інтеграціями. Хаби ведуть до детальних контрактів; підтримувані формати й стан реалізації підтверджуються кодом, тестами, manifest-файлами та схемами.
+
+
+## Інтеграція з робочим столом Mora
+
+VentuSample доступний зі спільного робочого простору Mora після збирання desktop target на Qt 6. Mora надає каталог і початкову тему, а генерація семплів та офлайн-DSP залишаються функціями самого VentuSample. Див. [інтеграцію Mora](docs/MORA_DESKTOP_INTEGRATION.md) та [контракт DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).

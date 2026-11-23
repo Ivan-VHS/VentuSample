@@ -1,4 +1,29 @@
+> **Navigation:** Start with the [information architecture map](INFORMATION_ARCHITECTURE.md), then choose the relevant [topic hub](clusters/audio-dsp.md). The map links the audio/DSP, Studio workflow, UI, quality and integration documentation.
+
+## Topic hubs
+
+- [Audio pipeline and DSP](clusters/audio-dsp.md) — Audio rendering stages, numerical processing, MIDI, resampling, spectral analysis and audio-format contracts.
+- [Studio, presets and plugin workflows](clusters/studio-workflows.md) — Generator and workstation capabilities, preset lifecycle, plugin interfaces and user workflows.
+- [Architecture and runtime contracts](clusters/architecture-runtime.md) — Application boundaries, typed-value architecture, runtime integration and system-level contracts.
+- [UI, accessibility and visual system](clusters/ui-visual.md) — Desktop interaction, accessible motion, visual assets and documentation rendering.
+- [Quality, validation and evidence](clusters/quality-engineering.md) — Repeatability, engineering gates, numerical limits, validation and trustworthy status reporting.
+- [Integration, governance and planning](clusters/integration-governance.md) — Project federation, replacement tools, roadmaps, ownership and supporting reference material.
+
+---
+
 # Documentation
+
+## Katyuhen ecosystem
+
+[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
+
+## Katyuhen ecosystem
+
+[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
+
+## Normative documentation standard
+
+[Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
 
 | File | Purpose |
 |---|---|
@@ -50,3 +75,9 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 ## Project-specific engineering profile
 
 [IVAN_VHS_ENGINEERING_PROFILE.md](IVAN_VHS_ENGINEERING_PROFILE.md) translates the project's direction into concrete architecture boundaries, implementation priorities, human-readable code conventions and acceptance tests. It is a development contract; it does not mark planned work as implemented.
+
+
+## Cross-project engineering
+
+- [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
+- [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.
