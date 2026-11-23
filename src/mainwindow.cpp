@@ -92,11 +92,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     ventu::ui_ux::applyAccessibleDefaults(this);
     loadSettings();
 
-    const QString moraTheme = qEnvironmentVariable("MORA_THEME_MODE").trimmed().toLower();
-    if (moraTheme == QStringLiteral("dark"))
-        darkThemeCheck_->setChecked(true);
-    else if (moraTheme == QStringLiteral("light"))
-        darkThemeCheck_->setChecked(false);
+    if (draperyBanner_) draperyBanner_->setMotionPreferences(motionPreferences_);
 
     applyTheme();
     updateBeatSync();
@@ -182,15 +178,19 @@ void MainWindow::buildUi() {
     brand->addWidget(subtitle);
     header->addLayout(brand);
     header->addStretch();
-    darkThemeCheck_ = new QCheckBox("Тёмная тема");
-    darkThemeCheck_->setCursor(Qt::PointingHandCursor);
-    header->addWidget(darkThemeCheck_, 0, Qt::AlignVCenter);
+    auto* paletteBadge = new QLabel("DUCK");
+    paletteBadge->setObjectName("paletteBadge");
+    paletteBadge->setAccessibleName("Единая палитра DuckOS: чёрный, белый и жёлтый");
+    header->addWidget(paletteBadge, 0, Qt::AlignVCenter);
     beatIndicator_ = new QLabel("● BPM SYNC");
     beatIndicator_->setObjectName("beatIndicator");
     beatIndicator_->setVisible(false);
-    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
+    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #FFD400; color: #080808; border: 1px solid #FFD400; border-radius: 5px; padding: 5px 8px; }");
     header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
+
+    draperyBanner_ = new ventu::ui_motion::DraperyBanner(central);
+    root->addWidget(draperyBanner_);
 
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
@@ -484,7 +484,6 @@ void MainWindow::buildUi() {
         const QString path = lastOutputDirectory_.isEmpty() ? outputPath_->text() : lastOutputDirectory_;
         if (!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
     });
-    connect(darkThemeCheck_, &QCheckBox::toggled, this, [this] { applyTheme(); saveSettings(); });
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
 }
 
@@ -655,7 +654,6 @@ void MainWindow::loadSettings() {
     for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
         stochasticPoolChecks_[effect]->setChecked((poolMask & (1u << effect)) != 0u);
     stochasticTopologyBox_->setCurrentIndex(std::clamp(settings.value("stochastic_topology", 0).toInt(), 0, 2));
-    darkThemeCheck_->setChecked(settings.value("dark", false).toBool());
     outputPath_->setText(settings.value("output", QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/VentuSample").toString());
     sourceSamplePath_->setText(settings.value("source_sample", "").toString());
     sourceMixSlider_->setValue(settings.value("source_mix", 65).toInt());
@@ -712,7 +710,6 @@ void MainWindow::saveSettings() {
         if (stochasticPoolChecks_[effect]->isChecked()) poolMask |= (1u << effect);
     settings.setValue("stochastic_pool_mask", static_cast<uint>(poolMask));
     settings.setValue("stochastic_topology", stochasticTopologyBox_->currentIndex());
-    settings.setValue("dark", darkThemeCheck_->isChecked());
     settings.setValue("output", outputPath_->text());
     settings.setValue("source_sample", sourceSamplePath_->text());
     settings.setValue("source_mix", sourceMixSlider_->value());
@@ -760,6 +757,7 @@ void MainWindow::showMotionSettings() {
     motionPreferences_.ecoVisuals = eco->isChecked();
     motionPreferences_.expressiveMotion = expressive->isChecked();
     motionPreferences_.syncToBpm = sync->isChecked();
+    if (draperyBanner_) draperyBanner_->setMotionPreferences(motionPreferences_);
     saveSettings();
     updateBeatSync();
 }
@@ -780,8 +778,7 @@ void MainWindow::updateBeatSync() {
 }
 
 void MainWindow::applyTheme() {
-    const bool dark = darkThemeCheck_->isChecked();
-    const auto palette = mora::ui::palette(dark);
+    const auto palette = mora::ui::palette();
     const QString page = QString::fromLatin1(palette.page);
     const QString surface = QString::fromLatin1(palette.surface);
     const QString ink = QString::fromLatin1(palette.ink);
@@ -830,6 +827,7 @@ void MainWindow::applyTheme() {
         QSlider::handle:horizontal { background: %3; border: 2px solid %6; width: 17px; margin: -7px 0; border-radius: 8px; }
         QProgressBar { background: %1; color: %2; border: 1px solid %4; border-radius: 7px; min-height: 10px; text-align: center; }
         QProgressBar::chunk { background: %6; border-radius: 6px; }
+        QLabel#paletteBadge { color: %11; background: %6; border: 1px solid %6; border-radius: 9px; padding: 5px 9px; font-size: 9px; font-weight: 800; }
         QLabel#brandTitle { color: %6; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 22px; font-weight: 800; }
         QLabel#brandSubtitle, QLabel#fieldLabel { color: %5; font-size: 10px; font-weight: 700; }
         QLabel#heroTitle { color: %5; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 20px; font-weight: 750; }
