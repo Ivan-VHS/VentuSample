@@ -4,6 +4,7 @@
 #include <QColor>
 #include <cassert>
 #include <cmath>
+#include <string>
 
 int main() {
     const QColor white("#FFFFFF"), navy("#0A1E46"), blue("#0039A6"), grey("#808080");
@@ -14,13 +15,16 @@ int main() {
     assert(ventu::ui_ux::contrastRatio(QColor(), white) == 0.0);
     assert(std::isfinite(ventu::ui_ux::contrastRatio(white, navy)));
 
-    const auto moraDark = mora::ui::palette(true);
-    const auto moraLight = mora::ui::palette(false);
-    assert(ventu::ui_ux::meetsTextContrast(QColor(moraDark.onAccent), QColor(moraDark.accent)));
-    assert(ventu::ui_ux::meetsTextContrast(QColor(moraDark.onSignal), QColor(moraDark.signal)));
-    assert(ventu::ui_ux::meetsTextContrast(QColor(moraLight.onAccent), QColor(moraLight.accent)));
-    assert(ventu::ui_ux::meetsTextContrast(QColor(moraLight.onSignal), QColor(moraLight.signal)));
-    assert(ventu::ui_ux::contrastRatio(QColor(moraDark.focus), QColor(moraDark.page)) >= 3.0);
-    assert(ventu::ui_ux::contrastRatio(QColor(moraLight.focus), QColor(moraLight.page)) >= 3.0);
+    const auto duck = mora::ui::palette();
+    assert(std::string(duck.page) == "#080808");
+    assert(std::string(duck.surface) == "#151515");
+    assert(std::string(duck.ink) == "#FFFFFF");
+    assert(std::string(duck.accent) == "#FFD400");
+    assert(std::string(duck.onAccent) == "#080808");
+    assert(std::string(duck.signal) == "#FFD400");
+    assert(std::string(duck.onSignal) == "#080808");
+    assert(ventu::ui_ux::meetsTextContrast(QColor(duck.onAccent), QColor(duck.accent)));
+    assert(ventu::ui_ux::meetsTextContrast(QColor(duck.onSignal), QColor(duck.signal)));
+    assert(ventu::ui_ux::contrastRatio(QColor(duck.focus), QColor(duck.page)) >= 3.0);
     return 0;
 }

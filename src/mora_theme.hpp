@@ -18,18 +18,11 @@ struct Palette {
     const char* focus;
 };
 
-inline Palette palette(bool dark) noexcept {
-    if (dark) {
-        return {
-            "#10142A", "#191E39", "#F5F4FF", "#D5D6EB", "#A8ADC8",
-            "#3B4262", "#A78BFA", "#C1AEFF", "#1D1730",
-            "#FF8EAC", "#330A1A", "#353054", "#38D4B7"
-        };
-    }
+inline Palette palette() noexcept {
     return {
-        "#F5F3FA", "#FFFFFF", "#211F31", "#4E4B63", "#66627A",
-        "#D6D0E7", "#5B43B5", "#49359D", "#FFFFFF",
-        "#A91F49", "#FFFFFF", "#E6E0F7", "#006F68"
+        "#080808", "#151515", "#FFFFFF", "#E5E5E5", "#A6A6A6",
+        "#3A3A3A", "#FFD400", "#FFE45C", "#080808",
+        "#FFD400", "#080808", "#3A3100", "#FFE45C"
     };
 }
 

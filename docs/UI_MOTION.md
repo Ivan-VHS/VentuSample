@@ -51,3 +51,8 @@ The shared token, accessibility and documentation source is [Motion Constitution
 ### Product-specific maturity
 
 VentuSample has native Qt motion settings, bounded spring/property transitions and an optional project-BPM beat indicator. Its generator and DSP path are offline; there is no external DAW transport or real-time mixer. Any waveform/meter must be based on an actual preview/render buffer and must not run inside DSP callbacks or generator workers.
+
+
+## DuckOS visual system
+
+The application uses one fixed black, white and duck-yellow palette. There is no light/dark theme switch. Existing settings remain readable; the former dark-mode preference is ignored. Accent and status meaning are supported by labels and accessible names, not hue alone.

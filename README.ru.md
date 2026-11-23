@@ -293,3 +293,7 @@ JSON-результат можно обернуть в общий формат �
 ## Интеграция с рабочим столом Mora
 
 VentuSample доступен из общей рабочей области Mora после сборки desktop target на Qt 6. Mora предоставляет каталог и стартовую тему, а генерация сэмплов и офлайн-DSP остаются функциями самого VentuSample. См. [интеграцию Mora](docs/MORA_DESKTOP_INTEGRATION.md) и [контракт DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
+
+## Shared DuckOS visual system
+
+- [DuckOS palette and UI contract](docs/DUCK_PALETTE.md) — fixed black/white/yellow tokens, accessible contrast and legacy preference migration.
