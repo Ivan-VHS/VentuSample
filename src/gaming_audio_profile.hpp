@@ -5,6 +5,7 @@
 namespace ventu {
 
 struct GamingAudioRequest {
+    std::string gameId;
     int sampleRate{48000};
     int channels{2};
     int targetLatencyMs{20};
@@ -14,6 +15,7 @@ struct GamingAudioRequest {
 };
 
 struct GamingAudioProfile {
+    std::string gameId;
     bool valid{false};
     std::string error;
     int sampleRate{0};
