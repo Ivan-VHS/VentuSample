@@ -74,5 +74,19 @@ class EngineeringEvolutionTests(unittest.TestCase):
         candidate["execution_directives"][1]["id"] = candidate["execution_directives"][0]["id"]
         self.assertTrue(any("duplicate execution directive id" in x for x in validate_policy(candidate, self.schema)))
 
+
+    def test_capability_completeness_standard_passes(self) -> None:
+        from validate_engineering_evolution import CAPABILITY_STANDARD_PATH, validate_capability_standard
+        self.assertEqual(validate_capability_standard(CAPABILITY_STANDARD_PATH.read_text(encoding="utf-8")), [])
+
+    def test_missing_canonical_capability_triple_is_rejected(self) -> None:
+        from validate_engineering_evolution import CAPABILITY_STANDARD_PATH, validate_capability_standard
+        document = CAPABILITY_STANDARD_PATH.read_text(encoding="utf-8").replace(
+            "| 1 | Расширяемость | Полноценность | Полнофункциональность |",
+            "| 1 | Расширяемость | Полноценность | изменено |",
+        )
+        self.assertTrue(any("missing canonical capability triple #1" in error for error in validate_capability_standard(document)))
+
+
 if __name__ == "__main__":
     unittest.main()
