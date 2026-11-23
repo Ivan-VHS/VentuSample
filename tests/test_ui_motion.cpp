@@ -27,5 +27,9 @@ int main(int argc, char** argv) {
     eco.ecoVisuals = true;
     assert(ventu::ui_motion::boundedDuration(eco, 380) == 80);
 
+    auto reducedNormal = normal;
+    reducedNormal.reduceMotion = true;
+    assert(ventu::ui_motion::boundedDuration(reducedNormal, 380) == 80);
+
     return 0;
 }
