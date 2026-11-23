@@ -63,6 +63,10 @@ VentuSample створює локальні hip-hop sample packs на основ
 Скріншот Windows нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
 
+## Пов’язаний продукт ОС: DuckOS
+
+Сім застосунків Mora (Cockos, Kavun, Ka-bon, Gloverty, Po, Illidia та Unify) описані в окремому проєкті [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md). Це рівень застосунків операційної системи, а не компонент VentuSample. Цей репозиторій не заявляє про постачання цих застосунків або надання їхніх системних служб. Можливості та інтерфейси VentuSample визначаються її вихідним кодом, тестами й версіонованими контрактами.
+
 ## Швидкий старт
 
 ### Вимоги
