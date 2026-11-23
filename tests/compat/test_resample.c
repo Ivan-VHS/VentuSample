@@ -54,9 +54,9 @@ static void test_sinc_downsampling_rejects_aliasing(void) {
     input.samples = (float *)malloc(input.frames * sizeof(float));
     assert(input.samples != NULL);
 
-    /* 18 kHz is above the 6 kHz Nyquist limit of a 12 kHz output. */
+    /* 17 kHz is above the 6 kHz Nyquist limit of a 12 kHz output. */
     for (size_t frame = 0u; frame < input.frames; ++frame) {
-        const double phase = 2.0 * 3.14159265358979323846 * 18000.0
+        const double phase = 2.0 * 3.14159265358979323846 * 17000.0
             * (double)frame / (double)input.sample_rate;
         input.samples[frame] = (float)sin(phase);
     }
