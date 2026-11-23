@@ -100,7 +100,6 @@ private:
     QComboBox* stochasticTriggerBox_{};
     QComboBox* stochasticTopologyBox_{};
     std::array<QCheckBox*, 8> stochasticPoolChecks_{};
-    QCheckBox* darkThemeCheck_{};
     QLineEdit* outputPath_{};
     QLineEdit* sourceSamplePath_{};
     QSlider* sourceMixSlider_{};
@@ -113,6 +112,7 @@ private:
     QLabel* summaryLabel_{};
     QLabel* beatIndicator_{};
     QTabWidget* tabs_{};
+    ventu::ui_motion::DraperyBanner* draperyBanner_{};
     QTimer* beatTimer_{};
     ventu::ui_motion::Preferences motionPreferences_{};
     QListWidget* filesList_{};
