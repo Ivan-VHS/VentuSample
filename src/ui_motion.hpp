@@ -4,11 +4,31 @@
 
 namespace ventu::ui_motion {
 
+class QPaintEvent;
+class QTimer;
+
 struct Preferences {
     bool reduceMotion{false};
     bool ecoVisuals{false};
     bool syncToBpm{false};
     bool expressiveMotion{false};
+};
+
+class DraperyBanner final : public QWidget {
+public:
+    explicit DraperyBanner(QWidget* parent = nullptr);
+    void setMotionPreferences(const Preferences& preferences);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
+
+private:
+    bool motionAllowed() const;
+    void advance();
+
+    Preferences preferences_{};
+    QTimer* timer_{};
+    qreal phase_{};
 };
 
 int boundedDuration(const Preferences& preferences, int requestedMs);
