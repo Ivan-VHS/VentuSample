@@ -63,6 +63,10 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 下方 Windows 图片是桌面应用截屏，不是浏览器预览。
 
 
+## 相关操作系统产品：DuckOS
+
+七款 Mora 应用（Cockos、Kavun、Ka-bon、Gloverty、Po、Illidia 和 Unify）在独立的 [DuckOS 项目](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/PREINSTALLED_APPLICATIONS.md)中定义。它们属于操作系统应用层，并不是 VentuSample 的组成部分。本仓库不声称随附这些应用或提供其操作系统服务。VentuSample 自身的能力和接口仍以本仓库的源代码、测试和版本化契约为准。
+
 ## 快速开始
 
 ### 环境要求
