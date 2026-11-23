@@ -1,5 +1,9 @@
 # Documentation
 
+## Normative documentation standard
+
+[Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
+
 | File | Purpose |
 |---|---|
 | [OCTA8.md](OCTA8.md) | OCTA-8 native C++20 typed-value contract and adapter |
