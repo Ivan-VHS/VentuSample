@@ -143,7 +143,9 @@ Every user-visible, API, CLI, background, integration and native capability must
 - **implemented** — all acceptance criteria for the stated scope are met and supported by code, tests and CI evidence;
 - **not_applicable** — the capability is intentionally outside the product boundary, with a short rationale.
 
-A catalogue entry, mock screen, placeholder, generated example, design document or green documentation check is not implementation evidence. Never use “complete”, “absolute”, “all”, “maximum” or equivalent wording to imply capabilities beyond the explicitly declared scope. A product can be complete for its defined scope while clearly documenting future or excluded capabilities.
+A catalogue entry, mock screen, placeholder, generated example, design document or green documentation check is not implementation evidence.
+For repositories whose project-contract v1 schema accepts a narrower status set, keep planned and not_applicable items in the roadmap or implementation-status ledger. Do not force those states into the contract or widen an existing enum without an explicit schema migration.
+ Never use “complete”, “absolute”, “all”, “maximum” or equivalent wording to imply capabilities beyond the explicitly declared scope. A product can be complete for its defined scope while clearly documenting future or excluded capabilities.
 
 ### Measurable acceptance gate
 
