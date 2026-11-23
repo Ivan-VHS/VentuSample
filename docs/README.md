@@ -81,3 +81,7 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 
 - [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
 - [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.
+
+## Current ecosystem engineering baseline
+
+[ECOSYSTEM_ENGINEERING_STANDARD.md](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/ECOSYSTEM_ENGINEERING_STANDARD.md) defines the current five-repository ownership map, stack-specific build/test commands, shared quality requirements, audit sequence and release gates. It complements this repository's own architecture and engineering contracts; source, tests and CI remain the evidence for implementation status.
