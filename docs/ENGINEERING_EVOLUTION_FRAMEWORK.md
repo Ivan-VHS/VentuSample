@@ -7,7 +7,7 @@
 
 ## Purpose and operating model
 
-This framework turns the 20 supplied concept-triples into an engineering system: **20 domains, 40 practices and measurable acceptance checks**. It complements project-contract.json, each repository's existing architecture and resilience policies, quality gates and federation contracts. It does not replace them or create a second source of truth for product capabilities.
+This framework turns the 20 supplied concept-triples and 20 coordinated implementation directives into an engineering system: **20 domains, 40 practices, 20 execution directives and measurable acceptance checks**. It complements project-contract.json, each repository's existing architecture and resilience policies, quality gates and federation contracts. It does not replace them or create a second source of truth for product capabilities.
 
 The names are conceptual labels, not a requirement to introduce a particular technology. Apply a practice only when it solves a verified problem in the repository. not_applicable is a valid result. A practice may be called implemented only when code, tests or operational evidence in that repository support the claim.
 
@@ -45,12 +45,13 @@ The adoption loop is:
 | 19 | Trajectory | Synthesis · Serialization | Evidence-based milestones and stable versioned representations |
 | 20 | Perspective | Forecasting · Deserialization | Forecasts with explicit uncertainty and safe bounded input decoding |
 
-The canonical Russian terms and their order are preserved in the JSON manifest. The validator rejects missing, reordered or substituted terms.
+The canonical Russian terms and their order are preserved in the JSON manifest. The validator rejects missing, reordered or substituted terms. The `execution_directives` section preserves all 20 requested phrases verbatim, maps each to applicable domains and defines measurable acceptance checks.
 
 ## Cross-project application
 
 | Repository | Primary application | Non-negotiable boundary |
 |---|---|---|
+| DuckOS | Mora desktop shell, application catalog, shell policy and native-service contracts | Browser UI preferences are not kernel, boot, driver, updater or hardware enforcement services |
 | Pytyliki | C11 processor, memory, DSP, metrics, benchmarks and native ABI | Hardware inspection remains read-only; numeric optimizations retain reference parity and explicit bounds |
 | Reaper | Language frontend, runtime, IR/VM, modules, resource ledger and native integration | Execution limits and explicit host effects remain in force; native loading is never implicit |
 | OPlague | Windows device/package inspection, evidence graph, snapshots and compatibility analysis | Package inspection remains read-only; no driver install/load, registry write or device mutation |
