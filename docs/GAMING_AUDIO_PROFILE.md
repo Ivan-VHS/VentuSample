@@ -22,3 +22,7 @@ ctest --test-dir build --output-on-failure
 ## Sequential rollout
 
 Rollout gate: this PR stays in draft until DuckOS #75, OPlague #166, Pytyliki #213 and Reaper #253 are merged. Then it is the fifth stage of the gaming-policy rollout.
+
+## DuckOS game identity
+
+The request accepts the optional `gameId` used by `duckos.gaming-session-profile.v1`. When provided, the resulting audio profile preserves it so a native audio backend can correlate its buffer plan with the active game session. Leaving `gameId` empty remains valid for standalone audio workflows.
