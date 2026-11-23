@@ -10,6 +10,124 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 POLICY_PATH = ROOT / "engineering-evolution.v1.json"
 SCHEMA_PATH = ROOT / "schemas" / "engineering-evolution.v1.schema.json"
+
+CAPABILITY_STANDARD_PATH = ROOT / "docs" / "ENGINEERING_EVOLUTION_FRAMEWORK.md"
+EXPECTED_CAPABILITY_TRIPLES = [
+    [
+        "Расширяемость",
+        "Полноценность",
+        "Полнофункциональность"
+    ],
+    [
+        "Масштабируемость",
+        "Завершённость",
+        "Всефункциональность"
+    ],
+    [
+        "Модульность",
+        "Целостность",
+        "Функциональная полнота"
+    ],
+    [
+        "Гибкость",
+        "Комплексность",
+        "Комплексная функциональность"
+    ],
+    [
+        "Адаптивность",
+        "Всеохватность",
+        "Абсолютная функциональность"
+    ],
+    [
+        "Универсальность",
+        "Исчерпываемость",
+        "Исчерпывающая функциональность"
+    ],
+    [
+        "Модифицируемость",
+        "Совершенность",
+        "Всеобъемлющая функциональность"
+    ],
+    [
+        "Настраиваемость",
+        "Самодостаточность",
+        "Целостная функциональность"
+    ],
+    [
+        "Дополняемость",
+        "Функциональность",
+        "Системная функциональность"
+    ],
+    [
+        "Развиваемость",
+        "Укомплектованность",
+        "Полная оснащённость"
+    ],
+    [
+        "Совместимость",
+        "Оснащённость",
+        "Полная реализованность"
+    ],
+    [
+        "Интегрируемость",
+        "Развитость",
+        "Всесторонняя реализация"
+    ],
+    [
+        "Преобразуемость",
+        "Зрелость",
+        "Комплексная реализация"
+    ],
+    [
+        "Вариативность",
+        "Полнота",
+        "Полная интеграция"
+    ],
+    [
+        "Многофункциональность",
+        "Всесторонность",
+        "Всеохватная реализация"
+    ],
+    [
+        "Перестраиваемость",
+        "Универсальность",
+        "Функциональная завершённость"
+    ],
+    [
+        "Обновляемость",
+        "Состоятельность",
+        "Максимальная оснащённость"
+    ],
+    [
+        "Реконфигурируемость",
+        "Законченность",
+        "Полная укомплектованность"
+    ],
+    [
+        "Трансформируемость",
+        "Совершенство",
+        "Самодостаточность системы"
+    ],
+    [
+        "Перспективность",
+        "Всеобъемлемость",
+        "Полная готовность системы"
+    ]
+]
+
+def validate_capability_standard(document: str) -> list[str]:
+    """Check that the shared capability-completeness standard stays intact."""
+    errors: list[str] = []
+    if not isinstance(document, str): return ["capability standard document must be text"]
+    required_headings = ("## Capability completeness standard","### Canonical vocabulary","### Capability lifecycle and maturity","### Measurable acceptance gate","### Architecture, extension and integration rules","### Project-specific application","### Release gate")
+    for heading in required_headings:
+        if heading not in document: errors.append(f"capability standard is missing heading: {heading}")
+    for index, terms in enumerate(EXPECTED_CAPABILITY_TRIPLES, start=1):
+        row = f"| {index} | " + " | ".join(terms) + " |"
+        if row not in document: errors.append(f"capability standard is missing canonical capability triple #{index}")
+    for control in ("Requirement → design → source → tests → CI → documentation → versioned contract","invalid settings must fail clearly and safely","treat imported files","rollback or recovery path","partial or planned"):
+        if control.casefold() not in document.casefold(): errors.append(f"capability standard is missing control: {control}")
+    return errors
 EXPECTED_TERMS = [
  ("Архитектура","Квантование","Телеметрия"),("Импульс","Модернизация","Калибровка"),
  ("Кристалл","Векторизация","Дискретизация"),("Преобразование","Автоматизация","Инкапсуляция"),
@@ -140,8 +258,15 @@ def main(argv: list[str] | None = None) -> int:
         policy = {}
     else:
         errors = validate_policy(policy, schema)
+    try:
+        standard_document = CAPABILITY_STANDARD_PATH.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"cannot load capability completeness standard: {exc}")
+    else:
+        errors.extend(validate_capability_standard(standard_document))
     result = {
         "ok": not errors,
+        "capability_triples": len(EXPECTED_CAPABILITY_TRIPLES),
         "policy": "engineering-evolution.v1",
         "pillars": len(policy.get("pillars", [])) if isinstance(policy, dict) else 0,
         "practices": sum(len(x.get("practices", [])) for x in policy.get("pillars", []) if isinstance(x, dict)) if isinstance(policy, dict) else 0,
@@ -155,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
     else:
-        print("Engineering Evolution contract: PASS (20 domains, 40 practices, 20 execution directives)")
+        print("Engineering Evolution contract: PASS (20 domains, 40 practices, 20 execution directives, 20 capability triples)")
     return 1 if errors else 0
 
 if __name__ == "__main__":
