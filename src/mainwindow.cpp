@@ -194,7 +194,7 @@ void MainWindow::buildUi() {
     beatIndicator_ = new QLabel("● BPM SYNC");
     beatIndicator_->setObjectName("beatIndicator");
     beatIndicator_->setVisible(false);
-    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
+    beatIndicator_->setStyleSheet(QString());
     header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
 
@@ -862,6 +862,7 @@ void MainWindow::applyTheme() {
         QLabel#heroTitle { color: %5; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 20px; font-weight: 750; }
         QLabel#heroSubtitle, QLabel#mutedText { color: %13; }
         QLabel#statusPill { color: %11; background: %6; border: 1px solid %6; border-radius: 10px; padding: 9px 13px; font-size: 10px; font-weight: 800; }
+        QLabel#beatIndicator { color: %15; background: %14; border: 1px solid %14; border-radius: 5px; padding: 5px 8px; font-size: 10px; font-weight: 800; }
         QTabWidget::pane { border: 1px solid %4; border-radius: 12px; top: -1px; }
         QTabBar::tab { background: %3; color: %5; border: 1px solid %4; padding: 11px 17px; margin-right: 5px; border-top-left-radius: 10px; border-top-right-radius: 10px; }
         QTabBar::tab:hover { border-color: %10; }
@@ -877,7 +878,9 @@ void MainWindow::applyTheme() {
         QScrollBar::handle:vertical:hover { background: %10; }
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
     )QSS").arg(page, ink, surface, border, secondary, accent, signal, selection, focus, accentHover)
-        .arg(onAccent).arg(onSignal).arg(muted);
+        .arg(onAccent).arg(onSignal).arg(muted)
+        .arg(QString::fromLatin1(palette.secondaryAccent))
+        .arg(QString::fromLatin1(palette.onSecondaryAccent));
     setStyleSheet(style);
 }
 
