@@ -16,6 +16,7 @@ VentuSample now uses the shared Mora Amber profile by default. Light and Dark re
 | Primary action | `#D58B3D` |
 | Hover / focus | `#EAA653` / `#F3C16B` |
 | Critical signal | `#B64A40` |
+| Muted olive | `#526347` |
 | Selection | `#60442E` |
 | Structural edge | `#75543A` |
 
