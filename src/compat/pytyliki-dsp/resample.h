@@ -10,4 +10,11 @@ int ventu_audio_resample_linear(
     pl_audio_buffer *output
 );
 
+/* Windowed-sinc conversion with an anti-alias cutoff for offline downsampling. */
+int ventu_audio_resample_sinc(
+    const pl_audio_buffer *input,
+    unsigned target_sample_rate,
+    pl_audio_buffer *output
+);
+
 #endif
