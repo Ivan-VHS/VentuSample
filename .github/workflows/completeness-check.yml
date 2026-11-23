@@ -1,0 +1,334 @@
+name: Repository completeness gate
+
+on:
+  push:
+    branches:
+      - main
+      - "feat/**"
+      - "integration/**"
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    name: Metadata, schemas and capability contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Check repository completeness inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required=(
+            "README.md"
+            ".architecture/system-capabilities.v1.json"
+            "engineering-evolution.v1.json"
+            "schemas/engineering-evolution.v1.schema.json"
+            "tools/validate_engineering_evolution.py"
+            "tools/validate_system_capability_profile.py"
+            "tests/test_engineering_evolution.py"
+          )
+
+          for path in "\${required[@]}"; do
+            if [[ ! -s "$path" ]]; then
+              echo "::error::Required completeness artifact is missing or empty: $path"
+              exit 1
+            fi
+          done
+
+          if [[ ! -d tests ]]; then
+            echo "::error::The repository must provide a tests/ directory."
+            exit 1
+          fi
+
+          build_contract=false
+          for path in CMakeLists.txt pyproject.toml package.json setup.py setup.cfg requirements.txt Makefile Cargo.toml go.mod; do
+            if [[ -f "$path" ]]; then
+              build_contract=true
+              break
+            fi
+          done
+
+          # OPlague is intentionally a Python application without a package/build manifest.
+          if [[ -f oplague_app.py || -f oplage_app.py ]]; then
+            build_contract=true
+          fi
+
+          if [[ "$build_contract" != true ]]; then
+            echo "::error::No supported build or application entry point was found."
+            exit 1
+          fi
+
+          if [[ -f project-contract.json && ! -f tools/validate_project_contract.py ]]; then
+            echo "::error::project-contract.json exists but its validator is missing."
+            exit 1
+          fi
+
+          if [[ -f CMakeLists.txt ]]; then
+            echo "Native build contract detected: CMake."
+          else
+            echo "::notice::No CMake project is declared; native compilation is not applicable to this repository."
+          fi
+
+      - name: Parse every tracked JSON and TOML file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import subprocess
+          import tomllib
+          from pathlib import Path
+
+          raw_paths = subprocess.check_output(
+              ["git", "ls-files", "-z", "--", "*.json", "*.toml"]
+          ).split(b"\0")
+
+          checked = 0
+          for raw_path in raw_paths:
+              if not raw_path:
+                  continue
+
+              path = Path(os.fsdecode(raw_path))
+              content = path.read_text(encoding="utf-8")
+              if path.suffix == ".json":
+                  json.loads(content)
+              elif path.suffix == ".toml":
+                  tomllib.loads(content)
+              checked += 1
+
+          print(f"Validated {checked} tracked JSON/TOML files.")
+          PY
+
+      - name: Parse every tracked YAML file
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' yaml_files < <(git ls-files -z -- '*.yml' '*.yaml')
+          if (("\${#yaml_files[@]}" > 0)); then
+            ruby -ryaml -e 'ARGV.each { |path| YAML.parse_file(path) }' "\${yaml_files[@]}"
+          fi
+          echo "Validated \${#yaml_files[@]} tracked YAML files."
+
+      - name: Compile every tracked Python file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          import subprocess
+          from pathlib import Path
+
+          raw_paths = subprocess.check_output(
+              ["git", "ls-files", "-z", "--", "*.py"]
+          ).split(b"\0")
+
+          checked = 0
+          for raw_path in raw_paths:
+              if not raw_path:
+                  continue
+
+              path = Path(os.fsdecode(raw_path))
+              source = path.read_text(encoding="utf-8")
+              compile(source, path.as_posix(), "exec")
+              checked += 1
+
+          print(f"Compiled {checked} tracked Python files without writing bytecode.")
+          PY
+
+      - name: Validate engineering evolution and system capability contracts
+        run: |
+          python tools/validate_engineering_evolution.py
+          python -m unittest discover -s tests -p "test_engineering_evolution.py" -v
+          python tools/validate_system_capability_profile.py
+          python tools/validate_system_capability_profile.py --self-test
+
+      - name: Validate project-specific contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f project-contract.json ]]; then
+            python tools/validate_project_contract.py
+          else
+            echo "::notice::No project-contract.json is declared; the shared engineering and system capability contracts remain mandatory."
+          fi
+
+          if [[ -f tools/validate_app_catalog.py ]]; then
+            python -m pip install --disable-pip-version-check jsonschema PyYAML
+            python tools/validate_app_catalog.py
+          fi
+
+          if [[ -f tools/validate_octa_pyramid.py ]]; then
+            python tools/validate_octa_pyramid.py
+          fi
+
+          if [[ -f tools/validate_plugin_federation.py ]]; then
+            python tools/validate_plugin_federation.py
+          fi
+
+  python-tests:
+    name: Python tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies required by repository validators
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f tools/validate_app_catalog.py ]]; then
+            python -m pip install --disable-pip-version-check jsonschema PyYAML
+          fi
+
+          if [[ -f oplague_app.py || -f oplage_app.py ]]; then
+            python -m pip install --disable-pip-version-check pyinstaller
+          fi
+
+      - name: Run the declared Python test framework
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f pytest.ini || -f .pytest.ini ]] || grep -q '^\[tool\.pytest' pyproject.toml 2>/dev/null || grep -q '^\[tool:pytest\]' setup.cfg 2>/dev/null; then
+            python -m pip install --disable-pip-version-check pytest
+            python -m pytest -q
+          else
+            python -m unittest discover -s tests -p "test_*.py" -v
+          fi
+
+  native-tests:
+    name: Native build and CTest
+    if: ${{ hashFiles('CMakeLists.txt') != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python for CTest-integrated checks
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Configure using the repository's declared language standards
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cmake_args=(
+            -DCMAKE_BUILD_TYPE=Release
+            -DBUILD_TESTING=ON
+          )
+
+          if grep -q 'REAPER_BUILD_TESTS' CMakeLists.txt; then
+            cmake_args+=(-DREAPER_BUILD_TESTS=ON)
+          fi
+
+          if grep -q 'VENTU_BUILD_DESKTOP' CMakeLists.txt; then
+            # Keep this portable gate focused on the C11/C++20 engine.
+            # Qt desktop builds remain covered by the project's platform CI.
+            cmake_args+=(
+              -DVENTU_BUILD_DESKTOP=OFF
+              -DVENTU_BUILD_TESTS=ON
+            )
+          fi
+
+          cmake -S . -B build "\${cmake_args[@]}"
+
+      - name: Build native targets
+        run: cmake --build build --parallel 2
+
+      - name: Require and run registered CTest cases
+        shell: bash
+        run: |
+          set -euo pipefail
+          ctest --test-dir build -N | tee /tmp/ctest-list.txt
+
+          total_tests="$(awk -F': ' '/Total Tests:/ { print $2 }' /tmp/ctest-list.txt | tail -n 1)"
+          if [[ ! "$total_tests" =~ ^[0-9]+$ ]] || (( total_tests == 0 )); then
+            echo "::error::CMake configured no CTest cases; the native test contract is incomplete."
+            exit 1
+          fi
+
+          ctest --test-dir build -C Release --output-on-failure
+
+  reaper-language:
+    name: Reaper parser, IR parity and Span/LSP checks
+    if: ${{ hashFiles('reaper/cli.py') != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Validate real Reaper source examples
+        run: |
+          python -m reaper --check examples/flow.rpr
+          python -m reaper --check examples/device_audit.rpr
+
+      - name: Verify Python IR/VM parity
+        run: python -m unittest discover -s tests -p "test_engine_parity.py" -v
+
+      - name: Verify source Span and LSP coordinate behavior
+        run: python -m unittest discover -s tests -p "test_language_service.py" -v
+
+  secrets:
+    name: Secret scanning
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Scan commits and repository content with Gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: "false"
+          GITLEAKS_ENABLE_SUMMARY: "true"
