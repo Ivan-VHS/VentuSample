@@ -42,11 +42,13 @@ int main(int argc, char** argv) {
     source.stochasticTopology = 2;
     source.stochasticPluginMask = 0x35u;
     source.stochasticEnabled = true;
+    source.exportMidi = true;
 
     QString error;
     QString name;
     ventu::Parameters restored;
     restored.seed = 1234;
+    restored.exportMidi = true;
     const auto portable = ventu::presets::toJson(source, "Harlem 150", false);
     require(!portable.value("parameters").toObject().contains("seed"),
             "seed must be omitted by default");
@@ -54,11 +56,16 @@ int main(int argc, char** argv) {
             "portable preset should load");
     require(name == "Harlem 150", "preset name should round trip");
     require(restored.seed == 1234, "portable preset should preserve the current seed");
+
+    require(!portable.value("parameters").toObject().contains("export_midi"),
+            "application MIDI preference must not alter the strict preset v1 schema");
     require(restored.bpm == source.bpm && restored.rootNote == source.rootNote,
             "musical settings should round trip");
     require(restored.style == source.style && restored.target == source.target
             && restored.scale == source.scale && restored.sampler == source.sampler,
             "enum selections should round trip");
+    require(restored.exportMidi,
+            "loading a portable preset must preserve the application-wide MIDI preference");
     require(restored.stochasticPluginMask == source.stochasticPluginMask
             && restored.stochasticTopology == source.stochasticTopology,
             "stochastic routing settings should round trip");
@@ -68,6 +75,8 @@ int main(int argc, char** argv) {
     require(ventu::presets::fromJson(fixed, source, fixedResult, name, error),
             "fixed-seed preset should load");
     require(fixedResult.seed == source.seed, "explicit seed should round trip");
+    require(fixedResult.exportMidi,
+            "loading a fixed preset must preserve the application-wide MIDI preference");
 
     auto broken = fixed;
     broken.insert("schema", "ventusample.preset.v99");

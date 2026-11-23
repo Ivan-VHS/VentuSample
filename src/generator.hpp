@@ -43,6 +43,7 @@ struct Parameters {
     int sourcePitchSemitones{0};
     double busCompressionRatio{4.0};
     bool tpdfDither{false};
+    bool exportMidi{false};
     bool normalizePeak{false};
     double targetPeakDbfs{-1.0};
     bool tripletRolls{true};
@@ -62,12 +63,21 @@ struct WavExportOptions {
     std::uint32_t ditherSeed{0};
 };
 
+struct MidiNoteEvent {
+    std::size_t frame{0};
+    std::size_t durationFrames{0};
+    std::uint8_t note{0};
+    std::uint8_t velocity{0};
+    std::uint8_t channel{0};
+};
+
 struct AudioBuffer {
     int sampleRate{44100};
     int channels{2};
     std::vector<float> samples;
     /* Scheduled musical onsets; not inferred from imported audio or noise. */
     std::vector<std::size_t> eventFrames;
+    std::vector<MidiNoteEvent> midiNotes;
     std::size_t frames() const noexcept { return samples.size() / static_cast<std::size_t>(channels); }
 };
 
@@ -95,6 +105,7 @@ struct CadenceStats {
 
 struct BatchResult {
     std::vector<std::filesystem::path> files;
+    std::vector<std::filesystem::path> midiFiles;
     std::vector<CadenceStats> cadence;
     std::string error;
     explicit operator bool() const noexcept { return error.empty() && !files.empty(); }
@@ -114,6 +125,8 @@ CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent,
 AudioStats measure(const AudioBuffer& audio);
 bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error,
                const WavExportOptions& options = {});
+bool writeMidi(const std::filesystem::path& path, const AudioBuffer& audio,
+               int bpm, std::string& error);
 BatchResult generatePack(const Parameters& parameters, const std::filesystem::path& outputDirectory);
 
 } // namespace ventu

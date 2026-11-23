@@ -120,6 +120,18 @@
         "docs/PLUGINS.md",
         "schemas/ventusample.pack.v2.schema.json"
       ]
+    },
+    {
+      "id": "midi.standard-sidecar-export",
+      "status": "implemented",
+      "summary": "Optionally writes deterministic Standard MIDI companions from the renderer's scheduled note events while preserving the existing v2 WAV manifest contract.",
+      "evidence": [
+        "src/generator.hpp",
+        "src/generator.cpp",
+        "src/mainwindow.cpp",
+        "tests/test_generator.cpp",
+        "tests/test_preset_store.cpp"
+      ]
     }
   ],
   "interfaces": [

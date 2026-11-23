@@ -76,6 +76,24 @@ int choose(std::mt19937& rng, int lo, int hi) {
     return std::uniform_int_distribution<int>(lo, hi)(rng);
 }
 
+void addMidiNote(AudioBuffer& audio, std::size_t frame, double seconds,
+                  int note, int velocity, int channel) {
+    if (frame >= audio.frames() || !std::isfinite(seconds) || seconds <= 0.0 ||
+        note < 0 || note > 127 || velocity < 1 || velocity > 127 ||
+        channel < 0 || channel > 15) {
+        return;
+    }
+    const double requestedFrames = std::max(1.0, std::round(seconds * audio.sampleRate));
+    const auto availableFrames = audio.frames() - frame;
+    const auto duration = static_cast<std::size_t>(std::min(
+        requestedFrames, static_cast<double>(availableFrames)));
+    if (duration == 0u) return;
+    audio.midiNotes.push_back({
+        frame, duration, static_cast<std::uint8_t>(note),
+        static_cast<std::uint8_t>(velocity), static_cast<std::uint8_t>(channel)
+    });
+}
+
 void addStereo(AudioBuffer& audio, std::size_t frame, double value, double pan, double width) {
     if (frame >= audio.frames()) return;
     pan = std::clamp(pan * width, -1.0, 1.0);
@@ -476,6 +494,8 @@ std::string toString(Timbre value) {
 }
 
 std::string validate(const Parameters& p) {
+    if (p.exportMidi && p.target == Target::OneShotKit)
+        return "MIDI-экспорт нот доступен для лупов и отдельных музыкальных слоёв, но не для one-shot набора.";
     if (p.bpm < 60 || p.bpm > 190) return "BPM должен находиться в диапазоне 60–190.";
     if (p.rootNote < 0 || p.rootNote > 11) return "Тональность должна быть в диапазоне 0–11.";
     if (p.bars < 1 || p.bars > 16) return "Длина должна составлять 1–16 тактов.";
@@ -649,6 +669,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const double kickLevel = (cadenceKick && !baseKick)
                         ? 0.58 : 0.74 + uniform(rng, -0.08, 0.08);
                     addKick(audio, at, kickLevel * spec.kickWeight, rng, width);
+                    addMidiNote(audio, at, 0.10, 36, 100, 9);
                 }
                 if (drumsOn && snare) {
                     audio.eventFrames.push_back(at);
@@ -658,6 +679,7 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                         ? 0.28 : 0.64 + uniform(rng, -0.07, 0.07);
                     addSnare(audio, shifted, snareLevel * spec.snareWeight,
                              rng, uniform(rng, -0.08, 0.08), width);
+                    addMidiNote(audio, shifted, 0.12, 38, ghostSnare ? 58 : 94, 9);
                 }
 
                 const bool regularHat = drumsOn && (step % 2 == 0
@@ -669,15 +691,20 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                         : (turnaroundHat ? 0.27 : 0.34)) * spec.hatWeight;
                     const double decay = turnaroundHat ? 0.026 : (step % 4 == 0 ? 0.065 : 0.042);
                     addHat(audio, at, accent, rng, uniform(rng, -0.78, 0.78), width, decay);
+                    addMidiNote(audio, at, decay, 42, step % 4 == 0 ? 78 : 58, 9);
                 }
                 if (drumsOn && step % 4 == 3 && uniform(rng, 0.0, 1.0) < density * 0.25) {
                     audio.eventFrames.push_back(at);
                     addPerc(audio, at, 0.22, rng, uniform(rng, -0.85, 0.85), width);
+                    addMidiNote(audio, at, 0.07, 37, 62, 9);
                 }
                 if (drumsOn && p.tripletRolls && (p.style == Style::ModernTrap || p.style == Style::AtlantaTrap || p.style == Style::UKDrill || p.style == Style::Memphis || p.style == Style::CrippleTrill) && (step == 7 || step == 15)) {
                     for (int roll = 1; roll <= 2; ++roll) {
                         const auto rollAt = at + static_cast<std::size_t>(stepFrames * roll / 3.0);
-                        if (rollAt < audio.frames()) addHat(audio, rollAt, 0.22, rng, uniform(rng, -0.8, 0.8), width, 0.023);
+                        if (rollAt < audio.frames()) {
+                            addHat(audio, rollAt, 0.22, rng, uniform(rng, -0.8, 0.8), width, 0.023);
+                            addMidiNote(audio, rollAt, 0.023, 42, 48, 9);
+                        }
                     }
                 }
             }
@@ -695,6 +722,8 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     const int midi = rootMidi + degree + (i == 2 ? 12 : 0);
                     addTone(audio, barStart, midiHz(midi), padLength, 0.12 + density * 0.04,
                             p.timbre, (i - 1) * 0.34, width, grit, rng);
+                    addMidiNote(audio, barStart, padLength, midi,
+                                static_cast<int>(66 + density * 18), 0);
                 }
                 const int notesPerBar = density < 0.3 ? 2 : (density < 0.7 ? 4 : 6);
                 for (int n = 0; n < notesPerBar; ++n) {
@@ -705,8 +734,13 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     if (p.microHumanize) noteOnset += uniform(rng, -0.001, 0.001) * p.sampleRate;
                     const auto noteAt = static_cast<std::size_t>(std::max(0.0, noteOnset));
                     audio.eventFrames.push_back(noteAt);
-                    addTone(audio, noteAt, midiHz(rootMidi + degree + octave), (60.0 / p.bpm) * uniform(rng, 0.12, 0.42),
-                            uniform(rng, 0.12, 0.27), p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
+                    const double noteLength = (60.0 / p.bpm) * uniform(rng, 0.12, 0.42);
+                    const double noteLevel = uniform(rng, 0.12, 0.27);
+                    const int noteNumber = rootMidi + degree + octave;
+                    addTone(audio, noteAt, midiHz(noteNumber), noteLength,
+                            noteLevel, p.timbre, uniform(rng, -0.66, 0.66), width, grit, rng);
+                    addMidiNote(audio, noteAt, noteLength, noteNumber,
+                                static_cast<int>(55 + noteLevel * 230.0), 0);
                 }
             }
             if (bassOn) {
@@ -715,8 +749,11 @@ AudioBuffer render(const Parameters& p, int variation, const std::string& oneSho
                     audio.eventFrames.push_back(bassAt);
                     const double slide = (p.style == Style::UKDrill || p.style == Style::ModernTrap || p.style == Style::AtlantaTrap) ? uniform(rng, -5.0, 7.0) : 0.0;
                     const int octave = (p.style == Style::JazzRap || p.style == Style::Gfunk) ? 1 : 0;
-                    addBass(audio, bassAt, midiHz(rootMidi - 12 + octave * 12), (60.0 / p.bpm) * 1.6,
+                    const int bassNote = rootMidi - 12 + octave * 12;
+                    const double bassLength = (60.0 / p.bpm) * 1.6;
+                    addBass(audio, bassAt, midiHz(bassNote), bassLength,
                             0.38 * spec.bassWeight, uniform(rng, -0.08, 0.08), width, slide);
+                    addMidiNote(audio, bassAt, bassLength, bassNote, 92, 1);
                 }
             }
         }
@@ -909,6 +946,140 @@ bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio,
     return true;
 }
 
+
+bool writeMidi(const std::filesystem::path& path, const AudioBuffer& audio,
+               int bpm, std::string& error) {
+    error.clear();
+    if (audio.sampleRate < 8000 || audio.sampleRate > 192000 ||
+        audio.channels != 2 || audio.samples.empty() ||
+        audio.samples.size() % 2u != 0u || bpm < 60 || bpm > 190 ||
+        audio.midiNotes.empty() || audio.midiNotes.size() > 500000u) {
+        error = "Некорректные параметры или пустой список MIDI-событий.";
+        return false;
+    }
+
+    struct Event {
+        std::uint64_t tick;
+        std::uint8_t status;
+        std::uint8_t note;
+        std::uint8_t velocity;
+        unsigned order;
+    };
+    std::vector<Event> events;
+    events.reserve(audio.midiNotes.size() * 2u);
+    const long double ticksPerFrame =
+        static_cast<long double>(bpm) * 480.0L /
+        (60.0L * static_cast<long double>(audio.sampleRate));
+
+    for (const auto& note : audio.midiNotes) {
+        if (note.frame >= audio.frames() || note.durationFrames == 0u ||
+            note.note > 127u || note.velocity == 0u || note.velocity > 127u ||
+            note.channel > 15u) {
+            error = "MIDI-событие содержит недопустимую ноту, канал или длительность.";
+            return false;
+        }
+        const auto endFrame = note.frame + note.durationFrames;
+        if (endFrame < note.frame) {
+            error = "Переполнение длительности MIDI-события.";
+            return false;
+        }
+        const auto startTick = static_cast<std::uint64_t>(std::llround(
+            static_cast<long double>(note.frame) * ticksPerFrame));
+        const auto endTick = std::max(startTick + 1u, static_cast<std::uint64_t>(
+            std::llround(static_cast<long double>(endFrame) * ticksPerFrame)));
+        events.push_back({startTick, static_cast<std::uint8_t>(0x90u | note.channel),
+                          note.note, note.velocity, 1u});
+        events.push_back({endTick, static_cast<std::uint8_t>(0x80u | note.channel),
+                          note.note, 0u, 0u});
+    }
+    std::stable_sort(events.begin(), events.end(), [](const Event& left, const Event& right) {
+        if (left.tick != right.tick) return left.tick < right.tick;
+        if (left.order != right.order) return left.order < right.order;
+        if (left.status != right.status) return left.status < right.status;
+        return left.note < right.note;
+    });
+
+    std::vector<std::uint8_t> track;
+    track.reserve(events.size() * 5u + 64u);
+    const auto appendByte = [&track](std::uint8_t value) { track.push_back(value); };
+    const auto appendVlq = [&track](std::uint32_t value) -> bool {
+        if (value > 0x0FFFFFFFu) return false;
+        std::uint32_t buffer = value & 0x7Fu;
+        while ((value >>= 7u) != 0u) {
+            buffer <<= 8u;
+            buffer |= ((value & 0x7Fu) | 0x80u);
+        }
+        while (true) {
+            track.push_back(static_cast<std::uint8_t>(buffer & 0xFFu));
+            if ((buffer & 0x80u) == 0u) break;
+            buffer >>= 8u;
+        }
+        return true;
+    };
+
+    const auto microsPerQuarter =
+        static_cast<std::uint32_t>(std::llround(60000000.0 / bpm));
+    appendByte(0x00u); appendByte(0xFFu); appendByte(0x51u); appendByte(0x03u);
+    appendByte(static_cast<std::uint8_t>((microsPerQuarter >> 16u) & 0xFFu));
+    appendByte(static_cast<std::uint8_t>((microsPerQuarter >> 8u) & 0xFFu));
+    appendByte(static_cast<std::uint8_t>(microsPerQuarter & 0xFFu));
+    appendByte(0x00u); appendByte(0xFFu); appendByte(0x03u);
+    const std::string trackName = "VentuSample generated events";
+    appendByte(static_cast<std::uint8_t>(trackName.size()));
+    track.insert(track.end(), trackName.begin(), trackName.end());
+
+    std::uint64_t previousTick = 0u;
+    for (const auto& event : events) {
+        if (event.tick < previousTick || event.tick - previousTick > 0x0FFFFFFFu) {
+            error = "Слишком большой интервал между MIDI-событиями.";
+            return false;
+        }
+        if (!appendVlq(static_cast<std::uint32_t>(event.tick - previousTick))) {
+            error = "Не удалось закодировать временной интервал MIDI.";
+            return false;
+        }
+        appendByte(event.status);
+        appendByte(event.note);
+        appendByte(event.velocity);
+        previousTick = event.tick;
+    }
+    appendByte(0x00u); appendByte(0xFFu); appendByte(0x2Fu); appendByte(0x00u);
+    if (track.size() > std::numeric_limits<std::uint32_t>::max()) {
+        error = "MIDI-трек превышает допустимый размер.";
+        return false;
+    }
+
+    std::ofstream file(path, std::ios::binary | std::ios::trunc);
+    if (!file) {
+        error = "Не удалось открыть MIDI-файл для записи: " + path.string();
+        return false;
+    }
+    const auto write16 = [&file](std::uint16_t value) {
+        file.put(static_cast<char>((value >> 8u) & 0xFFu));
+        file.put(static_cast<char>(value & 0xFFu));
+    };
+    const auto write32 = [&file](std::uint32_t value) {
+        file.put(static_cast<char>((value >> 24u) & 0xFFu));
+        file.put(static_cast<char>((value >> 16u) & 0xFFu));
+        file.put(static_cast<char>((value >> 8u) & 0xFFu));
+        file.put(static_cast<char>(value & 0xFFu));
+    };
+    file.write("MThd", 4);
+    write32(6u);
+    write16(0u);
+    write16(1u);
+    write16(480u);
+    file.write("MTrk", 4);
+    write32(static_cast<std::uint32_t>(track.size()));
+    for (const auto value : track) file.put(static_cast<char>(value));
+    file.flush();
+    if (!file.good()) {
+        error = "Ошибка записи MIDI-файла: " + path.string();
+        return false;
+    }
+    return true;
+}
+
 BatchResult generatePack(const Parameters& p, const std::filesystem::path& outputDirectory) {
     BatchResult result;
     if (const auto issue = validate(p); !issue.empty()) { result.error = issue; return result; }
@@ -952,6 +1123,14 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             if (std::filesystem::exists(path, ec) || ec) {
                 result.error = "Файл уже существует или недоступен: " + path.string();
                 return result;
+            }
+            if (p.exportMidi) {
+                auto midiPath = path;
+                midiPath.replace_extension(".mid");
+                if (std::filesystem::exists(midiPath, ec) || ec) {
+                    result.error = "MIDI-файл уже существует или недоступен: " + midiPath.string();
+                    return result;
+                }
             }
         }
     }
@@ -1086,6 +1265,15 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
             const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
             std::string error;
             if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
+            if (p.exportMidi) {
+                auto midiPath = path;
+                midiPath.replace_extension(".mid");
+                if (!writeMidi(midiPath, audio, p.bpm, error)) {
+                    result.error = error;
+                    return result;
+                }
+                result.midiFiles.push_back(midiPath);
+            }
             const auto stats = measure(audio);
             result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
             result.files.push_back(path);
