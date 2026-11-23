@@ -1,3 +1,16 @@
+> **Navigation:** Start with the [information architecture map](INFORMATION_ARCHITECTURE.md), then choose the relevant [topic hub](clusters/audio-dsp.md). The map links the audio/DSP, Studio workflow, UI, quality and integration documentation.
+
+## Topic hubs
+
+- [Audio pipeline and DSP](clusters/audio-dsp.md) — Audio rendering stages, numerical processing, MIDI, resampling, spectral analysis and audio-format contracts.
+- [Studio, presets and plugin workflows](clusters/studio-workflows.md) — Generator and workstation capabilities, preset lifecycle, plugin interfaces and user workflows.
+- [Architecture and runtime contracts](clusters/architecture-runtime.md) — Application boundaries, typed-value architecture, runtime integration and system-level contracts.
+- [UI, accessibility and visual system](clusters/ui-visual.md) — Desktop interaction, accessible motion, visual assets and documentation rendering.
+- [Quality, validation and evidence](clusters/quality-engineering.md) — Repeatability, engineering gates, numerical limits, validation and trustworthy status reporting.
+- [Integration, governance and planning](clusters/integration-governance.md) — Project federation, replacement tools, roadmaps, ownership and supporting reference material.
+
+---
+
 # Documentation
 
 ## Normative documentation standard
