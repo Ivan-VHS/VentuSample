@@ -107,10 +107,7 @@ private:
     std::vector<float> peaks_;
 };
 
-struct ChainStep {
-    std::string id;
-    QuantumAudioParameters parameters;
-};
+using ChainStep = QuantumAudioChainStep;
 
 void setControl(QDoubleSpinBox* control, double value) {
     control->setValue(std::clamp(value, 0.0, 1.0));
@@ -430,17 +427,15 @@ void showQuantumAudioLab(QWidget* parent) {
     QObject::connect(renderButton, &QPushButton::clicked, &dialog, [&] {
         if (!hasAudio) return;
         AudioBuffer candidate = original;
-        for (const auto& step : chain) {
-            const auto result = processQuantumAudio(step.id, candidate, step.parameters);
-            if (!result.success) {
-                QMessageBox::warning(&dialog, "DSP-обработка остановлена",
-                    QString::fromStdString(result.message));
-                return;
-            }
+        const auto result = processQuantumAudioChain(chain, candidate);
+        if (!result.success) {
+            QMessageBox::warning(&dialog, "DSP-обработка остановлена",
+                QString::fromStdString(result.message));
+            return;
         }
         rendered = std::move(candidate);
         scope->setBuffer(rendered);
-        showStats(status, rendered, QString("Обработано · %1 модулей").arg(chain.size()));
+        showStats(status, rendered, QString("Обработано · %1 модулей").arg(result.completedSteps));
     });
 
     QObject::connect(resetButton, &QPushButton::clicked, &dialog, [&] {
