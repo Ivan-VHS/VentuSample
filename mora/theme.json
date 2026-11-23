@@ -1,0 +1,70 @@
+{
+  "schema": "mora.theme.v1",
+  "name": "Mora",
+  "version": 1,
+  "palettes": {
+    "dark": {
+      "page": "#10142A",
+      "surface": "#191E39",
+      "elevated": "#252B4B",
+      "text": "#F5F4FF",
+      "secondary": "#D5D6EB",
+      "muted": "#A8ADC8",
+      "brand": "#A78BFA",
+      "brandHover": "#C1AEFF",
+      "onBrand": "#1D1730",
+      "secondaryAccent": "#38D4B7",
+      "onSecondaryAccent": "#09231F",
+      "border": "#3B4262",
+      "selection": "#353054",
+      "danger": "#FF8EAC",
+      "onDanger": "#330A1A"
+    },
+    "light": {
+      "page": "#F5F3FA",
+      "surface": "#FFFFFF",
+      "elevated": "#ECE9F5",
+      "text": "#211F31",
+      "secondary": "#4E4B63",
+      "muted": "#66627A",
+      "brand": "#5B43B5",
+      "brandHover": "#49359D",
+      "onBrand": "#FFFFFF",
+      "secondaryAccent": "#006F68",
+      "onSecondaryAccent": "#FFFFFF",
+      "border": "#D6D0E7",
+      "selection": "#E6E0F7",
+      "danger": "#A91F49",
+      "onDanger": "#FFFFFF"
+    }
+  },
+  "shape": {
+    "windowRadius": 22,
+    "cardRadius": 16,
+    "controlRadius": 10
+  },
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    24,
+    32
+  ],
+  "interaction": {
+    "minimumTargetPx": 44,
+    "focusRingPx": 2
+  },
+  "motion": {
+    "fastMs": 140,
+    "standardMs": 180,
+    "spatialMs": 220,
+    "reduceMotionMaxMs": 80,
+    "ecoVisualsMaxMs": 80
+  },
+  "typography": {
+    "ui": "Segoe UI",
+    "display": "Unbounded",
+    "code": "Cascadia Mono"
+  }
+}
