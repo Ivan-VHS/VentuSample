@@ -14,6 +14,8 @@
 #include <QMenuBar>
 #include <QDoubleSpinBox>
 #include <QFont>
+#include <QFontDatabase>
+#include <QStringList>
 #include <QFileDialog>
 #include <QFrame>
 #include <QFileInfo>
@@ -47,6 +49,16 @@
 #include <array>
 
 namespace {
+QString preferredInstalledFont(const QStringList& preferred, const QString& fallback) {
+    const QFontDatabase database;
+    const QStringList installed = database.families();
+    for (const QString& candidate : preferred) {
+        for (const QString& family : installed) {
+            if (family.compare(candidate, Qt::CaseInsensitive) == 0) return family;
+        }
+    }
+    return fallback;
+}
 QString q(const std::string& value) { return QString::fromUtf8(value.c_str()); }
 std::filesystem::path pathFromQString(const QString& value) {
     const QByteArray bytes = value.toUtf8();
@@ -175,8 +187,12 @@ void MainWindow::buildUi() {
 
     auto* header = new QHBoxLayout();
     auto* brand = new QVBoxLayout();
+    const QString brandFont = preferredInstalledFont(
+        {QStringLiteral("Lobster"), QStringLiteral("Pacifico")}, QStringLiteral("Georgia"));
+    const QString scriptFont = preferredInstalledFont(
+        {QStringLiteral("Caveat"), QStringLiteral("Marck Script"), QStringLiteral("Bad Script")}, QStringLiteral("Georgia"));
     auto* title = new QLabel("VENTUSAMPLE");
-    title->setFont(QFont("Georgia", 18, QFont::Bold));
+    title->setFont(QFont(brandFont, 18, QFont::Normal));
     title->setObjectName("brandTitle");
     auto* subtitle = new QLabel("ХИП-ХОП-СЭМПЛЫ  /  ЛОКАЛЬНАЯ DSP-СТАНЦИЯ");
     subtitle->setObjectName("brandSubtitle");
@@ -201,7 +217,7 @@ void MainWindow::buildUi() {
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
     auto* heroTitle = new QLabel("Собери собственный звук.");
-    heroTitle->setFont(QFont("Georgia", 18, QFont::Bold));
+    heroTitle->setFont(QFont(scriptFont, 18, QFont::Normal));
     heroTitle->setObjectName("heroTitle");
     auto* heroSub = new QLabel("Создавайте лупы, мелодии, ударные паттерны, басовые партии и наборы одиночных сэмплов по точным параметрам.");
     heroSub->setObjectName("heroSubtitle");
@@ -857,9 +873,9 @@ void MainWindow::applyTheme() {
         QSlider::handle:horizontal { background: %3; border: 2px solid %6; width: 17px; margin: -7px 0; border-radius: 8px; }
         QProgressBar { background: %1; color: %2; border: 1px solid %4; border-radius: 7px; min-height: 10px; text-align: center; }
         QProgressBar::chunk { background: %6; border-radius: 6px; }
-        QLabel#brandTitle { color: %6; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 22px; font-weight: 800; }
+        QLabel#brandTitle { color: %6; font-size: 22px; font-weight: 800; }
         QLabel#brandSubtitle, QLabel#fieldLabel { color: %5; font-size: 10px; font-weight: 700; }
-        QLabel#heroTitle { color: %5; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 20px; font-weight: 750; }
+        QLabel#heroTitle { color: %5; font-size: 20px; font-weight: 750; }
         QLabel#heroSubtitle, QLabel#mutedText { color: %13; }
         QLabel#statusPill { color: %11; background: %6; border: 1px solid %6; border-radius: 10px; padding: 9px 13px; font-size: 10px; font-weight: 800; }
         QLabel#beatIndicator { color: %15; background: %14; border: 1px solid %14; border-radius: 5px; padding: 5px 8px; font-size: 10px; font-weight: 800; }
