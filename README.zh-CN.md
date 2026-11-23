@@ -48,6 +48,9 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 | WAV 导入 | 受支持的 PCM16 mono/stereo 源文件 | 验证大小、帧数、采样率和格式 |
 | Quantum Audio Engine | 133 个类型化模块 ID 和 21 个可复用 DSP 内核 | 创意离线 DSP，不是物理量子计算 |
 | Migrated C11 processing | 有界 WAV I/O、滤波器、压缩器、饱和处理、限幅器和测量 | 独立 C11 构建目标，离线缓冲区 |
+| Offline spectrum analysis | 对现有缓冲区计算 FFT 峰值、谱质心和 85% rolloff | 有界 256–65,536 点 FFT；不访问音频设备 |
+| 采样率转换 | 对单声道/立体声缓冲区进行有界线性插值 | 预览级质量；不包含抗混叠滤波 |
+| MIDI 文件检查 | 解析 Standard MIDI File 格式 0/1、音符、速度和拍号 | 有界只读解析；不访问 MIDI 设备或播放 |
 | Stochastic Router | 可选的 seeded 路由，使用八个内置处理器 | 离线缓冲区处理；默认关闭 |
 | Plugin Manager | 19 个内置工具和经过审查的 C++20 handler API | manifest 发现仅读取元数据；不任意加载 DLL/SO |
 | Atomic-Quantum 133 | 独立的有界经典模拟子集 | 不访问量子硬件 |

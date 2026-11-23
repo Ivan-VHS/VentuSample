@@ -4,6 +4,9 @@
 |---|---|
 | [OCTA8.md](OCTA8.md) | OCTA-8 native C++20 typed-value contract and adapter |
 | [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
+| [MIDI_AND_RESAMPLING.md](MIDI_AND_RESAMPLING.md) | bounded MIDI parser and offline sample-rate conversion |
+| [OFFLINE_SPECTRUM_ANALYSIS.md](OFFLINE_SPECTRUM_ANALYSIS.md) | bounded C11 FFT and spectral descriptors |
+| [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | sound-project adoption map for the 1,000-item catalogue |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
 | [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
 | [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |
@@ -37,3 +40,13 @@ The root README contains the live Windows desktop capture and current build comm
 - [Example JSON](../examples/resource-allocation-500-uah.json) and [JSON Schema](../schemas/resource-allocation.v1.schema.json).
 
 This is an illustrative personal-budgeting reference, not a claim that the host project manages payments or live retail prices.
+
+
+## Language quality
+
+[Language and editorial quality](LANGUAGE_QUALITY.md) — orthography, punctuation, lexical precision, syntax, multilingual review and conservative prose checks.
+
+
+## Project-specific engineering profile
+
+[IVAN_VHS_ENGINEERING_PROFILE.md](IVAN_VHS_ENGINEERING_PROFILE.md) translates the project's direction into concrete architecture boundaries, implementation priorities, human-readable code conventions and acceptance tests. It is a development contract; it does not mark planned work as implemented.

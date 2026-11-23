@@ -1,0 +1,24 @@
+name: Prose quality
+
+on:
+  push:
+    branches: [main, "feat/**", "docs/**"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  markdown-review:
+    name: Markdown editorial diagnostics
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Report obvious prose issues
+        run: python tools/check_prose_quality.py
