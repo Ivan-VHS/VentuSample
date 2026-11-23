@@ -76,3 +76,9 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 ## Project-specific engineering profile
 
 [IVAN_VHS_ENGINEERING_PROFILE.md](IVAN_VHS_ENGINEERING_PROFILE.md) translates the project's direction into concrete architecture boundaries, implementation priorities, human-readable code conventions and acceptance tests. It is a development contract; it does not mark planned work as implemented.
+
+
+## Cross-project engineering
+
+- [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
+- [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.
