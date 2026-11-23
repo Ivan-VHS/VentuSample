@@ -51,3 +51,10 @@ The shared token, accessibility and documentation source is [Motion Constitution
 ### Product-specific maturity
 
 VentuSample has native Qt motion settings, bounded spring/property transitions and an optional project-BPM beat indicator. Its generator and DSP path are offline; there is no external DAW transport or real-time mixer. Any waveform/meter must be based on an actual preview/render buffer and must not run inside DSP callbacks or generator workers.
+
+
+## Mora Drapery Motion
+
+The VentuSample masthead carries a 52 px amber cloth strip beneath the product identity. Its gradient, irregular fold spacing, shaded valleys and narrow gold highlights establish a heavy woven fabric rather than a repeating flat stripe. A bounded Qt UI-thread timer advances a very small phase offset; Normal uses a 1.35 px displacement and Expressive uses 2.5 px.
+
+Reduce Motion, Eco Visuals and the `UI_REDUCED_MOTION` process override stop the timer and retain a static cloth surface. The banner lives outside the generator tabs and is not rendered in audio buffers, worker threads, DSP callbacks or waveform data. Theme, tempo and audio rendering remain independent from the decorative material.
