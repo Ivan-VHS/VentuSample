@@ -2,10 +2,10 @@
 
 #include <QWidget>
 
-namespace ventu::ui_motion {
-
 class QPaintEvent;
 class QTimer;
+
+namespace ventu::ui_motion {
 
 struct Preferences {
     bool reduceMotion{false};
