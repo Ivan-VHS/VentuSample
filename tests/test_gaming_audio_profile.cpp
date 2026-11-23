@@ -15,6 +15,7 @@ void require(bool condition, const char* message) {
 void testDefaultProfileIsBounded() {
     const auto profile = ventu::makeGamingAudioProfile({});
     require(profile.valid, "default profile must be valid");
+    require(profile.gameId.empty(), "standalone audio profiles may omit the game identity");
     require(profile.sampleRate == 48000 && profile.channels == 2,
             "default audio format must be preserved");
     require(profile.bufferFrames >= 64 && profile.bufferFrames <= 4096,
@@ -51,6 +52,17 @@ void testExclusiveModeRequiresExplicitConsent() {
             "authorization alone must not open the device or enable exclusive mode");
 }
 
+
+void testDuckOSGameIdentityIsPreserved() {
+    ventu::GamingAudioRequest request;
+    request.gameId = "sample-game";
+    const auto profile = ventu::makeGamingAudioProfile(request);
+    require(profile.valid, "valid DuckOS game identity must be accepted");
+    require(profile.gameId == "sample-game", "audio profile must retain the DuckOS game id");
+    request.gameId.assign(129, 'x');
+    require(!ventu::makeGamingAudioProfile(request).valid, "oversized game identity must be rejected");
+}
+
 void testRejectsUnsupportedFormatsAndBuffers() {
     ventu::GamingAudioRequest request;
     request.sampleRate = 8000;
@@ -70,6 +82,7 @@ int main() {
     testDefaultProfileIsBounded();
     testBackendBufferIsRespected();
     testExclusiveModeRequiresExplicitConsent();
+    testDuckOSGameIdentityIsPreserved();
     testRejectsUnsupportedFormatsAndBuffers();
     std::cout << "VentuSample gaming audio profile tests passed.\n";
     return 0;
