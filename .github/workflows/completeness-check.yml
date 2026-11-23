@@ -49,7 +49,7 @@ jobs:
             "tests/test_engineering_evolution.py"
           )
 
-          for path in "\${required[@]}"; do
+          for path in "${required[@]}"; do
             if [[ ! -s "$path" ]]; then
               echo "::error::Required completeness artifact is missing or empty: $path"
               exit 1
@@ -126,10 +126,10 @@ jobs:
         run: |
           set -euo pipefail
           mapfile -d '' yaml_files < <(git ls-files -z -- '*.yml' '*.yaml')
-          if (("\${#yaml_files[@]}" > 0)); then
-            ruby -ryaml -e 'ARGV.each { |path| YAML.parse_file(path) }' "\${yaml_files[@]}"
+          if (("${#yaml_files[@]}" > 0)); then
+            ruby -ryaml -e 'ARGV.each { |path| YAML.parse_file(path) }' "${yaml_files[@]}"
           fi
-          echo "Validated \${#yaml_files[@]} tracked YAML files."
+          echo "Validated ${#yaml_files[@]} tracked YAML files."
 
       - name: Compile every tracked Python file
         shell: bash
@@ -268,7 +268,7 @@ jobs:
             )
           fi
 
-          cmake -S . -B build "\${cmake_args[@]}"
+          cmake -S . -B build "${cmake_args[@]}"
 
       - name: Build native targets
         run: cmake --build build --parallel 2
