@@ -293,3 +293,7 @@ Web Stand 检查清单根据实际离线桌面/音频产品进行映射；纯 We
 ## Mora 桌面集成
 
 构建 Qt 6 桌面目标后，VentuSample 即可从统一的 Mora 工作空间启动。Mora 提供应用目录和启动主题；采样生成与离线 DSP 仍由 VentuSample 原生实现。请参阅 [Mora 集成说明](docs/MORA_DESKTOP_INTEGRATION.md) 和 [DuckOS 工作空间契约](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md)。
+
+## Shared DuckOS visual system
+
+- [DuckOS palette and UI contract](docs/DUCK_PALETTE.md) — fixed black/white/yellow tokens, accessible contrast and legacy preference migration.
