@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     buildUi();
     ventu::ui_ux::applyAccessibleDefaults(this);
     loadSettings();
+    if (draperyBanner_) draperyBanner_->setMotionPreferences(motionPreferences_);
 
     const QString moraTheme = qEnvironmentVariable("MORA_THEME_MODE").trimmed().toLower();
     if (moraTheme == QStringLiteral("dark"))
@@ -190,6 +191,9 @@ void MainWindow::buildUi() {
     beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
     header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
+
+    draperyBanner_ = new ventu::ui_motion::DraperyBanner(central);
+    root->addWidget(draperyBanner_);
 
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
@@ -759,6 +763,7 @@ void MainWindow::showMotionSettings() {
     motionPreferences_.ecoVisuals = eco->isChecked();
     motionPreferences_.expressiveMotion = expressive->isChecked();
     motionPreferences_.syncToBpm = sync->isChecked();
+    if (draperyBanner_) draperyBanner_->setMotionPreferences(motionPreferences_);
     saveSettings();
     updateBeatSync();
 }
