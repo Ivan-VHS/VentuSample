@@ -32,7 +32,7 @@ GamingAudioProfile invalidProfile(const char* message) {
 } // namespace
 
 GamingAudioProfile makeGamingAudioProfile(const GamingAudioRequest& request) {
-    if (request.gameId.size() > 128 || request.gameId.find('\\0') != std::string::npos)
+    if (request.gameId.size() > 128 || request.gameId.find('\0') != std::string::npos)
         return invalidProfile("gameId must be empty or at most 128 characters without NUL");
     if (request.sampleRate < kMinimumSampleRate || request.sampleRate > kMaximumSampleRate)
         return invalidProfile("sampleRate must be between 22050 and 192000 Hz");
