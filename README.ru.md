@@ -283,3 +283,8 @@ JSON-результат можно обернуть в общий формат �
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 См. docs/REPORT_ENVELOPE.md и schemas/ivan-vhs.report.v1.schema.json. Результат самого инструмента остаётся без изменений.
+
+
+## Карта документации
+
+Используйте [индекс документации](docs/README.md) как точку входа, а [карту информационной архитектуры](docs/INFORMATION_ARCHITECTURE.md) — для навигации по аудио/DSP, рабочим процессам Studio, пресетам и плагинам, архитектуре, UX и интеграциям. Хабы ведут к подробным контрактам; поддерживаемые форматы и статус реализации подтверждаются кодом, тестами, manifest-файлами и схемами.

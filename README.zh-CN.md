@@ -283,3 +283,8 @@ Web Stand 检查清单根据实际离线桌面/音频产品进行映射；纯 We
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 请参阅 docs/REPORT_ENVELOPE.md 和 schemas/ivan-vhs.report.v1.schema.json。工具自身的结果内容保持不变。
+
+
+## 文档导航图
+
+请从[文档索引](docs/README.md)进入，并使用[信息架构图](docs/INFORMATION_ARCHITECTURE.md)浏览音频/DSP、Studio 工作流、预设与插件、架构、UX 和集成主题。主题入口链接到详细契约；支持格式和实现状态仍以源代码、测试、Manifest 与 Schema 为准。
