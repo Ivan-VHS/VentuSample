@@ -33,7 +33,6 @@ struct PluginExecutionPolicy {
     // admission/observation limits, not an OS sandbox or forced cancellation.
     std::uint64_t maxEstimatedOutputBytes{512u * 1024u * 1024u};
     std::uint64_t softDeadlineMs{120'000u};
-    bool requireDeterministicSeed{true};
 };
 
 struct PluginContext {
