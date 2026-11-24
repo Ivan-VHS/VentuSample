@@ -416,10 +416,22 @@ std::size_t PluginManager::discoverManifests(const fs::path& directory,
         const auto description = jsonString(json, "description");
         const auto entrypoint = jsonString(json, "entrypoint");
         const auto apiVersion = jsonUnsignedInteger(json, "api_version");
+        const bool hostValid = validVentuHost(json);
         if (!schema || *schema != kPluginManifestSchema || !id || !name || !version
-            || !domain || !description || !entrypoint || !validVentuHost(json)
-            || !apiVersion) {
-            if (diagnostics) diagnostics->push_back("manifest does not satisfy the Ventu v1 contract: " + path.string());
+            || !domain || !description || !entrypoint || !hostValid || !apiVersion) {
+            if (diagnostics) {
+                diagnostics->push_back(
+                    "manifest fields invalid schema=" + std::to_string(static_cast<bool>(schema))
+                    + " id=" + std::to_string(static_cast<bool>(id))
+                    + " name=" + std::to_string(static_cast<bool>(name))
+                    + " version=" + std::to_string(static_cast<bool>(version))
+                    + " domain=" + std::to_string(static_cast<bool>(domain))
+                    + " description=" + std::to_string(static_cast<bool>(description))
+                    + " entrypoint=" + std::to_string(static_cast<bool>(entrypoint))
+                    + " host=" + std::to_string(hostValid)
+                    + " api_version=" + std::to_string(static_cast<bool>(apiVersion))
+                    + ": " + path.string());
+            }
             continue;
         }
         const auto capabilities = jsonStringArray(json, "capabilities");
