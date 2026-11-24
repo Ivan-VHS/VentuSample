@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+namespace ventu::diagnostics { class RenderTelemetry; }
+
 namespace ventu {
 
 enum class Style {
@@ -114,6 +116,7 @@ CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent,
 AudioStats measure(const AudioBuffer& audio);
 bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error,
                const WavExportOptions& options = {});
-BatchResult generatePack(const Parameters& parameters, const std::filesystem::path& outputDirectory);
+BatchResult generatePack(const Parameters& parameters, const std::filesystem::path& outputDirectory,
+                          diagnostics::RenderTelemetry* telemetry = nullptr);
 
 } // namespace ventu
