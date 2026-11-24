@@ -234,13 +234,31 @@ void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
         std::ofstream manifest(root / "plugin.json", std::ios::binary);
         manifest << R"json({
   "host": { "id": "ventu" },
-  "metadata": { "id": "nested-id", "capabilities": ["wrong.capability"] },
+  "metadata": { "id": "nested-id", "api_version": 99, "capabilities": ["wrong.capability"] },
   "id": "top-level-plugin",
   "name": "Top Level Plugin",
   "version": "1.0.0",
   "api_version": 1,
   "domain": "tests",
   "description": "Top-level field extraction test.",
+  "capabilities": ["commands"],
+  "entrypoint": "ignored.cpp:register"
+})json";
+    }
+    fs::create_directories(root / "duplicate", ec);
+    require(!ec, "duplicate-key fixture directory should be created");
+    {
+        std::ofstream manifest(root / "duplicate" / "plugin.json", std::ios::binary);
+        manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
+  "id": "duplicate-first",
+  "id": "duplicate-second",
+  "name": "Duplicate Key Fixture",
+  "version": "1.0.0",
+  "api_version": 1,
+  "host": { "id": "ventu" },
+  "domain": "tests",
+  "description": "Duplicate keys are invalid.",
   "capabilities": ["commands"],
   "entrypoint": "ignored.cpp:register"
 })json";
