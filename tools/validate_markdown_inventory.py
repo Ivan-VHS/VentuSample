@@ -9,16 +9,16 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
-FENCE_OPEN = re.compile("^[ \\t]{0,3}(\\x60{3,}|~{3,})(.*)$")
-MARKDOWN_LINK = re.compile("!?\\[[^\\]]*\\]\\(\\s*(?:<([^>]+)>|([^\\s)]+))")
-REFERENCE_LINK = re.compile("(?m)^[ \\t]{0,3}\\[[^\\]]+\\]:[ \\t]*(?:<([^>]+)>|(\\S+))")
-HTML_LINK = re.compile("\\\\b(?:href|src)\\\\s*=\\\\s*[\\"']([^\\"']+)[\\"']", re.IGNORECASE)
-HTML_ID = re.compile("\\\\b(?:id|name)\\\\s*=\\\\s*[\\"']([^\\"']+)[\\"']", re.IGNORECASE)
-HEADING = re.compile("^[ \\t]{0,3}(#{1,6})[ \\t]+(.+?)\\\\s*#*[ \\t]*$")
-INLINE_CODE = re.compile("(\\\\x60+)(.*?)\\\\1")
-HTML_TAG = re.compile("<[^>]*>")
-MARKDOWN_LINK_LABEL = re.compile("!?\\[([^\\]]*)\\]\\([^)]*\\)")
-LINE_ANCHOR = re.compile("^L\\d+(?:-L\\d+)?$", re.IGNORECASE)
+FENCE_OPEN = re.compile(r"^[ \t]{0,3}(\x60{3,}|~{3,})(.*)$")
+MARKDOWN_LINK = re.compile(r"!?\\[[^\\]]*\\]\\(\\s*(?:<([^>]+)>|([^\\s)]+))")
+REFERENCE_LINK = re.compile(r"(?m)^[ \t]{0,3}\\[[^\\]]+\\]:[ \t]*(?:<([^>]+)>|(\\S+))")
+HTML_LINK = re.compile(r"""\\b(?:href|src)\\s*=\\s*["']([^"']+)["']""", re.IGNORECASE)
+HTML_ID = re.compile(r"""\\b(?:id|name)\\s*=\\s*["']([^"']+)["']""", re.IGNORECASE)
+HEADING = re.compile(r"^[ \t]{0,3}(#{1,6})[ \t]+(.+?)\\s*#*[ \t]*$")
+INLINE_CODE = re.compile(r"(\\x60+)(.*?)\\1")
+HTML_TAG = re.compile(r"<[^>]*>")
+MARKDOWN_LINK_LABEL = re.compile(r"!?\\[([^\\]]*)\\]\\([^)]*\\)")
+LINE_ANCHOR = re.compile(r"^L\\d+(?:-L\\d+)?$", re.IGNORECASE)
 
 
 def strip_code_blocks(source: str) -> str:
@@ -47,12 +47,12 @@ def strip_code_blocks(source: str) -> str:
 def slugify_heading(value: str) -> str:
     """Approximate GitHub heading slug rules for local Markdown fragments."""
     value = HTML_TAG.sub("", value)
-    value = MARKDOWN_LINK_LABEL.sub("\\\\1", value)
-    value = re.sub("[*_~]", "", value)
+    value = MARKDOWN_LINK_LABEL.sub(r"\\1", value)
+    value = re.sub(r"[*_~]", "", value)
     value = value.strip().casefold()
-    value = re.sub("[^\\w\\- ]", "", value, flags=re.UNICODE)
-    value = re.sub("\\\\s+", "-", value)
-    value = re.sub("-{2,}", "-", value)
+    value = re.sub(r"[^\\w\\- ]", "", value, flags=re.UNICODE)
+    value = re.sub(r"\\s+", "-", value)
+    value = re.sub(r"-{2,}", "-", value)
     return value.strip("-")
 
 
@@ -68,7 +68,7 @@ def markdown_anchors(source: str) -> set[str]:
             seen[base] = count + 1
             anchors.add(base if count == 0 else f"{base}-{count}")
         anchors.update(HTML_ID.findall(line))
-        anchors.update(re.findall("\\\\{#([A-Za-z0-9_.:-]+)\\\\}", line))
+        anchors.update(re.findall(r"\\{#([A-Za-z0-9_.:-]+)\\}", line))
     return anchors
 
 
