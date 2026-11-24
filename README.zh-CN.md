@@ -14,6 +14,12 @@ VentuSample 是一款原生 C++20 工作站，用于程序化 hip-hop 采样包�
 >
 > **要求：** CMake 3.21+、C++20/C11 编译器和 Git。桌面界面需要 Qt 6 Widgets；没有 Qt 时可关闭桌面目标。
 
+## Reaper 集成
+
+VentuSample 可使用版本化的 Reaper C17 ABI 执行确定性的控制表达式和 selfhood 查询。Reaper 不进入实时 DSP 路径；生成、缓冲区、路由及离线处理仍由原生 C++20 负责。
+
+详见 [Reaper 集成说明](docs/REAPER_RUNTIME_INTEGRATION.md)。
+
 ## 快速开始
 
 Linux + Qt 6：

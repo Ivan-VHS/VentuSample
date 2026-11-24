@@ -14,6 +14,12 @@ VentuSample — нативная рабочая станция на C++20 для
 >
 > **Требования:** CMake 3.21+, компиляторы C++20 и C11, Git. Для desktop UI нужен Qt 6 Widgets; без Qt можно отключить desktop target.
 
+## Интеграция с Reaper
+
+VentuSample может использовать версионированный C17 ABI Reaper для детерминированных управляющих выражений и поиска selfhood. Reaper не работает в real-time DSP: генерация, буферы, маршрутизация и offline-обработка остаются в нативном C++20.
+
+Подробности: [интеграция Reaper](docs/REAPER_RUNTIME_INTEGRATION.md).
+
 ## Быстрый старт
 
 Linux с Qt 6:

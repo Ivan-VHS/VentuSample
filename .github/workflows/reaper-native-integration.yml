@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: Ivan-VHS/Reaper
-          ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
+          ref: e48fb2a38384da75292b948ae18f69f3d80bcd08
           path: _deps/Reaper
       - name: Configure linked C++20 + C17 build
         run: cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DREAPER_SOURCE_DIR="$GITHUB_WORKSPACE/_deps/Reaper" -DCMAKE_BUILD_TYPE=Release

@@ -14,6 +14,10 @@ VentuSample is a native C++20 workstation for procedural hip-hop sample-pack gen
 >
 > **Requirements:** CMake 3.21+, C++20 compiler, C11 compiler and Git. Qt 6 Widgets is required for the desktop interface; disable the desktop target for a portable core build without Qt.
 
+## Reaper integration
+
+VentuSample optionally links Reaper's versioned C17 ABI for bounded integer-expression evaluation and exact selfhood lookup. This integration is control-language infrastructure only: waveform generation, sample placement, stochastic routing, offline DSP, audio buffers, Qt and export remain native C++20. Reaper is not executed on a real-time audio path and is not a general-purpose plugin loader. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
+
 ## Quick Start
 
 Linux with Qt 6:
