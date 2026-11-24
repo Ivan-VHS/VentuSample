@@ -23,7 +23,7 @@ TEXT_SUFFIXES = {
     ".py", ".pyi", ".c", ".h", ".cc", ".cpp", ".cxx", ".hpp", ".hxx",
     ".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".java", ".kt", ".rs",
     ".go", ".cs", ".swift", ".sh", ".ps1", ".bat", ".cmd", ".yml", ".yaml",
-    ".json", ".jsonc", ".toml", ".ini", ".cfg", ".conf", ".xml", ".html",
+    ".json", ".jsonc", ".tsv", ".toml", ".ini", ".cfg", ".conf", ".xml", ".html",
     ".css", ".scss", ".md", ".mdx", ".rst", ".txt", ".properties", ".cmake",
     ".gradle", ".sql", ".graphql", ".proto", ".qcs", ".rpr", ".lua", ".make",
 }
