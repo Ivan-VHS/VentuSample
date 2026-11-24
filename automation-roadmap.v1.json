@@ -64,7 +64,7 @@
         "Автоматизация"
       ],
       "priority": "P0",
-      "status": "extend",
+      "status": "active",
       "objective": "Version and validate one machine-readable automation roadmap for this repository.",
       "target": "Plan changes through reviewed roadmap updates and contract checks.",
       "trigger": [
@@ -75,13 +75,20 @@
       ],
       "current_controls": [
         "project-contract.json",
-        "docs/DOCUMENTATION_CONTROL.md"
+        "docs/DOCUMENTATION_CONTROL.md",
+        ".architecture/roadmap-governance.v1.json",
+        ".architecture/roadmap-governance.v1.schema.json",
+        "tools/validate_delivery_contracts.py",
+        "tests/test_delivery_contracts.py",
+        "scripts/validate_automation_roadmap.py",
+        ".github/workflows/automation-roadmap.yml",
+        "docs/ROADMAP_GOVERNANCE_CI_SCALE.md"
       ],
       "guardrails": [
         "Roadmap changes are reviewed as versioned source.",
         "Do not represent planned work as implemented."
       ],
-      "acceptance": "The roadmap contract is valid, identifies all 20 workstreams, and its evidence paths exist."
+      "acceptance": "A repository-specific governance policy and Draft 2020-12 schema define evidence-based status maturity, P0/P1/P2 review, semantic change control and release boundaries; CI validates the declaration and negative cases."
     },
     {
       "id": "02-organize-triggers",
@@ -361,7 +368,7 @@
         "Автооптимизация"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Scale validation through bounded matrices, parallel jobs, and resource-aware test selection.",
       "target": "Cap concurrency and runtime; measure before raising matrix size.",
       "trigger": [
@@ -372,13 +379,20 @@
       ],
       "current_controls": [
         ".github/workflows/quality-repeatability-native.yml",
-        "quality-repeatability-native.v1.json"
+        "quality-repeatability-native.v1.json",
+        ".architecture/ci-scale-policy.v1.json",
+        ".architecture/ci-scale-policy.v1.schema.json",
+        "tools/validate_delivery_contracts.py",
+        "tests/test_delivery_contracts.py",
+        ".github/workflows/ci.yml",
+        ".github/workflows/automation-roadmap.yml",
+        ".github/workflows/quality-remediation.yml"
       ],
       "guardrails": [
         "Bound matrix size, runtime, and concurrency.",
         "Retain all required platform checks."
       ],
-      "acceptance": "Expanded validation stays within declared time and resource budgets without reducing required coverage."
+      "acceptance": "Python 3.10–3.12, Native C++20, Linux Qt and Windows Qt remain required; workflows enforce job ceilings, timeouts, concurrency and matrix parallelism, with negative tests for missing/excessive controls."
     },
     {
       "id": "13-implement-verification",
