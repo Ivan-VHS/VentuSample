@@ -59,7 +59,8 @@ def slugify_heading(value: str) -> str:
 def markdown_anchors(source: str) -> set[str]:
     anchors: set[str] = set()
     seen: dict[str, int] = {}
-    for line in source.splitlines():
+    visible = strip_code_blocks(source)
+    for line in visible.splitlines():
         match = HEADING.match(line)
         if match:
             base = slugify_heading(match.group(2))
