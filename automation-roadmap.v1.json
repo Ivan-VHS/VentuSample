@@ -145,7 +145,7 @@
         "Авторазработка"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Make improvement intake traceable by impact, risk, dependencies, and verification cost.",
       "target": "Use conflict and remediation records; require review for priority changes.",
       "trigger": [
@@ -156,7 +156,8 @@
       ],
       "current_controls": [
         ".github/workflows/improvement-conflict.yml",
-        ".github/workflows/quality-remediation.yml"
+        ".github/workflows/quality-remediation.yml",
+        ".github/ISSUE_TEMPLATE/engineering_improvement.yml"
       ],
       "guardrails": [
         "Priority changes require rationale and maintainer review.",
@@ -466,7 +467,7 @@
         "Автоверификация"
       ],
       "priority": "P1",
-      "status": "planned",
+      "status": "active",
       "objective": "Add bounded recovery for transient CI and artifact failures with explicit retry ceilings.",
       "target": "Never retry destructive actions or conceal a persistent failure as success.",
       "trigger": [
@@ -475,7 +476,12 @@
       ],
       "current_controls": [
         ".architecture/resilience-policy.json",
-        ".architecture/resilience-policy.schema.json"
+        ".architecture/resilience-policy.schema.json",
+        ".github/workflows/safe-ci-recovery.yml",
+        ".architecture/automation-rerun-policy.v1.json",
+        ".architecture/automation-rerun-policy.v1.schema.json",
+        "scripts/validate_safe_rerun.py",
+        "tests/test_safe_rerun.py"
       ],
       "guardrails": [
         "Retries are idempotent and capped.",
@@ -518,7 +524,7 @@
         "Автовосстановление"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Make workflow health, failed checks, stale branches, and recovery outcomes observable.",
       "target": "Report only sourced workflow and repository state; do not auto-dismiss failures.",
       "trigger": [
@@ -529,7 +535,10 @@
       ],
       "current_controls": [
         ".github/workflows/verified-auto-merge.yml",
-        ".github/workflows/update-behind-pr-branches.yml"
+        ".github/workflows/update-behind-pr-branches.yml",
+        ".github/workflows/safe-ci-recovery.yml",
+        "scripts/validate_safe_rerun.py",
+        "tests/test_safe_rerun.py"
       ],
       "guardrails": [
         "Preserve failed-run and merge-block evidence.",
@@ -545,7 +554,7 @@
         "Автодокументирование"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Keep automation design, evidence, limits, and maintenance ownership documented alongside code.",
       "target": "Generate only deterministic documentation; preserve human review for semantic changes.",
       "trigger": [
@@ -556,7 +565,9 @@
       ],
       "current_controls": [
         "docs/README.md",
-        "docs/DOCUMENTATION_CONTROL.md"
+        "docs/DOCUMENTATION_CONTROL.md",
+        ".github/workflows/safe-ci-recovery.yml",
+        "docs/AUTOMATION_ROADMAP.md"
       ],
       "guardrails": [
         "Generated documentation is deterministic and reviewable.",
