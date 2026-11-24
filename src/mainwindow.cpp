@@ -46,6 +46,14 @@
 #include <QVBoxLayout>
 #include <QUrl>
 #include <QWidget>
+
+#ifdef Q_OS_WIN
+#include <QLibrary>
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 #include <QDir>
 #include <QMetaObject>
 #include <algorithm>
@@ -88,6 +96,29 @@ QStringList timbreNames() { return {"Keys", "Bell", "Pluck", "Organ", "Brass", "
 QStringList keyNames() { return {"C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"}; }
 QStringList rateNames() { return {"22050", "44100", "48000", "96000"}; }
 
+void applyNativeWindowMaterial(QWidget* window) noexcept {
+#ifdef Q_OS_WIN
+    if (window == nullptr) return;
+    QLibrary dwm(QStringLiteral("dwmapi"));
+    if (!dwm.load()) return;
+    using SetWindowAttribute = HRESULT (WINAPI *)(HWND, DWORD, LPCVOID, DWORD);
+    const auto setAttribute = reinterpret_cast<SetWindowAttribute>(
+        dwm.resolve("DwmSetWindowAttribute")
+    );
+    if (setAttribute == nullptr) {
+        dwm.unload();
+        return;
+    }
+    const DWORD material = mora::ui::nativeBackdropMainWindow;
+    const HWND handle = reinterpret_cast<HWND>(window->winId());
+    (void)setAttribute(handle, mora::ui::nativeBackdropAttribute,
+                       &material, sizeof(material));
+    dwm.unload();
+#else
+    (void)window;
+#endif
+}
+
 void setCombo(QComboBox* combo, const QString& value) {
     const int index = combo->findText(value, Qt::MatchFixedString);
     if (index >= 0) combo->setCurrentIndex(index);
@@ -115,6 +146,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         darkThemeCheck_->setChecked(false);
 
     applyTheme();
+    applyNativeWindowMaterial(this);
     updateBeatSync();
 }
 
