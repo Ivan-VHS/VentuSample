@@ -257,6 +257,31 @@ bool validVentuHost(const std::string& json) {
     return hostId && *hostId == "ventu";
 }
 
+bool validUtf8(const std::string& value) {
+    for (std::size_t index = 0u; index < value.size();) {
+        const auto lead = static_cast<unsigned char>(value[index]);
+        std::size_t width = 0u;
+        if (lead <= 0x7Fu) width = 1u;
+        else if (lead >= 0xC2u && lead <= 0xDFu) width = 2u;
+        else if (lead >= 0xE0u && lead <= 0xEFu) width = 3u;
+        else if (lead >= 0xF0u && lead <= 0xF4u) width = 4u;
+        else return false;
+        if (width > value.size() - index) return false;
+        for (std::size_t offset = 1u; offset < width; ++offset) {
+            const auto next = static_cast<unsigned char>(value[index + offset]);
+            if ((next & 0xC0u) != 0x80u) return false;
+            if (offset == 1u) {
+                if (lead == 0xE0u && next < 0xA0u) return false;
+                if (lead == 0xEDu && next > 0x9Fu) return false;
+                if (lead == 0xF0u && next < 0x90u) return false;
+                if (lead == 0xF4u && next > 0x8Fu) return false;
+            }
+        }
+        index += width;
+    }
+    return true;
+}
+
 bool readFileBounded(const fs::path& path, std::string& output) {
     std::string candidate;
     candidate.reserve(static_cast<std::size_t>(kMaxManifestBytes));
@@ -331,6 +356,7 @@ bool readFileBounded(const fs::path& path, std::string& output) {
     ::close(descriptor);
     if (!valid) return false;
 #endif
+    if (!validUtf8(candidate)) return false;
     output.swap(candidate);
     return true;
 }
