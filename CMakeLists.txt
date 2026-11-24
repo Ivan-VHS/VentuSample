@@ -77,6 +77,8 @@ add_library(ventusample_core STATIC
     src/careguard.hpp
     src/runtime_transaction.cpp
     src/runtime_transaction.hpp
+    src/audio_telemetry.cpp
+    src/audio_telemetry.hpp
     src/octa8.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
