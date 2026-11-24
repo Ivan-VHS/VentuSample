@@ -84,3 +84,7 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 ## Capability completeness standard
 
 [Engineering Evolution and Capability Completeness Standard](ENGINEERING_EVOLUTION_FRAMEWORK.md) — canonical vocabulary, maturity states, measurable acceptance gates, architecture and extension rules, compatibility and release criteria.
+
+## Release distribution
+
+[Windows release workflow and packaging contract](RELEASE.md) — manual tagged release, MSVC/Qt build, CTest, package manifest, SHA-256 verification, draft publication and remaining signing/environment boundaries.
