@@ -175,7 +175,8 @@
             "enum": [
               "active",
               "extend",
-              "planned"
+              "planned",
+              "not_applicable"
             ]
           },
           "objective": {
@@ -210,8 +211,31 @@
           "acceptance": {
             "type": "string",
             "minLength": 1
+          },
+          "not_applicable_reason": {
+            "type": "string",
+            "minLength": 20
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "not_applicable_reason"
+              ]
+            }
+          }
+        ]
       }
     }
   }

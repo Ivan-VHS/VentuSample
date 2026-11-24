@@ -17,10 +17,6 @@
 
 [Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
 
-## Katyuhen ecosystem
-
-[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
-
 ## Normative documentation standard
 
 [Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
@@ -33,6 +29,7 @@
 | [OFFLINE_SPECTRUM_ANALYSIS.md](OFFLINE_SPECTRUM_ANALYSIS.md) | bounded C11 FFT and spectral descriptors |
 | [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | sound-project adoption map for the 1,000-item catalogue |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
+| [RESILIENCE_POLICY.md](RESILIENCE_POLICY.md) | offline trust, bounded recovery policy and contract-only maturity |
 | [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
 | [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |
 | [USER_GUIDE_RU.md](USER_GUIDE_RU.md) | operation, profile selection and Russian UI labels |
@@ -81,8 +78,13 @@ This is an illustrative personal-budgeting reference, not a claim that the host 
 
 - [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
 - [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.
+- [Roadmap governance and bounded CI scale](ROADMAP_GOVERNANCE_CI_SCALE.md) — status maturity, priority review and enforceable workflow budgets.
 
 
 ## Capability completeness standard
 
 [Engineering Evolution and Capability Completeness Standard](ENGINEERING_EVOLUTION_FRAMEWORK.md) — canonical vocabulary, maturity states, measurable acceptance gates, architecture and extension rules, compatibility and release criteria.
+
+## Release distribution
+
+[Windows release workflow and packaging contract](RELEASE.md) — manual tagged release, MSVC/Qt build, CTest, package manifest, SHA-256 verification, draft publication and remaining signing/environment boundaries.
