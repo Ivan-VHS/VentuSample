@@ -1,10 +1,12 @@
 #include "generator.hpp"
 #include "stochastic_router.hpp"
+#include "audio_telemetry.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cctype>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <cctype>
@@ -909,8 +911,14 @@ bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio,
     return true;
 }
 
-BatchResult generatePack(const Parameters& p, const std::filesystem::path& outputDirectory) {
+BatchResult generatePack(const Parameters& p, const std::filesystem::path& outputDirectory,
+                          diagnostics::RenderTelemetry* telemetry) {
     BatchResult result;
+    if (telemetry != nullptr) {
+        const std::uint64_t filesPerVariation = p.target == Target::OneShotKit ? 8u : 1u;
+        const auto variations = p.variations > 0 ? static_cast<std::uint64_t>(p.variations) : 0u;
+        telemetry->beginJob(variations * filesPerVariation);
+    }
     if (const auto issue = validate(p); !issue.empty()) { result.error = issue; return result; }
     std::error_code ec;
     std::filesystem::create_directories(outputDirectory, ec);
@@ -1046,19 +1054,39 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
     for (int variation = 0; variation < p.variations; ++variation) {
         if (p.target == Target::OneShotKit) {
             for (const auto* hit : kitNames) {
+                const auto fileStarted = std::chrono::steady_clock::now();
+                if (telemetry != nullptr)
+                    telemetry->setStage(diagnostics::RenderStage::Rendering,
+                                         static_cast<std::uint32_t>(variation + 1));
                 auto audio = render(p, variation, hit);
+                if (telemetry != nullptr) {
+                    telemetry->recordBufferSamples(static_cast<std::uint64_t>(audio.samples.size()));
+                    telemetry->setStage(diagnostics::RenderStage::Processing,
+                                         static_cast<std::uint32_t>(variation + 1));
+                }
                 StochasticResult stochasticReport;
                 if (!applyStochastic(audio, variation, stochasticReport)) return result;
                 const bool pitchedHit = std::string(hit) == "bass" || std::string(hit) == "pluck";
                 const std::string hitKeyTag = pitchedHit ? "_" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) : "";
                 const auto path = outputDirectory / (packPrefix + hitKeyTag + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
+                if (telemetry != nullptr)
+                    telemetry->setStage(diagnostics::RenderStage::Exporting,
+                                         static_cast<std::uint32_t>(variation + 1));
                 const auto exportMetadata = prepareExport(audio, variation, path.filename().string());
                 const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
                 std::string error;
                 if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
+                if (telemetry != nullptr)
+                    telemetry->setStage(diagnostics::RenderStage::Measuring,
+                                         static_cast<std::uint32_t>(variation + 1));
                 const auto stats = measure(audio);
                 result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
                 result.files.push_back(path);
+                if (telemetry != nullptr) {
+                    const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now() - fileStarted).count();
+                    telemetry->recordFileCompleted(elapsed > 0 ? static_cast<std::uint64_t>(elapsed) : 0u);
+                }
                 if (!first) manifest << ",\n";
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
@@ -1078,17 +1106,37 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                          << ", \"scale\": null, \"mode_family\": " << (pitchedHit ? "\"pitched_note\"" : "null") << "}";
             }
         } else {
+            const auto fileStarted = std::chrono::steady_clock::now();
+            if (telemetry != nullptr)
+                telemetry->setStage(diagnostics::RenderStage::Rendering,
+                                     static_cast<std::uint32_t>(variation + 1));
             auto audio = render(p, variation, {}, sourcePtr);
+            if (telemetry != nullptr) {
+                telemetry->recordBufferSamples(static_cast<std::uint64_t>(audio.samples.size()));
+                telemetry->setStage(diagnostics::RenderStage::Processing,
+                                     static_cast<std::uint32_t>(variation + 1));
+            }
             StochasticResult stochasticReport;
             if (!applyStochastic(audio, variation, stochasticReport)) return result;
             const auto path = outputDirectory / (packPrefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
+            if (telemetry != nullptr)
+                telemetry->setStage(diagnostics::RenderStage::Exporting,
+                                     static_cast<std::uint32_t>(variation + 1));
             const auto exportMetadata = prepareExport(audio, variation, path.filename().string());
             const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
             std::string error;
             if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
+            if (telemetry != nullptr)
+                telemetry->setStage(diagnostics::RenderStage::Measuring,
+                                     static_cast<std::uint32_t>(variation + 1));
             const auto stats = measure(audio);
             result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
             result.files.push_back(path);
+            if (telemetry != nullptr) {
+                const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::steady_clock::now() - fileStarted).count();
+                telemetry->recordFileCompleted(elapsed > 0 ? static_cast<std::uint64_t>(elapsed) : 0u);
+            }
             if (!first) manifest << ",\n";
             first = false;
             manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
@@ -1109,6 +1157,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                      << ", \"mode_family\": " << (tonalTarget ? "\"" + modeFamily(p.scale) + "\"" : "null") << "}";
         }
     }
+    if (telemetry != nullptr)
+        telemetry->setStage(diagnostics::RenderStage::Manifest,
+                             static_cast<std::uint32_t>(p.variations));
     manifest << "\n  ]\n}\n";
     std::ofstream json(manifestPath, std::ios::binary | std::ios::trunc);
     if (!json) { result.error = "Не удалось записать manifest.json."; return result; }
