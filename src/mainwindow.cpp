@@ -4,6 +4,7 @@
 #include "mora_theme.hpp"
 #include "budget_planner_dialog.hpp"
 
+#include <QAction>
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QComboBox>
@@ -33,6 +34,9 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QTimer>
+#include <QDockWidget>
+#include <QKeySequence>
+#include <QGridLayout>
 #include <QScrollArea>
 #include <QSettings>
 #include <QSignalBlocker>
@@ -172,6 +176,12 @@ void MainWindow::buildUi() {
 
     auto* viewMenu = menuBar()->addMenu("Вид");
     viewMenu->addAction("Настройки движения…", this, &MainWindow::showMotionSettings);
+    auto* xrayAction = viewMenu->addAction("X-Ray Mode — телеметрия рендеринга");
+    xrayAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_X));
+    xrayAction->setShortcutContext(Qt::ApplicationShortcut);
+    connect(xrayAction, &QAction::triggered, this, [this] {
+        if (xrayDock_) xrayDock_->setVisible(!xrayDock_->isVisible());
+    });
     pluginsMenu->addSeparator();
     pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
     pluginsMenu->addSeparator();
@@ -479,6 +489,45 @@ void MainWindow::buildUi() {
 
     root->addWidget(tabs, 1);
     setCentralWidget(central);
+
+    xrayDock_ = new QDockWidget("X-Ray Mode · render pipeline", this);
+    xrayDock_->setObjectName("renderXRayDock");
+    xrayDock_->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);
+    auto* xrayPanel = new QWidget(xrayDock_);
+    auto* xrayLayout = new QGridLayout(xrayPanel);
+    xrayLayout->setContentsMargins(12, 10, 12, 10);
+    xrayLayout->setHorizontalSpacing(18);
+    xrayLayout->setVerticalSpacing(6);
+    xrayStatusLabel_ = new QLabel("Idle · ожидание задания", xrayPanel);
+    xrayStageLabel_ = new QLabel("Stage: idle", xrayPanel);
+    xrayFilesLabel_ = new QLabel("Files: 0 / 0", xrayPanel);
+    xrayBufferLabel_ = new QLabel("Audio buffer: 0 MiB", xrayPanel);
+    xrayLatencyLabel_ = new QLabel("Last / peak file: n/a", xrayPanel);
+    xrayStatusLabel_->setObjectName("xrayStatus");
+    xrayStageLabel_->setObjectName("xrayStage");
+    xrayFilesLabel_->setObjectName("xrayFiles");
+    xrayBufferLabel_->setObjectName("xrayBuffer");
+    xrayLatencyLabel_->setObjectName("xrayLatency");
+    xrayLayout->addWidget(xrayStatusLabel_, 0, 0);
+    xrayLayout->addWidget(xrayStageLabel_, 0, 1);
+    xrayLayout->addWidget(xrayFilesLabel_, 0, 2);
+    xrayLayout->addWidget(xrayBufferLabel_, 1, 0);
+    xrayLayout->addWidget(xrayLatencyLabel_, 1, 1, 1, 2);
+    xrayDock_->setWidget(xrayPanel);
+    addDockWidget(Qt::BottomDockWidgetArea, xrayDock_);
+    xrayDock_->hide();
+
+    xrayTimer_ = new QTimer(this);
+    xrayTimer_->setInterval(100);
+    connect(xrayTimer_, &QTimer::timeout, this, &MainWindow::updateXRayHud);
+    connect(xrayDock_, &QDockWidget::visibilityChanged, this, [this](bool visible) {
+        if (visible) {
+            updateXRayHud();
+            if (xrayTimer_) xrayTimer_->start();
+        } else if (xrayTimer_) {
+            xrayTimer_->stop();
+        }
+    });
 
     connect(browseButton, &QPushButton::clicked, this, [this] {
         const QString initial = outputPath_->text().isEmpty()
@@ -1084,6 +1133,52 @@ void MainWindow::setBusy(bool busy) {
     if (busy) ventu::ui_motion::pulse(statusLabel_, motionPreferences_, 70);
 }
 
+void MainWindow::updateXRayHud() {
+    if (!xrayDock_ || !xrayDock_->isVisible()) return;
+    const auto state = renderTelemetry_.snapshot();
+    const auto stageName = [](ventu::diagnostics::RenderStage stage) -> QString {
+        using ventu::diagnostics::RenderStage;
+        switch (stage) {
+        case RenderStage::Idle: return QStringLiteral("idle");
+        case RenderStage::Preflight: return QStringLiteral("preflight");
+        case RenderStage::Rendering: return QStringLiteral("render");
+        case RenderStage::Processing: return QStringLiteral("DSP processing");
+        case RenderStage::Exporting: return QStringLiteral("WAV export");
+        case RenderStage::Measuring: return QStringLiteral("measure / cadence");
+        case RenderStage::Manifest: return QStringLiteral("manifest");
+        case RenderStage::Complete: return QStringLiteral("complete");
+        case RenderStage::Failed: return QStringLiteral("failed");
+        }
+        return QStringLiteral("unknown");
+    };
+
+    if (state.active) {
+        xrayStatusLabel_->setText(QStringLiteral("ACTIVE · worker running"));
+    } else if (state.stage == ventu::diagnostics::RenderStage::Complete && state.succeeded) {
+        xrayStatusLabel_->setText(QStringLiteral("COMPLETE · render finished"));
+    } else if (state.stage == ventu::diagnostics::RenderStage::Failed) {
+        xrayStatusLabel_->setText(QStringLiteral("FAILED · inspect generation log"));
+    } else {
+        xrayStatusLabel_->setText(QStringLiteral("IDLE · waiting for a job"));
+    }
+    xrayStageLabel_->setText(QStringLiteral("Stage: %1 · variation %2")
+        .arg(stageName(state.stage)).arg(state.currentVariation));
+    xrayFilesLabel_->setText(QStringLiteral("Files: %1 / %2")
+        .arg(state.filesCompleted).arg(state.filesTotal));
+    const double bufferMiB = static_cast<double>(state.currentBufferBytes)
+        / (1024.0 * 1024.0);
+    xrayBufferLabel_->setText(QStringLiteral("Audio buffer: %1 MiB")
+        .arg(bufferMiB, 0, 'f', 2));
+    if (state.lastFileElapsedNs == 0u) {
+        xrayLatencyLabel_->setText(QStringLiteral("Last / peak file: n/a"));
+    } else {
+        const double lastMs = static_cast<double>(state.lastFileElapsedNs) / 1.0e6;
+        const double peakMs = static_cast<double>(state.peakFileElapsedNs) / 1.0e6;
+        xrayLatencyLabel_->setText(QStringLiteral("Last / peak file: %1 / %2 ms")
+            .arg(lastMs, 0, 'f', 2).arg(peakMs, 0, 'f', 2));
+    }
+}
+
 void MainWindow::appendLog(const QString& message) {
     log_->appendPlainText(message);
 }
@@ -1125,12 +1220,13 @@ void MainWindow::startGeneration() {
         worker_ = std::thread([this, p, canonical] {
             ventu::BatchResult result;
             try {
-                result = ventu::generatePack(p, pathFromQString(canonical));
+                result = ventu::generatePack(p, pathFromQString(canonical), &renderTelemetry_);
             } catch (const std::exception& exception) {
                 result.error = std::string("Необработанная ошибка рендеринга: ") + exception.what();
             } catch (...) {
                 result.error = "Неизвестная ошибка рендеринга.";
             }
+            renderTelemetry_.finish(result.error.empty());
             QStringList files;
             for (const auto& file : result.files) files.push_back(pathToQString(file));
             const QString error = QString::fromUtf8(result.error.c_str());
