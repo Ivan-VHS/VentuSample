@@ -196,7 +196,7 @@ def validate_scale(policy: Any, repository: str, root: Path = ROOT) -> list[str]
 
 
 def validate_documentation(root: Path = ROOT) -> list[str]:
-    path = root / "docs" / "ROADMAP_GOVERNANCE_AND_CI_SCALE.md"
+    path = root / "docs" / "ROADMAP_GOVERNANCE_CI_SCALE.md"
     if not path.is_file():
         return ["roadmap governance and CI scale documentation is missing"]
     content = path.read_text(encoding="utf-8")
