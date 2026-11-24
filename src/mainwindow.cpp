@@ -39,6 +39,7 @@
 #include <QGridLayout>
 #include <QScrollArea>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QSlider>
 #include <QSpinBox>
 #include <QStandardPaths>
@@ -109,10 +110,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     loadSettings();
 
     const QString moraTheme = qEnvironmentVariable("MORA_THEME_MODE").trimmed().toLower();
-    if (moraTheme == QStringLiteral("dark"))
-        darkThemeCheck_->setChecked(true);
-    else if (moraTheme == QStringLiteral("light"))
-        darkThemeCheck_->setChecked(false);
+    const int requestedTheme = themeBox_->findData(moraTheme);
+    if (requestedTheme >= 0) {
+        themeBox_->setCurrentIndex(requestedTheme);
+        saveSettings();
+    }
 
     applyTheme();
     updateBeatSync();
@@ -208,13 +210,17 @@ void MainWindow::buildUi() {
     brand->addWidget(subtitle);
     header->addLayout(brand);
     header->addStretch();
-    darkThemeCheck_ = new QCheckBox("Тёмная тема");
-    darkThemeCheck_->setCursor(Qt::PointingHandCursor);
-    header->addWidget(darkThemeCheck_, 0, Qt::AlignVCenter);
+    themeBox_ = new QComboBox();
+    themeBox_->addItem("Mora · янтарная", "mora");
+    themeBox_->addItem("Светлая", "light");
+    themeBox_->addItem("Тёмная", "dark");
+    themeBox_->setAccessibleName("Цветовая схема");
+    themeBox_->setMinimumHeight(40);
+    header->addWidget(themeBox_, 0, Qt::AlignVCenter);
     beatIndicator_ = new QLabel("● BPM SYNC");
     beatIndicator_->setObjectName("beatIndicator");
     beatIndicator_->setVisible(false);
-    beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
+    beatIndicator_->setStyleSheet(QString());
     header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
 
@@ -549,7 +555,8 @@ void MainWindow::buildUi() {
         const QString path = lastOutputDirectory_.isEmpty() ? outputPath_->text() : lastOutputDirectory_;
         if (!path.isEmpty()) QDesktopServices::openUrl(QUrl::fromLocalFile(path));
     });
-    connect(darkThemeCheck_, &QCheckBox::toggled, this, [this] { applyTheme(); saveSettings(); });
+    connect(themeBox_, qOverload<int>(&QComboBox::currentIndexChanged), this,
+            [this](int) { applyTheme(); saveSettings(); });
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
 }
 
@@ -720,7 +727,20 @@ void MainWindow::loadSettings() {
     for (std::size_t effect = 0; effect < stochasticPoolChecks_.size(); ++effect)
         stochasticPoolChecks_[effect]->setChecked((poolMask & (1u << effect)) != 0u);
     stochasticTopologyBox_->setCurrentIndex(std::clamp(settings.value("stochastic_topology", 0).toInt(), 0, 2));
-    darkThemeCheck_->setChecked(settings.value("dark", false).toBool());
+    {
+        const QSignalBlocker themeLoadGuard(themeBox_);
+        const QString savedTheme = settings.value("theme").toString();
+        if (!savedTheme.isEmpty()) {
+            const int index = themeBox_->findData(savedTheme);
+            themeBox_->setCurrentIndex(index >= 0 ? index : 0);
+        } else if (settings.contains("dark")) {
+            themeBox_->setCurrentIndex(
+                themeBox_->findData(settings.value("dark", false).toBool() ? "dark" : "light")
+            );
+        } else {
+            themeBox_->setCurrentIndex(themeBox_->findData("mora"));
+        }
+    }
     outputPath_->setText(settings.value("output", QStandardPaths::writableLocation(QStandardPaths::MusicLocation) + "/VentuSample").toString());
     sourceSamplePath_->setText(settings.value("source_sample", "").toString());
     sourceMixSlider_->setValue(settings.value("source_mix", 65).toInt());
@@ -777,7 +797,9 @@ void MainWindow::saveSettings() {
         if (stochasticPoolChecks_[effect]->isChecked()) poolMask |= (1u << effect);
     settings.setValue("stochastic_pool_mask", static_cast<uint>(poolMask));
     settings.setValue("stochastic_topology", stochasticTopologyBox_->currentIndex());
-    settings.setValue("dark", darkThemeCheck_->isChecked());
+    const QString selectedTheme = themeBox_->currentData().toString();
+    settings.setValue("theme", selectedTheme);
+    settings.setValue("dark", selectedTheme == "dark");
     settings.setValue("output", outputPath_->text());
     settings.setValue("source_sample", sourceSamplePath_->text());
     settings.setValue("source_mix", sourceMixSlider_->value());
@@ -845,8 +867,13 @@ void MainWindow::updateBeatSync() {
 }
 
 void MainWindow::applyTheme() {
-    const bool dark = darkThemeCheck_->isChecked();
-    const auto palette = mora::ui::palette(dark);
+    const QString selectedTheme = themeBox_->currentData().toString();
+    const auto theme = selectedTheme == QStringLiteral("dark")
+        ? mora::ui::Theme::Dark
+        : selectedTheme == QStringLiteral("light")
+            ? mora::ui::Theme::Light
+            : mora::ui::Theme::Amber;
+    const auto palette = mora::ui::palette(theme);
     const QString page = QString::fromLatin1(palette.page);
     const QString surface = QString::fromLatin1(palette.surface);
     const QString ink = QString::fromLatin1(palette.ink);
@@ -900,6 +927,7 @@ void MainWindow::applyTheme() {
         QLabel#heroTitle { color: %5; font-size: 20px; font-weight: 750; }
         QLabel#heroSubtitle, QLabel#mutedText { color: %13; }
         QLabel#statusPill { color: %11; background: %6; border: 1px solid %6; border-radius: 10px; padding: 9px 13px; font-size: 10px; font-weight: 800; }
+        QLabel#beatIndicator { color: %15; background: %14; border: 1px solid %14; border-radius: 5px; padding: 5px 8px; font-size: 10px; font-weight: 800; }
         QTabWidget::pane { border: 1px solid %4; border-radius: 12px; top: -1px; }
         QTabBar::tab { background: %3; color: %5; border: 1px solid %4; padding: 11px 17px; margin-right: 5px; border-top-left-radius: 10px; border-top-right-radius: 10px; }
         QTabBar::tab:hover { border-color: %10; }
@@ -915,7 +943,9 @@ void MainWindow::applyTheme() {
         QScrollBar::handle:vertical:hover { background: %10; }
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
     )QSS").arg(page, ink, surface, border, secondary, accent, signal, selection, focus, accentHover)
-        .arg(onAccent).arg(onSignal).arg(muted);
+        .arg(onAccent).arg(onSignal).arg(muted)
+        .arg(QString::fromLatin1(palette.secondaryAccent))
+        .arg(QString::fromLatin1(palette.onSecondaryAccent));
     setStyleSheet(style);
 }
 

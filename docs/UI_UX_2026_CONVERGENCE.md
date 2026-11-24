@@ -72,3 +72,8 @@ VentuSample is a Qt 6 audio-pack workstation. Keep the generator workflow and sc
 - [Microsoft Windows app design](https://learn.microsoft.com/windows/apps/design/)
 
 These are targets; this page does not claim manual acceptance checks have already passed.
+
+
+## Mora Amber profile
+
+The native Qt workstation uses the shared [Mora Amber profile](MORA_AMBER_DESIGN_SYSTEM.md) by default, with Light and Dark retained as alternatives. The profile changes presentation only. Reduced Motion and Eco preferences continue to override nonessential effects, and audio rendering remains isolated from GUI animation.

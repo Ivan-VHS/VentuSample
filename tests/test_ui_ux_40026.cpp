@@ -14,6 +14,14 @@ int main() {
     assert(ventu::ui_ux::contrastRatio(QColor(), white) == 0.0);
     assert(std::isfinite(ventu::ui_ux::contrastRatio(white, navy)));
 
+    const auto moraAmber = mora::ui::palette(mora::ui::Theme::Amber);
+    assert(QString::fromLatin1(moraAmber.page) == QStringLiteral("#211913"));
+    assert(QString::fromLatin1(moraAmber.accent) == QStringLiteral("#D58B3D"));
+    assert(QString::fromLatin1(moraAmber.signal) == QStringLiteral("#B64A40"));
+    assert(ventu::ui_ux::contrastRatio(QColor(moraAmber.ink), QColor(moraAmber.page)) >= 7.0);
+    assert(ventu::ui_ux::meetsTextContrast(QColor(moraAmber.onAccent), QColor(moraAmber.accent)));
+    assert(ventu::ui_ux::meetsTextContrast(QColor(moraAmber.onSignal), QColor(moraAmber.signal)));
+    assert(ventu::ui_ux::meetsTextContrast(QColor(moraAmber.onSecondaryAccent), QColor(moraAmber.secondaryAccent)));
     const auto moraDark = mora::ui::palette(true);
     const auto moraLight = mora::ui::palette(false);
     assert(ventu::ui_ux::meetsTextContrast(QColor(moraDark.onAccent), QColor(moraDark.accent)));

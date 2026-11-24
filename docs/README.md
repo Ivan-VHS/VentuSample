@@ -38,6 +38,7 @@
 | [REAPER_PACK_AUDIT.md](REAPER_PACK_AUDIT.md) | manifest-only interoperability with Reaper |
 | [UI_MOTION.md](UI_MOTION.md) | persisted Qt motion preferences, project-BPM indicator and accessibility limits |
 | [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) | visual tokens and workbench UX |
+| [MORA_AMBER_DESIGN_SYSTEM.md](MORA_AMBER_DESIGN_SYSTEM.md) | default amber profile and native theme integration |
 | [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | release, privacy and communication rules |
 | [schemas/ventusample.pack.v1.schema.json](../schemas/ventusample.pack.v1.schema.json) | pack schema v1 |
 | [schemas/ventusample.pack.v2.schema.json](../schemas/ventusample.pack.v2.schema.json) | tonal metadata schema v2 |
