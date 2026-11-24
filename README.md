@@ -63,6 +63,10 @@ The application is not a real-time audio engine. Rendering and DSP run offline o
 The Windows screenshot below is a capture of the desktop application, not a browser preview.
 
 
+## Reaper integration
+
+VentuSample optionally links Reaper's versioned C17 ABI for bounded integer-expression evaluation and exact selfhood lookup. This integration is control-language infrastructure only: waveform generation, sample placement, stochastic routing, offline DSP, audio buffers, Qt and export remain native C++20. Reaper is not executed on a real-time audio path and is not a general-purpose plugin loader. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
+
 ## Quick Start
 
 ### Requirements
