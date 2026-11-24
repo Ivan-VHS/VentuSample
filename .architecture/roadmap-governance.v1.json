@@ -1,0 +1,43 @@
+{
+  "schema": "anatidae.roadmap-governance.v1",
+  "version": 1,
+  "repository": "Ivan-VHS/VentuSample",
+  "owner": "Ivan-VHS",
+  "change_control": {
+    "changes_are_versioned": true,
+    "semantic_status_changes_require_pull_request": true,
+    "required_ci_before_merge": true,
+    "expected_head_sha_required_for_branch_updates": true,
+    "rollback_plan_required_for_behavior_changes": true
+  },
+  "status_rules": {
+    "active_requires_existing_evidence": true,
+    "active_requires_regression_verification": true,
+    "extend_requires_explicit_gap": true,
+    "extend_requires_next_acceptance_gate": true,
+    "planned_requires_blocker": true,
+    "planned_requires_exit_criteria": true,
+    "status_claims_must_not_exceed_runtime_evidence": true
+  },
+  "priorities": {
+    "P0": {
+      "meaning": "Safety, data integrity, reproducibility, compatibility break or release blocker",
+      "review": "Maintainer review required before merge"
+    },
+    "P1": {
+      "meaning": "Core workflow, correctness, offline DSP quality or measurable capability gap",
+      "review": "Peer/maintainer review required before merge"
+    },
+    "P2": {
+      "meaning": "Bounded improvement with a supported workaround",
+      "review": "Normal review and documented acceptance evidence"
+    }
+  },
+  "release_controls": {
+    "production_deployment_requires_protected_environment": true,
+    "release_publication_requires_human_approval": true,
+    "release_signing_requires_verified_identity": true,
+    "untrusted_audio_or_plugin_execution_forbidden": true,
+    "destructive_cleanup_requires_human_approval": true
+  }
+}

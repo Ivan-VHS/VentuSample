@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ANATIDAE Roadmap Governance v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "repository",
+    "owner",
+    "change_control",
+    "status_rules",
+    "priorities",
+    "release_controls"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.roadmap-governance.v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "change_control": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changes_are_versioned",
+        "semantic_status_changes_require_pull_request",
+        "required_ci_before_merge",
+        "expected_head_sha_required_for_branch_updates",
+        "rollback_plan_required_for_behavior_changes"
+      ],
+      "properties": {
+        "changes_are_versioned": {
+          "const": true
+        },
+        "semantic_status_changes_require_pull_request": {
+          "const": true
+        },
+        "required_ci_before_merge": {
+          "const": true
+        },
+        "expected_head_sha_required_for_branch_updates": {
+          "const": true
+        },
+        "rollback_plan_required_for_behavior_changes": {
+          "const": true
+        }
+      }
+    },
+    "status_rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "active_requires_existing_evidence",
+        "active_requires_regression_verification",
+        "extend_requires_explicit_gap",
+        "extend_requires_next_acceptance_gate",
+        "planned_requires_blocker",
+        "planned_requires_exit_criteria",
+        "status_claims_must_not_exceed_runtime_evidence"
+      ],
+      "properties": {
+        "active_requires_existing_evidence": {
+          "const": true
+        },
+        "active_requires_regression_verification": {
+          "const": true
+        },
+        "extend_requires_explicit_gap": {
+          "const": true
+        },
+        "extend_requires_next_acceptance_gate": {
+          "const": true
+        },
+        "planned_requires_blocker": {
+          "const": true
+        },
+        "planned_requires_exit_criteria": {
+          "const": true
+        },
+        "status_claims_must_not_exceed_runtime_evidence": {
+          "const": true
+        }
+      }
+    },
+    "priorities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "P0",
+        "P1",
+        "P2"
+      ],
+      "properties": {
+        "P0": {
+          "type": "object"
+        },
+        "P1": {
+          "type": "object"
+        },
+        "P2": {
+          "type": "object"
+        }
+      }
+    },
+    "release_controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "production_deployment_requires_protected_environment",
+        "release_publication_requires_human_approval",
+        "release_signing_requires_verified_identity",
+        "untrusted_driver_or_firmware_execution_forbidden",
+        "destructive_cleanup_requires_human_approval"
+      ],
+      "properties": {
+        "production_deployment_requires_protected_environment": {
+          "const": true
+        },
+        "release_publication_requires_human_approval": {
+          "const": true
+        },
+        "release_signing_requires_verified_identity": {
+          "const": true
+        },
+        "untrusted_driver_or_firmware_execution_forbidden": {
+          "const": true
+        },
+        "destructive_cleanup_requires_human_approval": {
+          "const": true
+        }
+      }
+    }
+  }
+}
