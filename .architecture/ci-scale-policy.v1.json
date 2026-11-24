@@ -1,0 +1,59 @@
+{
+  "schema": "anatidae.ci-scale-policy.v1",
+  "version": 1,
+  "repository": "Ivan-VHS/VentuSample",
+  "global_limits": {
+    "max_jobs_per_workflow": 5,
+    "max_job_timeout_minutes": 45,
+    "max_parallel_matrix": 3
+  },
+  "workflows": {
+    ".github/workflows/ci.yml": {
+      "max_jobs": 4,
+      "max_job_timeout_minutes": 40,
+      "max_parallel_matrix": 3
+    },
+    ".github/workflows/quality-repeatability-native.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 15,
+      "max_parallel_matrix": 1
+    },
+    ".github/workflows/automation-roadmap.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 10,
+      "max_parallel_matrix": 1
+    },
+    ".github/workflows/quality-remediation.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 15,
+      "max_parallel_matrix": 1
+    },
+    ".github/workflows/verified-auto-merge.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 10,
+      "max_parallel_matrix": 1
+    },
+    ".github/workflows/update-behind-pr-branches.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 15,
+      "max_parallel_matrix": 1
+    },
+    ".github/workflows/improvement-conflict.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 10,
+      "max_parallel_matrix": 1
+    },
+    ".github/workflows/safe-ci-recovery.yml": {
+      "max_jobs": 1,
+      "max_job_timeout_minutes": 5,
+      "max_parallel_matrix": 1
+    }
+  },
+  "rules": {
+    "workflow_concurrency_required": true,
+    "workflow_cancellation_policy_must_be_explicit": true,
+    "each_runner_job_requires_timeout": true,
+    "matrix_jobs_require_max_parallel": true,
+    "required_platform_jobs_must_not_be_removed": true
+  }
+}
