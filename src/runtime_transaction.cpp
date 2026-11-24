@@ -47,83 +47,146 @@ bool RuntimeTransaction::stage(const std::vector<std::uint8_t>& value) {
 
 RuntimeStatus RuntimeTransaction::patch(std::size_t offset, std::size_t removeSize,
                                         const std::vector<std::uint8_t>& replacement) {
-    std::lock_guard lock(mutex_);
-    if (offset > staged_.size() || removeSize > staged_.size() - offset) return RuntimeStatus::Invalid;
-    const auto remaining = staged_.size() - removeSize;
-    if (replacement.size() > maxBytes_ - remaining) return RuntimeStatus::Limit;
-    std::vector<std::uint8_t> next;
-    next.reserve(remaining + replacement.size());
-    next.insert(next.end(), staged_.begin(), staged_.begin() + static_cast<std::ptrdiff_t>(offset));
-    next.insert(next.end(), replacement.begin(), replacement.end());
-    next.insert(next.end(),
-                staged_.begin() + static_cast<std::ptrdiff_t>(offset + removeSize), staged_.end());
-    if (!stage(next)) return RuntimeStatus::Limit;
-    if (events_) events_("PATCH_STAGED", generation_);
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        if (offset > staged_.size() || removeSize > staged_.size() - offset)
+            return RuntimeStatus::Invalid;
+        const auto remaining = staged_.size() - removeSize;
+        if (replacement.size() > maxBytes_ - remaining) return RuntimeStatus::Limit;
+        std::vector<std::uint8_t> next;
+        next.reserve(remaining + replacement.size());
+        next.insert(next.end(), staged_.begin(),
+                    staged_.begin() + static_cast<std::ptrdiff_t>(offset));
+        next.insert(next.end(), replacement.begin(), replacement.end());
+        next.insert(next.end(),
+                    staged_.begin() + static_cast<std::ptrdiff_t>(offset + removeSize), staged_.end());
+        if (!stage(next)) return RuntimeStatus::Limit;
+        sink = events_;
+        eventGeneration = generation_;
+    }
+    if (sink) sink("PATCH_STAGED", eventGeneration);
     return RuntimeStatus::Ok;
 }
 
 RuntimeStatus RuntimeTransaction::rebind(std::string name, std::uint64_t binding) {
-    std::lock_guard lock(mutex_);
-    if (name.empty() || name.size() > 128u) return RuntimeStatus::Invalid;
-    bindings_[std::move(name)] = binding;
-    if (events_) events_("REBIND_STAGED", generation_);
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        if (name.empty() || name.size() > 128u) return RuntimeStatus::Invalid;
+        bindings_[std::move(name)] = binding;
+        sink = events_;
+        eventGeneration = generation_;
+    }
+    if (sink) sink("REBIND_STAGED", eventGeneration);
     return RuntimeStatus::Ok;
 }
 
 RuntimeStatus RuntimeTransaction::remap(const std::vector<std::size_t>& targetToSource) {
-    std::lock_guard lock(mutex_);
-    if (targetToSource.size() > maxBytes_) return RuntimeStatus::Limit;
-    std::vector<std::uint8_t> next;
-    next.reserve(targetToSource.size());
-    for (const auto sourceIndex : targetToSource) {
-        if (sourceIndex >= staged_.size()) return RuntimeStatus::Invalid;
-        next.push_back(staged_[sourceIndex]);
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        if (targetToSource.size() > maxBytes_) return RuntimeStatus::Limit;
+        std::vector<std::uint8_t> next;
+        next.reserve(targetToSource.size());
+        for (const auto sourceIndex : targetToSource) {
+            if (sourceIndex >= staged_.size()) return RuntimeStatus::Invalid;
+            next.push_back(staged_[sourceIndex]);
+        }
+        if (!stage(next)) return RuntimeStatus::Limit;
+        sink = events_;
+        eventGeneration = generation_;
     }
-    if (!stage(next)) return RuntimeStatus::Limit;
-    if (events_) events_("REMAP_STAGED", generation_);
+    if (sink) sink("REMAP_STAGED", eventGeneration);
     return RuntimeStatus::Ok;
 }
 
 RuntimeStatus RuntimeTransaction::hotSwap(const std::vector<std::uint8_t>& replacement) {
-    std::lock_guard lock(mutex_);
-    if (!stage(replacement)) return RuntimeStatus::Limit;
-    if (events_) events_("HOT_SWAP_STAGED", generation_);
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        if (!stage(replacement)) return RuntimeStatus::Limit;
+        sink = events_;
+        eventGeneration = generation_;
+    }
+    if (sink) sink("HOT_SWAP_STAGED", eventGeneration);
     return RuntimeStatus::Ok;
 }
 
 RuntimeStatus RuntimeTransaction::migrate(std::uint32_t targetSchema, const Migration& migration) {
-    std::lock_guard lock(mutex_);
-    if (!migration || targetSchema <= schemaVersion_) return RuntimeStatus::Invalid;
+    std::vector<std::uint8_t> source;
+    std::uint32_t sourceSchema{};
+    std::uint64_t sourceGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        if (!migration || targetSchema <= schemaVersion_) return RuntimeStatus::Invalid;
+        source = staged_;
+        sourceSchema = schemaVersion_;
+        sourceGeneration = generation_;
+    }
+
+    std::vector<std::uint8_t> migrated;
     try {
-        const auto migrated = migration(staged_, schemaVersion_, targetSchema);
-        if (!stage(migrated)) return RuntimeStatus::Limit;
-        schemaVersion_ = targetSchema;
-        if (events_) events_("MIGRATION_STAGED", generation_);
-        return RuntimeStatus::Ok;
+        /* Migration code is supplied by an extension and must not run under our lock. */
+        migrated = migration(source, sourceSchema, targetSchema);
     } catch (const std::exception& error) {
-        lastError_ = error.what();
+        std::lock_guard lock(mutex_);
+        if (generation_ == sourceGeneration && schemaVersion_ == sourceSchema && staged_ == source)
+            lastError_ = error.what();
         return RuntimeStatus::Thrown;
     } catch (...) {
-        lastError_ = "unknown migration failure";
+        std::lock_guard lock(mutex_);
+        if (generation_ == sourceGeneration && schemaVersion_ == sourceSchema && staged_ == source)
+            lastError_ = "unknown migration failure";
         return RuntimeStatus::Thrown;
     }
+
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        /* Reject a stale migration rather than overwriting concurrent staged work. */
+        if (generation_ != sourceGeneration || schemaVersion_ != sourceSchema || staged_ != source)
+            return RuntimeStatus::Conflict;
+        if (!stage(migrated)) return RuntimeStatus::Limit;
+        schemaVersion_ = targetSchema;
+        sink = events_;
+        eventGeneration = generation_;
+    }
+    if (sink) sink("MIGRATION_STAGED", eventGeneration);
+    return RuntimeStatus::Ok;
 }
 
 RuntimeStatus RuntimeTransaction::commit(std::optional<std::uint64_t> expected,
                                          std::string_view event) {
-    std::lock_guard lock(mutex_);
-    if (failed_) return RuntimeStatus::Thrown;
-    if (expected && *expected != generation_) return RuntimeStatus::Conflict;
-    if (stagedCrc_ != checksum(staged_)) {
-        lastError_ = "staged payload checksum mismatch";
-        return RuntimeStatus::Integrity;
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        if (failed_) return RuntimeStatus::Thrown;
+        if (expected && *expected != generation_) return RuntimeStatus::Conflict;
+        if (generation_ == std::numeric_limits<std::uint64_t>::max()) {
+            lastError_ = "transaction generation counter exhausted";
+            return RuntimeStatus::Limit;
+        }
+        if (stagedCrc_ != checksum(staged_)) {
+            lastError_ = "staged payload checksum mismatch";
+            return RuntimeStatus::Integrity;
+        }
+        committed_ = staged_;
+        committedCrc_ = stagedCrc_;
+        committedSchemaVersion_ = schemaVersion_;
+        ++generation_;
+        lastError_.clear();
+        sink = events_;
+        eventGeneration = generation_;
     }
-    committed_ = staged_;
-    committedCrc_ = stagedCrc_;
-    committedSchemaVersion_ = schemaVersion_;
-    ++generation_;
-    lastError_.clear();
-    if (events_) events_(event, generation_);
+    /* User callbacks are never invoked while holding the transaction mutex. */
+    if (sink) sink(event, eventGeneration);
     return RuntimeStatus::Ok;
 }
 
@@ -140,20 +203,32 @@ RuntimeStatus RuntimeTransaction::sync() {
 }
 
 RuntimeStatus RuntimeTransaction::rollback() {
-    std::lock_guard lock(mutex_);
-    staged_ = committed_;
-    stagedCrc_ = committedCrc_;
-    schemaVersion_ = committedSchemaVersion_;
-    lastError_.clear();
-    failed_ = false;
-    if (events_) events_("ROLLBACK", generation_);
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        staged_ = committed_;
+        stagedCrc_ = committedCrc_;
+        schemaVersion_ = committedSchemaVersion_;
+        lastError_.clear();
+        failed_ = false;
+        sink = events_;
+        eventGeneration = generation_;
+    }
+    if (sink) sink("ROLLBACK", eventGeneration);
     return RuntimeStatus::Ok;
 }
 
 bool RuntimeTransaction::emit(std::string_view name) {
-    std::lock_guard lock(mutex_);
     if (name.empty() || name.size() > 128u) return false;
-    if (events_) events_(name, generation_);
+    EventSink sink;
+    std::uint64_t eventGeneration{};
+    {
+        std::lock_guard lock(mutex_);
+        sink = events_;
+        eventGeneration = generation_;
+    }
+    if (sink) sink(name, eventGeneration);
     return true;
 }
 
