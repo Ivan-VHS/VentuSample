@@ -43,7 +43,7 @@ This roadmap turns the 20 requested directions into traceable workstreams. It di
 | `17-test-controls` | Протестировать | P0 | active | `.github/workflows/quality-remediation.yml`, `tests/test_generator.cpp` |
 | `18-verify-observability` | Верифицировать | P1 | active | `verified-auto-merge.yml`, `update-behind-pr-branches.yml`, `safe-ci-recovery.yml` |
 | `19-document-automation` | Документировать | P1 | active | `docs/README.md`, `docs/DOCUMENTATION_CONTROL.md`, this roadmap |
-| `20-release-publication` | Развернуть | P2 | planned | `.github/workflows/verified-auto-merge.yml`, `project-contract.json` |
+| `20-release-publication` | Развернуть | P2 | extend | `.github/workflows/release.yml`, `tools/create_release_manifest.py`, `tests/test_release_manifest.py`, `schemas/ventusample.release.v1.schema.json`, `docs/RELEASE.md` |
 
 ## Operating rules
 
@@ -81,5 +81,5 @@ Workstream 14 remains planned because these repositories do not have a productio
 - **Workstream 01:** the governance policy and schema define evidence-based maturity, P0/P1/P2 review, versioned status changes and release constraints. The roadmap validator runs executable negative-case tests.
 - **Workstream 12:** Python 3.10–3.12, Native C++20, Linux Qt and Windows Qt remain required. CI budgets enforce timeouts, job ceilings, concurrency and matrix parallelism; the scale validator rejects unbounded settings.
 - **Offline boundary:** this contract does not enable background audio capture, device I/O, network telemetry, VST/AU hosting, driver installation or firmware writes. DSP remains local/offline.
-- **Release boundary:** production deployment is inapplicable to this workstation. Public release remains blocked until a supported target, protected environment, signing/provenance and human release approval exist.
+- **Release boundary:** production deployment is inapplicable to this workstation. Workstream 20 is now `extend`: a manually dispatched Windows tag workflow builds and tests a release candidate, creates a deterministic SHA-256 file inventory, verifies the archive checksum and leaves a GitHub Release as a draft. It remains incomplete until administrators configure and verify required reviewers on the `release-review` environment and a maintainer reviews the manual publication gate. SHA-256 is not a publisher signature.
 - **Toolchain optimization (06):** remains `extend` pending reproducible before/after CMake, compiler, packaging and validation benchmarks.
