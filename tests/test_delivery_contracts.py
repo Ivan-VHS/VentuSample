@@ -26,6 +26,11 @@ REPOSITORY = PROJECT_CONTRACT["project"]["repository"]
 
 
 class DeliveryContractTests(unittest.TestCase):
+    def test_repository_identity_is_loaded_from_project_contract(self):
+        self.assertEqual(REPOSITORY, "Ivan-VHS/VentuSample")
+        governance = load_json(GOVERNANCE)
+        self.assertEqual(governance["repository"], REPOSITORY)
+
     def test_committed_governance_and_scale_policies_are_valid(self):
         governance = load_json(GOVERNANCE)
         scale = load_json(SCALE)
