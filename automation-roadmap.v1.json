@@ -429,9 +429,9 @@
         "Автоматическое масштабирование"
       ],
       "priority": "P2",
-      "status": "planned",
-      "objective": "Define environment-aware deployment and scaling only where the repository has a real deployable target.",
-      "target": "Require protected environments and an explicit human approval before external deployment.",
+      "status": "not_applicable",
+      "objective": "Keep production-service deployment out of scope for this local desktop/CLI workstation.",
+      "target": "No production deployment workflow is maintained because the repository has no hosted service, production environment or remote control plane. Local desktop packaging is handled by the separate release workstream.",
       "trigger": [
         "workflow_dispatch",
         "protected-release-review"
@@ -444,7 +444,8 @@
         "External deployment requires a protected environment and human approval.",
         "No production rollout is enabled by this roadmap."
       ],
-      "acceptance": "A deployment workflow is added only with a documented target, rollback path, permissions, and approval gate."
+      "acceptance": "The not_applicable status is valid only while the product remains a local desktop/CLI tool without a hosted runtime. Any approved hosted-service target must replace this status with planned or extend and provide a versioned deployment design, least-privilege permissions, protected approval, health checks and rollback evidence.",
+      "not_applicable_reason": "This project is a local desktop/CLI workstation with bounded local processing and no hosted production service or remote runtime to deploy. Distributing a desktop archive is not production-service deployment. Reconsider only after an approved product decision defines a real deployable target, owner, threat model, rollback path and protected environment."
     },
     {
       "id": "15-consolidate-test-matrix",
