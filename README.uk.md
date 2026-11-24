@@ -63,6 +63,12 @@ VentuSample створює локальні hip-hop sample packs на основ
 Скріншот Windows нижче — знімок desktop-застосунку, а не браузерне прев’ю.
 
 
+## Інтеграція з Reaper
+
+VentuSample може використовувати версійований C17 ABI Reaper для детермінованих керувальних виразів і пошуку selfhood. Reaper не працює в real-time DSP: генерація, буфери, маршрутизація та offline-обробка залишаються в нативному C++20.
+
+Докладніше: [інтеграція Reaper](docs/REAPER_RUNTIME_INTEGRATION.md).
+
 ## Швидкий старт
 
 ### Вимоги
