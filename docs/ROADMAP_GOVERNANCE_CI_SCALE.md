@@ -40,7 +40,7 @@ Global ceiling: **5 runner jobs**, **45 minutes per job**, **3 parallel matrix w
 
 All scoped workflows require workflow-level concurrency and explicit cancellation behavior. Every runner job must declare `timeout-minutes`; matrices require `max-parallel`. The Python 3.10/3.11/3.12 matrix, Native C++20 build, Linux Qt and Windows Qt desktop build remain required; budgets are not an excuse to delete platform coverage.
 
-## Recovery, release and offline safety
+## Safe recovery and release boundaries
 
 Safe CI Recovery is manual-only, starts from protected `main`, permits only same-repository allow-listed validation runs with failed/timed-out conclusions, reruns failed jobs only, and allows one retry maximum. It rejects fork runs, successful/cancelled/action-required runs and exhausted attempts.
 
@@ -48,7 +48,7 @@ This CI workflow does not rerun audio rendering, mutate sample files, access aud
 
 VentuSample is an offline desktop workstation, not a hosted service. Production deployment is therefore inapplicable. Public release remains gated until a supported distribution target, protected release environment, human approval, artifact signing/provenance and rollback procedure are configured.
 
-## Toolchain optimisation
+## Toolchain optimization
 
 Workstream 06 remains `extend` until a repeatable before/after baseline exists for clean and incremental CMake builds, C++/C11 compiler versions and flags, Python validation time, peak memory and artifact hashes. No default compiler, linker, Qt or packaging changes are treated as optimization without comparable measurements and full CTest/desktop regression evidence.
 
