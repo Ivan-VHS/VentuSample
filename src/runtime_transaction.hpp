@@ -82,7 +82,7 @@ private:
     bool stage(const std::vector<std::uint8_t>& value);
     RuntimeStatus commit(std::optional<std::uint64_t> expected, std::string_view event);
 
-    mutable std::recursive_mutex mutex_;
+    mutable std::mutex mutex_;
     std::vector<std::uint8_t> committed_;
     std::vector<std::uint8_t> staged_;
     std::uint64_t generation_{0};
