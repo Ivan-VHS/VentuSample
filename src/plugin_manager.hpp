@@ -3,6 +3,7 @@
 #include "generator.hpp"
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <string>
@@ -27,16 +28,30 @@ struct PluginDescriptor {
     std::string entrypoint;
 };
 
+struct PluginExecutionPolicy {
+    // The generator remains offline and deterministic; these are host-side
+    // admission/observation limits, not an OS sandbox or forced cancellation.
+    std::uint64_t maxEstimatedOutputBytes{512u * 1024u * 1024u};
+    std::uint64_t softDeadlineMs{120'000u};
+    bool requireDeterministicSeed{true};
+};
+
 struct PluginContext {
     Parameters parameters;
     std::filesystem::path workspaceRoot;
     std::filesystem::path outputDirectory;
+    std::string correlationId;
+    PluginExecutionPolicy executionPolicy;
 };
 
 struct PluginResult {
     bool success{false};
     std::string summary;
     std::vector<std::string> details;
+    std::string executionId;
+    std::uint64_t durationMs{0};
+    std::uint64_t estimatedOutputBytes{0};
+    bool deadlineExceeded{false};
 };
 
 struct PluginStatus {
@@ -45,6 +60,22 @@ struct PluginStatus {
     bool initialized{false};
     bool handlerAttached{false};
     std::string lastError;
+    std::uint64_t invocations{0};
+    std::uint64_t successes{0};
+    std::uint64_t failures{0};
+    std::uint64_t deadlineExceeded{0};
+    std::uint64_t lastDurationMs{0};
+    std::uint64_t maxDurationMs{0};
+    std::string lastExecutionId;
+    std::string lastStatus{"never_run"};
+};
+
+struct PluginHealth {
+    std::size_t registered{0};
+    std::size_t enabled{0};
+    std::size_t initialized{0};
+    std::size_t handlerAttached{0};
+    bool ready{false};
 };
 
 using PluginHandler = std::function<PluginResult(const PluginContext&)>;
@@ -72,6 +103,7 @@ public:
                         PluginLifecycle onShutdown = {});
     std::vector<PluginDescriptor> plugins() const;
     std::vector<PluginStatus> statuses() const;
+    PluginHealth health() const noexcept;
     const PluginDescriptor* find(const std::string& idOrName) const noexcept;
     bool isEnabled(const std::string& idOrName) const noexcept;
     bool setEnabled(const std::string& idOrName, bool enabled) noexcept;
@@ -89,6 +121,14 @@ private:
         bool initialized{false};
         std::string lastError;
         PluginContext lifecycleContext;
+        std::uint64_t invocations{0};
+        std::uint64_t successes{0};
+        std::uint64_t failures{0};
+        std::uint64_t deadlineExceeded{0};
+        std::uint64_t lastDurationMs{0};
+        std::uint64_t maxDurationMs{0};
+        std::string lastExecutionId;
+        std::string lastStatus{"never_run"};
     };
     std::vector<Entry> entries_;
 };
