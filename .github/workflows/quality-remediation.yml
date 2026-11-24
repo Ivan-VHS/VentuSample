@@ -36,9 +36,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ventusample-quality-remediation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   remediation-profile:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -50,3 +55,7 @@ jobs:
         run: python tools/quality_remediation.py --format json
       - name: Test bounded manual CI recovery policy
         run: python -m unittest discover -s tests -p "test_safe_rerun.py" -v
+      - name: Validate roadmap governance and bounded CI scale
+        run: python tools/validate_delivery_contracts.py --self-test
+      - name: Test governance and CI scale regressions
+        run: python -m unittest discover -s tests -p "test_delivery_contracts.py" -v
