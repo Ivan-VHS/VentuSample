@@ -2,6 +2,9 @@
 
 namespace mora::ui {
 
+inline constexpr unsigned long nativeBackdropAttribute = 38;
+inline constexpr unsigned long nativeBackdropMainWindow = 2;
+
 struct Palette {
     const char* page;
     const char* surface;
