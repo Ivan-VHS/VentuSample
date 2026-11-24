@@ -4,21 +4,65 @@ on:
   push:
     branches:
       - main
-      - "feat/**"
-      - "integration/**"
+      - master
+      - develop
   pull_request:
     branches:
       - main
+      - master
+      - develop
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: true
 
 jobs:
+  detect:
+    name: Detect repository toolchains
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      has_cmake: ${{ steps.features.outputs.has_cmake }}
+      has_reaper: ${{ steps.features.outputs.has_reaper }}
+      has_sambu: ${{ steps.features.outputs.has_sambu }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+
+      - name: Detect supported project entry points
+        id: features
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          has_cmake=false
+          has_reaper=false
+          has_sambu=false
+
+          [[ -s CMakeLists.txt ]] && has_cmake=true
+          if [[ -s reaper/cli.py && -s reaper/__init__.py ]]; then
+            has_reaper=true
+          fi
+          if [[ -s sambu/__main__.py ]]; then
+            has_sambu=true
+          fi
+
+          {
+            echo "has_cmake=$has_cmake"
+            echo "has_reaper=$has_reaper"
+            echo "has_sambu=$has_sambu"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "CMake project: $has_cmake"
+          echo "Reaper package: $has_reaper"
+          echo "SAMBU package: $has_sambu"
+
   contracts:
     name: Metadata, schemas and capability contracts
     runs-on: ubuntu-24.04
@@ -131,6 +175,21 @@ jobs:
           fi
           echo "Validated ${#yaml_files[@]} tracked YAML files."
 
+      - name: Lint this GitHub Actions workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="1.7.12"
+          archive="$RUNNER_TEMP/actionlint_${version}_linux_amd64.tar.gz"
+          url="https://github.com/rhysd/actionlint/releases/download/v${version}/actionlint_${version}_linux_amd64.tar.gz"
+
+          curl --fail --location --retry 3 --retry-delay 2 "$url" --output "$archive"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $archive" | sha256sum --check
+
+          tar -xzf "$archive" -C "$RUNNER_TEMP" actionlint
+          "$RUNNER_TEMP/actionlint" .github/workflows/completeness-check.yml
+
       - name: Compile every tracked Python file
         shell: bash
         run: |
@@ -188,6 +247,14 @@ jobs:
             python tools/validate_plugin_federation.py
           fi
 
+          # Exercise only the OPlague CLI contract that exists in this source tree.
+          # These commands are local and read-only; they do not inspect or modify devices.
+          if [[ -f oplague/__main__.py ]]; then
+            python -m oplague --catalog --verify
+            python -m oplague --catalog >/dev/null
+            python -m oplague --rank acoustic >/dev/null
+          fi
+
   python-tests:
     name: Python tests
     runs-on: ubuntu-24.04
@@ -231,7 +298,8 @@ jobs:
 
   native-tests:
     name: Native build and CTest
-    if: ${{ hashFiles('CMakeLists.txt') != '' }}
+    needs: detect
+    if: ${{ needs.detect.outputs.has_cmake == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -288,8 +356,9 @@ jobs:
           ctest --test-dir build -C Release --output-on-failure
 
   reaper-language:
-    name: Reaper parser, IR parity and Span/LSP checks
-    if: ${{ hashFiles('reaper/cli.py') != '' }}
+    name: Reaper syntax, IR/VM parity and Span/LSP checks
+    needs: detect
+    if: ${{ needs.detect.outputs.has_reaper == 'true' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -311,6 +380,27 @@ jobs:
 
       - name: Verify source Span and LSP coordinate behavior
         run: python -m unittest discover -s tests -p "test_language_service.py" -v
+
+  sambu-language:
+    name: SAMBU strict syntax and source-span checks
+    needs: detect
+    if: ${{ needs.detect.outputs.has_sambu == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Validate SAMBU examples with strict diagnostics and spans
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m sambu check --strict --spans examples/
 
   secrets:
     name: Secret scanning
