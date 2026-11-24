@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ANATIDAE CI Scale Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "repository",
+    "global_limits",
+    "workflows",
+    "rules"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.ci-scale-policy.v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "global_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_jobs_per_workflow",
+        "max_job_timeout_minutes",
+        "max_parallel_matrix"
+      ],
+      "properties": {
+        "max_jobs_per_workflow": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "max_job_timeout_minutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 120
+        },
+        "max_parallel_matrix": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        }
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "max_jobs",
+          "max_job_timeout_minutes",
+          "max_parallel_matrix"
+        ],
+        "properties": {
+          "max_jobs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "max_job_timeout_minutes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 120
+          },
+          "max_parallel_matrix": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 8
+          }
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workflow_concurrency_required",
+        "workflow_cancellation_policy_must_be_explicit",
+        "each_runner_job_requires_timeout",
+        "matrix_jobs_require_max_parallel",
+        "required_platform_jobs_must_not_be_removed"
+      ],
+      "properties": {
+        "workflow_concurrency_required": {
+          "const": true
+        },
+        "workflow_cancellation_policy_must_be_explicit": {
+          "const": true
+        },
+        "each_runner_job_requires_timeout": {
+          "const": true
+        },
+        "matrix_jobs_require_max_parallel": {
+          "const": true
+        },
+        "required_platform_jobs_must_not_be_removed": {
+          "const": true
+        }
+      }
+    }
+  }
+}

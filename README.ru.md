@@ -217,7 +217,7 @@ Plugin Manager включает 19 встроенных инструментов
 | `src/compat/pytyliki-dsp/` | перенесённая библиотека обработки буферов на C11 |
 | `integrations/cockos-reaper/` | необязательные Lua-действия для Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle и regression tests |
-| `docs/` | архитектура, функции, plugin SDK, UI behavior и audio contracts |
+| `docs/` | архитектура, функции, plugin SDK, UI behavior, audio contracts и [политика устойчивости и доверия](docs/RESILIENCE_POLICY.md) |
 | `docs/PYTYLIKI_DSP_MIGRATION.md` | владение и правила сборки перенесённых C11-модулей |
 | `docs/integrations/COCKOS_REAPER.md` | необязательные скрипты Cockos REAPER |
 | `schemas/` | версионированные sample-pack и plugin manifest schemas |
@@ -240,7 +240,9 @@ Desktop использует Qt 6 Widgets. Генератор и DSP engine на
 - Windows 11 native Qt desktop build на runner Windows 2022 с Qt 6.8.3 и MSVC 2022;
 - project-contract, generated-fixture, engineering-evolution и CLife validation.
 
-Windows desktop job захватывает запущенное приложение и загружает screenshot artifact со сроком хранения 30 дней. Этот workflow **не** объявляет public web deployment, hosted preview или tagged Windows release archive. Не следует делать вывод о наличии release packaging или автоматического deployment по успешному CI.
+Windows desktop job захватывает запущенное приложение и загружает screenshot artifact со сроком хранения 30 дней.
+
+Выпуск Windows x64 по тегу выполняет отдельный [ручной workflow релиза](.github/workflows/release.yml): он запускает CTest, формирует SHA-256-манифест и создаёт черновой GitHub Release для ручной публикации. Этот workflow **не** объявляет public web deployment, hosted preview или tagged Windows release archive. Не следует делать вывод о наличии release packaging или автоматического deployment по успешному CI.
 
 Для отката локального изменения вернитесь к предыдущему Git commit или пересоберите последнюю известную рабочую ревизию. Нет онлайн-сервиса или deployed database, которые нужно откатывать. Логи CI и артефакты доступны в GitHub Actions.
 
