@@ -223,6 +223,68 @@ void testManifestReaderRejectsOversizedAndSpecialInputs() {
     fs::remove_all(root, ec);
 }
 
+void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
+    namespace fs = std::filesystem;
+    const auto root = fs::temp_directory_path() / "ventusample-plugin-top-level-fields-test";
+    std::error_code ec;
+    fs::remove_all(root, ec);
+    fs::create_directories(root, ec);
+    require(!ec, "top-level manifest fixture directory should be created");
+    {
+        std::ofstream manifest(root / "plugin.json", std::ios::binary);
+        manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
+  "host": { "id": "ventu" },
+  "metadata": { "id": "nested-id", "api_version": 99, "capabilities": ["wrong.capability"] },
+  "id": "top-level-plugin",
+  "name": "Top Level Plugin",
+  "version": "1.0.0",
+  "api_version": 1,
+  "domain": "tests",
+  "description": "Top-level field extraction test.",
+  "capabilities": ["commands"],
+  "entrypoint": "ignored.cpp:register"
+})json";
+    }
+    fs::create_directories(root / "duplicate", ec);
+    require(!ec, "duplicate-key fixture directory should be created");
+    {
+        std::ofstream manifest(root / "duplicate" / "plugin.json", std::ios::binary);
+        manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
+  "id": "duplicate-first",
+  "id": "duplicate-second",
+  "name": "Duplicate Key Fixture",
+  "version": "1.0.0",
+  "api_version": 1,
+  "host": { "id": "ventu" },
+  "domain": "tests",
+  "description": "Duplicate keys are invalid.",
+  "capabilities": ["commands"],
+  "entrypoint": "ignored.cpp:register"
+})json";
+    }
+
+    ventu::PluginManager manager;
+    std::vector<std::string> diagnostics;
+    const auto discovered = manager.discoverManifests(root, &diagnostics);
+    if (discovered != 1u) {
+        std::cerr << "DEBUG discovered=" << discovered << " diagnostics:";
+        for (const auto& diagnostic : diagnostics) std::cerr << " [" << diagnostic << "]";
+        std::cerr << '\\n';
+    }
+    require(discovered == 1u,
+            "nested host and metadata keys must not shadow top-level manifest fields");
+    const auto* plugin = manager.find("top-level-plugin");
+    require(plugin != nullptr, "the top-level plugin ID must be registered");
+    require(plugin->entrypoint == "ignored.cpp:register", "top-level entrypoint must be selected");
+    require(plugin->capabilities.size() == 1u && plugin->capabilities[0] == "commands",
+            "nested capabilities must not shadow the top-level capability list");
+    require(manager.find("nested-id") == nullptr,
+            "nested metadata identifiers must not be registered as plugin IDs");
+    fs::remove_all(root, ec);
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -240,6 +302,7 @@ int main() {
     testExtensionRegistration();
     testManifestDiscoveryAndLifecycle();
     testManifestReaderRejectsOversizedAndSpecialInputs();
+    testTopLevelManifestFieldsAreNotShadowedByNestedKeys();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;
