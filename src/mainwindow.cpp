@@ -4,6 +4,7 @@
 #include "mora_theme.hpp"
 #include "budget_planner_dialog.hpp"
 
+#include <QAction>
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QComboBox>
