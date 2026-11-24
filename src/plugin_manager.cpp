@@ -9,6 +9,7 @@
 #include <iterator>
 #include <optional>
 #include <regex>
+#include <string_view>
 #include <system_error>
 #include <utility>
 #if defined(_WIN32)
