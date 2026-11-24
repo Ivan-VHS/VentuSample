@@ -233,6 +233,7 @@ void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
     {
         std::ofstream manifest(root / "plugin.json", std::ios::binary);
         manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
   "host": { "id": "ventu" },
   "metadata": { "id": "nested-id", "api_version": 99, "capabilities": ["wrong.capability"] },
   "id": "top-level-plugin",
