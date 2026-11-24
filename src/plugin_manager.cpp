@@ -9,6 +9,7 @@
 #include <iterator>
 #include <optional>
 #include <regex>
+#include <string_view>
 #include <system_error>
 #include <utility>
 #if defined(_WIN32)
@@ -94,14 +95,59 @@ bool readPlainJsonString(const std::string& json, std::size_t& position,
     return false;
 }
 
+bool jsonHexDigit(char value) {
+    return (value >= '0' && value <= '9')
+        || (value >= 'a' && value <= 'f')
+        || (value >= 'A' && value <= 'F');
+}
+
 bool skipJsonString(const std::string& json, std::size_t& position) {
     if (position >= json.size() || json[position] != '"') return false;
     ++position;
     while (position < json.size()) {
         const unsigned char ch = static_cast<unsigned char>(json[position]);
         if (ch == '\\') {
-            if (position + 1u >= json.size()) return false;
-            position += 2u;
+            ++position;
+            if (position >= json.size()) return false;
+            const char escape = json[position++];
+            switch (escape) {
+                case '"': case '\\': case '/':
+                case 'b': case 'f': case 'n': case 'r': case 't':
+                    break;
+                case 'u': {
+                    if (position + 4u > json.size()) return false;
+                    unsigned int codeUnit = 0u;
+                    for (unsigned int i = 0u; i < 4u; ++i) {
+                        const char digit = json[position++];
+                        if (!jsonHexDigit(digit)) return false;
+                        codeUnit <<= 4u;
+                        if (digit >= '0' && digit <= '9') codeUnit |= static_cast<unsigned int>(digit - '0');
+                        else if (digit >= 'a' && digit <= 'f') codeUnit |= static_cast<unsigned int>(digit - 'a' + 10);
+                        else codeUnit |= static_cast<unsigned int>(digit - 'A' + 10);
+                    }
+                    if (codeUnit >= 0xD800u && codeUnit <= 0xDBFFu) {
+                        if (position + 6u > json.size()
+                            || json[position] != '\\' || json[position + 1u] != 'u')
+                            return false;
+                        position += 2u;
+                        unsigned int low = 0u;
+                        for (unsigned int i = 0u; i < 4u; ++i) {
+                            const char digit = json[position++];
+                            if (!jsonHexDigit(digit)) return false;
+                            low <<= 4u;
+                            if (digit >= '0' && digit <= '9') low |= static_cast<unsigned int>(digit - '0');
+                            else if (digit >= 'a' && digit <= 'f') low |= static_cast<unsigned int>(digit - 'a' + 10);
+                            else low |= static_cast<unsigned int>(digit - 'A' + 10);
+                        }
+                        if (low < 0xDC00u || low > 0xDFFFu) return false;
+                    } else if (codeUnit >= 0xDC00u && codeUnit <= 0xDFFFu) {
+                        return false;
+                    }
+                    break;
+                }
+                default:
+                    return false;
+            }
             continue;
         }
         if (ch == '"') {
@@ -114,44 +160,108 @@ bool skipJsonString(const std::string& json, std::size_t& position) {
     return false;
 }
 
-bool skipJsonValue(const std::string& json, std::size_t& position) {
-    skipJsonWhitespace(json, position);
-    if (position >= json.size()) return false;
-    if (json[position] == '"') return skipJsonString(json, position);
-    if (json[position] == '{' || json[position] == '[') {
-        std::vector<char> closers;
-        closers.push_back(json[position] == '{' ? '}' : ']');
-        ++position;
-        while (!closers.empty()) {
-            if (position >= json.size()) return false;
-            const char ch = json[position];
-            if (ch == '"') {
-                if (!skipJsonString(json, position)) return false;
-                continue;
-            }
-            if (ch == '{' || ch == '[') {
-                if (closers.size() >= 32u) return false;
-                closers.push_back(ch == '{' ? '}' : ']');
-                ++position;
-                continue;
-            }
-            if (ch == '}' || ch == ']') {
-                if (closers.back() != ch) return false;
-                closers.pop_back();
-            }
-            ++position;
-        }
-        return true;
-    }
+bool skipJsonNumber(const std::string& json, std::size_t& position) {
     const std::size_t begin = position;
-    while (position < json.size()) {
-        const char ch = json[position];
-        if (ch == ',' || ch == '}' || ch == ']' || ch == ' '
-            || ch == '\t' || ch == '\r' || ch == '\n')
-            break;
+    if (position < json.size() && json[position] == '-') ++position;
+    if (position >= json.size()) return false;
+
+    if (json[position] == '0') {
         ++position;
+        if (position < json.size() && json[position] >= '0' && json[position] <= '9')
+            return false;
+    } else if (json[position] >= '1' && json[position] <= '9') {
+        while (position < json.size()
+               && json[position] >= '0' && json[position] <= '9')
+            ++position;
+    } else {
+        return false;
+    }
+
+    if (position < json.size() && json[position] == '.') {
+        ++position;
+        const std::size_t fractionBegin = position;
+        while (position < json.size()
+               && json[position] >= '0' && json[position] <= '9')
+            ++position;
+        if (position == fractionBegin) return false;
+    }
+
+    if (position < json.size() && (json[position] == 'e' || json[position] == 'E')) {
+        ++position;
+        if (position < json.size() && (json[position] == '+' || json[position] == '-'))
+            ++position;
+        const std::size_t exponentBegin = position;
+        while (position < json.size()
+               && json[position] >= '0' && json[position] <= '9')
+            ++position;
+        if (position == exponentBegin) return false;
     }
     return position > begin;
+}
+
+bool skipJsonValue(const std::string& json, std::size_t& position,
+                   unsigned int depth = 0u) {
+    skipJsonWhitespace(json, position);
+    if (position >= json.size() || depth > 32u) return false;
+
+    if (json[position] == '"') return skipJsonString(json, position);
+
+    if (json[position] == '{') {
+        ++position;
+        skipJsonWhitespace(json, position);
+        if (position < json.size() && json[position] == '}') {
+            ++position;
+            return true;
+        }
+        std::vector<std::string> keys;
+        for (;;) {
+            skipJsonWhitespace(json, position);
+            const std::size_t keyBegin = position;
+            if (!skipJsonString(json, position)) return false;
+            const std::string key = json.substr(keyBegin, position - keyBegin);
+            if (std::find(keys.begin(), keys.end(), key) != keys.end()) return false;
+            keys.push_back(key);
+            skipJsonWhitespace(json, position);
+            if (position >= json.size() || json[position++] != ':') return false;
+            if (!skipJsonValue(json, position, depth + 1u)) return false;
+            skipJsonWhitespace(json, position);
+            if (position >= json.size()) return false;
+            if (json[position] == '}') {
+                ++position;
+                return true;
+            }
+            if (json[position++] != ',') return false;
+        }
+    }
+
+    if (json[position] == '[') {
+        ++position;
+        skipJsonWhitespace(json, position);
+        if (position < json.size() && json[position] == ']') {
+            ++position;
+            return true;
+        }
+        for (;;) {
+            if (!skipJsonValue(json, position, depth + 1u)) return false;
+            skipJsonWhitespace(json, position);
+            if (position >= json.size()) return false;
+            if (json[position] == ']') {
+                ++position;
+                return true;
+            }
+            if (json[position++] != ',') return false;
+        }
+    }
+
+    for (const std::string_view literal : {std::string_view("true"),
+                                           std::string_view("false"),
+                                           std::string_view("null")}) {
+        if (json.compare(position, literal.size(), literal) == 0) {
+            position += literal.size();
+            return true;
+        }
+    }
+    return skipJsonNumber(json, position);
 }
 
 /* Locate a field in the current object only; nested keys never shadow it. */
