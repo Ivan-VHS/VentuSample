@@ -1,7 +1,9 @@
 #include "runtime_transaction.hpp"
 
+#include <atomic>
 #include <chrono>
 #include <cstdlib>
+#include <memory>
 #include <future>
 #include <iostream>
 #include <string>
@@ -80,6 +82,34 @@ int main() {
         ventu::RuntimeTransaction::assertCondition(false, "assertion rejected");
     }) == "assertion rejected", "assert should fail through the runtime error channel");
     require(!events.empty(), "transaction events should be emitted");
+
+    /* The owner may release the object before its future is consumed. */
+    std::promise<void> callbackEntered;
+    std::promise<void> releaseCallback;
+    const auto callbackGate = releaseCallback.get_future().share();
+    auto guarded = std::make_unique<ventu::RuntimeTransaction>(
+        std::vector<std::uint8_t>{'x'}, 1u, 1024u,
+        [&](std::string_view name, std::uint64_t) {
+            if (name == "FLASH_COMMITTED") {
+                callbackEntered.set_value();
+                callbackGate.wait();
+            }
+        });
+    auto outstanding = guarded->asyncFlash(0u);
+    callbackEntered.get_future().wait();
+    std::atomic<bool> destroyed{false};
+    std::thread destroyer([&] {
+        guarded.reset();
+        destroyed.store(true, std::memory_order_release);
+    });
+    std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    const bool destructorWaited = !destroyed.load(std::memory_order_acquire);
+    releaseCallback.set_value();
+    destroyer.join();
+    require(destructorWaited, "transaction destruction must wait for active asyncFlash workers");
+    require(destroyed.load(std::memory_order_acquire), "transaction should be destroyed after its worker exits");
+    require(outstanding.get() == ventu::RuntimeStatus::Ok,
+            "future may be consumed safely after transaction destruction");
 
     std::cout << "VentuSample runtime transaction tests passed.\n";
     return 0;

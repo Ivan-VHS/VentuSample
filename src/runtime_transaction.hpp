@@ -1,5 +1,6 @@
 #pragma once
 
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <exception>
@@ -46,6 +47,7 @@ public:
                                 std::uint32_t schemaVersion = 1u,
                                 std::size_t maxBytes = kDefaultMaxBytes,
                                 EventSink events = {});
+    ~RuntimeTransaction();
 
     RuntimeStatus patch(std::size_t offset, std::size_t removeSize,
                         const std::vector<std::uint8_t>& replacement);
@@ -83,6 +85,9 @@ private:
     RuntimeStatus commit(std::optional<std::uint64_t> expected, std::string_view event);
 
     mutable std::mutex mutex_;
+    std::mutex asyncMutex_;
+    std::condition_variable asyncCondition_;
+    std::size_t activeAsync_{0};
     std::vector<std::uint8_t> committed_;
     std::vector<std::uint8_t> staged_;
     std::uint64_t generation_{0};
