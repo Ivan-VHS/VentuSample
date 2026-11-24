@@ -272,10 +272,9 @@ std::future<RuntimeStatus> RuntimeTransaction::asyncFlash(
     }
 
     const auto finish = [this] {
-        {
-            std::lock_guard lock(asyncMutex_);
-            --activeAsync_;
-        }
+        std::lock_guard lock(asyncMutex_);
+        --activeAsync_;
+        /* Keep the lock until notification completes so destruction cannot race it. */
         asyncCondition_.notify_all();
     };
 
