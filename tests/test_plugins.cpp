@@ -246,6 +246,25 @@ void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
   "entrypoint": "ignored.cpp:register"
 })json";
     }
+    fs::create_directories(root / "invalid-nested", ec);
+    require(!ec, "invalid nested JSON fixture directory should be created");
+    {
+        std::ofstream manifest(root / "invalid-nested" / "plugin.json", std::ios::binary);
+        manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
+  "id": "invalid-nested",
+  "name": "Invalid Nested JSON",
+  "version": "1.0.0",
+  "api_version": 1,
+  "host": { "id": "ventu" },
+  "metadata": { "count": 01 },
+  "domain": "tests",
+  "description": "Leading zero is invalid JSON.",
+  "capabilities": ["commands"],
+  "entrypoint": "ignored.cpp:register"
+})json";
+    }
+
     fs::create_directories(root / "duplicate", ec);
     require(!ec, "duplicate-key fixture directory should be created");
     {
