@@ -65,6 +65,10 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 
 ## Reaper 集成
 
+## 插件执行策略
+
+原生插件主机现在会验证生成参数、应用输出包大小预算，并记录执行关联 ID 和运行状态指标。请参阅[插件执行策略](docs/PLUGIN_EXECUTION_POLICY.md)。Soft deadline 在处理器返回后观测，不会强制终止执行。
+
 VentuSample 可使用版本化的 Reaper C17 ABI 执行确定性的控制表达式和 selfhood 查询。Reaper 不进入实时 DSP 路径；生成、缓冲区、路由及离线处理仍由原生 C++20 负责。
 
 详见 [Reaper 集成说明](docs/REAPER_RUNTIME_INTEGRATION.md)。
