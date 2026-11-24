@@ -240,7 +240,9 @@ Desktop використовує Qt 6 Widgets. Генератор і DSP engine 
 - Windows 11 native Qt desktop build на runner Windows 2022 із Qt 6.8.3 та MSVC 2022;
 - project-contract, generated-fixture, engineering-evolution і CLife validation.
 
-Windows desktop job захоплює запущений застосунок і завантажує screenshot artifact зі строком зберігання 30 днів. Цей workflow **не** оголошує public web deployment, hosted preview або tagged Windows release archive. Не слід виводити наявність release packaging чи автоматичного deployment із успішного CI.
+Windows desktop job захоплює запущений застосунок і завантажує screenshot artifact зі строком зберігання 30 днів.
+
+Windows x64 release за тегом виконує окремий [ручний workflow релізу](.github/workflows/release.yml): він запускає CTest, формує SHA-256-маніфест і створює чернетку GitHub Release для ручної публікації. Цей workflow **не** оголошує public web deployment, hosted preview або tagged Windows release archive. Не слід виводити наявність release packaging чи автоматичного deployment із успішного CI.
 
 Для відкату локальної зміни поверніться до попереднього Git commit або перебудуйте останню відому робочу ревізію. Немає онлайн-сервісу чи deployed database, які потрібно відкотити. Логи CI та артефакти доступні в GitHub Actions.
 

@@ -46,7 +46,7 @@ Safe CI Recovery is manual-only, starts from protected `main`, permits only same
 
 This CI workflow does not rerun audio rendering, mutate sample files, access audio devices, install drivers or flash firmware. The resilience policy keeps the runtime retry budget at zero until an operation has proven idempotency and atomic publication.
 
-VentuSample is an offline desktop workstation, not a hosted service. Production deployment is therefore inapplicable. Public release remains gated until a supported distribution target, protected release environment, human approval, artifact signing/provenance and rollback procedure are configured.
+VentuSample is an offline desktop workstation, not a hosted service; production deployment is inapplicable. A gated Windows x64 release-candidate workflow now runs only by explicit dispatch from a v-prefixed tag, builds and tests the desktop application, writes a deterministic per-file SHA-256 manifest, verifies the archive checksum and creates a draft GitHub Release. Workstream 20 is `extend`, not complete: repository administrators must configure required reviewers on the `release-review` environment and a maintainer must verify the approval gate. SHA-256 is an integrity checksum, not a publisher signature. Linux distribution, signing identity, SBOM and automatic update service remain unimplemented.
 
 ## Toolchain optimization
 

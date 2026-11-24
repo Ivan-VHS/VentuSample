@@ -597,22 +597,28 @@
         "Авторазвертывание"
       ],
       "priority": "P2",
-      "status": "planned",
-      "objective": "Prepare reproducible release packaging and publication after release criteria are explicitly defined.",
-      "target": "No unattended publication, signing, firmware installation, or production release.",
+      "status": "extend",
+      "objective": "Prepare a manually approved Windows release candidate with deterministic package inventory and human-controlled publication.",
+      "target": "Build only from an explicitly selected v-prefixed tag, verify the package manifest and archive checksum, and leave the GitHub Release as a draft for maintainer publication.",
       "trigger": [
         "workflow_dispatch",
         "protected-release-review"
       ],
       "current_controls": [
-        ".github/workflows/verified-auto-merge.yml",
-        "project-contract.json"
+        ".github/workflows/release.yml",
+        "tools/create_release_manifest.py",
+        "tests/test_release_manifest.py",
+        "schemas/ventusample.release.v1.schema.json",
+        "docs/RELEASE.md",
+        ".github/workflows/verified-auto-merge.yml"
       ],
       "guardrails": [
-        "Publishing requires a protected release ref and explicit approval.",
-        "No unattended signing, external publication, or deployment."
+        "The workflow must run from a v-prefixed Git tag and require explicit confirm_release=true.",
+        "The release job uses the release-review GitHub Environment; required reviewers must be configured by repository administrators.",
+        "Publishing the draft remains a human action; no automatic publication, production deployment or firmware operation is allowed.",
+        "SHA-256 is an integrity checksum, not a publisher signature; do not claim signed provenance."
       ],
-      "acceptance": "Publication runs only from a protected release ref with verified artifacts and an approved release gate."
+      "acceptance": "A manually dispatched tag build passes Windows CTest and release-manifest tests, validates the versioned manifest schema, verifies the archive checksum and creates only a draft GitHub Release. Promote the workstream to active only after required reviewers are configured on the release-review environment and a maintainer verifies the approval gate."
     }
   ]
 }
