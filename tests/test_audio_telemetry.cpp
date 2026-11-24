@@ -43,5 +43,38 @@ int main() {
     state = telemetry.snapshot();
     assert(state.peakCallbackNs == state.lastCallbackNs);
     assert(state.peakLoadPpm == state.lastLoadPpm);
+
+    ventu::diagnostics::RenderTelemetry render;
+    render.beginJob(3u);
+    auto renderState = render.snapshot();
+    assert(renderState.active);
+    assert(renderState.filesTotal == 3u);
+    assert(renderState.filesCompleted == 0u);
+    assert(renderState.stage == ventu::diagnostics::RenderStage::Preflight);
+
+    render.setStage(ventu::diagnostics::RenderStage::Rendering, 2u);
+    render.recordBufferSamples(48000u * 2u);
+    render.recordFileCompleted(12'000'000u);
+    render.recordFileCompleted(8'000'000u);
+    renderState = render.snapshot();
+    assert(renderState.currentVariation == 2u);
+    assert(renderState.filesCompleted == 2u);
+    assert(renderState.currentBufferBytes == 48000u * 2u * sizeof(float));
+    assert(renderState.lastFileElapsedNs == 8'000'000u);
+    assert(renderState.peakFileElapsedNs == 12'000'000u);
+
+    render.finish(true);
+    renderState = render.snapshot();
+    assert(!renderState.active);
+    assert(renderState.succeeded);
+    assert(renderState.stage == ventu::diagnostics::RenderStage::Complete);
+
+    render.beginJob(1u);
+    render.finish(false);
+    renderState = render.snapshot();
+    assert(!renderState.active);
+    assert(!renderState.succeeded);
+    assert(renderState.stage == ventu::diagnostics::RenderStage::Failed);
+
     return 0;
 }
