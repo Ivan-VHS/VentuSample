@@ -6,6 +6,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#if !defined(_WIN32)
+#include <sys/stat.h>
+#endif
 
 namespace {
 void require(bool condition, const char* message) {
@@ -155,6 +158,71 @@ void testManifestDiscoveryAndLifecycle() {
     fs::remove_all(root, ec);
 }
 
+void testManifestReaderRejectsOversizedAndSpecialInputs() {
+    namespace fs = std::filesystem;
+    const auto root = fs::temp_directory_path() / "ventusample-plugin-safe-reader-test";
+    std::error_code ec;
+    fs::remove_all(root, ec);
+    fs::create_directories(root / "valid", ec);
+    require(!ec, "safe reader test directory should be created");
+
+    const auto validManifest = root / "valid" / "plugin.json";
+    {
+        std::ofstream manifest(validManifest, std::ios::binary);
+        manifest << R"json({
+  "schema": "ivan-vhs.plugin.v1",
+  "id": "safe-reader-valid",
+  "name": "Safe Reader Valid",
+  "version": "1.0.0",
+  "api_version": 1,
+  "host": { "id": "ventu" },
+  "domain": "tests",
+  "description": "Valid bounded metadata fixture.",
+  "capabilities": ["commands"],
+  "entrypoint": "ignored.cpp:register"
+})json";
+    }
+
+    fs::create_directories(root / "oversized", ec);
+    require(!ec, "oversized manifest directory should be created");
+    {
+        std::ofstream oversized(root / "oversized" / "plugin.json", std::ios::binary);
+        oversized << "{\"payload\":\"";
+        for (std::size_t i = 0u; i < 70u * 1024u; ++i) oversized.put('x');
+        oversized << "\"}";
+    }
+
+    fs::create_directories(root / "symlinked", ec);
+    require(!ec, "symlink fixture directory should be created");
+    fs::create_symlink(validManifest, root / "symlinked" / "plugin.json", ec);
+    const bool symlinkCreated = !ec;
+    ec.clear();
+
+#if !defined(_WIN32)
+    fs::create_directories(root / "special", ec);
+    require(!ec, "special file fixture directory should be created");
+    const auto fifo = root / "special" / "plugin.json";
+    require(::mkfifo(fifo.c_str(), 0600) == 0, "FIFO fixture should be created");
+#endif
+
+    ventu::PluginManager manager;
+    std::vector<std::string> diagnostics;
+    const auto discovered = manager.discoverManifests(root, &diagnostics);
+    require(discovered == 1u, "only the valid regular manifest should be discovered");
+    require(manager.find("safe-reader-valid") != nullptr, "valid manifest should be retained");
+    bool oversizedReported = false;
+    for (const auto& diagnostic : diagnostics) {
+        if (diagnostic.find("manifest unreadable or larger than 64 KiB") != std::string::npos)
+            oversizedReported = true;
+    }
+    require(oversizedReported, "oversized manifest should produce a bounded diagnostic");
+    if (symlinkCreated) {
+        require(manager.find("safe-reader-valid") != nullptr,
+                "symlinked manifest must not cause duplicate metadata registration");
+    }
+    fs::remove_all(root, ec);
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -171,6 +239,7 @@ int main() {
     testEnableDisableAndDispatch();
     testExtensionRegistration();
     testManifestDiscoveryAndLifecycle();
+    testManifestReaderRejectsOversizedAndSpecialInputs();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;

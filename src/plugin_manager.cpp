@@ -10,6 +10,17 @@
 #include <regex>
 #include <system_error>
 #include <utility>
+#if defined(_WIN32)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#else
+#include <cerrno>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 
 namespace ventu {
 void registerBuiltinPlugins(PluginManager& manager);
@@ -75,13 +86,81 @@ bool validVentuHost(const std::string& json) {
 }
 
 bool readFileBounded(const fs::path& path, std::string& output) {
-    std::error_code ec;
-    const auto size = fs::file_size(path, ec);
-    if (ec || size > kMaxManifestBytes) return false;
-    std::ifstream input(path, std::ios::binary);
-    if (!input) return false;
-    output.assign(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
-    return input.good() || input.eof();
+    std::string candidate;
+    candidate.reserve(static_cast<std::size_t>(kMaxManifestBytes));
+#if defined(_WIN32)
+    HANDLE handle = CreateFileW(
+        path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, nullptr);
+    if (handle == INVALID_HANDLE_VALUE) return false;
+    BY_HANDLE_FILE_INFORMATION metadata{};
+    LARGE_INTEGER fileSize{};
+    bool valid = GetFileInformationByHandle(handle, &metadata) != 0
+        && GetFileSizeEx(handle, &fileSize) != 0
+        && GetFileType(handle) == FILE_TYPE_DISK
+        && (metadata.dwFileAttributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_REPARSE_POINT)) == 0u
+        && fileSize.QuadPart >= 0
+        && static_cast<unsigned long long>(fileSize.QuadPart) <= kMaxManifestBytes;
+    if (valid) {
+        char buffer[4096];
+        for (;;) {
+            DWORD count = 0u;
+            if (!ReadFile(handle, buffer, static_cast<DWORD>(sizeof buffer), &count, nullptr)) {
+                valid = false;
+                break;
+            }
+            if (count == 0u) break;
+            if (candidate.size() > kMaxManifestBytes - static_cast<std::uintmax_t>(count)) {
+                valid = false;
+                break;
+            }
+            candidate.append(buffer, static_cast<std::size_t>(count));
+        }
+    }
+    CloseHandle(handle);
+    if (!valid) return false;
+#else
+    struct stat metadata{};
+    const int flags = O_RDONLY
+#ifdef O_CLOEXEC
+        | O_CLOEXEC
+#endif
+#ifdef O_NOFOLLOW
+        | O_NOFOLLOW
+#endif
+#ifdef O_NONBLOCK
+        | O_NONBLOCK
+#endif
+        ;
+    const int descriptor = ::open(path.c_str(), flags);
+    if (descriptor < 0) return false;
+    bool valid = ::fstat(descriptor, &metadata) == 0
+        && S_ISREG(metadata.st_mode)
+        && metadata.st_size >= 0
+        && static_cast<std::uintmax_t>(metadata.st_size) <= kMaxManifestBytes;
+    if (valid) {
+        char buffer[4096];
+        for (;;) {
+            const auto count = ::read(descriptor, buffer, sizeof buffer);
+            if (count < 0) {
+                if (errno == EINTR) continue;
+                valid = false;
+                break;
+            }
+            if (count == 0) break;
+            const auto bytes = static_cast<std::size_t>(count);
+            if (candidate.size() > kMaxManifestBytes - bytes) {
+                valid = false;
+                break;
+            }
+            candidate.append(buffer, bytes);
+        }
+    }
+    ::close(descriptor);
+    if (!valid) return false;
+#endif
+    output.swap(candidate);
+    return true;
 }
 } // namespace
 
