@@ -297,6 +297,51 @@ void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
     fs::remove_all(root, ec);
 }
 
+void testLifecycleCallbacksMayRegisterPlugins() {
+    ventu::PluginManager manager;
+    ventu::PluginDescriptor descriptor{
+        "reentrant-host", "Reentrant Host", "Tests", "1.0.0",
+        "Callbacks may extend the registry.", "test", {"reentrancy"}
+    };
+    ventu::PluginDescriptor fromInitialize{
+        "created-in-init", "Created In Init", "Tests", "1.0.0",
+        "Registered during initialization.", "test", {"registration"}
+    };
+    ventu::PluginDescriptor fromHandler{
+        "created-in-handler", "Created In Handler", "Tests", "1.0.0",
+        "Registered during dispatch.", "test", {"registration"}
+    };
+    require(manager.registerPlugin(
+        descriptor,
+        [&](const ventu::PluginContext&) {
+            require(manager.registerPlugin(
+                fromHandler,
+                [](const ventu::PluginContext&) {
+                    return ventu::PluginResult{true, "handler child", {}};
+                },
+                false), "handler callback should safely register another plugin");
+            return ventu::PluginResult{true, "reentrant dispatch completed", {}};
+        },
+        false,
+        [&](const ventu::PluginContext&) {
+            require(manager.registerPlugin(
+                fromInitialize,
+                [](const ventu::PluginContext&) {
+                    return ventu::PluginResult{true, "init child", {}};
+                },
+                false), "initialization callback should safely register another plugin");
+        }), "reentrant host plugin should register");
+
+    require(manager.setEnabled("reentrant-host", true), "reentrant host should enable");
+    const auto result = manager.execute("reentrant-host", {});
+    require(result.success && result.summary == "reentrant dispatch completed",
+            "dispatch should survive vector growth in lifecycle and handler callbacks");
+    require(manager.find("created-in-init") != nullptr,
+            "initialization callback registration should persist");
+    require(manager.find("created-in-handler") != nullptr,
+            "handler callback registration should persist");
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -315,6 +360,7 @@ int main() {
     testManifestDiscoveryAndLifecycle();
     testManifestReaderRejectsOversizedAndSpecialInputs();
     testTopLevelManifestFieldsAreNotShadowedByNestedKeys();
+    testLifecycleCallbacksMayRegisterPlugins();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;
