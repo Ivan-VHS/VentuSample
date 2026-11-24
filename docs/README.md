@@ -1,88 +1,49 @@
-> **Navigation:** Start with the [information architecture map](INFORMATION_ARCHITECTURE.md), then choose the relevant [topic hub](clusters/audio-dsp.md). The map links the audio/DSP, Studio workflow, UI, quality and integration documentation.
+# VentuSample documentation
+
+The [root README](../README.md) is the public entry point for project purpose, current maturity, build requirements, quick start, screenshots and implementation boundaries. This index links to the deeper technical contracts.
 
 ## Topic hubs
 
-- [Audio pipeline and DSP](clusters/audio-dsp.md) — Audio rendering stages, numerical processing, MIDI, resampling, spectral analysis and audio-format contracts.
-- [Studio, presets and plugin workflows](clusters/studio-workflows.md) — Generator and workstation capabilities, preset lifecycle, plugin interfaces and user workflows.
-- [Architecture and runtime contracts](clusters/architecture-runtime.md) — Application boundaries, typed-value architecture, runtime integration and system-level contracts.
-- [UI, accessibility and visual system](clusters/ui-visual.md) — Desktop interaction, accessible motion, visual assets and documentation rendering.
-- [Quality, validation and evidence](clusters/quality-engineering.md) — Repeatability, engineering gates, numerical limits, validation and trustworthy status reporting.
-- [Integration, governance and planning](clusters/integration-governance.md) — Project federation, replacement tools, roadmaps, ownership and supporting reference material.
-
----
-
-# Documentation
-
-## Katyuhen ecosystem
-
-[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
-
-## Katyuhen ecosystem
-
-[Integration with Katyuhen](KATYUHEN_INTEGRATION.md) records this project's ownership, registered interfaces, peer boundaries and validation requirements. The canonical federation registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json).
-
-## Normative documentation standard
-
-[Unified documentation and semantics standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines the shared terminology, capability maturity, runtime states, verification outcomes, evidence rules, localization requirements and documentation acceptance criteria. It is normative for this repository; project-specific architecture and implementation evidence remain authoritative for the product itself.
-
-| File | Purpose |
+| Hub | Scope |
 |---|---|
-| [OCTA8.md](OCTA8.md) | OCTA-8 native C++20 typed-value contract and adapter |
-| [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
-| [MIDI_AND_RESAMPLING.md](MIDI_AND_RESAMPLING.md) | bounded MIDI parser and offline sample-rate conversion |
-| [OFFLINE_SPECTRUM_ANALYSIS.md](OFFLINE_SPECTRUM_ANALYSIS.md) | bounded C11 FFT and spectral descriptors |
-| [PROGRAM_CATALOG_1000.md](PROGRAM_CATALOG_1000.md) | sound-project adoption map for the 1,000-item catalogue |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
-| [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
-| [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |
-| [USER_GUIDE_RU.md](USER_GUIDE_RU.md) | operation, profile selection and Russian UI labels |
-| [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md) | 20×3 quality/cohesion/rhythm acceptance matrix |
-| [SOURCE_INTEGRATION.md](SOURCE_INTEGRATION.md) | WAV constraints and source-rights requirements |
-| [REAPER_PACK_AUDIT.md](REAPER_PACK_AUDIT.md) | manifest-only interoperability with Reaper |
-| [UI_MOTION.md](UI_MOTION.md) | persisted Qt motion preferences, project-BPM indicator and accessibility limits |
-| [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) | visual tokens and workbench UX |
-| [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | release, privacy and communication rules |
-| [schemas/ventusample.pack.v1.schema.json](../schemas/ventusample.pack.v1.schema.json) | pack schema v1 |
-| [schemas/ventusample.pack.v2.schema.json](../schemas/ventusample.pack.v2.schema.json) | tonal metadata schema v2 |
-| [../schemas/ivan-vhs.plugin.v1.schema.json](../schemas/ivan-vhs.plugin.v1.schema.json) | shared plugin manifest schema |
+| [Audio pipeline and DSP](clusters/audio-dsp.md) | Rendering, numerical processing, MIDI, resampling, spectrum and audio-format contracts |
+| [Studio, presets and plugin workflows](clusters/studio-workflows.md) | Generator, Qt workstation, preset lifecycle, plugin interfaces and operator workflows |
+| [Architecture and runtime contracts](clusters/architecture-runtime.md) | Application layers, typed-value model, offline processing and system integration |
+| [UI, accessibility and visual system](clusters/ui-visual.md) | Native desktop interaction, keyboard use, reduced motion, theme and assets |
+| [Quality, validation and evidence](clusters/quality-engineering.md) | Determinism, numerical bounds, test coverage and trustworthy status reporting |
+| [Integration, governance and planning](clusters/integration-governance.md) | Reaper bridge, DuckOS federation, ownership, roadmap and reference material |
 
-The root README contains the live Windows desktop capture and current build commands. Source and tests define actual behavior; a manifest digest does not prove sample ownership. Plugin discovery is metadata-only, and DSP processing is offline.
+## Core documents
 
-## Publishing standard
+| Document | Purpose |
+|---|---|
+| [Architecture](ARCHITECTURE.md) | Renderer, DSP stages, parameter flow and output contracts |
+| [Features](FEATURES.md) | Capability inventory and maturity boundaries |
+| [OCTA-8](OCTA8.md) | Native C++20 typed-value contract and adapter |
+| [MIDI and resampling](MIDI_AND_RESAMPLING.md) | Bounded MIDI parser and offline sample-rate conversion |
+| [Offline spectrum analysis](OFFLINE_SPECTRUM_ANALYSIS.md) | Bounded C11 FFT and spectral descriptors |
+| [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) | Typed module catalogue and reusable offline kernels |
+| [Plugins](PLUGINS.md) | Built-in tools, C++20 plugin contract and metadata-only discovery |
+| [Source integration](SOURCE_INTEGRATION.md) | WAV import constraints and source-rights requirements |
+| [Reaper pack audit](REAPER_PACK_AUDIT.md) | Manifest-only interoperability with Reaper |
+| [Visual documentation standard](README_VISUAL_STANDARD.md) | README layout, screenshots, diagrams, accessibility and publication gates |
+| [Contributing](../CONTRIBUTING.md) | Local build, tests and pull-request requirements |
 
-[README and visual documentation standard](README_VISUAL_STANDARD.md) — information architecture, Markdown/MDX, diagrams, screenshots, image formats, accessibility, localization and quality gates.
+The normative [Unified Documentation Standard](UNIFIED_DOCUMENTATION_STANDARD.md) defines maturity labels, evidence rules, terminology, localization and documentation acceptance criteria. The repository-specific implementation and tests remain authoritative for product behavior.
 
+## Repository map
 
-## Motion and embedded graphics
+~~~text
+src/                       C++20 generator, DSP integration and optional Qt desktop
+src/compat/pytyliki-dsp/   C11 DSP support library
+tests/                     generator, DSP, preset and contract tests
+schemas/                   versioned pack, preset and plugin schemas
+docs/clusters/             focused architecture and workflow hubs
+assets/readme/             editable SVG visual assets
+assets/screenshots/        real desktop captures
+.github/workflows/         CI, native build and desktop capture
+~~~
 
-[Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md) is the shared source for timing/easing tokens, adaptive motion, reduced-motion precedence, themes, the 2×2/focus-scene lab layout, SVG/Canvas telemetry rules and the four-domain capability matrix. [UI_MOTION.md](UI_MOTION.md) records the native behavior implemented in this repository; planned showcase features are not reported as shipped.
+## Evidence and scope
 
-
-## Bounded 500 UAH allocation reference
-
-- [Multilingual specification](RESOURCE_ALLOCATION_500_UAH.md) — bounded budget model, scenarios and operating rules.
-- [Offline interactive simulator](resource-allocation-500-uah.html) — adjust category amounts and see the remainder or overrun.
-- [Example JSON](../examples/resource-allocation-500-uah.json) and [JSON Schema](../schemas/resource-allocation.v1.schema.json).
-
-This is an illustrative personal-budgeting reference, not a claim that the host project manages payments or live retail prices.
-
-
-## Language quality
-
-[Language and editorial quality](LANGUAGE_QUALITY.md) — orthography, punctuation, lexical precision, syntax, multilingual review and conservative prose checks.
-
-
-## Project-specific engineering profile
-
-[IVAN_VHS_ENGINEERING_PROFILE.md](IVAN_VHS_ENGINEERING_PROFILE.md) translates the project's direction into concrete architecture boundaries, implementation priorities, human-readable code conventions and acceptance tests. It is a development contract; it does not mark planned work as implemented.
-
-
-## Cross-project engineering
-
-- [Engineering Evolution Framework](ENGINEERING_EVOLUTION_FRAMEWORK.md) — shared machine-readable 20-domain contract, 40 practices and 20 execution directives.
-- [Repository-wide implementation directives](REPOSITORY_EVOLUTION_DIRECTIVES.md) — the 20 requested directions, their engineering meaning and acceptance rules.
-
-
-## Capability completeness standard
-
-[Engineering Evolution and Capability Completeness Standard](ENGINEERING_EVOLUTION_FRAMEWORK.md) — canonical vocabulary, maturity states, measurable acceptance gates, architecture and extension rules, compatibility and release criteria.
+Source code, tests and schemas define what the application currently does. A catalogue entry or manifest digest is not evidence of audio ownership, plugin trust or runtime availability. Plugin discovery remains metadata-only, generated/imported audio rights remain the operator's responsibility, and DSP processing is offline.
