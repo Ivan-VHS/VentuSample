@@ -12,6 +12,9 @@
 | `active` | Existing implementation/control, valid evidence paths, regression verification and an executable acceptance gate | The scoped control exists and its stated checks run |
 | `extend` | Existing partial control, explicit gap and a next measurable acceptance gate | The target is only partially delivered |
 | `planned` | Explicit blocker, owner/dependency and exit criteria | Not implemented; no shipped-capability claim is permitted |
+| `not_applicable` | Explicit product-scope rationale, owner and a trigger that would change the product boundary | The capability is outside this product's current scope; it is not an unfinished feature |
+
+A `not_applicable` status is valid only when the machine-readable roadmap includes a specific reason and the validator tests that reason. Use it for capability areas outside the approved product boundary; do not use it to hide incomplete implementation.
 
 A Markdown checkbox, JSON schema, interface declaration or successful documentation validator is not runtime implementation evidence. The DSP implementation remains offline and buffer-based; no real-time device, system audio or browser playback capability is implied.
 
@@ -46,7 +49,7 @@ Safe CI Recovery is manual-only, starts from protected `main`, permits only same
 
 This CI workflow does not rerun audio rendering, mutate sample files, access audio devices, install drivers or flash firmware. The resilience policy keeps the runtime retry budget at zero until an operation has proven idempotency and atomic publication.
 
-VentuSample is an offline desktop workstation, not a hosted service. Production deployment is therefore inapplicable. Public release remains gated until a supported distribution target, protected release environment, human approval, artifact signing/provenance and rollback procedure are configured.
+VentuSample is an offline desktop workstation, not a hosted service; production deployment is inapplicable. A gated Windows x64 release-candidate workflow now runs only by explicit dispatch from a v-prefixed tag, builds and tests the desktop application, writes a deterministic per-file SHA-256 manifest, verifies the archive checksum and creates a draft GitHub Release. Workstream 20 is `extend`, not complete: repository administrators must configure required reviewers on the `release-review` environment and a maintainer must verify the approval gate. SHA-256 is an integrity checksum, not a publisher signature. Linux distribution, signing identity, SBOM and automatic update service remain unimplemented.
 
 ## Toolchain optimization
 

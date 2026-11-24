@@ -19,6 +19,7 @@ on:
       - "tests/test_delivery_contracts.py"
       - "docs/ROADMAP_GOVERNANCE_CI_SCALE.md"
       - "tests/test_safe_rerun.py"
+      - "tests/test_automation_roadmap.py"
       - ".github/workflows/safe-ci-recovery.yml"
       - ".github/ISSUE_TEMPLATE/engineering_improvement.yml"
       - ".architecture/resilience-policy.json"
@@ -44,6 +45,7 @@ on:
       - "tests/test_delivery_contracts.py"
       - "docs/ROADMAP_GOVERNANCE_CI_SCALE.md"
       - "tests/test_safe_rerun.py"
+      - "tests/test_automation_roadmap.py"
       - ".github/workflows/safe-ci-recovery.yml"
       - ".github/ISSUE_TEMPLATE/engineering_improvement.yml"
       - ".architecture/resilience-policy.json"
@@ -79,6 +81,8 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: "3.12"
+      - name: Test roadmap maturity status controls
+        run: python -m unittest discover -s tests -p "test_automation_roadmap.py" -v
       - name: Validate automation roadmap
         run: python scripts/validate_automation_roadmap.py --strict
       - name: Test bounded manual CI recovery policy

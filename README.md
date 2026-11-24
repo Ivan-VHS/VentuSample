@@ -238,7 +238,7 @@ The [CI workflow](.github/workflows/ci.yml) includes:
 - Windows 11 native Qt desktop build on a Windows 2022 runner using Qt 6.8.3 and MSVC 2022;
 - project-contract, generated-fixture, engineering-evolution, automation-roadmap and resilience-policy validation, including negative-case tests.
 
-The Windows desktop job captures the running app and uploads a screenshot artifact with 30-day retention. This workflow does **not** declare a public web deployment, publish a hosted preview, or create a tagged Windows release archive. Do not infer release packaging or automatic deployment from a passing CI job.
+The Windows desktop CI job captures the running app and uploads a screenshot artifact with 30-day retention. A separate, manually dispatched [Windows release workflow](.github/workflows/release.yml) builds a tagged x64 distribution, runs CTest, stages the Qt runtime, records a per-file SHA-256 manifest, verifies the archive checksum and creates a draft GitHub Release for maintainer publication. This is a desktop distribution path, not a public web deployment or an automatic updater.
 
 To roll back a local change, return to the previous Git commit or rebuild the last known-good revision. There is no running web service or deployed database to roll back. CI logs and artifacts are available from GitHub Actions.
 
