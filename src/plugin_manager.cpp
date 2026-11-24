@@ -61,28 +61,173 @@ bool validVersion(const std::string& version) {
 
 // The native core accepts the portable manifest's plain-string subset. Escaped JSON
 // strings and executable entrypoints are intentionally not interpreted by this loader.
+
+struct JsonSpan {
+    std::size_t begin{};
+    std::size_t end{};
+};
+
+void skipJsonWhitespace(const std::string& json, std::size_t& position) {
+    while (position < json.size()
+           && (json[position] == ' ' || json[position] == '\t'
+               || json[position] == '\r' || json[position] == '\n'))
+        ++position;
+}
+
+/* The portable plugin-manifest contract accepts plain UTF-8 strings only. */
+bool readPlainJsonString(const std::string& json, std::size_t& position,
+                         std::string* value = nullptr) {
+    if (position >= json.size() || json[position] != '"') return false;
+    const std::size_t begin = ++position;
+    while (position < json.size()) {
+        const unsigned char ch = static_cast<unsigned char>(json[position]);
+        if (ch == '\\') return false;
+        if (ch < 0x20u) return false;
+        if (ch == '"') {
+            if (value) *value = json.substr(begin, position - begin);
+            ++position;
+            return true;
+        }
+        ++position;
+    }
+    return false;
+}
+
+bool skipJsonString(const std::string& json, std::size_t& position) {
+    if (position >= json.size() || json[position] != '"') return false;
+    ++position;
+    while (position < json.size()) {
+        const unsigned char ch = static_cast<unsigned char>(json[position]);
+        if (ch == '\\') {
+            if (position + 1u >= json.size()) return false;
+            position += 2u;
+            continue;
+        }
+        if (ch == '"') {
+            ++position;
+            return true;
+        }
+        if (ch < 0x20u) return false;
+        ++position;
+    }
+    return false;
+}
+
+bool skipJsonValue(const std::string& json, std::size_t& position) {
+    skipJsonWhitespace(json, position);
+    if (position >= json.size()) return false;
+    if (json[position] == '"') return skipJsonString(json, position);
+    if (json[position] == '{' || json[position] == '[') {
+        std::vector<char> closers;
+        closers.push_back(json[position] == '{' ? '}' : ']');
+        ++position;
+        while (!closers.empty()) {
+            if (position >= json.size()) return false;
+            const char ch = json[position];
+            if (ch == '"') {
+                if (!skipJsonString(json, position)) return false;
+                continue;
+            }
+            if (ch == '{' || ch == '[') {
+                if (closers.size() >= 32u) return false;
+                closers.push_back(ch == '{' ? '}' : ']');
+                ++position;
+                continue;
+            }
+            if (ch == '}' || ch == ']') {
+                if (closers.back() != ch) return false;
+                closers.pop_back();
+            }
+            ++position;
+        }
+        return true;
+    }
+    const std::size_t begin = position;
+    while (position < json.size()) {
+        const char ch = json[position];
+        if (ch == ',' || ch == '}' || ch == ']' || ch == ' '
+            || ch == '\t' || ch == '\r' || ch == '\n')
+            break;
+        ++position;
+    }
+    return position > begin;
+}
+
+/* Locate a field in the current object only; nested keys never shadow it. */
+std::optional<JsonSpan> topLevelJsonValue(const std::string& json,
+                                          const std::string& wantedKey) {
+    std::size_t position = 0u;
+    skipJsonWhitespace(json, position);
+    if (position >= json.size() || json[position++] != '{') return std::nullopt;
+    for (;;) {
+        skipJsonWhitespace(json, position);
+        if (position >= json.size() || json[position] == '}') return std::nullopt;
+        std::string key;
+        if (!readPlainJsonString(json, position, &key)) return std::nullopt;
+        skipJsonWhitespace(json, position);
+        if (position >= json.size() || json[position++] != ':') return std::nullopt;
+        skipJsonWhitespace(json, position);
+        const std::size_t valueBegin = position;
+        if (!skipJsonValue(json, position)) return std::nullopt;
+        const JsonSpan span{valueBegin, position};
+        if (key == wantedKey) return span;
+        skipJsonWhitespace(json, position);
+        if (position >= json.size()) return std::nullopt;
+        if (json[position] == ',') {
+            ++position;
+            continue;
+        }
+        return std::nullopt;
+    }
+}
+
 std::optional<std::string> jsonString(const std::string& json, const std::string& key) {
-    const std::regex pattern("\"" + key + R"rx("\s*:\s*"([^"\\]*)")rx");
-    std::smatch match;
-    if (!std::regex_search(json, match, pattern)) return std::nullopt;
-    return match[1].str();
+    const auto span = topLevelJsonValue(json, key);
+    if (!span || span->begin >= span->end || json[span->begin] != '"')
+        return std::nullopt;
+    std::size_t position = span->begin;
+    std::string value;
+    if (!readPlainJsonString(json, position, &value) || position != span->end)
+        return std::nullopt;
+    return value;
 }
 
 std::vector<std::string> jsonStringArray(const std::string& json, const std::string& key) {
-    const std::regex arrayPattern("\"" + key + R"rx("\s*:\s*\[([^\]]*)\])rx");
-    std::smatch arrayMatch;
-    if (!std::regex_search(json, arrayMatch, arrayPattern)) return {};
-    const std::string body = arrayMatch[1].str();
-    const std::regex itemPattern(R"rx("([^"\\]+)")rx");
+    const auto span = topLevelJsonValue(json, key);
+    if (!span || span->begin >= span->end || json[span->begin] != '[') return {};
+    std::size_t position = span->begin + 1u;
     std::vector<std::string> result;
-    for (std::sregex_iterator it(body.begin(), body.end(), itemPattern), end; it != end; ++it)
-        result.push_back((*it)[1].str());
-    return result;
+    for (;;) {
+        skipJsonWhitespace(json, position);
+        if (position >= span->end) return {};
+        if (json[position] == ']') {
+            ++position;
+            return position == span->end ? result : std::vector<std::string>{};
+        }
+        std::string item;
+        if (!readPlainJsonString(json, position, &item)) return {};
+        result.push_back(std::move(item));
+        skipJsonWhitespace(json, position);
+        if (position >= span->end) return {};
+        if (json[position] == ',') {
+            ++position;
+            continue;
+        }
+        if (json[position] == ']') {
+            ++position;
+            return position == span->end ? result : std::vector<std::string>{};
+        }
+        return {};
+    }
 }
 
 bool validVentuHost(const std::string& json) {
-    const std::regex pattern(R"rx("host"\s*:\s*\{[^}]*"id"\s*:\s*"ventu")rx");
-    return std::regex_search(json, pattern);
+    const auto span = topLevelJsonValue(json, "host");
+    if (!span || span->begin >= span->end || json[span->begin] != '{')
+        return false;
+    const std::string hostObject = json.substr(span->begin, span->end - span->begin);
+    const auto hostId = jsonString(hostObject, "id");
+    return hostId && *hostId == "ventu";
 }
 
 bool readFileBounded(const fs::path& path, std::string& output) {
