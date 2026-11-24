@@ -1,0 +1,30 @@
+{
+  "$schema": "https://github.com/Ivan-VHS/DuckOS/blob/main/mora/app-manifest.schema.json",
+  "schema_version": "1.0.0",
+  "application_id": "ivan-vhs.ventusample-workstation",
+  "project": "Ivan-VHS/VentuSample",
+  "display_name": "VentuSample",
+  "description": "Native C++20 sample-pack workstation with Qt desktop UI and offline WAV processing.",
+  "launch": {
+    "kind": "local_process",
+    "platforms": ["windows", "linux"],
+    "entrypoint": "build/Release/VentuSample.exe",
+    "platform_entrypoints": {
+      "windows": "build/Release/VentuSample.exe",
+      "linux": "build/VentuSample"
+    },
+    "arguments": [],
+    "working_directory": "."
+  },
+  "policy": {
+    "integration_policy": "opt_in",
+    "confirmation_required": true,
+    "shell_interpolation": false,
+    "trust_source": "operator_installed_project"
+  },
+  "maturity": {
+    "maturity_status": "specified",
+    "verification_status": "not_run"
+  },
+  "capabilities": ["sample-pack-generation", "offline-wav-processing", "local-audio-export"]
+}
