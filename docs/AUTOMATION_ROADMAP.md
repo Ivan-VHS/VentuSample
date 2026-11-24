@@ -10,6 +10,8 @@ Deterministic sample generation, bounded offline DSP, PCM16 WAV export, and vers
 
 Stack: C++20, Qt 6, CMake.
 
+The [resilience and trust policy](RESILIENCE_POLICY.md) is a validated declaration with `contract_only` maturity. It intentionally sets the automatic retry budget to zero until individual operations have proven idempotency and atomic recovery tests; no runtime retry engine is claimed.
+
 This roadmap turns the 20 requested directions into traceable workstreams. It distinguishes existing automation from work that still needs to be built: **active** means a relevant control already exists; **extend** means a control exists but does not yet deliver the full target; **planned** means it is not enabled and must not be described as implemented.
 
 ## Execution phases
