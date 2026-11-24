@@ -1,8 +1,11 @@
 #include "runtime_transaction.hpp"
 
+#include <chrono>
 #include <cstdlib>
+#include <future>
 #include <iostream>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace {
@@ -16,15 +19,36 @@ void require(bool condition, const char* message) {
 
 int main() {
     std::vector<std::string> events;
+    ventu::RuntimeTransaction* observed = nullptr;
+    std::thread callbackReader;
+    bool callbackRanUnlocked = false;
+    std::uint64_t callbackObservedGeneration = 0u;
     ventu::RuntimeTransaction tx(
         {'a', 'b', 'c'}, 1u, 1024u,
-        [&](std::string_view name, std::uint64_t) { events.emplace_back(name); });
+        [&](std::string_view name, std::uint64_t) {
+            events.emplace_back(name);
+            if (name == "PATCH_STAGED" && !callbackReader.joinable()) {
+                std::promise<std::uint64_t> promise;
+                auto generation = promise.get_future();
+                callbackReader = std::thread([observed, promise = std::move(promise)]() mutable {
+                    promise.set_value(observed->generation());
+                });
+                callbackRanUnlocked =
+                    generation.wait_for(std::chrono::milliseconds(250)) == std::future_status::ready;
+                if (callbackRanUnlocked) callbackObservedGeneration = generation.get();
+            }
+        });
+    observed = &tx;
 
     require(tx.patch(1u, 1u, {'Z'}) == ventu::RuntimeStatus::Ok, "patch should stage a bounded byte edit");
+    if (callbackReader.joinable()) callbackReader.join();
+    require(callbackRanUnlocked && callbackObservedGeneration == 0u,
+            "event callback must run after releasing the transaction lock");
     require(tx.rebind("sensor.bank1", 7u) == ventu::RuntimeStatus::Ok, "rebind should update symbolic binding");
     require(tx.remap({2u, 1u, 0u}) == ventu::RuntimeStatus::Ok, "remap should reorder staged bytes");
     require(tx.hotSwap({'a', 'b', 'c'}) == ventu::RuntimeStatus::Ok, "hotSwap should stage a replacement payload");
-    require(tx.migrate(2u, [](const auto& input, std::uint32_t from, std::uint32_t to) {
+    require(tx.migrate(2u, [&tx](const auto& input, std::uint32_t from, std::uint32_t to) {
+        require(tx.generation() == 0u, "migration callbacks must run outside the transaction lock");
         require(from == 1u && to == 2u, "migration should receive source and target schemas");
         auto output = input;
         output.push_back('!');
