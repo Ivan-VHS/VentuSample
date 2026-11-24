@@ -1,6 +1,7 @@
 #include "plugin_manager.hpp"
 
 #include <algorithm>
+#include <charconv>
 #include <cstdint>
 #include <cctype>
 #include <exception>
@@ -157,28 +158,54 @@ bool skipJsonValue(const std::string& json, std::size_t& position) {
 std::optional<JsonSpan> topLevelJsonValue(const std::string& json,
                                           const std::string& wantedKey) {
     std::size_t position = 0u;
+    std::vector<std::string> seenKeys;
+    std::optional<JsonSpan> found;
     skipJsonWhitespace(json, position);
     if (position >= json.size() || json[position++] != '{') return std::nullopt;
     for (;;) {
         skipJsonWhitespace(json, position);
-        if (position >= json.size() || json[position] == '}') return std::nullopt;
+        if (position >= json.size()) return std::nullopt;
+        if (json[position] == '}') {
+            ++position;
+            skipJsonWhitespace(json, position);
+            return position == json.size() ? found : std::nullopt;
+        }
         std::string key;
         if (!readPlainJsonString(json, position, &key)) return std::nullopt;
+        if (std::find(seenKeys.begin(), seenKeys.end(), key) != seenKeys.end())
+            return std::nullopt;
+        seenKeys.push_back(key);
         skipJsonWhitespace(json, position);
         if (position >= json.size() || json[position++] != ':') return std::nullopt;
         skipJsonWhitespace(json, position);
         const std::size_t valueBegin = position;
         if (!skipJsonValue(json, position)) return std::nullopt;
-        const JsonSpan span{valueBegin, position};
-        if (key == wantedKey) return span;
+        if (key == wantedKey) found = JsonSpan{valueBegin, position};
         skipJsonWhitespace(json, position);
         if (position >= json.size()) return std::nullopt;
         if (json[position] == ',') {
             ++position;
             continue;
         }
+        if (json[position] == '}') {
+            ++position;
+            skipJsonWhitespace(json, position);
+            return position == json.size() ? found : std::nullopt;
+        }
         return std::nullopt;
     }
+}
+
+std::optional<unsigned int> jsonUnsignedInteger(const std::string& json,
+                                                const std::string& key) {
+    const auto span = topLevelJsonValue(json, key);
+    if (!span || span->begin >= span->end) return std::nullopt;
+    unsigned int value = 0u;
+    const char* begin = json.data() + span->begin;
+    const char* end = json.data() + span->end;
+    const auto parsed = std::from_chars(begin, end, value);
+    if (parsed.ec != std::errc{} || parsed.ptr != end) return std::nullopt;
+    return value;
 }
 
 std::optional<std::string> jsonString(const std::string& json, const std::string& key) {
@@ -388,25 +415,16 @@ std::size_t PluginManager::discoverManifests(const fs::path& directory,
         const auto domain = jsonString(json, "domain");
         const auto description = jsonString(json, "description");
         const auto entrypoint = jsonString(json, "entrypoint");
-        const std::regex apiPattern(R"rx("api_version"\s*:\s*([0-9]+))rx");
-        std::smatch apiMatch;
+        const auto apiVersion = jsonUnsignedInteger(json, "api_version");
         if (!schema || *schema != kPluginManifestSchema || !id || !name || !version
             || !domain || !description || !entrypoint || !validVentuHost(json)
-            || !std::regex_search(json, apiMatch, apiPattern)) {
+            || !apiVersion) {
             if (diagnostics) diagnostics->push_back("manifest does not satisfy the Ventu v1 contract: " + path.string());
-            continue;
-        }
-
-        unsigned int apiVersion = 0u;
-        try {
-            apiVersion = static_cast<unsigned int>(std::stoul(apiMatch[1].str()));
-        } catch (const std::exception&) {
-            if (diagnostics) diagnostics->push_back("invalid api_version: " + path.string());
             continue;
         }
         const auto capabilities = jsonStringArray(json, "capabilities");
         if (!validId(*id) || name->empty() || domain->empty() || description->empty()
-            || !validVersion(*version) || apiVersion != kPluginApiVersion
+            || !validVersion(*version) || *apiVersion != kPluginApiVersion
             || capabilities.size() > 32u) {
             if (diagnostics) diagnostics->push_back("invalid ID, version, API or capabilities: " + path.string());
             continue;
@@ -428,7 +446,7 @@ std::size_t PluginManager::discoverManifests(const fs::path& directory,
         descriptor.description = *description;
         descriptor.operation = "manifest-only";
         descriptor.capabilities = capabilities;
-        descriptor.apiVersion = apiVersion;
+        descriptor.apiVersion = *apiVersion;
         descriptor.source = "manifest";
         descriptor.manifestPath = path.string();
         descriptor.entrypoint = *entrypoint;
