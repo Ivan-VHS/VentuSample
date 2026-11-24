@@ -1,0 +1,63 @@
+# duckos.bav.defense-context.v1
+# category<TAB>term
+# Context labels only. Never use these terms as malware signatures.
+wmd_cbrn	Ядерное оружие
+wmd_cbrn	Атомное оружие
+wmd_cbrn	Термоядерное оружие
+wmd_cbrn	Ядерный арсенал
+wmd_cbrn	Атомный арсенал
+wmd_cbrn	Ядерный боеприпас
+wmd_cbrn	Атомный боеприпас
+wmd_cbrn	Ядерная боеголовка
+wmd_cbrn	Атомная боеголовка
+wmd_cbrn	Термоядерная боеголовка
+wmd_cbrn	Ядерный заряд
+wmd_cbrn	Атомный заряд
+wmd_cbrn	Термоядерный заряд
+wmd_cbrn	Ядерная бомба
+wmd_cbrn	Атомная бомба
+wmd_cbrn	Водородная бомба
+wmd_cbrn	Ядерная ракета
+wmd_cbrn	Стратегическое ядерное оружие
+wmd_cbrn	Тактическое ядерное оружие
+wmd_cbrn	Оружие массового поражения
+chinese_military_platforms	Китайская военная техника
+chinese_military_platforms	Китайские боевые машины
+chinese_military_platforms	Китайская бронетехника
+chinese_military_platforms	Китайские танки
+chinese_military_platforms	Китайские БМП
+chinese_military_platforms	Китайские БТР
+chinese_military_platforms	Китайские бронеавтомобили
+chinese_military_platforms	Китайские ракетные комплексы
+chinese_military_platforms	Китайские артиллерийские системы
+chinese_military_platforms	Китайские РСЗО
+chinese_military_platforms	Китайские ЗРК
+chinese_military_platforms	Китайские истребители
+chinese_military_platforms	Китайские бомбардировщики
+chinese_military_platforms	Китайские вертолёты
+chinese_military_platforms	Китайские беспилотники
+chinese_military_platforms	Китайские военные грузовики
+chinese_military_platforms	Китайские инженерные машины
+chinese_military_platforms	Китайские десантные машины
+chinese_military_platforms	Китайские ракетные носители
+chinese_military_platforms	Китайские военно-морские корабли
+air_defense_systems	ПЗРК
+air_defense_systems	Зенитный ракетный комплекс
+air_defense_systems	Переносной ракетный комплекс
+air_defense_systems	Зенитная ракетная установка
+air_defense_systems	Ракетный комплекс ПВО
+air_defense_systems	Средство противовоздушной обороны
+air_defense_systems	Переносное средство ПВО
+air_defense_systems	Зенитное ракетное оружие
+air_defense_systems	Ракетное средство ПВО
+air_defense_systems	Зенитная система
+air_defense_systems	Переносная зенитная система
+air_defense_systems	Ракетная система ПВО
+air_defense_systems	Зенитный ракетный модуль
+air_defense_systems	Переносной зенитный комплекс
+air_defense_systems	Тактический комплекс ПВО
+air_defense_systems	Индивидуальное средство ПВО
+air_defense_systems	Пехотное средство ПВО
+air_defense_systems	Зенитное вооружение
+air_defense_systems	Ракетное вооружение ПВО
+air_defense_systems	Мобильный комплекс ПВО
