@@ -13,6 +13,7 @@ This hub groups the related contracts for the audio workstation. Use each target
 - [ENGINEERING BASELINE](../ENGINEERING_BASELINE.md)
 - [MOTION CONSTITUTION V2026](../MOTION_CONSTITUTION_V2026.md)
 - [TRANSACTIONAL RUNTIME](../TRANSACTIONAL_RUNTIME.md)
+- [RESILIENCE POLICY](../RESILIENCE_POLICY.md)
 
 ## Navigation rules
 
