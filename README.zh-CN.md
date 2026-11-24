@@ -63,6 +63,12 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 下方 Windows 图片是桌面应用截屏，不是浏览器预览。
 
 
+## Reaper 集成
+
+VentuSample 可使用版本化的 Reaper C17 ABI 执行确定性的控制表达式和 selfhood 查询。Reaper 不进入实时 DSP 路径；生成、缓冲区、路由及离线处理仍由原生 C++20 负责。
+
+详见 [Reaper 集成说明](docs/REAPER_RUNTIME_INTEGRATION.md)。
+
 ## 快速开始
 
 ### 环境要求
