@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -20,7 +21,8 @@ from tools.validate_delivery_contracts import (  # noqa: E402
     validate_workflow_scale,
 )
 
-REPOSITORY = "Ivan-VHS/Pytyliki"
+PROJECT_CONTRACT = json.loads((ROOT / "project-contract.json").read_text(encoding="utf-8"))
+REPOSITORY = PROJECT_CONTRACT["project"]["repository"]
 
 
 class DeliveryContractTests(unittest.TestCase):
