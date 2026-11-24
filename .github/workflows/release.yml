@@ -1,0 +1,164 @@
+name: VentuSample Windows Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact vX.Y.Z tag to package; it must match the selected workflow ref
+        required: true
+        type: string
+      confirm_release:
+        description: Approve building a release candidate and creating a draft GitHub Release
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ventusample-release-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  build-windows:
+    name: Build and verify Windows x64 distribution
+    runs-on: windows-2022
+    timeout-minutes: 45
+    steps:
+      - name: Checkout the selected release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Validate release tag and explicit confirmation
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          CONFIRM_RELEASE: ${{ inputs.confirm_release }}
+        run: |
+          if ($env:CONFIRM_RELEASE -ne "true") {
+            throw "The explicit confirm_release input must be true."
+          }
+          if ($env:GITHUB_REF_TYPE -ne "tag") {
+            throw "Release workflow must run from a Git tag, not a branch."
+          }
+          if ($env:GITHUB_REF_NAME -ne $env:RELEASE_VERSION) {
+            throw "The supplied version must exactly match the selected tag."
+          }
+          if ($env:RELEASE_VERSION -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$') {
+            throw "Version must use a v-prefixed semantic version."
+          }
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt 6 Widgets
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          cache: true
+
+      - name: Configure, build and run native tests
+        shell: pwsh
+        run: |
+          cmake -S . -B build -A x64 -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
+          if ($LASTEXITCODE -ne 0) { throw "CMake configure failed." }
+          cmake --build build --config Release --parallel 2
+          if ($LASTEXITCODE -ne 0) { throw "Native build failed." }
+          ctest --test-dir build -C Release --output-on-failure
+          if ($LASTEXITCODE -ne 0) { throw "CTest failed." }
+
+      - name: Test release manifest generator
+        shell: pwsh
+        run: python -m unittest discover -s tests -p "test_release_manifest.py" -v
+
+      - name: Stage application and Qt runtime dependencies
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path package | Out-Null
+          windeployqt --release --compiler-runtime --dir package build/Release/VentuSample.exe
+          if ($LASTEXITCODE -ne 0) { throw "windeployqt failed." }
+          Copy-Item build/Release/VentuSample.exe package/VentuSample.exe -Force
+          Copy-Item README.md package/README.md
+          Copy-Item LICENSE package/LICENSE
+          New-Item -ItemType Directory -Force -Path package/schemas | Out-Null
+          Copy-Item schemas/ventusample.pack.v1.schema.json package/schemas/
+          Copy-Item schemas/ventusample.pack.v2.schema.json package/schemas/
+          Copy-Item schemas/ventusample.preset.v1.schema.json package/schemas/
+
+      - name: Generate release provenance manifest
+        shell: pwsh
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          python tools/create_release_manifest.py --package-dir package --version "$env:RELEASE_VERSION" --commit "$env:SOURCE_COMMIT" --platform windows-x64 --compiler "MSVC 2022" --qt-version "6.8.3"
+          if ($LASTEXITCODE -ne 0) { throw "Release manifest generation failed." }
+
+      - name: Validate release manifest against schema
+        shell: pwsh
+        run: |
+          python -c "import json, pathlib, jsonschema; schema=json.loads(pathlib.Path('schemas/ventusample.release.v1.schema.json').read_text(encoding='utf-8')); manifest=json.loads(pathlib.Path('package/release-manifest.json').read_text(encoding='utf-8')); jsonschema.validate(manifest, schema)"
+          if ($LASTEXITCODE -ne 0) { throw "Release manifest schema validation failed." }
+
+      - name: Create release archive and checksum
+        shell: pwsh
+        run: |
+          Compress-Archive -Path package/* -DestinationPath VentuSample-windows-x64.zip -Force
+          $hash = (Get-FileHash VentuSample-windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  VentuSample-windows-x64.zip" | Set-Content -Encoding ascii SHA256SUMS.txt
+
+      - name: Verify archive checksum
+        shell: pwsh
+        run: |
+          $expected = (Get-Content SHA256SUMS.txt).Split(' ')[0]
+          $actual = (Get-FileHash VentuSample-windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $expected) { throw "Release archive checksum mismatch." }
+
+      - name: Upload verified release candidate
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ventusample-windows-x64-release
+          path: |
+            VentuSample-windows-x64.zip
+            SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
+  create-draft-release:
+    name: Create draft release for human publication
+    needs: build-windows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: release-review
+    permissions:
+      contents: write
+    steps:
+      - name: Download verified release candidate
+        uses: actions/download-artifact@v8
+        with:
+          name: ventusample-windows-x64-release
+          path: release-assets
+
+      - name: Verify archive checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release-assets
+          sha256sum --check SHA256SUMS.txt
+
+      - name: Create GitHub draft release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.version }}
+          name: VentuSample ${{ inputs.version }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            release-assets/VentuSample-windows-x64.zip
+            release-assets/SHA256SUMS.txt
