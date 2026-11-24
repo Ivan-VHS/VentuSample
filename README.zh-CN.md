@@ -217,7 +217,7 @@ Plugin Manager 内置 19 个工具。可以递归发现本地 `plugin.json` 元�
 | `src/compat/pytyliki-dsp/` | 迁入的 C11 缓冲区处理库 |
 | `integrations/cockos-reaper/` | 可选的 Cockos REAPER Lua 辅助操作 |
 | `tests/` | 原生 DSP、生成器、manifest、UI、插件生命周期和回归测试 |
-| `docs/` | 架构、功能、插件 SDK、UI 行为和音频合同 |
+| `docs/` | 架构、功能、插件 SDK、UI 行为、音频合同及[韧性与信任策略](docs/RESILIENCE_POLICY.md) |
 | `docs/PYTYLIKI_DSP_MIGRATION.md` | 迁入的 C11 模块所有权与构建约定 |
 | `docs/integrations/COCKOS_REAPER.md` | 可选 Cockos REAPER 辅助脚本 |
 | `schemas/` | 版本化采样包与插件 manifest Schema |
@@ -240,7 +240,9 @@ Plugin Manager 内置 19 个工具。可以递归发现本地 `plugin.json` 元�
 - Windows 2022 Runner 上使用 Qt 6.8.3 和 MSVC 2022 的 Windows 11 原生 Qt 桌面构建；
 - project-contract、generated-fixture、engineering-evolution 和 CLife 验证。
 
-Windows 桌面任务会截取正在运行的应用并上传保留 30 天的截图 Artifact。该工作流**没有**声明公开 Web 部署、托管预览或带标签的 Windows Release 压缩包。CI 成功并不代表存在 Release 打包或自动部署。
+Windows 桌面任务会截取正在运行的应用并上传保留 30 天的截图 Artifact。
+
+带标签的 Windows x64 发布由单独的[手动 Release 工作流](.github/workflows/release.yml)执行：它运行 CTest、生成 SHA-256 文件清单，并创建供维护者手动发布的 GitHub 草稿 Release。该工作流**没有**声明公开 Web 部署、托管预览或带标签的 Windows Release 压缩包。CI 成功并不代表存在 Release 打包或自动部署。
 
 回滚本地修改时，可返回上一个 Git Commit 或重新构建最后一个已知正常版本。没有在线服务或已部署数据库需要回滚。CI 日志和 Artifact 可在 GitHub Actions 中查看。
 
