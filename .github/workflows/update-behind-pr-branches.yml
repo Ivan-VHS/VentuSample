@@ -81,9 +81,21 @@ jobs:
 
             if (( behind_by > 0 )); then
               echo "UPDATE PR #$number: branch is behind main by $behind_by commit(s) (ahead=$ahead_by, compare=$compare_status, mergeable_state=$state)."
-              gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$number/update-branch" \
-                -f "expected_head_sha=$current_sha" >/dev/null
-              return 0
+              local update_output
+              if update_output="$(gh api --method PUT "repos/$GITHUB_REPOSITORY/pulls/$number/update-branch" \
+                -f "expected_head_sha=$current_sha" 2>&1)"; then
+                echo "UPDATED PR #$number: branch update accepted by GitHub."
+                return 0
+              else
+                local update_status=$?
+                if grep -q "HTTP 422" <<< "$update_output"; then
+                  echo "NOTICE PR #$number: GitHub rejected branch update because of a merge conflict; leaving it for maintainer resolution."
+                  echo "$update_output"
+                  return 0
+                fi
+                echo "ERROR PR #$number: branch update failed (exit=$update_status): $update_output" >&2
+                return "$update_status"
+              fi
             fi
 
             echo "OK PR #$number: branch contains current main (ahead=$ahead_by, behind=$behind_by, compare=$compare_status, mergeable_state=$state)."
