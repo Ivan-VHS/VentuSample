@@ -19,8 +19,10 @@ jobs:
   python-contract:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
         python-version: ['3.10', '3.11', '3.12']
     steps:
@@ -40,6 +42,10 @@ jobs:
         run: python tools/validate_engineering_evolution.py
       - name: Validate 20-workstream automation roadmap and evidence paths
         run: python scripts/validate_automation_roadmap.py --strict
+      - name: Validate roadmap governance and bounded CI scale
+        run: python tools/validate_delivery_contracts.py --self-test
+      - name: Test governance and CI scale regressions
+        run: python -m unittest discover -s tests -p "test_delivery_contracts.py" -v
       - name: Validate offline resilience and trust policy
         run: python scripts/validate_resilience_policy.py
       - name: Test resilience and trust policy
@@ -60,6 +66,7 @@ jobs:
     # Existing repository rules require this historical status context.
     # The actual compiled product engine is C++20 and is built/tested below.
     name: Native C
+    timeout-minutes: 30
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -73,6 +80,7 @@ jobs:
 
   linux-core-and-desktop:
     name: Linux DSP + Qt desktop build
+    timeout-minutes: 40
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -90,6 +98,7 @@ jobs:
 
   windows-native-desktop:
     name: Windows 11 native Qt desktop build
+    timeout-minutes: 40
     runs-on: windows-2022
     permissions:
       contents: write
