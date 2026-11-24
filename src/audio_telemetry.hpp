@@ -1,0 +1,59 @@
+#pragma once
+
+#include <atomic>
+#include <cstdint>
+
+namespace ventu::diagnostics {
+
+enum class QualityMode : std::uint8_t {
+    Normal = 0,
+    Reduced = 1,
+    Emergency = 2
+};
+
+struct AudioTelemetrySnapshot {
+    std::uint64_t callbacks{};
+    std::uint64_t xruns{};
+    std::uint64_t consecutiveOverruns{};
+    std::uint64_t lastCallbackNs{};
+    std::uint64_t peakCallbackNs{};
+    std::uint64_t samplePosition{};
+    std::uint64_t memoryBytes{};
+    std::uint64_t memoryBudgetBytes{};
+    std::uint32_t lastLoadPpm{};
+    std::uint32_t peakLoadPpm{};
+    QualityMode quality{QualityMode::Normal};
+};
+
+/* Callback-safe metrics: recordCallback performs no allocation, logging,
+ * locking, filesystem access, or Qt calls. The audio engine is the sole
+ * callback writer; the UI may read snapshots concurrently. */
+class AudioTelemetry final {
+public:
+    void recordCallback(std::uint64_t elapsedNs, std::uint64_t budgetNs,
+                        std::uint32_t frames, bool xrun = false) noexcept;
+    void recordMemory(std::uint64_t usedBytes, std::uint64_t budgetBytes) noexcept;
+    void recordDeviceHealth(bool healthy) noexcept;
+    AudioTelemetrySnapshot snapshot() const noexcept;
+    void resetPeaks() noexcept;
+
+private:
+    static void updatePeak(std::atomic<std::uint64_t>& peak,
+                           std::uint64_t value) noexcept;
+    static void updatePeak(std::atomic<std::uint32_t>& peak,
+                           std::uint32_t value) noexcept;
+
+    std::atomic<std::uint64_t> callbacks_{0};
+    std::atomic<std::uint64_t> xruns_{0};
+    std::atomic<std::uint64_t> consecutiveOverruns_{0};
+    std::atomic<std::uint64_t> lastCallbackNs_{0};
+    std::atomic<std::uint64_t> peakCallbackNs_{0};
+    std::atomic<std::uint64_t> samplePosition_{0};
+    std::atomic<std::uint64_t> memoryBytes_{0};
+    std::atomic<std::uint64_t> memoryBudgetBytes_{0};
+    std::atomic<std::uint32_t> lastLoadPpm_{0};
+    std::atomic<std::uint32_t> peakLoadPpm_{0};
+    std::atomic<bool> deviceHealthy_{true};
+};
+
+} // namespace ventu::diagnostics
