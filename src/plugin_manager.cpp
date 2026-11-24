@@ -387,7 +387,7 @@ PluginResult PluginManager::execute(const std::string& idOrName,
     const std::string executionId = context.correlationId.empty()
         ? found->descriptor.id + "#" + std::to_string(found->invocations)
         : context.correlationId;
-    const auto finish = [&](PluginResult result) mutable {
+    const auto finish = [&](PluginResult result) {
         const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - started
         ).count();
