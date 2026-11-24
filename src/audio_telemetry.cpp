@@ -99,4 +99,66 @@ void AudioTelemetry::resetPeaks() noexcept {
                        std::memory_order_relaxed);
 }
 
+
+void RenderTelemetry::updatePeak(std::atomic<std::uint64_t>& peak,
+                                 std::uint64_t value) noexcept {
+    auto current = peak.load(std::memory_order_relaxed);
+    while (current < value &&
+           !peak.compare_exchange_weak(current, value,
+                                       std::memory_order_relaxed,
+                                       std::memory_order_relaxed)) {
+    }
+}
+
+void RenderTelemetry::beginJob(std::uint64_t filesTotal) noexcept {
+    succeeded_.store(false, std::memory_order_relaxed);
+    filesCompleted_.store(0u, std::memory_order_relaxed);
+    filesTotal_.store(filesTotal, std::memory_order_relaxed);
+    currentVariation_.store(0u, std::memory_order_relaxed);
+    currentBufferBytes_.store(0u, std::memory_order_relaxed);
+    lastFileElapsedNs_.store(0u, std::memory_order_relaxed);
+    peakFileElapsedNs_.store(0u, std::memory_order_relaxed);
+    stage_.store(RenderStage::Preflight, std::memory_order_relaxed);
+    active_.store(true, std::memory_order_release);
+}
+
+void RenderTelemetry::setStage(RenderStage stage, std::uint32_t variation) noexcept {
+    currentVariation_.store(variation, std::memory_order_relaxed);
+    stage_.store(stage, std::memory_order_release);
+}
+
+void RenderTelemetry::recordBufferSamples(std::uint64_t sampleCount) noexcept {
+    constexpr std::uint64_t bytesPerSample = sizeof(float);
+    const auto bytes = sampleCount > UINT64_MAX / bytesPerSample
+        ? UINT64_MAX : sampleCount * bytesPerSample;
+    currentBufferBytes_.store(bytes, std::memory_order_relaxed);
+}
+
+void RenderTelemetry::recordFileCompleted(std::uint64_t elapsedNs) noexcept {
+    lastFileElapsedNs_.store(elapsedNs, std::memory_order_relaxed);
+    updatePeak(peakFileElapsedNs_, elapsedNs);
+    filesCompleted_.fetch_add(1u, std::memory_order_relaxed);
+}
+
+void RenderTelemetry::finish(bool succeeded) noexcept {
+    succeeded_.store(succeeded, std::memory_order_relaxed);
+    stage_.store(succeeded ? RenderStage::Complete : RenderStage::Failed,
+                 std::memory_order_relaxed);
+    active_.store(false, std::memory_order_release);
+}
+
+RenderTelemetrySnapshot RenderTelemetry::snapshot() const noexcept {
+    RenderTelemetrySnapshot result;
+    result.active = active_.load(std::memory_order_acquire);
+    result.succeeded = succeeded_.load(std::memory_order_relaxed);
+    result.stage = stage_.load(std::memory_order_acquire);
+    result.currentVariation = currentVariation_.load(std::memory_order_relaxed);
+    result.filesCompleted = filesCompleted_.load(std::memory_order_relaxed);
+    result.filesTotal = filesTotal_.load(std::memory_order_relaxed);
+    result.currentBufferBytes = currentBufferBytes_.load(std::memory_order_relaxed);
+    result.lastFileElapsedNs = lastFileElapsedNs_.load(std::memory_order_relaxed);
+    result.peakFileElapsedNs = peakFileElapsedNs_.load(std::memory_order_relaxed);
+    return result;
+}
+
 } // namespace ventu::diagnostics
