@@ -56,4 +56,53 @@ private:
     std::atomic<bool> deviceHealthy_{true};
 };
 
+
+enum class RenderStage : std::uint8_t {
+    Idle = 0,
+    Preflight,
+    Rendering,
+    Processing,
+    Exporting,
+    Measuring,
+    Manifest,
+    Complete,
+    Failed
+};
+
+struct RenderTelemetrySnapshot {
+    bool active{};
+    bool succeeded{};
+    RenderStage stage{RenderStage::Idle};
+    std::uint32_t currentVariation{};
+    std::uint64_t filesCompleted{};
+    std::uint64_t filesTotal{};
+    std::uint64_t currentBufferBytes{};
+    std::uint64_t lastFileElapsedNs{};
+    std::uint64_t peakFileElapsedNs{};
+};
+
+class RenderTelemetry final {
+public:
+    void beginJob(std::uint64_t filesTotal) noexcept;
+    void setStage(RenderStage stage, std::uint32_t variation) noexcept;
+    void recordBufferSamples(std::uint64_t sampleCount) noexcept;
+    void recordFileCompleted(std::uint64_t elapsedNs) noexcept;
+    void finish(bool succeeded) noexcept;
+    RenderTelemetrySnapshot snapshot() const noexcept;
+
+private:
+    static void updatePeak(std::atomic<std::uint64_t>& peak,
+                           std::uint64_t value) noexcept;
+
+    std::atomic<bool> active_{false};
+    std::atomic<bool> succeeded_{false};
+    std::atomic<RenderStage> stage_{RenderStage::Idle};
+    std::atomic<std::uint32_t> currentVariation_{0};
+    std::atomic<std::uint64_t> filesCompleted_{0};
+    std::atomic<std::uint64_t> filesTotal_{0};
+    std::atomic<std::uint64_t> currentBufferBytes_{0};
+    std::atomic<std::uint64_t> lastFileElapsedNs_{0};
+    std::atomic<std::uint64_t> peakFileElapsedNs_{0};
+};
+
 } // namespace ventu::diagnostics
