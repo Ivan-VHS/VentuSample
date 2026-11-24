@@ -59,6 +59,10 @@ class BeelzebulTests(unittest.TestCase):
         self.write("src/bad.py", b"name = '\xff'\n")
         self.assertIn("A-04", {item["rule_id"] for item in self.report()["findings"]})
 
+    def test_invalid_utf8_in_tsv_policy_is_detected(self):
+        self.write("security/context.tsv", b"category\\tterm\\n\\xff")
+        self.assertIn("A-04", {item["rule_id"] for item in self.report()["findings"]})
+
     def test_merge_markers_are_blocked(self):
         marker_a = "<" * 7 + " HEAD"
         marker_b = "=" * 7
