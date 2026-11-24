@@ -22,12 +22,14 @@ int main() {
     ventu::RuntimeTransaction* observed = nullptr;
     std::thread callbackReader;
     bool callbackRanUnlocked = false;
+    bool callbackCheckPerformed = false;
     std::uint64_t callbackObservedGeneration = 0u;
     ventu::RuntimeTransaction tx(
         {'a', 'b', 'c'}, 1u, 1024u,
         [&](std::string_view name, std::uint64_t) {
             events.emplace_back(name);
-            if (name == "PATCH_STAGED" && !callbackReader.joinable()) {
+            if (name == "PATCH_STAGED" && !callbackCheckPerformed) {
+                callbackCheckPerformed = true;
                 std::promise<std::uint64_t> promise;
                 auto generation = promise.get_future();
                 callbackReader = std::thread([observed, promise = std::move(promise)]() mutable {
