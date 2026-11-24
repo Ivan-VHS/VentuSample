@@ -215,7 +215,7 @@ The data path is: **parameters + seed → procedural renderer → stereo float b
 | `src/compat/pytyliki-dsp/` | migrated C11 buffer-processing library |
 | `integrations/cockos-reaper/` | optional Lua helper actions for Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle and regression tests |
-| `docs/` | architecture, features, plugin SDK, UI behavior and processing contracts |
+| `docs/` | architecture, features, plugin SDK, UI behavior, processing and [resilience/trust policy](docs/RESILIENCE_POLICY.md) |
 | `docs/PYTYLIKI_DSP_MIGRATION.md` | ownership and build contract for the migrated C11 modules |
 | `docs/integrations/COCKOS_REAPER.md` | optional Cockos REAPER helper scripts |
 | `schemas/` | versioned sample-pack and plugin manifest schemas |
@@ -236,7 +236,7 @@ The [CI workflow](.github/workflows/ci.yml) includes:
 - a native C++20 core build and CTest run without the desktop target;
 - Linux DSP + Qt desktop build on Ubuntu 24.04 with Qt 6 Widgets;
 - Windows 11 native Qt desktop build on a Windows 2022 runner using Qt 6.8.3 and MSVC 2022;
-- project-contract, generated-fixture, engineering-evolution and CLife validation.
+- project-contract, generated-fixture, engineering-evolution, automation-roadmap and resilience-policy validation, including negative-case tests.
 
 The Windows desktop job captures the running app and uploads a screenshot artifact with 30-day retention. This workflow does **not** declare a public web deployment, publish a hosted preview, or create a tagged Windows release archive. Do not infer release packaging or automatic deployment from a passing CI job.
 
