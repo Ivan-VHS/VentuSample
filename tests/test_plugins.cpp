@@ -1,6 +1,9 @@
 #include "plugin_manager.hpp"
 
+#include <algorithm>
 #include <cstdlib>
+#include <chrono>
+#include <thread>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -155,6 +158,53 @@ void testManifestDiscoveryAndLifecycle() {
     fs::remove_all(root, ec);
 }
 
+void testExecutionBudgetsAndHealth() {
+    ventu::PluginManager manager;
+    ventu::PluginContext context;
+    context.parameters.bpm = 93;
+
+    auto health = manager.health();
+    require(health.ready && health.registered >= 19u,
+            "built-in plugin registry should report readiness");
+
+    const auto success = manager.execute("operandu", context);
+    require(success.success && !success.executionId.empty(),
+            "successful dispatch should return correlated execution metadata");
+    require(success.durationMs <= 120000u,
+            "default soft deadline should not be reported as exceeded");
+    auto statuses = manager.statuses();
+    const auto found = std::find_if(statuses.begin(), statuses.end(), [](const auto& item) {
+        return item.descriptor.id == "operandu";
+    });
+    require(found != statuses.end() && found->invocations == 1u
+            && found->successes == 1u && found->failures == 0u,
+            "plugin status should expose invocation and success metrics");
+
+    context.executionPolicy.maxEstimatedOutputBytes = 1u;
+    const auto limited = manager.execute("operandu", context);
+    require(!limited.success && limited.summary.find("budget") != std::string::npos,
+            "per-request output budget should reject an oversized render plan");
+
+    ventu::PluginDescriptor slowDescriptor{
+        "slow-test", "Slow Test", "Tests", "1.0.0",
+        "Observed deadline test.", "slow", {"test"}
+    };
+    require(manager.registerPlugin(
+        slowDescriptor,
+        [](const ventu::PluginContext&) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+            return ventu::PluginResult{true, "completed", {}};
+        }),
+        "test plugin should register");
+    context.executionPolicy.maxEstimatedOutputBytes = 512u * 1024u * 1024u;
+    context.executionPolicy.softDeadlineMs = 1u;
+    const auto late = manager.execute("slow-test", context);
+    require(late.success && late.deadlineExceeded,
+            "soft deadline should be observable without claiming forced cancellation");
+    require(late.details.size() == 1u,
+            "late execution should include an explicit non-preemption diagnostic");
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -172,6 +222,7 @@ int main() {
     testExtensionRegistration();
     testManifestDiscoveryAndLifecycle();
     testInvalidAndUnknownPlugin();
+    testExecutionBudgetsAndHealth();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;
 }
