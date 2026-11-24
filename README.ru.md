@@ -47,6 +47,10 @@ VentuSample создаёт локальные hip-hop sample packs на осно
 | Экспорт аудио | stereo PCM16 WAV и версионированный JSON-manifest | локальные файлы; существующие файлы не перезаписываются |
 | Импорт WAV | поддерживаемые исходные PCM16 mono/stereo файлы | проверяются размер, число кадров, sample rate и формат |
 | Quantum Audio Engine | 133 типизированных ID модулей и 21 повторно используемое DSP-ядро | творческая офлайн-DSP, не физические квантовые вычисления |
+| Migrated C11 processing | ограниченный WAV I/O, фильтры, компрессор, насыщение, limiter и измерения | отдельная C11-цель, офлайн-буферы |
+| Offline spectrum analysis | FFT-пик, спектральный центроид и 85% rolloff по существующему буферу | ограниченный FFT 256–65 536 точек; без доступа к устройствам |
+| Ресэмплинг | ограниченная линейная интерполяция для mono/stereo буферов | качество для предпросмотра; без anti-alias фильтра |
+| MIDI inspection | разбор Standard MIDI File формата 0/1, нот, темпа и размера такта | ограниченный read-only parser; без MIDI-устройств и воспроизведения |
 | Stochastic Router | необязательная seeded-маршрутизация через восемь встроенных процессоров | офлайн-обработка буфера; выключено по умолчанию |
 | Plugin Manager | 19 встроенных инструментов и проверенный C++20 handler API | обнаружение manifest — только метаданные; без произвольного DLL/SO loading |
 | Atomic-Quantum 133 | отдельная ограниченная классическая симуляция | без доступа к квантовому оборудованию |
@@ -58,6 +62,12 @@ VentuSample создаёт локальные hip-hop sample packs на осно
 
 Скриншот Windows ниже — снимок desktop-приложения, а не браузерное превью.
 
+
+## Интеграция с Reaper
+
+VentuSample может использовать версионированный C17 ABI Reaper для детерминированных управляющих выражений и поиска selfhood. Reaper не работает в real-time DSP: генерация, буферы, маршрутизация и offline-обработка остаются в нативном C++20.
+
+Подробности: [интеграция Reaper](docs/REAPER_RUNTIME_INTEGRATION.md).
 
 ## Быстрый старт
 
@@ -204,8 +214,12 @@ Plugin Manager включает 19 встроенных инструментов
 | Путь | Содержимое |
 |---|---|
 | `src/` | C++20 generator, renderer, audio buffers, DSP kernels, plugin manager, Qt desktop UI и optional Reaper bridge |
+| `src/compat/pytyliki-dsp/` | перенесённая библиотека обработки буферов на C11 |
+| `integrations/cockos-reaper/` | необязательные Lua-действия для Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle и regression tests |
-| `docs/` | архитектура, функции, plugin SDK, UI behavior и audio contracts |
+| `docs/` | архитектура, функции, plugin SDK, UI behavior, audio contracts и [политика устойчивости и доверия](docs/RESILIENCE_POLICY.md) |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | владение и правила сборки перенесённых C11-модулей |
+| `docs/integrations/COCKOS_REAPER.md` | необязательные скрипты Cockos REAPER |
 | `schemas/` | версионированные sample-pack и plugin manifest schemas |
 | `tools/` | project-contract, fixture, visual-canon и engineering validators |
 | `federation/` | явные interoperability и adapter manifests |
@@ -226,7 +240,9 @@ Desktop использует Qt 6 Widgets. Генератор и DSP engine на
 - Windows 11 native Qt desktop build на runner Windows 2022 с Qt 6.8.3 и MSVC 2022;
 - project-contract, generated-fixture, engineering-evolution и CLife validation.
 
-Windows desktop job захватывает запущенное приложение и загружает screenshot artifact со сроком хранения 30 дней. Этот workflow **не** объявляет public web deployment, hosted preview или tagged Windows release archive. Не следует делать вывод о наличии release packaging или автоматического deployment по успешному CI.
+Windows desktop job захватывает запущенное приложение и загружает screenshot artifact со сроком хранения 30 дней.
+
+Выпуск Windows x64 по тегу выполняет отдельный [ручной workflow релиза](.github/workflows/release.yml): он запускает CTest, формирует SHA-256-манифест и создаёт черновой GitHub Release для ручной публикации. Этот workflow **не** объявляет public web deployment, hosted preview или tagged Windows release archive. Не следует делать вывод о наличии release packaging или автоматического deployment по успешному CI.
 
 Для отката локального изменения вернитесь к предыдущему Git commit или пересоберите последнюю известную рабочую ревизию. Нет онлайн-сервиса или deployed database, которые нужно откатывать. Логи CI и артефакты доступны в GitHub Actions.
 
@@ -275,3 +291,13 @@ JSON-результат можно обернуть в общий формат �
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 См. docs/REPORT_ENVELOPE.md и schemas/ivan-vhs.report.v1.schema.json. Результат самого инструмента остаётся без изменений.
+
+
+## Карта документации
+
+Используйте [индекс документации](docs/README.md) как точку входа, а [карту информационной архитектуры](docs/INFORMATION_ARCHITECTURE.md) — для навигации по аудио/DSP, рабочим процессам Studio, пресетам и плагинам, архитектуре, UX и интеграциям. Хабы ведут к подробным контрактам; поддерживаемые форматы и статус реализации подтверждаются кодом, тестами, manifest-файлами и схемами.
+
+
+## Интеграция с рабочим столом Mora
+
+VentuSample доступен из общей рабочей области Mora после сборки desktop target на Qt 6. Mora предоставляет каталог и стартовую тему, а генерация сэмплов и офлайн-DSP остаются функциями самого VentuSample. См. [интеграцию Mora](docs/MORA_DESKTOP_INTEGRATION.md) и [контракт DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).

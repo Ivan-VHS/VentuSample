@@ -2,7 +2,7 @@
   "schema": "engineering-evolution.v1",
   "version": 1,
   "title": "Engineering Evolution Framework",
-  "purpose": "A shared, evidence-led framework for architecture, modernization, verification and operational evolution across the Ivan-VHS repositories.",
+  "purpose": "A shared, evidence-led framework for architecture, modernization, verification and operational evolution, including the 20 coordinated implementation directives used across the Ivan-VHS repositories.",
   "adoption": {
     "sequence": [
       "Inventory",
@@ -493,5 +493,287 @@
     "Treat decompilation and inspection as read-only; never execute untrusted source, packages, binaries or generated payloads.",
     "Base performance and scaling claims on reproducible measurements with hardware, workload and environment context.",
     "Allow not_applicable when a technique conflicts with the repository's product boundary or safety model."
+  ],
+  "execution_directives": [
+    {
+      "id": "feature-development",
+      "source_text": "Разработать Функционал Единовременно",
+      "domains": [
+        "architecture",
+        "protocol",
+        "geometry"
+      ],
+      "intent": "Define a complete capability slice, its owners, public boundaries and acceptance conditions before parallel implementation begins.",
+      "acceptance": [
+        "Every new capability has a documented input, output, owner and explicit maturity status.",
+        "The implementation is connected to a real product path and covered by focused positive, boundary and failure tests."
+      ]
+    },
+    {
+      "id": "parallel-capability-design",
+      "source_text": "Спроектировать Возможности Одновременно",
+      "domains": [
+        "architecture",
+        "impulse",
+        "mechanism"
+      ],
+      "intent": "Design independent capabilities in parallel from one shared baseline, dependency map and set of compatibility assumptions.",
+      "acceptance": [
+        "Parallel workstreams publish compatible interfaces and a dependency map before integration.",
+        "Conflicting changes to the same contract or mutable state are serialized and reviewed."
+      ]
+    },
+    {
+      "id": "comprehensive-tooling",
+      "source_text": "Реализовать Инструментарий Комплексно",
+      "domains": [
+        "transformation",
+        "algorithm",
+        "generation"
+      ],
+      "intent": "Deliver the supporting tools needed to build, inspect, validate, diagnose and exercise the capability without creating unrelated tooling.",
+      "acceptance": [
+        "Each tool has a bounded input contract, predictable output and actionable error behavior.",
+        "Tools are exercised by automated tests or a reproducible repository command."
+      ]
+    },
+    {
+      "id": "complete-enablement",
+      "source_text": "Создать Оснащение Целиком",
+      "domains": [
+        "molecule",
+        "orbit",
+        "gravity"
+      ],
+      "intent": "Provide the complete practical setup for a feature, including configuration, dependencies, build integration, fixtures and operator guidance.",
+      "acceptance": [
+        "Required dependencies and configuration are declared with safe defaults and version constraints.",
+        "A clean checkout can follow the documented steps without undocumented manual setup."
+      ]
+    },
+    {
+      "id": "full-integration",
+      "source_text": "Внедрить Оснащённость Полностью",
+      "domains": [
+        "orbit",
+        "integration",
+        "geometry"
+      ],
+      "intent": "Wire each accepted component into its intended runtime or workflow and expose its supported lifecycle and failure states.",
+      "acceptance": [
+        "No shipped component is an orphaned stub presented as an active capability.",
+        "Startup, normal operation, unavailable dependency and shutdown paths are tested where applicable."
+      ]
+    },
+    {
+      "id": "competency-integration",
+      "source_text": "Интегрировать Компетенции Разом",
+      "domains": [
+        "integration",
+        "protocol",
+        "synchronization"
+      ],
+      "intent": "Reuse mature repository capabilities through explicit adapters and versioned contracts instead of duplicating logic or coupling internals.",
+      "acceptance": [
+        "Every cross-module or cross-project integration names its provider, consumer, version and failure behavior.",
+        "Integration tests verify data shape, provenance and compatibility at the boundary."
+      ]
+    },
+    {
+      "id": "integration-modernization",
+      "source_text": "Модернизировать Интеграции Сразу",
+      "domains": [
+        "integration",
+        "algorithm",
+        "protocol"
+      ],
+      "intent": "Modernize existing connections incrementally while preserving supported behavior and providing an explicit migration path.",
+      "acceptance": [
+        "Existing public interfaces have compatibility tests or a documented versioned migration.",
+        "New dependencies and transport changes are justified, pinned or constrained, and reversible."
+      ]
+    },
+    {
+      "id": "subsystem-optimization",
+      "source_text": "Оптимизировать Подсистемы Моментально",
+      "domains": [
+        "crystal",
+        "resonance",
+        "geometry"
+      ],
+      "intent": "Optimize measured bottlenecks only after recording a baseline and selecting a reference implementation or invariant.",
+      "acceptance": [
+        "Performance changes include reproducible workload, environment and before/after measurements.",
+        "Optimized paths preserve reference semantics and pass regression, boundary and resource-limit tests."
+      ]
+    },
+    {
+      "id": "parallel-automation",
+      "source_text": "Автоматизировать Механизмы Параллельно",
+      "domains": [
+        "transformation",
+        "evolution",
+        "gravity"
+      ],
+      "intent": "Automate independent repeatable operations with idempotent jobs, least privilege and explicit cancellation and retry limits.",
+      "acceptance": [
+        "Repeated execution is safe and does not duplicate or corrupt side effects.",
+        "Automation has bounded retries, observable results and a documented recovery path."
+      ]
+    },
+    {
+      "id": "collective-tool-improvement",
+      "source_text": "Усовершенствовать Инструменты Совокупно",
+      "domains": [
+        "algorithm",
+        "navigation",
+        "generation"
+      ],
+      "intent": "Improve command-line, build, test and diagnostic tools as one coherent developer workflow with consistent conventions.",
+      "acceptance": [
+        "Related tools share documented naming, configuration and error-reporting conventions.",
+        "The complete tool workflow is covered by tests or a single reproducible verification command."
+      ]
+    },
+    {
+      "id": "systematic-component-rework",
+      "source_text": "Переработать Компоненты Системно",
+      "domains": [
+        "resonance",
+        "geometry",
+        "protocol"
+      ],
+      "intent": "Refactor components by responsibility and ownership while preserving their public contract and separating failure domains.",
+      "acceptance": [
+        "Changed components have explicit inputs, outputs, resource limits and dependency direction.",
+        "Compatibility or migration tests show that supported callers retain the required behavior."
+      ]
+    },
+    {
+      "id": "module-scaling",
+      "source_text": "Масштабировать Модули Массово",
+      "domains": [
+        "horizon",
+        "molecule",
+        "algorithm"
+      ],
+      "intent": "Scale modules through stable extension points, bounded resource budgets and measured capacity rather than uncontrolled feature duplication.",
+      "acceptance": [
+        "Module count, workload size and resource use have documented limits or capacity assumptions.",
+        "Independent modules can be tested and extended without bypassing shared contracts."
+      ]
+    },
+    {
+      "id": "batch-adaptation",
+      "source_text": "Адаптировать Реализация Пакетно",
+      "domains": [
+        "orbit",
+        "synchronization",
+        "protocol"
+      ],
+      "intent": "Adapt implementations in coherent batches using platform-specific adapters and schema-validated configuration without changing canonical semantics.",
+      "acceptance": [
+        "Each supported platform or format has an explicit capability check and fallback behavior.",
+        "Batch changes preserve deterministic ordering, provenance and version compatibility."
+      ]
+    },
+    {
+      "id": "centralized-automation",
+      "source_text": "Унифицировать Автоматизация Централизованно",
+      "domains": [
+        "evolution",
+        "transformation",
+        "molecule"
+      ],
+      "intent": "Centralize shared automation rules and reusable scripts while leaving project-specific behavior behind clear adapters.",
+      "acceptance": [
+        "There is one canonical source for shared rules and duplicate logic is removed or explicitly justified.",
+        "Shared automation is versioned, idempotent and independently testable."
+      ]
+    },
+    {
+      "id": "synchronized-optimization",
+      "source_text": "Синхронизировать Оптимизация Комплексно",
+      "domains": [
+        "synchronization",
+        "gravity",
+        "crystal"
+      ],
+      "intent": "Coordinate optimization across connected components while defining ordering, consistency, conflict handling and rollback boundaries.",
+      "acceptance": [
+        "Cross-component updates declare ordering, consistency and partial-failure behavior.",
+        "Combined changes are tested together and do not silently invalidate another repository's contract."
+      ]
+    },
+    {
+      "id": "automatic-compatibility",
+      "source_text": "Имплементировать Совместимость Автоматически",
+      "domains": [
+        "protocol",
+        "integration",
+        "generation"
+      ],
+      "intent": "Automate compatibility checks through explicit version, platform, architecture and schema matrices rather than guessing compatibility.",
+      "acceptance": [
+        "Compatibility claims are tied to a named version/platform matrix and executable checks.",
+        "Unsupported combinations fail clearly; automated tooling never installs, flashes or mutates hardware without explicit authorization."
+      ]
+    },
+    {
+      "id": "synchronized-performance",
+      "source_text": "Расширить Производительность Синхронно",
+      "domains": [
+        "geometry",
+        "crystal",
+        "horizon"
+      ],
+      "intent": "Extend performance across related paths using shared measurement units, reference outputs and regression budgets.",
+      "acceptance": [
+        "Benchmarks identify hardware, build mode, workload, units and measurement method.",
+        "Performance work is accepted only when correctness remains intact and regressions stay within a declared budget."
+      ]
+    },
+    {
+      "id": "sequential-scalability",
+      "source_text": "Ускорить Масштабируемость Последовательно",
+      "domains": [
+        "trajectory",
+        "horizon",
+        "gravity"
+      ],
+      "intent": "Increase capacity through staged changes with observable thresholds, bounded resource use and a tested fallback or rollback.",
+      "acceptance": [
+        "Scaling steps have measurable targets and resource ceilings.",
+        "Each stage passes the relevant load, reliability and rollback checks before the next stage is adopted."
+      ]
+    },
+    {
+      "id": "continuous-universality",
+      "source_text": "Комплексно усовершенствовать Универсальность Безостановочно",
+      "domains": [
+        "perspective",
+        "trajectory",
+        "architecture"
+      ],
+      "intent": "Improve portability and long-term usefulness through backward-compatible evolution, explicit uncertainty and supported-platform evidence.",
+      "acceptance": [
+        "Platform-specific behavior is isolated behind documented interfaces and tested where CI supports it.",
+        "Continuous delivery remains compatible; disruptive migrations use staged rollout and a recovery path rather than bypassing checks."
+      ]
+    },
+    {
+      "id": "atomic-extensibility-refactor",
+      "source_text": "Рефакторить Расширяемость Одномоментно",
+      "domains": [
+        "architecture",
+        "resonance",
+        "protocol"
+      ],
+      "intent": "Make coordinated extensibility refactors behind stable contracts, with small reviewable changes and compatibility coverage.",
+      "acceptance": [
+        "Extension points are explicit, versioned and covered by contract tests.",
+        "The refactor is split by dependency order; no unverified all-at-once rewrite is merged directly into the release path."
+      ]
+    }
   ]
 }

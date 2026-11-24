@@ -11,7 +11,7 @@
 | Timing | shared drum/melody swing, snare offset, micro-humanization |
 | Processing | filters, saturation, linked stereo bus compression |
 | Export | PCM16 WAV + manifest v2; v1 compatibility retained |
-| Analysis | peak, RMS, crest per file |
+| Analysis | peak, RMS, crest per file; offline FFT peak, centroid and 85% rolloff | bounded in-memory analysis; no audio-device access |
 | Key labels | key/mode on pitched material; no fabricated drum key |
 | Reaper | v1 manifest metrics/comparison; JSON only, no waveform audit |
 | QMR-20 | 20 quality × cohesion × rhythm controls and regression gates |

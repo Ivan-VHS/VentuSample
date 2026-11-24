@@ -1,0 +1,163 @@
+{
+  "schema": "ivan-vhs.system-capabilities.v1",
+  "version": 1,
+  "project": "VentuSample",
+  "scope": "Native C++20 offline procedural audio workstation, bounded WAV processing and versioned preset/manifest exchange.",
+  "reference": {
+    "id": "windows-xp-sp3-66-point-comparison",
+    "total_points": 66,
+    "quality": "mixed_historical_claims",
+    "treatment": "historical_input_for_portable_engineering_principles",
+    "warning": "The supplied 66-point list mixes cumulative updates, inherited behavior, absence statements, repeated topics and Windows-specific constraints. It is not treated as an authoritative XP SP3 changelog or as a requirement to reproduce legacy Windows behavior."
+  },
+  "adoption_rules": {
+    "allowed_statuses": [
+      "implemented",
+      "partial",
+      "planned",
+      "not_applicable",
+      "not_assessed"
+    ],
+    "rule": "Only claim implemented when repository code and tests or operational evidence support the exact behavior. Partial requires evidence and explicit limits. Not applicable requires a product-scope reason. Historical Windows features are not silently represented as native capabilities."
+  },
+  "source_groups": [
+    {
+      "id": "security-crypto-policy",
+      "title": "Security, cryptography and access policy",
+      "first": 1,
+      "last": 14,
+      "count": 14
+    },
+    {
+      "id": "network-protocols",
+      "title": "Networking, protocols and local interoperability",
+      "first": 15,
+      "last": 28,
+      "count": 14
+    },
+    {
+      "id": "installation-servicing",
+      "title": "Activation, installation, deployment and servicing",
+      "first": 29,
+      "last": 40,
+      "count": 12
+    },
+    {
+      "id": "user-interface-storage",
+      "title": "User interface, shell, multimedia and storage",
+      "first": 41,
+      "last": 54,
+      "count": 14
+    },
+    {
+      "id": "lifecycle-compatibility",
+      "title": "Lifecycle, versioning and technical limits",
+      "first": 55,
+      "last": 66,
+      "count": 12
+    }
+  ],
+  "controls": [
+    {
+      "id": "security-trust",
+      "source_group": "security-crypto-policy",
+      "source_points": [
+        1,
+        14
+      ],
+      "status": "partial",
+      "assessment": "Imported media and parameters are bounded and validated, rendering is offline, and export avoids overwriting existing files; no privileged host control is exposed.",
+      "evidence": [
+        "README.md",
+        "docs/FEATURES.md",
+        "docs/QUALITY_REPEATABILITY_NATIVE.md"
+      ],
+      "verification": [
+        "tests"
+      ],
+      "limitations": [
+        "Retain explicit size, frame-count, format and output-path guards."
+      ]
+    },
+    {
+      "id": "network-interoperability",
+      "source_group": "network-protocols",
+      "source_points": [
+        15,
+        28
+      ],
+      "status": "not_applicable",
+      "assessment": "VentuSample is an offline workstation without a hosted backend, network playback path or remote control plane.",
+      "evidence": [
+        "README.md",
+        "docs/FEATURES.md"
+      ],
+      "verification": [],
+      "limitations": [
+        "Do not add network access to the audio render path without a separately reviewed product requirement."
+      ]
+    },
+    {
+      "id": "deployment-servicing",
+      "source_group": "installation-servicing",
+      "source_points": [
+        29,
+        40
+      ],
+      "status": "partial",
+      "assessment": "CMake provides portable core and optional Qt desktop builds; there is no OS-level installer, updater or privileged servicing mechanism.",
+      "evidence": [
+        "README.md",
+        "CMakeLists.txt",
+        "docs/FEATURES.md"
+      ],
+      "verification": [
+        "tests"
+      ],
+      "limitations": [
+        "Keep release packaging separate from host audio/device configuration."
+      ]
+    },
+    {
+      "id": "user-experience-storage",
+      "source_group": "user-interface-storage",
+      "source_points": [
+        41,
+        54
+      ],
+      "status": "partial",
+      "assessment": "A Qt desktop application, local presets, A/B slots and versioned WAV/JSON outputs exist; the application is not a general shell or audio-device host.",
+      "evidence": [
+        "README.md",
+        "docs/FEATURES.md"
+      ],
+      "verification": [
+        "tests"
+      ],
+      "limitations": [
+        "Preserve deterministic offline operation and explicit local-file boundaries."
+      ]
+    },
+    {
+      "id": "compatibility-lifecycle",
+      "source_group": "lifecycle-compatibility",
+      "source_points": [
+        55,
+        66
+      ],
+      "status": "partial",
+      "assessment": "Preset schemas and manifest v1/v2 compatibility are documented, with bounded PCM16 WAV support; runtime audio-device and DAW compatibility are not claimed.",
+      "evidence": [
+        "docs/FEATURES.md",
+        "schemas/ventusample.preset.v1.schema.json",
+        "README.md"
+      ],
+      "verification": [
+        "tests"
+      ],
+      "limitations": [
+        "Version every interchange format and keep backward-compatibility tests."
+      ]
+    }
+  ]
+}

@@ -25,7 +25,7 @@ Genuine screenshot of VentuSample running on the Windows CI desktop. The image i
 
 <p align="center"><img src="assets/readme/workflow.svg" alt="VentuSample implemented data flow" width="100%"></p>
 
-Implemented path: parameters and seed → C++20 renderer → stereo buffer → optional offline DSP → PCM16 WAV and JSON manifest.
+Implemented path: parameters and seed → C++20 renderer → stereo buffer → offline processing → PCM16 WAV and JSON manifest.
 
 
 [![C++20 CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=C%2B%2B20%20CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![Qt desktop jobs](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=Qt%20desktop%20jobs)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml)  [![License](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
@@ -46,7 +46,11 @@ The intended audience is beatmakers, sound designers, audio developers, QA engin
 | Procedural generator | Full Loop, Melody, Drums, Bass and One-Shot Kit outputs | local rendering; fixed seed/settings reproduce the same render |
 | Audio export | stereo PCM16 WAV and versioned JSON manifest | local files; existing output files are not overwritten |
 | WAV import | supported PCM16 mono/stereo source files | validated size, frame count, sample rate and format |
-| Quantum Audio Engine | 133 typed module identities and 21 reusable DSP kernels | creative offline DSP, not physical quantum computation |
+| Quantum Audio Engine | 133 typed module identities and 21 reusable processing kernels | creative offline processing, not physical quantum computation |
+| Migrated C11 processing | bounded WAV I/O, filters, compressor, saturation, limiter and measurements | isolated C11 target, offline buffers |
+| Offline spectrum analysis | FFT peak, spectral centroid and 85% rolloff from an existing buffer | bounded 256–65,536 point FFT; no device access |
+| Sample-rate conversion | deterministic linear preview and 16-tap Blackman-windowed sinc for mono/stereo buffers | offline processing only; sinc path applies an anti-alias cutoff when downsampling |
+| MIDI file inspection | parses Standard MIDI File format 0/1, notes, tempo and time signature | bounded read-only parser; no MIDI device or playback path |
 | Stochastic Router | optional seeded routing through eight built-in processors | offline buffer processing; disabled by default |
 | Plugin Manager | 19 built-in tools and a reviewed C++20 handler API | manifest discovery is metadata-only; no arbitrary DLL/SO loading |
 | Atomic-Quantum 133 | separate bounded classical simulation subset | no quantum hardware access |
@@ -58,6 +62,10 @@ The application is not a real-time audio engine. Rendering and DSP run offline o
 
 The Windows screenshot below is a capture of the desktop application, not a browser preview.
 
+
+## Reaper integration
+
+VentuSample optionally links Reaper's versioned C17 ABI for bounded integer-expression evaluation and exact selfhood lookup. This integration is control-language infrastructure only: waveform generation, sample placement, stochastic routing, offline DSP, audio buffers, Qt and export remain native C++20. Reaper is not executed on a real-time audio path and is not a general-purpose plugin loader. See [Reaper runtime integration](docs/REAPER_RUNTIME_INTEGRATION.md).
 
 ## Quick Start
 
@@ -116,7 +124,7 @@ The Windows CI runner installs Qt and configures the matching MSVC toolchain bef
 
 ### First smoke check
 
-A successful `ctest` run is the general build check. The tests cover parameter validation, deterministic repeatability, variations, WAV round-trips, stochastic DSP, schemas, plugin lifecycle and Quantum Audio Engine behavior.
+A successful `ctest` run is the general build check. The tests cover parameter validation, deterministic repeatability, variations, WAV round-trips, stochastic DSP, migrated C11 module boundaries, manifest validation, plugin lifecycle and Quantum Audio Engine behavior.
 
 There is no default HTTP port, localhost URL, browser launch command, database seed or remote mock service. All generation and processing are local.
 
@@ -203,9 +211,13 @@ The data path is: **parameters + seed → procedural renderer → stereo float b
 
 | Path | Contents |
 |---|---|
-| `src/` | C++20 generator, renderer, audio buffers, DSP kernels, plugin manager, Qt desktop UI and optional Reaper bridge |
+| `src/` | C++20 generator, renderer, processing kernels, plugin manager, Qt desktop UI and optional Reaper bridge |
+| `src/compat/pytyliki-dsp/` | migrated C11 buffer-processing library |
+| `integrations/cockos-reaper/` | optional Lua helper actions for Cockos REAPER |
 | `tests/` | native DSP, generator, manifest, UI, plugin lifecycle and regression tests |
-| `docs/` | architecture, features, plugin SDK, UI behavior and audio contracts |
+| `docs/` | architecture, features, plugin SDK, UI behavior, processing and [resilience/trust policy](docs/RESILIENCE_POLICY.md) |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | ownership and build contract for the migrated C11 modules |
+| `docs/integrations/COCKOS_REAPER.md` | optional Cockos REAPER helper scripts |
 | `schemas/` | versioned sample-pack and plugin manifest schemas |
 | `tools/` | project-contract, fixture, visual-canon and engineering validators |
 | `federation/` | explicit interoperability and adapter manifests |
@@ -214,7 +226,7 @@ The data path is: **parameters + seed → procedural renderer → stereo float b
 | `CMakeLists.txt` | C++20 build graph and optional feature switches |
 | `project-contract.json` | machine-readable project contract |
 
-The desktop uses Qt 6 Widgets. The generator and DSP engine are C++20. Python in CI validates repository contracts; it is not a Python web backend. There is no frontend/backend deployment, web server, mock server, browser bundle, port binding, CORS or public live preview. Browser support and responsive viewport rules are not applicable.
+The desktop uses Qt 6 Widgets. The generator is C++20. The migrated compatibility processing library is compiled as C11; Python in CI validates repository contracts and runs the manifest-audit suite. There is no frontend/backend deployment, web server, mock server, browser bundle, port binding, CORS or public live preview. Browser support and responsive viewport rules are not applicable.
 
 ## CI, artifacts and operations
 
@@ -224,9 +236,9 @@ The [CI workflow](.github/workflows/ci.yml) includes:
 - a native C++20 core build and CTest run without the desktop target;
 - Linux DSP + Qt desktop build on Ubuntu 24.04 with Qt 6 Widgets;
 - Windows 11 native Qt desktop build on a Windows 2022 runner using Qt 6.8.3 and MSVC 2022;
-- project-contract, generated-fixture, engineering-evolution and CLife validation.
+- project-contract, generated-fixture, engineering-evolution, automation-roadmap and resilience-policy validation, including negative-case tests.
 
-The Windows desktop job captures the running app and uploads a screenshot artifact with 30-day retention. This workflow does **not** declare a public web deployment, publish a hosted preview, or create a tagged Windows release archive. Do not infer release packaging or automatic deployment from a passing CI job.
+The Windows desktop CI job captures the running app and uploads a screenshot artifact with 30-day retention. A separate, manually dispatched [Windows release workflow](.github/workflows/release.yml) builds a tagged x64 distribution, runs CTest, stages the Qt runtime, records a per-file SHA-256 manifest, verifies the archive checksum and creates a draft GitHub Release for maintainer publication. This is a desktop distribution path, not a public web deployment or an automatic updater.
 
 To roll back a local change, return to the previous Git commit or rebuild the last known-good revision. There is no running web service or deployed database to roll back. CI logs and artifacts are available from GitHub Actions.
 
@@ -275,3 +287,13 @@ Wrap a JSON result using the shared ivan-vhs.report.v1 format:
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 See docs/REPORT_ENVELOPE.md and schemas/ivan-vhs.report.v1.schema.json. The tool-specific result remains unchanged.
+
+
+## Documentation map
+
+Use the [documentation index](docs/README.md) as the entry point and the [information architecture map](docs/INFORMATION_ARCHITECTURE.md) to navigate audio/DSP, Studio workflows, presets and plugins, architecture, UX and integrations. Topic hubs lead to detailed contracts; supported formats and implementation status remain governed by source, tests, manifests and schemas.
+
+
+## Mora desktop integration
+
+VentuSample is available from the shared Mora workspace when its Qt 6 desktop target has been built. Mora provides the catalogue and startup theme; sample generation and offline DSP remain native VentuSample functions. See [Mora integration](docs/MORA_DESKTOP_INTEGRATION.md) and the [DuckOS workspace contract](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).

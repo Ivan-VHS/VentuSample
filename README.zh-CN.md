@@ -47,6 +47,10 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 | 音频导出 | 立体声 PCM16 WAV 和版本化 JSON manifest | 本地文件；不会覆盖已有输出文件 |
 | WAV 导入 | 受支持的 PCM16 mono/stereo 源文件 | 验证大小、帧数、采样率和格式 |
 | Quantum Audio Engine | 133 个类型化模块 ID 和 21 个可复用 DSP 内核 | 创意离线 DSP，不是物理量子计算 |
+| Migrated C11 processing | 有界 WAV I/O、滤波器、压缩器、饱和处理、限幅器和测量 | 独立 C11 构建目标，离线缓冲区 |
+| Offline spectrum analysis | 对现有缓冲区计算 FFT 峰值、谱质心和 85% rolloff | 有界 256–65,536 点 FFT；不访问音频设备 |
+| 采样率转换 | 对单声道/立体声缓冲区进行有界线性插值 | 预览级质量；不包含抗混叠滤波 |
+| MIDI 文件检查 | 解析 Standard MIDI File 格式 0/1、音符、速度和拍号 | 有界只读解析；不访问 MIDI 设备或播放 |
 | Stochastic Router | 可选的 seeded 路由，使用八个内置处理器 | 离线缓冲区处理；默认关闭 |
 | Plugin Manager | 19 个内置工具和经过审查的 C++20 handler API | manifest 发现仅读取元数据；不任意加载 DLL/SO |
 | Atomic-Quantum 133 | 独立的有界经典模拟子集 | 不访问量子硬件 |
@@ -58,6 +62,12 @@ VentuSample 根据明确的参数和 seed 在本地创建嘻哈采样包。它�
 
 下方 Windows 图片是桌面应用截屏，不是浏览器预览。
 
+
+## Reaper 集成
+
+VentuSample 可使用版本化的 Reaper C17 ABI 执行确定性的控制表达式和 selfhood 查询。Reaper 不进入实时 DSP 路径；生成、缓冲区、路由及离线处理仍由原生 C++20 负责。
+
+详见 [Reaper 集成说明](docs/REAPER_RUNTIME_INTEGRATION.md)。
 
 ## 快速开始
 
@@ -204,8 +214,12 @@ Plugin Manager 内置 19 个工具。可以递归发现本地 `plugin.json` 元�
 | 路径 | 内容 |
 |---|---|
 | `src/` | C++20 生成器、渲染器、音频缓冲区、DSP 内核、插件管理器、Qt 桌面 UI 和可选 Reaper Bridge |
+| `src/compat/pytyliki-dsp/` | 迁入的 C11 缓冲区处理库 |
+| `integrations/cockos-reaper/` | 可选的 Cockos REAPER Lua 辅助操作 |
 | `tests/` | 原生 DSP、生成器、manifest、UI、插件生命周期和回归测试 |
-| `docs/` | 架构、功能、插件 SDK、UI 行为和音频合同 |
+| `docs/` | 架构、功能、插件 SDK、UI 行为、音频合同及[韧性与信任策略](docs/RESILIENCE_POLICY.md) |
+| `docs/PYTYLIKI_DSP_MIGRATION.md` | 迁入的 C11 模块所有权与构建约定 |
+| `docs/integrations/COCKOS_REAPER.md` | 可选 Cockos REAPER 辅助脚本 |
 | `schemas/` | 版本化采样包与插件 manifest Schema |
 | `tools/` | project-contract、fixture、visual-canon 和工程验证脚本 |
 | `federation/` | 显式互操作与适配器 manifest |
@@ -226,7 +240,9 @@ Plugin Manager 内置 19 个工具。可以递归发现本地 `plugin.json` 元�
 - Windows 2022 Runner 上使用 Qt 6.8.3 和 MSVC 2022 的 Windows 11 原生 Qt 桌面构建；
 - project-contract、generated-fixture、engineering-evolution 和 CLife 验证。
 
-Windows 桌面任务会截取正在运行的应用并上传保留 30 天的截图 Artifact。该工作流**没有**声明公开 Web 部署、托管预览或带标签的 Windows Release 压缩包。CI 成功并不代表存在 Release 打包或自动部署。
+Windows 桌面任务会截取正在运行的应用并上传保留 30 天的截图 Artifact。
+
+带标签的 Windows x64 发布由单独的[手动 Release 工作流](.github/workflows/release.yml)执行：它运行 CTest、生成 SHA-256 文件清单，并创建供维护者手动发布的 GitHub 草稿 Release。该工作流**没有**声明公开 Web 部署、托管预览或带标签的 Windows Release 压缩包。CI 成功并不代表存在 Release 打包或自动部署。
 
 回滚本地修改时，可返回上一个 Git Commit 或重新构建最后一个已知正常版本。没有在线服务或已部署数据库需要回滚。CI 日志和 Artifact 可在 GitHub Actions 中查看。
 
@@ -275,3 +291,13 @@ Web Stand 检查清单根据实际离线桌面/音频产品进行映射；纯 We
     python tools/report_envelope.py --tool ventusample --version VERSION < render-manifest.json
 
 请参阅 docs/REPORT_ENVELOPE.md 和 schemas/ivan-vhs.report.v1.schema.json。工具自身的结果内容保持不变。
+
+
+## 文档导航图
+
+请从[文档索引](docs/README.md)进入，并使用[信息架构图](docs/INFORMATION_ARCHITECTURE.md)浏览音频/DSP、Studio 工作流、预设与插件、架构、UX 和集成主题。主题入口链接到详细契约；支持格式和实现状态仍以源代码、测试、Manifest 与 Schema 为准。
+
+
+## Mora 桌面集成
+
+构建 Qt 6 桌面目标后，VentuSample 即可从统一的 Mora 工作空间启动。Mora 提供应用目录和启动主题；采样生成与离线 DSP 仍由 VentuSample 原生实现。请参阅 [Mora 集成说明](docs/MORA_DESKTOP_INTEGRATION.md) 和 [DuckOS 工作空间契约](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md)。
