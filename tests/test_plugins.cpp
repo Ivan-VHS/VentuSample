@@ -192,6 +192,16 @@ void testManifestReaderRejectsOversizedAndSpecialInputs() {
         oversized << "\"}";
     }
 
+    fs::create_directories(root / "invalid-utf8", ec);
+    require(!ec, "invalid UTF-8 fixture directory should be created");
+    {
+        std::string malformed = R"json({"schema":"ivan-vhs.plugin.v1","id":"invalid-utf8","name":"bad)json";
+        malformed.push_back(static_cast<char>(0xC0));
+        malformed += R"json(","version":"1.0.0","api_version":1,"host":{"id":"ventu"},"domain":"tests","description":"invalid UTF-8","capabilities":["commands"],"entrypoint":"ignored"})json";
+        std::ofstream file(root / "invalid-utf8" / "plugin.json", std::ios::binary);
+        file.write(malformed.data(), static_cast<std::streamsize>(malformed.size()));
+    }
+
     fs::create_directories(root / "symlinked", ec);
     require(!ec, "symlink fixture directory should be created");
     fs::create_symlink(validManifest, root / "symlinked" / "plugin.json", ec);
@@ -216,6 +226,8 @@ void testManifestReaderRejectsOversizedAndSpecialInputs() {
             oversizedReported = true;
     }
     require(oversizedReported, "oversized manifest should produce a bounded diagnostic");
+    require(manager.find("invalid-utf8") == nullptr,
+            "manifest files with malformed UTF-8 must never enter the plugin registry");
     if (symlinkCreated) {
         require(manager.find("safe-reader-valid") != nullptr,
                 "symlinked manifest must not cause duplicate metadata registration");
