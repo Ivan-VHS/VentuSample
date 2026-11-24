@@ -1,0 +1,23 @@
+{
+  "schema": "anatidae.safe-ci-rerun.v1",
+  "repository": "Ivan-VHS/VentuSample",
+  "max_attempts": 2,
+  "allowed_events": [
+    "push",
+    "pull_request",
+    "schedule",
+    "workflow_dispatch"
+  ],
+  "allowed_conclusions": [
+    "failure",
+    "timed_out"
+  ],
+  "allowed_workflow_names": [
+    "VentuSample CI",
+    "Quality, Repeatability and Native Contract",
+    "Automation Roadmap Contract",
+    "System capability profile",
+    "Repository completeness gate"
+  ],
+  "same_repository_only": true
+}
