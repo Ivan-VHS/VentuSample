@@ -8,6 +8,11 @@ on:
       - "automation-roadmap.v1.schema.json"
       - "docs/AUTOMATION_ROADMAP.md"
       - "scripts/validate_automation_roadmap.py"
+      - ".architecture/resilience-policy.json"
+      - ".architecture/resilience-policy.schema.json"
+      - "scripts/validate_resilience_policy.py"
+      - "tests/test_resilience_policy.py"
+      - "docs/RESILIENCE_POLICY.md"
       - ".github/workflows/automation-roadmap.yml"
   pull_request:
     paths:
@@ -43,6 +48,9 @@ jobs:
         uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-          cache: false
       - name: Validate automation roadmap
         run: python scripts/validate_automation_roadmap.py --strict
+      - name: Validate resilience and trust policy
+        run: python scripts/validate_resilience_policy.py
+      - name: Test resilience and trust policy
+        run: python -m unittest discover -s tests -p "test_resilience_policy.py" -v
