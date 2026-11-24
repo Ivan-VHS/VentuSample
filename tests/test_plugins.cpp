@@ -266,7 +266,13 @@ void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
 
     ventu::PluginManager manager;
     std::vector<std::string> diagnostics;
-    require(manager.discoverManifests(root, &diagnostics) == 1u,
+    const auto discovered = manager.discoverManifests(root, &diagnostics);
+    if (discovered != 1u) {
+        std::cerr << "DEBUG discovered=" << discovered << " diagnostics:";
+        for (const auto& diagnostic : diagnostics) std::cerr << " [" << diagnostic << "]";
+        std::cerr << '\\n';
+    }
+    require(discovered == 1u,
             "nested host and metadata keys must not shadow top-level manifest fields");
     const auto* plugin = manager.find("top-level-plugin");
     require(plugin != nullptr, "the top-level plugin ID must be registered");
