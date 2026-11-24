@@ -1,31 +1,32 @@
 # Documentation control
 
-| # | Rule |
-|---:|---|
-| 1 | implemented claims link to code/tests |
-| 2 | distinguish objective metrics from subjective sound |
-| 3 | document accepted formats and numeric limits |
-| 4 | version manifest/schema changes |
-| 5 | state unsupported formats and known limitations |
-| 6 | describe sample-rights responsibilities |
-| 7 | verify links, commands and examples before release |
+**Scope:** VentuSample README family, audio/DSP documentation, manifests, schemas, screenshots and diagrams.
 
-## Internal information architecture
+## Acceptance gates
 
-| # | Rule | Acceptance |
-|---:|---|---|
-| 8 | Topic ownership | Every important page belongs to one primary topic hub and is listed in the central map. |
-| 9 | Navigation depth | Important audio, DSP and Studio contracts are reachable within three to four steps from the root README. |
-| 10 | No orphan pages | Each important page has at least two meaningful inbound paths, normally the central catalog and its topic hub. |
-| 11 | Contextual links | Connect pages when an audio workflow, data format, plugin lifecycle or runtime boundary actually relates them. |
-| 12 | Descriptive anchors | Name the target module or contract; avoid vague labels and keyword-stuffed repetition. |
-| 13 | Scope consistency | README, hubs and detailed documents agree on supported formats, numeric limits, sample rights, offline behavior and maturity. |
-| 14 | Canonical targets | Use direct relative links within this repository and canonical HTTPS links across repositories; avoid avoidable redirects and duplicate targets. |
-| 15 | Breadcrumbs | Topic hubs link to the documentation home and parent map; add equivalent breadcrumbs to new deep-level pages. |
-| 16 | Link density | Keep links contextual and useful; avoid repetitive link blocks and link-heavy paragraphs. |
-| 17 | New-page propagation | Update the topic hub and central catalog in the same change and link the page from relevant existing material. |
-| 18 | Link maintenance | Check changed paths and periodically audit broken or obsolete links. |
-| 19 | Measurement | Measure navigation only on supported published surfaces with privacy-respecting analytics; do not claim GitHub Markdown click telemetry. |
-| 20 | Accessibility | Use descriptive anchors, same-tab internal navigation by default and link styling that remains usable on small screens. |
+| Gate | Requirement | Evidence |
+|---|---|---|
+| Evidence | Feature claims link to implementation, tests or schema | Source/test/schema paths |
+| Maturity | Separate implemented, partial, planned and catalogued items | Feature matrix |
+| Audio truth | Describe objective measurements separately from subjective sound | DSP contract and UI labels |
+| Format bounds | Document PCM formats, rates, frames, sizes and numeric limits | Parser and schema |
+| Determinism | State where seed/settings reproduce output and where variation is intentional | Generator tests |
+| Plugin trust | Discovery metadata does not imply arbitrary code execution | Plugin manager source/tests |
+| Rights | Do not claim ownership or licence clearance for imported/generated audio | Contribution and user guidance |
+| Visual provenance | Real captures and authored diagrams are labelled separately | Asset review and alt text |
+| Adaptive hero | Light/dark SVGs share dimensions and accessible fallback | SVG pair and picture block |
+| Command accuracy | CMake, Qt and core-only commands match build options | CMakeLists and CI |
+| Localization | All language variants preserve the same limits and commands | README comparison |
+| Review hygiene | Links, Mermaid, images and git diff --check are checked | CI/local validation |
 
-The [information architecture map](INFORMATION_ARCHITECTURE.md) is the navigation source for this repository. It does not override audio-processing evidence or claim ownership of user-provided samples and generated audio.
+## Maturity vocabulary
+
+- **Implemented:** behavior exists in current source.
+- **Partial:** only a subset exists.
+- **Specified / catalogued:** contract or registry entry exists; this does not prove runtime completion.
+- **Planned:** future work without an available implementation.
+- **Verified:** a named test/check passed on a stated revision and environment.
+
+## Publication checklist
+
+Update the README and the owning DSP/preset/plugin contract together when behavior changes. Keep the realtime/DAW distinction explicit. A module catalogue count is not a count of fully implemented processing kernels.
