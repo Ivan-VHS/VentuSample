@@ -24,10 +24,10 @@ This roadmap turns the 20 requested directions into traceable workstreams. It di
 
 | ID | Direction | Priority | Status | Current evidence |
 |---|---|---:|---|---|
-| `01-plan-governance` | Запланировать | P0 | extend | `project-contract.json`, `docs/DOCUMENTATION_CONTROL.md` |
+| `01-plan-governance` | Запланировать | P0 | active | `.architecture/roadmap-governance.v1.json`, `.architecture/roadmap-governance.v1.schema.json`, `validate_delivery_contracts.py`, `test_delivery_contracts.py` |
 | `02-organize-triggers` | Организовать | P0 | active | `.github/workflows/verified-auto-merge.yml`, `.github/workflows/update-behind-pr-branches.yml` |
 | `03-systematize-sync` | Систематизировать | P0 | active | `project-contract.json`, `federation/octa-pyramid.v1.json` |
-| `04-prioritize-change-flow` | Приоритизировать | P1 | extend | `.github/workflows/improvement-conflict.yml`, `.github/workflows/quality-remediation.yml` |
+| `04-prioritize-change-flow` | Приоритизировать | P1 | active | `improvement-conflict.yml`, `quality-remediation.yml`, `.github/ISSUE_TEMPLATE/engineering_improvement.yml` |
 | `05-refresh-project-config` | Актуализировать | P0 | active | `project-contract.json`, `.architecture/resilience-policy.json` |
 | `06-optimize-toolchain` | Оптимизировать | P1 | extend | `.architecture/resilience-policy.json`, `.architecture/resilience-policy.schema.json` |
 | `07-synchronize-branches` | Синхронизировать | P0 | active | `.github/workflows/update-behind-pr-branches.yml` |
@@ -35,14 +35,14 @@ This roadmap turns the 20 requested directions into traceable workstreams. It di
 | `09-modernize-quality-flow` | Модернизировать | P0 | active | `.github/workflows/quality-remediation.yml`, `quality-remediation.v1.json` |
 | `10-automate-diagnostics` | Автоматизировать | P0 | active | `.github/workflows/quality-remediation.yml`, `.github/workflows/update-behind-pr-branches.yml` |
 | `11-structure-test-updates` | Структурировать | P0 | active | `.github/workflows/quality-repeatability-native.yml`, `tests/test_generator.cpp` |
-| `12-scale-validation` | Масштабировать | P1 | extend | `.github/workflows/quality-repeatability-native.yml`, `quality-repeatability-native.v1.json` |
+| `12-scale-validation` | Масштабировать | P1 | active | `.architecture/ci-scale-policy.v1.json`, `.architecture/ci-scale-policy.v1.schema.json`, `validate_delivery_contracts.py`, `test_delivery_contracts.py`, Python/native/Linux Qt/Windows Qt CI |
 | `13-implement-verification` | Реализовать | P0 | active | `.github/workflows/quality-commercial.yml`, `.github/workflows/quality-remediation.yml` |
 | `14-coordinate-deployment` | Координировать | P2 | planned | `.github/workflows/verified-auto-merge.yml`, `project-contract.json` |
 | `15-consolidate-test-matrix` | Консолидировать | P1 | active | `.github/workflows/quality-repeatability-native.yml`, `tests/test_generator.cpp` |
-| `16-improve-recovery` | Усовершенствовать | P1 | planned | `.architecture/resilience-policy.json`, `.architecture/resilience-policy.schema.json` |
+| `16-improve-recovery` | Усовершенствовать | P1 | active | `safe-ci-recovery.yml`, `automation-rerun-policy.v1.json`, `validate_safe_rerun.py`, `test_safe_rerun.py` |
 | `17-test-controls` | Протестировать | P0 | active | `.github/workflows/quality-remediation.yml`, `tests/test_generator.cpp` |
-| `18-verify-observability` | Верифицировать | P1 | extend | `.github/workflows/verified-auto-merge.yml`, `.github/workflows/update-behind-pr-branches.yml` |
-| `19-document-automation` | Документировать | P1 | extend | `docs/README.md`, `docs/DOCUMENTATION_CONTROL.md` |
+| `18-verify-observability` | Верифицировать | P1 | active | `verified-auto-merge.yml`, `update-behind-pr-branches.yml`, `safe-ci-recovery.yml` |
+| `19-document-automation` | Документировать | P1 | active | `docs/README.md`, `docs/DOCUMENTATION_CONTROL.md`, this roadmap |
 | `20-release-publication` | Развернуть | P2 | planned | `.github/workflows/verified-auto-merge.yml`, `project-contract.json` |
 
 ## Operating rules
@@ -64,3 +64,22 @@ python scripts/validate_automation_roadmap.py --strict
 ```
 
 The validator uses only the Python standard library and checks all 20 identifiers, project metadata, safety settings, documentation coverage, and the existence of every referenced evidence file.
+
+## Additional execution controls
+
+- **Prioritization (04):** new improvement issues require P0/P1/P2, impact, reproduction evidence, acceptance criteria, risk/dependency notes, verification and rollback.
+- **Recovery (16):** `.github/workflows/safe-ci-recovery.yml` is manual-only, runs from protected `main`, permits failed/timed-out allow-listed validation runs from this repository only, reruns failed jobs only, and enforces two total attempts (one retry). Fork runs, cancellations, successful runs, unlisted workflows and exhausted attempts are rejected.
+- **Observability (18):** the recovery decision is written to the GitHub Actions step summary with workflow, run ID, branch, commit and attempt number. Every recovery request is linked to its original Actions run.
+- **Documentation (19):** policy, implementation, tests, issue intake and workflow are linked by the roadmap registry and its evidence validator.
+
+## Deliberate release boundaries
+
+Workstream 14 remains planned because these repositories do not have a production service deployment target; local desktop/CLI packaging is not production deployment. Workstream 20 remains planned until a protected release environment, maintainer approval, signing/provenance credentials and supported publication target are configured. The recovery workflow does not deploy or publish artifacts.
+
+## Governance and bounded CI
+
+- **Workstream 01:** the governance policy and schema define evidence-based maturity, P0/P1/P2 review, versioned status changes and release constraints. The roadmap validator runs executable negative-case tests.
+- **Workstream 12:** Python 3.10–3.12, Native C++20, Linux Qt and Windows Qt remain required. CI budgets enforce timeouts, job ceilings, concurrency and matrix parallelism; the scale validator rejects unbounded settings.
+- **Offline boundary:** this contract does not enable background audio capture, device I/O, network telemetry, VST/AU hosting, driver installation or firmware writes. DSP remains local/offline.
+- **Release boundary:** production deployment is inapplicable to this workstation. Public release remains blocked until a supported target, protected environment, signing/provenance and human release approval exist.
+- **Toolchain optimization (06):** remains `extend` pending reproducible before/after CMake, compiler, packaging and validation benchmarks.

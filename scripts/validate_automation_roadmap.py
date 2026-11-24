@@ -48,6 +48,70 @@ def load_json(path: Path) -> dict:
     except json.JSONDecodeError as exc:
         fail(f"invalid JSON in {path.relative_to(ROOT)}: {exc}")
 
+
+def validate_recovery_contract(repository: str) -> None:
+    policy_path = ROOT / ".architecture" / "automation-rerun-policy.v1.json"
+    schema_path = ROOT / ".architecture" / "automation-rerun-policy.v1.schema.json"
+    workflow_path = ROOT / ".github" / "workflows" / "safe-ci-recovery.yml"
+    validator_path = ROOT / "scripts" / "validate_safe_rerun.py"
+    tests_path = ROOT / "tests" / "test_safe_rerun.py"
+    issue_path = ROOT / ".github" / "ISSUE_TEMPLATE" / "engineering_improvement.yml"
+
+    for path in (policy_path, schema_path, workflow_path, validator_path, tests_path, issue_path):
+        if not path.is_file():
+            fail(f"safe recovery / prioritization control is missing: {path.relative_to(ROOT)}")
+
+    policy = load_json(policy_path)
+    schema = load_json(schema_path)
+    if policy.get("schema") != "anatidae.safe-ci-rerun.v1":
+        fail("unsupported safe CI rerun policy schema")
+    if policy.get("repository") != repository:
+        fail("safe CI rerun policy repository does not match project metadata")
+    if policy.get("max_attempts") != 2 or policy.get("same_repository_only") is not True:
+        fail("safe CI rerun must enforce one retry and same-repository runs")
+    if set(policy.get("allowed_conclusions", [])) != {"failure", "timed_out"}:
+        fail("safe CI rerun may only allow failure and timed_out conclusions")
+    if not policy.get("allowed_workflow_names"):
+        fail("safe CI rerun allowlist is empty")
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+        fail("safe CI rerun schema must use JSON Schema Draft 2020-12")
+    if schema.get("properties", {}).get("max_attempts", {}).get("const") != 2:
+        fail("safe CI rerun schema must enforce the two-attempt ceiling")
+    if schema.get("properties", {}).get("same_repository_only", {}).get("const") is not True:
+        fail("safe CI rerun schema must require same-repository runs")
+
+    workflow = workflow_path.read_text(encoding="utf-8")
+    if "workflow_dispatch:" not in workflow:
+        fail("safe CI recovery must require manual workflow_dispatch")
+    if "  push:" in workflow or "  pull_request:" in workflow or "  schedule:" in workflow:
+        fail("safe CI recovery must not run automatically")
+    for token in (
+        "if: github.ref == 'refs/heads/main'",
+        "actions: write",
+        "contents: read",
+        "validate_safe_rerun.py",
+        "rerun-failed-jobs",
+    ):
+        if token not in workflow:
+            fail(f"safe CI recovery workflow is missing required guard: {token}")
+
+    validator = validator_path.read_text(encoding="utf-8")
+    for token in ("head_repository", "run_attempt", "allowed_workflow_names", "max_attempts"):
+        if token not in validator:
+            fail(f"safe CI rerun validator does not enforce: {token}")
+
+    tests = tests_path.read_text(encoding="utf-8")
+    for token in ("test_fork_pull_request_is_rejected", "test_only_one_retry_is_permitted",
+                  "test_committed_policy_and_schema_are_valid"):
+        if token not in tests:
+            fail(f"safe CI rerun regression coverage is missing: {token}")
+
+    issue_form = issue_path.read_text(encoding="utf-8")
+    for token in ("id: priority", "id: impact", "id: acceptance", "id: risks", "id: rollback"):
+        if token not in issue_form:
+            fail(f"engineering improvement intake is missing required field: {token}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--strict", action="store_true", help="fail on missing evidence or documentation drift")
@@ -118,6 +182,8 @@ def main() -> int:
     for token in ("pull_request:", "workflow_dispatch:", "schedule:", "contents: read"):
         if token not in workflow_text:
             fail(f"automation roadmap workflow is missing required control: {token}")
+
+    validate_recovery_contract(project["repository"])
 
     print(
         f"Validated {len(tasks)} workstreams for {project['repository']}: "
