@@ -45,6 +45,12 @@ bool RuntimeTransaction::stage(const std::vector<std::uint8_t>& value) {
     return true;
 }
 
+RuntimeTransaction::~RuntimeTransaction() {
+    /* asyncFlash workers capture this; wait until every worker has stopped using it. */
+    std::unique_lock lock(asyncMutex_);
+    asyncCondition_.wait(lock, [this] { return activeAsync_ == 0u; });
+}
+
 RuntimeStatus RuntimeTransaction::patch(std::size_t offset, std::size_t removeSize,
                                         const std::vector<std::uint8_t>& replacement) {
     EventSink sink;
@@ -258,10 +264,37 @@ std::string RuntimeTransaction::lastError() const {
 
 std::future<RuntimeStatus> RuntimeTransaction::asyncFlash(
     std::optional<std::uint64_t> expectedGeneration) {
-    // The caller must keep this transaction alive until the returned future is awaited.
-    return std::async(std::launch::async, [this, expectedGeneration] {
-        return flash(expectedGeneration);
-    });
+    {
+        std::lock_guard lock(asyncMutex_);
+        if (activeAsync_ == std::numeric_limits<std::size_t>::max())
+            throw std::overflow_error("too many active asynchronous transaction operations");
+        ++activeAsync_;
+    }
+
+    const auto finish = [this] {
+        {
+            std::lock_guard lock(asyncMutex_);
+            --activeAsync_;
+        }
+        asyncCondition_.notify_all();
+    };
+
+    try {
+        return std::async(std::launch::async, [this, expectedGeneration, finish] {
+            try {
+                const auto result = flash(expectedGeneration);
+                finish();
+                return result;
+            } catch (...) {
+                finish();
+                throw;
+            }
+        });
+    } catch (...) {
+        /* std::async can fail before a worker takes ownership of the operation. */
+        finish();
+        throw;
+    }
 }
 
 RuntimeStatus RuntimeTransaction::await(std::future<RuntimeStatus>& task) {
