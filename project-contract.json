@@ -30,7 +30,8 @@
       "summary": "Bounded RIFF PCM16 stereo output with peak/RMS metadata.",
       "evidence": [
         "src/generator.cpp",
-        "schemas/ventusample.pack.v1.schema.json"
+        "schemas/ventusample.pack.v1.schema.json",
+        "tests/test_generator.cpp"
       ]
     },
     {
@@ -68,7 +69,8 @@
       "summary": "Exports versioned ventusample.pack.v1 manifests and WAV assets that Reaper validates and compares read-only; the Reaper consumer reads manifest metadata only and leaves WAV files untouched.",
       "evidence": [
         "schemas/ventusample.pack.v1.schema.json",
-        "federation/octa-pyramid.v1.json"
+        "federation/octa-pyramid.v1.json",
+        "tests/test_ventusample_pack_audit.py"
       ]
     },
     {
