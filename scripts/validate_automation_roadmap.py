@@ -112,6 +112,21 @@ def validate_recovery_contract(repository: str) -> None:
             fail(f"engineering improvement intake is missing required field: {token}")
 
 
+VALID_STATUSES = {"active", "extend", "planned", "not_applicable"}
+
+
+def validate_task_status(task: dict) -> list[str]:
+    """Validate a roadmap maturity state without treating out-of-scope work as unfinished."""
+    status = task.get("status")
+    if status not in VALID_STATUSES:
+        return [f"task {task.get('id', '<unknown>')} has an invalid status"]
+    if status == "not_applicable":
+        reason = task.get("not_applicable_reason")
+        if not isinstance(reason, str) or len(reason.strip()) < 20:
+            return [f"task {task.get('id', '<unknown>')} must explain why it is not applicable"]
+    return []
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--strict", action="store_true", help="fail on missing evidence or documentation drift")
@@ -153,8 +168,9 @@ def main() -> int:
         missing = [field for field in REQUIRED_FIELDS if field not in task]
         if missing:
             fail(f"task {index:02d} is missing fields: {', '.join(missing)}")
-        if task["status"] not in {"active", "extend", "planned"}:
-            fail(f"task {task['id']} has an invalid status")
+        status_errors = validate_task_status(task)
+        if status_errors:
+            fail("; ".join(status_errors))
         if task["priority"] not in {"P0", "P1", "P2"}:
             fail(f"task {task['id']} has an invalid priority")
         for field in ("automation", "trigger", "current_controls", "guardrails"):
@@ -188,7 +204,8 @@ def main() -> int:
     print(
         f"Validated {len(tasks)} workstreams for {project['repository']}: "
         f"{states['active']} active, {states['extend']} to extend, "
-        f"{states['planned']} planned. Evidence and safety gates are present."
+        f"{states['planned']} planned, {states['not_applicable']} not applicable. "
+        "Evidence and safety gates are present."
     )
     return 0
 
