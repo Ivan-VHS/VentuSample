@@ -62,6 +62,7 @@ Each Markdown page has a direct catalog entry and a topic-hub entry. The cluster
 - [ENGINEERING BASELINE](ENGINEERING_BASELINE.md)
 - [MOTION CONSTITUTION V2026](MOTION_CONSTITUTION_V2026.md)
 - [TRANSACTIONAL RUNTIME](TRANSACTIONAL_RUNTIME.md)
+- [RESILIENCE POLICY](RESILIENCE_POLICY.md)
 
 ### UI, accessibility and visual system
 
