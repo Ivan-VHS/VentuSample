@@ -223,6 +223,43 @@ void testManifestReaderRejectsOversizedAndSpecialInputs() {
     fs::remove_all(root, ec);
 }
 
+void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
+    namespace fs = std::filesystem;
+    const auto root = fs::temp_directory_path() / "ventusample-plugin-top-level-fields-test";
+    std::error_code ec;
+    fs::remove_all(root, ec);
+    fs::create_directories(root, ec);
+    require(!ec, "top-level manifest fixture directory should be created");
+    {
+        std::ofstream manifest(root / "plugin.json", std::ios::binary);
+        manifest << R"json({
+  "host": { "id": "ventu" },
+  "metadata": { "id": "nested-id", "capabilities": ["wrong.capability"] },
+  "id": "top-level-plugin",
+  "name": "Top Level Plugin",
+  "version": "1.0.0",
+  "api_version": 1,
+  "domain": "tests",
+  "description": "Top-level field extraction test.",
+  "capabilities": ["commands"],
+  "entrypoint": "ignored.cpp:register"
+})json";
+    }
+
+    ventu::PluginManager manager;
+    std::vector<std::string> diagnostics;
+    require(manager.discoverManifests(root, &diagnostics) == 1u,
+            "nested host and metadata keys must not shadow top-level manifest fields");
+    const auto* plugin = manager.find("top-level-plugin");
+    require(plugin != nullptr, "the top-level plugin ID must be registered");
+    require(plugin->entrypoint == "ignored.cpp:register", "top-level entrypoint must be selected");
+    require(plugin->capabilities.size() == 1u && plugin->capabilities[0] == "commands",
+            "nested capabilities must not shadow the top-level capability list");
+    require(manager.find("nested-id") == nullptr,
+            "nested metadata identifiers must not be registered as plugin IDs");
+    fs::remove_all(root, ec);
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -240,6 +277,7 @@ int main() {
     testExtensionRegistration();
     testManifestDiscoveryAndLifecycle();
     testManifestReaderRejectsOversizedAndSpecialInputs();
+    testTopLevelManifestFieldsAreNotShadowedByNestedKeys();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;
