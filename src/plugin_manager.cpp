@@ -1,6 +1,9 @@
 #include "plugin_manager.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <limits>
 #include <cstdint>
 #include <cctype>
 #include <exception>
@@ -263,8 +266,34 @@ std::vector<PluginStatus> PluginManager::statuses() const {
     std::vector<PluginStatus> result;
     result.reserve(entries_.size());
     for (const auto& entry : entries_) {
-        result.push_back({entry.descriptor, entry.enabled, entry.initialized,
-                          static_cast<bool>(entry.handler), entry.lastError});
+        result.push_back({
+            entry.descriptor,
+            entry.enabled,
+            entry.initialized,
+            static_cast<bool>(entry.handler),
+            entry.lastError,
+            entry.invocations,
+            entry.successes,
+            entry.failures,
+            entry.deadlineExceeded,
+            entry.lastDurationMs,
+            entry.maxDurationMs,
+            entry.lastExecutionId,
+            entry.lastStatus,
+        });
+    }
+    return result;
+}
+
+PluginHealth PluginManager::health() const noexcept {
+    PluginHealth result;
+    result.registered = entries_.size();
+    result.ready = !entries_.empty();
+    for (const auto& entry : entries_) {
+        if (entry.enabled) ++result.enabled;
+        if (entry.initialized) ++result.initialized;
+        if (entry.handler) ++result.handlerAttached;
+        if (entry.enabled && !entry.handler) result.ready = false;
     }
     return result;
 }
@@ -346,26 +375,105 @@ bool PluginManager::shutdownPlugin(const std::string& idOrName) noexcept {
 
 PluginResult PluginManager::execute(const std::string& idOrName,
                                     const PluginContext& context) {
+    const auto started = std::chrono::steady_clock::now();
     const auto key = normalized(idOrName);
     auto found = std::find_if(entries_.begin(), entries_.end(), [&](const Entry& entry) {
         return normalized(entry.descriptor.id) == key
             || normalized(entry.descriptor.name) == key;
     });
     if (found == entries_.end()) return {false, "Unknown plugin: " + idOrName, {}};
-    if (!found->enabled) return {false, "Plugin is disabled: " + found->descriptor.name, {}};
-    if (!found->handler) return {false, "Plugin is discovered but has no reviewed SDK handler: " + found->descriptor.name, {}};
+
+    ++found->invocations;
+    const std::string executionId = context.correlationId.empty()
+        ? found->descriptor.id + "#" + std::to_string(found->invocations)
+        : context.correlationId;
+    const auto finish = [&](PluginResult result) mutable {
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - started
+        ).count();
+        result.executionId = executionId;
+        result.durationMs = elapsed < 0 ? 0u : static_cast<std::uint64_t>(elapsed);
+        found->lastDurationMs = result.durationMs;
+        found->maxDurationMs = std::max(found->maxDurationMs, result.durationMs);
+        found->lastExecutionId = executionId;
+        if (result.deadlineExceeded) ++found->deadlineExceeded;
+        if (result.success) {
+            ++found->successes;
+            found->lastStatus = result.deadlineExceeded ? "success_late" : "success";
+            found->lastError.clear();
+        } else {
+            ++found->failures;
+            found->lastStatus = "rejected";
+            found->lastError = result.summary;
+        }
+        return result;
+    };
+
+    if (!found->enabled) {
+        return finish({false, "Plugin is disabled: " + found->descriptor.name, {}});
+    }
+    if (!found->handler) {
+        return finish({false, "Plugin is discovered but has no reviewed SDK handler: "
+                              + found->descriptor.name, {}});
+    }
+    if (context.executionPolicy.maxEstimatedOutputBytes == 0u
+        || context.executionPolicy.softDeadlineMs == 0u) {
+        return finish({false, "Plugin execution policy contains a zero limit: "
+                              + found->descriptor.name, {}});
+    }
+    if (const auto parameterError = validate(context.parameters); !parameterError.empty()) {
+        return finish({false, "Plugin parameters rejected: " + parameterError, {}});
+    }
+
+    const double durationSeconds = context.parameters.target == Target::OneShotKit
+        ? 1.35
+        : (60.0 / static_cast<double>(context.parameters.bpm)) * 4.0
+            * static_cast<double>(context.parameters.bars);
+    const double outputCount = static_cast<double>(context.parameters.variations)
+        * (context.parameters.target == Target::OneShotKit ? 8.0 : 1.0);
+    const double estimatedBytes = durationSeconds
+        * static_cast<double>(context.parameters.sampleRate) * 4.0 * outputCount;
+    if (!std::isfinite(estimatedBytes) || estimatedBytes < 0.0
+        || estimatedBytes > static_cast<double>(std::numeric_limits<std::uint64_t>::max())) {
+        return finish({false, "Plugin output estimate is not representable", {}});
+    }
+    const auto estimate = static_cast<std::uint64_t>(std::ceil(estimatedBytes));
+    if (estimate > context.executionPolicy.maxEstimatedOutputBytes) {
+        auto result = PluginResult{
+            false,
+            "Plugin output estimate exceeds the request budget",
+            {"estimated_bytes=" + std::to_string(estimate),
+             "limit_bytes=" + std::to_string(context.executionPolicy.maxEstimatedOutputBytes)},
+        };
+        result.estimatedOutputBytes = estimate;
+        return finish(std::move(result));
+    }
+
     if (!found->initialized && !initializePlugin(idOrName, context)) {
-        return {false, "Plugin initialization failed: " + found->descriptor.name,
-                {found->lastError}};
+        return finish({false, "Plugin initialization failed: " + found->descriptor.name,
+                       {found->lastError}});
     }
     try {
-        return found->handler(context);
+        auto result = found->handler(context);
+        result.estimatedOutputBytes = estimate;
+        const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - started
+        ).count();
+        result.deadlineExceeded = elapsed >= 0
+            && static_cast<std::uint64_t>(elapsed) > context.executionPolicy.softDeadlineMs;
+        if (result.deadlineExceeded) {
+            result.details.push_back(
+                "soft_deadline_exceeded_ms="
+                + std::to_string(context.executionPolicy.softDeadlineMs)
+                + "; execution was observed after return and was not pre-empted"
+            );
+        }
+        return finish(std::move(result));
     } catch (const std::exception& error) {
-        found->lastError = error.what();
-        return {false, "Plugin failed: " + found->descriptor.name + ": " + error.what(), {}};
+        return finish({false, "Plugin failed: " + found->descriptor.name + ": " + error.what(), {}});
     } catch (...) {
-        found->lastError = "unknown handler exception";
-        return {false, "Plugin failed with an unknown exception: " + found->descriptor.name, {}};
+        return finish({false, "Plugin failed with an unknown exception: "
+                              + found->descriptor.name, {}});
     }
 }
 
