@@ -1,5 +1,6 @@
 #include "plugin_manager.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <chrono>
 #include <thread>
