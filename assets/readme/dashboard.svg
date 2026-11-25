@@ -2,20 +2,20 @@
 <title id="title">VentuSample — project visual overview</title>
 <desc id="desc">Original vector overview of the actual VentuSample workflow and implementation boundaries.</desc>
 <defs>
- <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071629"/><stop offset=".55" stop-color="#0B2038"/><stop offset="1" stop-color="#122B47"/></linearGradient>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#050505"/><stop offset=".55" stop-color="#101010"/><stop offset="1" stop-color="#181818"/></linearGradient>
  <radialGradient id="halo"><stop stop-color="#9C8CFA" stop-opacity=".22"/><stop offset="1" stop-color="#9C8CFA" stop-opacity="0"/></radialGradient>
  <linearGradient id="rail" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9C8CFA"/><stop offset=".52" stop-color="#39CFB1"/><stop offset="1" stop-color="#82B6FF"/></linearGradient>
- <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#B8D0E8" stroke-opacity=".055"/></pattern>
+ <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#FFFFFF" stroke-opacity=".055"/></pattern>
  <style>
  .eyebrow{font:600 11px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:2.3px;fill:#9C8CFA}
- .brand{font:750 72px Inter,Segoe UI,Arial,sans-serif;letter-spacing:-2.7px;fill:#F4F8FF}
- .tagline{font:600 15px Inter,Segoe UI,Arial,sans-serif;letter-spacing:2.1px;fill:#B9CADB}
- .body{font:400 13px Inter,Segoe UI,Arial,sans-serif;fill:#8FA6BD}
- .pill{font:600 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.4px;fill:#D7E5F2}
- .stage{font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.7px;fill:#91A9C1}
- .cardTitle{font:650 17px Inter,Segoe UI,Arial,sans-serif;fill:#F1F6FD}
- .cardSub{font:450 11px Inter,Segoe UI,Arial,sans-serif;fill:#9FB2C7}
- .micro{font:600 9px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.3px;fill:#83A0BA}
+ .brand{font:750 72px Inter,Segoe UI,Arial,sans-serif;letter-spacing:-2.7px;fill:#FFFFFF}
+ .tagline{font:600 15px Inter,Segoe UI,Arial,sans-serif;letter-spacing:2.1px;fill:#D8D8D8}
+ .body{font:400 13px Inter,Segoe UI,Arial,sans-serif;fill:#A3A3A3}
+ .pill{font:600 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.4px;fill:#D8D8D8}
+ .stage{font:700 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.7px;fill:#A3A3A3}
+ .cardTitle{font:650 17px Inter,Segoe UI,Arial,sans-serif;fill:#FFFFFF}
+ .cardSub{font:450 11px Inter,Segoe UI,Arial,sans-serif;fill:#A3A3A3}
+ .micro{font:600 9px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1.3px;fill:#A3A3A3}
  </style>
 </defs>
 <rect width="1440" height="500" rx="28" fill="url(#bg)"/>
@@ -30,7 +30,7 @@
 <text x="88" y="237" class="tagline">PROCEDURAL SAMPLE WORKSTATION</text>
 <text x="88" y="282" class="body">A practical view of the product pipeline</text>
 <text x="88" y="303" class="body">— not a mock interface or a hosted demo.</text>
-<rect x="88" y="332" width="176" height="32" rx="16" fill="#102B48" stroke="#34516E"/>
+<rect x="88" y="332" width="176" height="32" rx="16" fill="#181818" stroke="#454545"/>
 <circle cx="106" cy="348" r="4" fill="#39CFB1"/>
 <text x="120" y="352" class="pill">REAL IMPLEMENTATION</text>
 <text x="88" y="431" class="eyebrow">SYSTEM MAP / 2026</text>
@@ -39,32 +39,32 @@
 <circle cx="662" cy="130" r="4" fill="#9C8CFA"/>
 <circle cx="1362" cy="130" r="4" fill="#82B6FF"/>
 <g transform="translate(662 164)">
-  <rect width="220" height="190" rx="20" fill="#102B48" stroke="#294A6A" stroke-width="1.2"/>
+  <rect width="220" height="190" rx="20" fill="#181818" stroke="#343434" stroke-width="1.2"/>
   <rect x="20" y="20" width="34" height="4" rx="2" fill="#9C8CFA"/>
   <text x="20" y="55" class="stage">GENERATE</text>
   <text x="20" y="91" class="cardTitle">seeded patterns</text>
   <text x="20" y="118" class="cardSub">loops • stems • kits</text>
-  <path d="M20 148H200" stroke="#36516D" stroke-opacity=".75"/>
+  <path d="M20 148H200" stroke="#343434" stroke-opacity=".75"/>
   <circle cx="30" cy="169" r="5" fill="#9C8CFA"/>
   <path d="M43 169H104" stroke="#9C8CFA" stroke-width="2" stroke-linecap="round" opacity=".7"/>
   <text x="200" y="173" class="micro" text-anchor="end">01</text>
   </g><g transform="translate(902 164)">
-  <rect width="220" height="190" rx="20" fill="#102B48" stroke="#294A6A" stroke-width="1.2"/>
+  <rect width="220" height="190" rx="20" fill="#181818" stroke="#343434" stroke-width="1.2"/>
   <rect x="20" y="20" width="34" height="4" rx="2" fill="#39CFB1"/>
   <text x="20" y="55" class="stage">PROCESS</text>
   <text x="20" y="91" class="cardTitle">offline DSP</text>
   <text x="20" y="118" class="cardSub">router • 133 modules</text>
-  <path d="M20 148H200" stroke="#36516D" stroke-opacity=".75"/>
+  <path d="M20 148H200" stroke="#343434" stroke-opacity=".75"/>
   <circle cx="30" cy="169" r="5" fill="#39CFB1"/>
   <path d="M43 169H104" stroke="#39CFB1" stroke-width="2" stroke-linecap="round" opacity=".7"/>
   <text x="200" y="173" class="micro" text-anchor="end">02</text>
   </g><g transform="translate(1142 164)">
-  <rect width="220" height="190" rx="20" fill="#102B48" stroke="#294A6A" stroke-width="1.2"/>
+  <rect width="220" height="190" rx="20" fill="#181818" stroke="#343434" stroke-width="1.2"/>
   <rect x="20" y="20" width="34" height="4" rx="2" fill="#82B6FF"/>
   <text x="20" y="55" class="stage">EXPORT</text>
   <text x="20" y="91" class="cardTitle">PCM16 stereo WAV</text>
   <text x="20" y="118" class="cardSub">versioned JSON manifest</text>
-  <path d="M20 148H200" stroke="#36516D" stroke-opacity=".75"/>
+  <path d="M20 148H200" stroke="#343434" stroke-opacity=".75"/>
   <circle cx="30" cy="169" r="5" fill="#82B6FF"/>
   <path d="M43 169H104" stroke="#82B6FF" stroke-width="2" stroke-linecap="round" opacity=".7"/>
   <text x="200" y="173" class="micro" text-anchor="end">03</text>
