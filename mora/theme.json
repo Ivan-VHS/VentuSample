@@ -1,70 +1,104 @@
 {
   "schema": "mora.theme.v1",
-  "name": "Mora",
-  "version": 1,
+  "name": "Imperial Noir & Glass",
+  "version": 2,
   "palettes": {
     "dark": {
-      "page": "#10142A",
-      "surface": "#191E39",
-      "elevated": "#252B4B",
-      "text": "#F5F4FF",
-      "secondary": "#D5D6EB",
-      "muted": "#A8ADC8",
-      "brand": "#A78BFA",
-      "brandHover": "#C1AEFF",
-      "onBrand": "#1D1730",
-      "secondaryAccent": "#38D4B7",
-      "onSecondaryAccent": "#09231F",
-      "border": "#3B4262",
-      "selection": "#353054",
-      "danger": "#FF8EAC",
-      "onDanger": "#330A1A"
+      "page": "#050505",
+      "canvas": "#050505",
+      "shell": "#070707",
+      "surface": "#101010",
+      "elevated": "#181818",
+      "text": "#FFFFFF",
+      "secondary": "#D8D8D8",
+      "muted": "#A3A3A3",
+      "brand": "#FFD700",
+      "brandHover": "#FFE36E",
+      "onBrand": "#070707",
+      "secondaryAccent": "#FFD700",
+      "onSecondaryAccent": "#070707",
+      "border": "#343434",
+      "selection": "#3B3000",
+      "danger": "#FF7777",
+      "onDanger": "#070707",
+      "success": "#6EDAA3",
+      "warning": "#FFD700",
+      "error": "#FF7777",
+      "info": "#79B8FF",
+      "glass": "#141414CC",
+      "glassBorder": "#FFFFFF24"
     },
     "light": {
-      "page": "#F5F3FA",
+      "page": "#F4F2EA",
+      "canvas": "#F4F2EA",
+      "shell": "#171717",
       "surface": "#FFFFFF",
-      "elevated": "#ECE9F5",
-      "text": "#211F31",
-      "secondary": "#4E4B63",
-      "muted": "#66627A",
-      "brand": "#5B43B5",
-      "brandHover": "#49359D",
+      "elevated": "#ECE9DF",
+      "text": "#171717",
+      "secondary": "#3B3B3B",
+      "muted": "#606060",
+      "brand": "#805F00",
+      "brandHover": "#624800",
       "onBrand": "#FFFFFF",
-      "secondaryAccent": "#006F68",
+      "secondaryAccent": "#245F9E",
       "onSecondaryAccent": "#FFFFFF",
-      "border": "#D6D0E7",
-      "selection": "#E6E0F7",
-      "danger": "#A91F49",
-      "onDanger": "#FFFFFF"
+      "border": "#D5D0C2",
+      "selection": "#F2E4B3",
+      "danger": "#B42332",
+      "onDanger": "#FFFFFF",
+      "success": "#147A47",
+      "warning": "#805F00",
+      "error": "#B42332",
+      "info": "#245F9E",
+      "glass": "#FFFFFFD9",
+      "glassBorder": "#17171724"
     }
   },
+  "material": {
+    "style": "imperial-glass",
+    "surfaceOpacity": 0.78,
+    "elevatedOpacity": 0.88,
+    "backdropBlurPx": 18,
+    "backdropSaturationPercent": 140,
+    "borderOpacity": 0.14
+  },
   "shape": {
-    "windowRadius": 22,
+    "windowRadius": 20,
     "cardRadius": 16,
     "controlRadius": 10
   },
+  "gridPx": 8,
   "spacing": [
     4,
     8,
-    12,
     16,
     24,
-    32
+    32,
+    40,
+    48
   ],
   "interaction": {
     "minimumTargetPx": 44,
-    "focusRingPx": 2
+    "focusRingPx": 2,
+    "focusColor": "#FFD700"
   },
   "motion": {
-    "fastMs": 140,
+    "fastMs": 120,
     "standardMs": 180,
-    "spatialMs": 220,
-    "reduceMotionMaxMs": 80,
-    "ecoVisualsMaxMs": 80
+    "spatialMs": 240,
+    "reducedMotionMs": 0,
+    "ecoVisualsMaxMs": 80,
+    "spring": {
+      "stiffness": 360,
+      "damping": 30,
+      "mass": 1
+    }
   },
   "typography": {
-    "ui": "Segoe UI",
-    "display": "Unbounded",
-    "code": "Cascadia Mono"
-  }
+    "ui": "Inter",
+    "display": "Inter",
+    "code": "JetBrains Mono",
+    "fallback": "Segoe UI, SF Pro Display, system-ui"
+  },
+  "defaultPalette": "dark"
 }

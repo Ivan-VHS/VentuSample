@@ -32,10 +32,10 @@
 
   <!-- domain cards -->
   <g filter="url(#shadow)">
-    <rect x="80" y="178" width="700" height="275" rx="24" fill="#102B48" stroke="#2C557B" stroke-width="2"/>
-    <rect x="820" y="178" width="700" height="275" rx="24" fill="#102B48" stroke="#2C557B" stroke-width="2"/>
-    <rect x="80" y="478" width="700" height="275" rx="24" fill="#102B48" stroke="#2C557B" stroke-width="2"/>
-    <rect x="820" y="478" width="700" height="275" rx="24" fill="#102B48" stroke="#2C557B" stroke-width="2"/>
+    <rect x="80" y="178" width="700" height="275" rx="24" fill="#181818" stroke="#2C557B" stroke-width="2"/>
+    <rect x="820" y="178" width="700" height="275" rx="24" fill="#181818" stroke="#2C557B" stroke-width="2"/>
+    <rect x="80" y="478" width="700" height="275" rx="24" fill="#181818" stroke="#2C557B" stroke-width="2"/>
+    <rect x="820" y="478" width="700" height="275" rx="24" fill="#181818" stroke="#2C557B" stroke-width="2"/>
   </g>
 
   <!-- IDE card -->
