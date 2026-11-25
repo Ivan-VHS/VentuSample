@@ -58,6 +58,45 @@ jobs:
               continue
             fi
 
-            echo "Enable squash auto-merge for fully validated PR #$number."
-            gh pr merge "$url" --auto --squash --delete-branch
+            attempt=1
+            while (( attempt <= 5 )); do
+              set +e
+              output="$(gh pr merge "$url" --auto --squash --delete-branch 2>&1)"
+              status=$?
+              set -e
+              printf '%s\\n' "$output"
+              if [[ "$status" -eq 0 ]]; then break; fi
+
+              # The mutation may have succeeded despite a lost/transient response.
+              state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)"
+              if [[ -n "$state" ]]; then
+                state_head="$(jq -r '.head.sha' <<< "$state")"
+                state_repo="$(jq -r '.head.repo.full_name // ""' <<< "$state")"
+                state_base="$(jq -r '.base.ref' <<< "$state")"
+                state_draft="$(jq -r '.draft' <<< "$state")"
+                state_auto="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$state")"
+                state_merged="$(jq -r '.merged' <<< "$state")"
+                if [[ "$state_auto" == "true" || "$state_merged" == "true" ]]; then
+                  echo "OK PR #$number: GitHub accepted the auto-merge request."
+                  break
+                fi
+                if [[ "$state_head" != "$TESTED_HEAD_SHA" || "$state_repo" != "$GITHUB_REPOSITORY" || "$state_base" != "main" || "$state_draft" != "false" ]]; then
+                  echo "SKIP PR #$number: eligibility changed; refusing to retry."
+                  break
+                fi
+              fi
+
+              if ! grep -Eiq 'GraphQL:.*Something went wrong|502 Bad Gateway|503 Service Unavailable|504 Gateway Time-out|HTTP 5(02|03|04)|connection reset|timed out|temporary failure' <<< "$output"; then
+                echo "Auto-merge failed for a non-transient reason; not retrying." >&2
+                exit "$status"
+              fi
+              if (( attempt == 5 )); then
+                echo "Auto-merge unavailable after five attempts." >&2
+                exit "$status"
+              fi
+              delay=$((attempt * 3))
+              echo "::warning::Transient GitHub API failure; retrying in $delay seconds."
+              sleep "$delay"
+              attempt=$((attempt + 1))
+            done
           done <<< "$numbers"
