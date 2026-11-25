@@ -18,3 +18,7 @@ See [UI_UX_2026_CONVERGENCE.md](UI_UX_2026_CONVERGENCE.md) for semantic theme to
 ## UI/UX Codex 40026
 
 See [UI/UX Codex 40026](UI_UX_CODEX_40026.md) for the six-cycle / 666-rule engineering contract. Qt adds a tested contrast policy, explicit accessible names for choices and outputs, label-to-control associations, and 40–44 px targets. Worker progress stays truthful; UI feedback remains outside DSP and generator worker code. Keyboard-only, high-DPI and 200% scaling remain release validation tasks.
+
+## Anatidae desktop visual refinement
+
+The Qt studio uses the shared 5 px white-blue-red identity band above its existing brand header. Preserve the generator-first workflow, clear control grouping, explicit units, visible focus and 40–44 px interaction targets. Theme and motion effects remain presentation-only and must not change sample generation, seed repeatability, PCM output or worker-thread behavior.
