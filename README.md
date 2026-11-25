@@ -17,9 +17,7 @@
   [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 </p>
 
-<p align="center">
-  [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
-</p>
+[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
 **Scope:** local sound generation, parameter editing, offline DSP and file export. VentuSample is not a real-time DAW, VST/AU host, cloud service or hardware audio driver.
 
