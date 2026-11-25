@@ -6,6 +6,7 @@ on:
     types: [completed]
 
 permissions:
+  actions: read
   contents: write
   pull-requests: write
 
@@ -18,7 +19,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository
     name: Enable squash auto-merge after complete CI
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - name: Verify the tested PR head and enable native auto-merge
         env:
@@ -56,6 +57,45 @@ jobs:
             if [[ "$auto_merge" == "true" ]]; then
               echo "OK PR #$number: native auto-merge is already enabled."
               continue
+            fi
+
+            # Do not enable auto-merge until every independent PR workflow has
+            # completed successfully for this exact head SHA.
+            required_workflows='["CodeQL","Beelzebul security gate","Repository completeness gate"]'
+            assurance_ready=false
+            for check_attempt in $(seq 1 60); do
+              runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$TESTED_HEAD_SHA&per_page=100")"
+              assurance_state="$(jq -r \
+                --arg sha "$TESTED_HEAD_SHA" \
+                --argjson required "$required_workflows" '
+                  [.workflow_runs[]
+                    | select(.event == "pull_request" and .head_sha == $sha)]
+                  | sort_by(.updated_at)
+                  | group_by(.name)
+                  | map(.[-1]) as $latest
+                  | [$required[] as $name | select(([ $latest[].name ] | index($name)) == null)] as $missing
+                  | [$latest[] | select(.status == "completed"
+                      and (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] as $failed
+                  | [$latest[] | select(.status != "completed")] as $pending
+                  | if ($missing | length) > 0 then
+                      "missing:" + ($missing | join(","))
+                    elif ($failed | length) > 0 then
+                      "failed:" + ([ $failed[] | "\(.name)=\(.conclusion)" ] | join(","))
+                    elif ($pending | length) > 0 then
+                      "pending:" + ([ $pending[] | "\(.name)=\(.status)" ] | join(","))
+                    else "ready"
+                    end
+                ' <<< "$runs")"
+              echo "PR #$number assurance attempt $check_attempt/60: $assurance_state"
+              case "$assurance_state" in
+                ready) assurance_ready=true; break ;;
+                failed:*) echo "::error::A pull-request workflow failed: $assurance_state"; exit 1 ;;
+                *) sleep 15 ;;
+              esac
+            done
+            if [[ "$assurance_ready" != true ]]; then
+              echo "::error::Timed out waiting for all pull-request assurance workflows."
+              exit 1
             fi
 
             attempt=1
