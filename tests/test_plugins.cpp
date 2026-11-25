@@ -361,6 +361,55 @@ void testLifecycleCallbacksMayRegisterPlugins() {
             "handler callback registration should persist");
 }
 
+void testShutdownCallbackMayRegisterPlugins() {
+    ventu::PluginManager manager;
+    ventu::PluginDescriptor host{
+        "shutdown-host", "Shutdown Host", "Tests", "1.0.0",
+        "Shutdown callback may extend the registry.", "test", {"reentrancy"}
+    };
+    ventu::PluginDescriptor child{
+        "created-in-shutdown", "Created In Shutdown", "Tests", "1.0.0",
+        "Registered during shutdown.", "test", {"registration"}
+    };
+    bool nestedShutdownRejected = false;
+    int shutdownCalls = 0;
+
+    require(manager.registerPlugin(
+        host,
+        [](const ventu::PluginContext&) {
+            return ventu::PluginResult{true, "host executed", {}};
+        },
+        true,
+        {},
+        [&](const ventu::PluginContext&) {
+            ++shutdownCalls;
+            nestedShutdownRejected = !manager.shutdownPlugin("shutdown-host");
+            require(manager.registerPlugin(
+                child,
+                [](const ventu::PluginContext&) {
+                    return ventu::PluginResult{true, "shutdown child", {}};
+                },
+                false), "shutdown callback should safely register another plugin");
+        }), "shutdown host should register");
+
+    require(manager.execute("shutdown-host", {}).success,
+            "host should initialize before shutdown");
+    require(manager.setEnabled("shutdown-host", false),
+            "host should complete its outer shutdown transition");
+    require(shutdownCalls == 1, "shutdown callback should execute exactly once");
+    require(nestedShutdownRejected,
+            "recursive shutdown of the same plugin must be rejected");
+    require(manager.find("created-in-shutdown") != nullptr,
+            "shutdown callback registration should persist");
+    bool hostStopped = false;
+    for (const auto& status : manager.statuses()) {
+        if (status.descriptor.id == "shutdown-host") {
+            hostStopped = !status.enabled && !status.initialized;
+        }
+    }
+    require(hostStopped, "host state should be stopped after callback-driven registry growth");
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -380,6 +429,7 @@ int main() {
     testManifestReaderRejectsOversizedAndSpecialInputs();
     testTopLevelManifestFieldsAreNotShadowedByNestedKeys();
     testLifecycleCallbacksMayRegisterPlugins();
+    testShutdownCallbackMayRegisterPlugins();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;
