@@ -3,6 +3,7 @@
 Start with the [project README](../README.md) for the product overview, build steps and current limits. The [documentation map](INFORMATION_ARCHITECTURE.md) links the full catalogue.
 
 ## Key pages
+- [NEXUS system-service boundaries](NEXUS_SYSTEM_SERVICE_BOUNDARIES_V1.md) — AudioSubsys ownership and offline-processing limits.
 
 - [Features and maturity](FEATURES.md)
 - [Architecture](ARCHITECTURE.md)
