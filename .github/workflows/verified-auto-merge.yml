@@ -80,7 +80,7 @@ jobs:
               output="$(gh pr merge "$url" --auto --squash --delete-branch 2>&1)"
               status=$?
               set -e
-              printf '%s\\n' "$output"
+              printf '%s\n' "$output"
               if [[ "$status" -eq 0 ]]; then break; fi
 
               # The mutation may have succeeded despite a lost/transient response.
