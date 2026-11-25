@@ -74,11 +74,16 @@ jobs:
                   | group_by(.name)
                   | map(.[-1]) as $latest
                   | [$required[] as $name | select(([ $latest[].name ] | index($name)) == null)] as $missing
+                  | [$required[] as $name
+                      | select(([ $latest[] | select(.name == $name and .status == "completed" and .conclusion == "success") ] | length) == 0
+                          and ([ $latest[] | select(.name == $name and .status == "completed") ] | length) > 0)] as $required_failed
                   | [$latest[] | select(.status == "completed"
                       and (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] as $failed
                   | [$latest[] | select(.status != "completed")] as $pending
                   | if ($missing | length) > 0 then
                       "missing:" + ($missing | join(","))
+                    elif ($required_failed | length) > 0 then
+                      "required-failed:" + ($required_failed | join(","))
                     elif ($failed | length) > 0 then
                       "failed:" + ([ $failed[] | "\(.name)=\(.conclusion)" ] | join(","))
                     elif ($pending | length) > 0 then
