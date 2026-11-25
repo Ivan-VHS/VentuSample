@@ -26,7 +26,7 @@ class SupabaseAdapterContractTests(unittest.TestCase):
             return value
 
         with patch.object(validator, "_load", side_effect=load):
-            validator._validate_supabase_adapter(self.project_id)
+            validator.validate_supabase_adapter(self.project_id)
 
     def test_current_adapter_contract_is_valid(self):
         self.run_with_adapter()
