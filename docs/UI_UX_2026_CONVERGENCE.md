@@ -72,3 +72,11 @@ VentuSample is a Qt 6 audio-pack workstation. Keep the generator workflow and sc
 - [Microsoft Windows app design](https://learn.microsoft.com/windows/apps/design/)
 
 These are targets; this page does not claim manual acceptance checks have already passed.
+
+
+## VentuSample brand-preserving adoption
+
+The dark workbench base is `#050505` / `#101010` with neutral white/grey content.
+Purple remains the product action color, magenta is reserved for audio-domain
+signals, and mint is used for keyboard focus. Do not recolor waveform data,
+meters, plugin artwork or sample content to match shell tokens.

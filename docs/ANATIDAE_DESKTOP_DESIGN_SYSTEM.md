@@ -5,9 +5,9 @@ Qt 6 Widgets desktop workstation with a scrollable generator and native light/da
 ## Implementation
 
 - Semantic light/dark tokens replace saturated full-blue work surfaces.
-- Blue represents primary actions, navigation and visible keyboard focus.
-- Red is reserved for critical or destructive states.
-- Opaque, clearly separated cards keep parameter groups and values legible.
+- Purple represents primary actions and navigation; mint/teal remains the visible keyboard-focus accent.
+- Magenta is reserved for audio-domain signal emphasis; critical/destructive controls remain explicitly labelled and visually separate.
+- Opaque, clearly separated cards keep parameter groups and values legible. Glass effects are subtle chrome only and never cover waveform/parameter data.
 - Inputs expose accessible names; field labels are linked to controls.
 - Preferred target sizes: 40–44 px actions, 38–44 px inputs; numeric sliders remain readable.
 - Generator stays scrollable; logs/results and status remain distinct.
@@ -25,3 +25,12 @@ The normative shared motion, layout and telemetry contract is [Motion Constituti
 Shared tokens: `--ease-spring`, `--ease-snappy`, `--motion-scale` (0.4–2.2) and normalized `--spring-stiffness` (0.7–1.4). Operating-system reduced-motion and `UI_REDUCED_MOTION` take precedence; nonessential spatial/ambient motion is removed and the underlying state change is retained. Light/dark parity, keyboard focus and high-DPI readability apply to every supported visual state.
 
 The 2×2 overview and focus scene are showcase layout targets. SVG/Canvas or native-paint graphics must be driven by real model values, expose units and textual equivalents, and distinguish unknown, stale and error states. Product-specific `docs/UI_MOTION.md` remains authoritative for shipped native behavior and safety boundaries.
+
+
+## Shared desktop foundation
+
+The dark variant uses `#050505` canvas and `#101010` work surfaces with white
+content and graphite separators. VentuSample keeps its purple action identity,
+magenta audio-signal emphasis and mint focus ring. The light variant remains
+available for user preference. The shared shell foundation does not recolor
+waveforms, meters, plugin artwork or sample content.
