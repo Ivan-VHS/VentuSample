@@ -1,6 +1,6 @@
-<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
+# 🎛️ VentuSample — Procedural Audio Workstation
 
-<h1 align="center"><strong>🎛️ VentuSample — Procedural Audio Workstation</strong></h1>
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/release.yml?branch=main&label=Release)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/release.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 
@@ -113,7 +113,7 @@ Reaper pack exchange is file-based and versioned. Optional Reaper native express
 
 ## Contributing
 
-Read CONTRIBUTING.md before changing code or format contracts. Keep changes reviewable, add deterministic tests and use Conventional Commits where required.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before changing code or format contracts. Keep changes reviewable, add deterministic tests and use Conventional Commits where required.
 
 ## License & legal
 
