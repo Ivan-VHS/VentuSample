@@ -1,6 +1,6 @@
-<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
+# 🎛️ VentuSample — робоча станція процедурного аудіо
 
-<h1 align="center"><strong>🎛️ VentuSample — робоча станція процедурного аудіо</strong></h1>
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/release.yml?branch=main&label=Release)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/release.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 
@@ -113,7 +113,7 @@ CMake надає переносне ядро й необов’язкову desk
 
 ## Участь у розробці
 
-Ознайомтеся з CONTRIBUTING.md перед зміною коду або форматів. Робіть зміни перевірними, додавайте детерміновані тести та використовуйте Conventional Commits, якщо цього вимагає посібник.
+Ознайомтеся з [CONTRIBUTING.md](CONTRIBUTING.md) перед зміною коду або форматів. Робіть зміни перевірними, додавайте детерміновані тести та використовуйте Conventional Commits, якщо цього вимагає посібник.
 
 ## Ліцензія та правові умови
 
