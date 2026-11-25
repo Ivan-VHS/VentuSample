@@ -1,0 +1,81 @@
+# Reaper-side audio profile contract for deterministic offline rendering.
+# The host DSP remains C++/C; this file validates the shared configuration boundary.
+# Author: Ivan-VHS
+
+craft valid_sample_rate(rate) {
+    yield kind(rate) == "number" and (rate == 48000 or rate == 96000)
+}
+
+craft valid_channel_count(channels) {
+    yield kind(channels) == "number" and (channels == 1 or channels == 2)
+}
+
+craft valid_sample_format(format_name) {
+    yield kind(format_name) == "text" and (format_name == "s24le" or format_name == "f32le")
+}
+
+craft valid_mix(wet_percent, dry_percent) {
+    yield kind(wet_percent) == "number" and
+        kind(dry_percent) == "number" and
+        wet_percent >= 0 and wet_percent <= 100 and
+        dry_percent >= 0 and dry_percent <= 100 and
+        wet_percent + dry_percent == 100
+}
+
+craft valid_buffer_size(frames) {
+    yield kind(frames) == "number" and
+        frames >= 64 and frames <= 8192 and frames % 16 == 0
+}
+
+craft valid_audio_profile(profile) {
+    when kind(profile) != "list" or size(profile) != 6 {
+        yield false
+    }
+    yield valid_sample_rate(profile[0]) and
+        valid_channel_count(profile[1]) and
+        valid_sample_format(profile[2]) and
+        valid_buffer_size(profile[3]) and
+        valid_mix(profile[4], profile[5])
+}
+
+craft wet_gain(percent) {
+    when kind(percent) != "number" or percent < 0 or percent > 100 {
+        yield [false, nothing, "RPR-A0001"]
+    }
+    yield [true, percent / 100, ""]
+}
+
+make studio_profile := [48000, 2, "s24le", 512, 35, 65]
+make mastering_profile := [96000, 2, "f32le", 1024, 50, 50]
+make wet_only_profile := [48000, 2, "s24le", 512, 100, 0]
+make dry_only_profile := [48000, 2, "s24le", 512, 0, 100]
+make invalid_rate := [44100, 2, "s24le", 512, 35, 65]
+make invalid_rate_type := ["48000", 2, "s24le", 512, 35, 65]
+make invalid_buffer := [48000, 2, "s24le", 33, 35, 65]
+make invalid_buffer_type := [48000, 2, "s24le", "512", 35, 65]
+make invalid_mix := [48000, 2, "f32le", 512, 120, 20]
+make unbalanced_mix := [48000, 2, "f32le", 512, 50, 40]
+make invalid_mix_type := [48000, 2, "f32le", 512, "50", 50]
+make malformed_profile := "not-a-profile"
+
+assert(valid_audio_profile(studio_profile), "48 kHz integer profile must pass")
+assert(valid_audio_profile(mastering_profile), "96 kHz float profile must pass")
+assert(valid_audio_profile(wet_only_profile), "100/0 wet-only profile must pass")
+assert(valid_audio_profile(dry_only_profile), "0/100 dry-only profile must pass")
+assert(not valid_audio_profile(invalid_rate), "unsupported sample rate must fail")
+assert(not valid_audio_profile(invalid_rate_type), "sample-rate type must be checked")
+assert(not valid_audio_profile(invalid_buffer), "out-of-range buffer must fail")
+assert(not valid_audio_profile(invalid_buffer_type), "buffer-size type must be checked")
+assert(not valid_audio_profile(invalid_mix), "out-of-range wet mix must fail")
+assert(not valid_audio_profile(unbalanced_mix), "wet/dry percentages must sum to 100")
+assert(not valid_audio_profile(invalid_mix_type), "wet/dry value types must be checked")
+assert(not valid_audio_profile(malformed_profile), "profile container type must be checked")
+
+make valid_gain := wet_gain(50)
+make invalid_gain := wet_gain(101)
+make invalid_gain_type := wet_gain("50")
+assert(valid_gain[0] and valid_gain[1] == 0.5, "wet gain must return a normalized success result")
+assert(not invalid_gain[0] and invalid_gain[2] == "RPR-A0001", "invalid wet gain must return a stable error")
+assert(not invalid_gain_type[0] and invalid_gain_type[2] == "RPR-A0001", "invalid gain type must return a stable error")
+
+emit "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS"
