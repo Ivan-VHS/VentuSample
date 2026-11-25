@@ -19,17 +19,13 @@ struct Palette {
 };
 
 inline Palette palette(bool dark) noexcept {
-    if (dark) {
-        return {
-            "#10142A", "#191E39", "#F5F4FF", "#D5D6EB", "#A8ADC8",
-            "#3B4262", "#A78BFA", "#C1AEFF", "#1D1730",
-            "#FF8EAC", "#330A1A", "#353054", "#38D4B7"
-        };
-    }
+    // Retain the public parameter for source compatibility; Mora now uses one
+    // coherent Imperial Noir & Glass profile across the workstation.
+    (void)dark;
     return {
-        "#F5F3FA", "#FFFFFF", "#211F31", "#4E4B63", "#66627A",
-        "#D6D0E7", "#5B43B5", "#49359D", "#FFFFFF",
-        "#A91F49", "#FFFFFF", "#E6E0F7", "#006F68"
+        "#050505", "#101010", "#FFFFFF", "#D8D8D8", "#A3A3A3",
+        "#343434", "#FFD700", "#FFE36E", "#070707",
+        "#FF7777", "#070707", "#3B3000", "#FFD700"
     };
 }
 
