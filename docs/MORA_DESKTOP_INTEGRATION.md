@@ -12,7 +12,7 @@ VentuSample joins Mora as the native procedural audio workstation. Mora provides
 
 Mora discovers the existing Qt build output. It does not claim that the application is ready when Qt 6 is missing or the desktop target has not been built. Build and platform requirements remain governed by CMakeLists.txt.
 
-The shared contract and workspace configuration live in [DuckOS / Mora](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/MORA_DESKTOP.md).
+The shared contract and workspace configuration live in [DAK / Mora](https://github.com/Ivan-VHS/DAK/blob/main/docs/MORA_DESKTOP.md).
 
 ## Visual convergence
 
