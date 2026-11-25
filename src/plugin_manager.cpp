@@ -735,6 +735,7 @@ bool PluginManager::initializePlugin(const std::string& idOrName,
             || found->stopping || found->initializing) return false;
         if (found->initialized) return true;
 
+        key = normalized(found->descriptor.id);
         const PluginLifecycle initialize = found->onInitialize;
         const PluginContext callbackContext = context;
         found->lifecycleContext = callbackContext;
@@ -795,6 +796,7 @@ bool PluginManager::shutdownPlugin(const std::string& idOrName) noexcept {
         if (!found->initialized) return true;
         if (found->initializing || found->stopping) return false;
 
+        key = normalized(found->descriptor.id);
         const PluginLifecycle shutdown = found->onShutdown;
         const PluginContext callbackContext = found->lifecycleContext;
         found->stopping = true;
