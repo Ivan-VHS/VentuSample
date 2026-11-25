@@ -9,6 +9,10 @@ import sys
 from pathlib import Path
 
 ALLOWED = {
+    # Imperial Noir & Glass base and semantic status tokens.
+    "#050505", "#070707", "#101010", "#181818", "#343434", "#3B3000",
+    "#FFFFFF", "#D8D8D8", "#A3A3A3", "#FFD700", "#FFE36E", "#FF7777",
+    "#6EDAA3", "#79B8FF",
     # Shared 2026 semantic light/dark token extension.
     "#F4F8FD",
     "#0F2A45",
@@ -46,6 +50,10 @@ HEX = re.compile(r"#[0-9A-Fa-f]{6}\b")
 RGB = re.compile(r"\bRGB\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)", re.IGNORECASE)
 
 AAA_TEXT_PAIRS = (
+    ("#FFFFFF", "#050505"),
+    ("#D8D8D8", "#050505"),
+    ("#A3A3A3", "#050505"),
+    ("#070707", "#FFD700"),
     ("#0A1E46", "#F4F6FA"),
     ("#0039A6", "#F4F6FA"),
     ("#FFFFFF", "#0039A6"),
