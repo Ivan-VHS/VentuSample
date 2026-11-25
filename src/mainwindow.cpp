@@ -569,7 +569,7 @@ void MainWindow::buildUi() {
         if (generateButton_ && generateButton_->isEnabled()) generateButton_->click();
     });
     for (int index = 0; index < 3; ++index) {
-        bindShortcut(QKeySequence(Qt::CTRL | (Qt::Key_1 + index)), [this, index] {
+        bindShortcut(QKeySequence(QString("Ctrl+%1").arg(index + 1)), [this, index] {
             if (tabs_ && index < tabs_->count()) tabs_->setCurrentIndex(index);
         });
     }
