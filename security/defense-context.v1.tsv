@@ -1,4 +1,4 @@
-# duckos.bav.defense-context.v1
+# dak.bav.defense-context.v1
 # category<TAB>term
 # Context labels only. Never use these terms as malware signatures.
 wmd_cbrn	Ядерное оружие
