@@ -38,6 +38,7 @@
 #include <QKeySequence>
 #include <QGridLayout>
 #include <QScrollArea>
+#include <QShortcut>
 #include <QSettings>
 #include <QSlider>
 #include <QSpinBox>
@@ -102,7 +103,7 @@ QWidget* makeCard(const QString& title, QLayout* content) {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("VentuSample — рабочая станция аудиопаков");
-    setMinimumSize(900, 640);
+    setMinimumSize(800, 560);
     resize(1320, 900);
     buildUi();
     ventu::ui_ux::applyAccessibleDefaults(this);
@@ -551,6 +552,27 @@ void MainWindow::buildUi() {
     });
     connect(darkThemeCheck_, &QCheckBox::toggled, this, [this] { applyTheme(); saveSettings(); });
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
+
+    const auto bindShortcut = [this](const QKeySequence& sequence, const auto& action) {
+        auto* shortcut = new QShortcut(sequence, this);
+        shortcut->setContext(Qt::WindowShortcut);
+        connect(shortcut, &QShortcut::activated, this, action);
+    };
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Plus), [this] { adjustInterfaceFont(1); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal), [this] { adjustInterfaceFont(1); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus), [this] { adjustInterfaceFont(-1); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_0), [this] { resetInterfaceFont(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Comma), [this] { showMotionSettings(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), [this] { savePreset(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), [this] { loadPreset(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), [this] {
+        if (generateButton_ && generateButton_->isEnabled()) generateButton_->click();
+    });
+    for (int index = 0; index < 3; ++index) {
+        bindShortcut(QKeySequence(Qt::CTRL | (Qt::Key_1 + index)), [this, index] {
+            if (tabs_ && index < tabs_->count()) tabs_->setCurrentIndex(index);
+        });
+    }
 }
 
 void MainWindow::showPlugins(const QString& selected) {
@@ -738,6 +760,9 @@ void MainWindow::loadSettings() {
             pluginManager_.setEnabled(plugin.id, settings.value(QString::fromStdString(plugin.id)).toBool());
     }
     settings.endGroup();
+    settings.beginGroup("ui");
+    interfaceFontSize_ = ventu::ui_ux::clampFontSize(settings.value("font_size", 10).toInt());
+    settings.endGroup();
 }
 
 void MainWindow::saveSettings() {
@@ -792,6 +817,9 @@ void MainWindow::saveSettings() {
     settings.setValue("eco_visuals", motionPreferences_.ecoVisuals);
     settings.setValue("sync_to_bpm", motionPreferences_.syncToBpm);
     settings.setValue("expressive_motion", motionPreferences_.expressiveMotion);
+    settings.endGroup();
+    settings.beginGroup("ui");
+    settings.setValue("font_size", interfaceFontSize_);
     settings.endGroup();
     settings.sync();
 }
@@ -916,7 +944,24 @@ void MainWindow::applyTheme() {
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
     )QSS").arg(page, ink, surface, border, secondary, accent, signal, selection, focus, accentHover)
         .arg(onAccent).arg(onSignal).arg(muted);
-    setStyleSheet(style);
+    QString scalableStyle = style;
+    scalableStyle.replace(QStringLiteral("font-size: 10pt"),
+                          QString("font-size: %1pt").arg(interfaceFontSize_));
+    setStyleSheet(scalableStyle);
+}
+
+void MainWindow::adjustInterfaceFont(int delta) {
+    interfaceFontSize_ = ventu::ui_ux::clampFontSize(interfaceFontSize_ + delta);
+    applyTheme();
+    saveSettings();
+    statusLabel_->setText(QString("Размер интерфейса: %1 pt").arg(interfaceFontSize_));
+}
+
+void MainWindow::resetInterfaceFont() {
+    interfaceFontSize_ = 10;
+    applyTheme();
+    saveSettings();
+    statusLabel_->setText("Размер интерфейса сброшен: 10 pt");
 }
 
 ventu::Parameters MainWindow::parameters() const {
