@@ -1,0 +1,52 @@
+# VentuSample offline-render policy in Reaper.
+# The current documented export path is offline PCM16 WAV. The policy does not
+# load plugins, start a realtime callback, access an audio device or write files.
+# Render config: [sample_rate, channels, format, frames, seed, wet_percent,
+#                offline_mode, execute_plugin_code].
+
+craft render_config_valid(config) {
+    when size(config) != 8 { yield false }
+    when config[0] < 48000 or config[0] > 96000 { yield false }
+    when config[1] < 1 or config[1] > 2 { yield false }
+    when config[2] != "pcm16" { yield false }
+    when config[3] <= 0 or config[3] > 57600000 { yield false }
+    when config[4] < 0 { yield false }
+    when config[5] < 0 or config[5] > 65 { yield false }
+    when not config[6] or config[7] { yield false }
+    yield true
+}
+
+craft pack_metadata_valid(pack) {
+    # [schema, render_config, payload_bytes, digest, manifest_seed, deterministic]
+    when size(pack) != 6 { yield false }
+    when pack[0] != "ventusample.pack.v1" { yield false }
+    when not render_config_valid(pack[1]) { yield false }
+    when pack[2] <= 0 or pack[2] > 134217728 { yield false }
+    when pack[3] == "" or pack[4] < 0 { yield false }
+    when pack[4] != pack[1][4] or not pack[5] { yield false }
+    yield true
+}
+
+craft render_pair_compatible(left, right) {
+    when not render_config_valid(left) or not render_config_valid(right) {
+        yield false
+    }
+    yield left[0] == right[0] and left[1] == right[1] and left[2] == right[2]
+}
+
+craft realtime_execution_allowed() {
+    yield false
+}
+
+make config := [48000, 2, "pcm16", 480000, 20261125, 65, true, false]
+make pack := ["ventusample.pack.v1", config, 1048576, "sha256:fixture", 20261125, true]
+make invalid_realtime := [48000, 2, "pcm16", 480000, 20261125, 65, false, false]
+make mismatched_seed := ["ventusample.pack.v1", config, 1048576, "sha256:fixture", 7, true]
+
+assert(render_config_valid(config), "valid bounded offline render configuration")
+assert(pack_metadata_valid(pack), "deterministic pack metadata")
+assert(not render_config_valid(invalid_realtime), "realtime mode is not part of this product contract")
+assert(not pack_metadata_valid(mismatched_seed), "manifest seed must match render seed")
+assert(not realtime_execution_allowed(), "offline renderer does not claim realtime execution")
+
+emit "VENTUSAMPLE_REAPER_POLICY:PASS"
