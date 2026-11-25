@@ -6,6 +6,7 @@ on:
     types: [completed]
 
 permissions:
+  actions: read
   contents: write
   pull-requests: write
 
@@ -58,6 +59,109 @@ jobs:
               continue
             fi
 
-            echo "Enable squash auto-merge for fully validated PR #$number."
-            gh pr merge "$url" --auto --squash --delete-branch
+            # Do not enable auto-merge until every independent PR workflow has
+            # completed successfully for this exact head SHA.
+            required_workflows='["CodeQL","Beelzebul security gate","Repository completeness gate"]'
+            assurance_ready=false
+            for check_attempt in $(seq 1 54); do
+              runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$TESTED_HEAD_SHA&per_page=100")"
+              assurance_state="$(jq -r \
+                --arg sha "$TESTED_HEAD_SHA" \
+                --argjson required "$required_workflows" '
+                  [.workflow_runs[]
+                    | select(.event == "pull_request" and .head_sha == $sha)]
+                  | sort_by(.updated_at)
+                  | group_by(.name)
+                  | map(.[-1]) as $latest
+                  | [$required[] as $name | select(([ $latest[].name ] | index($name)) == null)] as $missing
+                  | [$required[] as $name
+                      | select(([ $latest[] | select(.name == $name and .status == "completed" and .conclusion == "success") ] | length) == 0
+                          and ([ $latest[] | select(.name == $name and .status == "completed") ] | length) > 0)] as $required_failed
+                  | [$latest[] | select(.status == "completed"
+                      and (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] as $failed
+                  | [$latest[] | select(.status != "completed")] as $pending
+                  | if ($missing | length) > 0 then
+                      "missing:" + ($missing | join(","))
+                    elif ($required_failed | length) > 0 then
+                      "required-failed:" + ($required_failed | join(","))
+                    elif ($failed | length) > 0 then
+                      "failed:" + ([ $failed[] | "\(.name)=\(.conclusion)" ] | join(","))
+                    elif ($pending | length) > 0 then
+                      "pending:" + ([ $pending[] | "\(.name)=\(.status)" ] | join(","))
+                    else "ready"
+                    end
+                ' <<< "$runs")"
+              echo "PR #$number assurance attempt $check_attempt/54: $assurance_state"
+              case "$assurance_state" in
+                ready) assurance_ready=true; break ;;
+                failed:*) echo "::error::A pull-request workflow failed: $assurance_state"; exit 1 ;;
+                *) sleep 10 ;;
+              esac
+            done
+            if [[ "$assurance_ready" != true ]]; then
+              echo "::error::Timed out waiting for all pull-request assurance workflows."
+              exit 1
+            fi
+
+            attempt=1
+            while (( attempt <= 5 )); do
+              # Revalidate immediately before every attempt; CI only authorizes this exact SHA.
+              latest_pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number")"
+              latest_head="$(jq -r '.head.sha' <<< "$latest_pr")"
+              latest_repo="$(jq -r '.head.repo.full_name // ""' <<< "$latest_pr")"
+              latest_base="$(jq -r '.base.ref' <<< "$latest_pr")"
+              latest_draft="$(jq -r '.draft' <<< "$latest_pr")"
+              latest_auto="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$latest_pr")"
+              latest_merged="$(jq -r '.merged' <<< "$latest_pr")"
+              if [[ "$latest_head" != "$TESTED_HEAD_SHA" || "$latest_repo" != "$GITHUB_REPOSITORY" || "$latest_base" != "main" || "$latest_draft" != "false" ]]; then
+                echo "SKIP PR #$number: eligibility changed; refusing to retry."
+                break
+              fi
+              if [[ "$latest_auto" == "true" || "$latest_merged" == "true" ]]; then
+                echo "OK PR #$number: auto-merge is already enabled or the PR is merged."
+                break
+              fi
+              set +e
+              output="$(gh pr merge "$url" --auto --squash --delete-branch 2>&1)"
+              status=$?
+              set -e
+              printf '%s\n' "$output"
+              if [[ "$status" -eq 0 ]]; then break; fi
+
+              # The mutation may have succeeded despite a lost/transient response.
+              state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)"
+              if [[ -z "$state" ]]; then
+                echo "Cannot revalidate PR state after the failed request; refusing to retry." >&2
+                exit "$status"
+              fi
+              if [[ -n "$state" ]]; then
+                state_head="$(jq -r '.head.sha' <<< "$state")"
+                state_repo="$(jq -r '.head.repo.full_name // ""' <<< "$state")"
+                state_base="$(jq -r '.base.ref' <<< "$state")"
+                state_draft="$(jq -r '.draft' <<< "$state")"
+                state_auto="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$state")"
+                state_merged="$(jq -r '.merged' <<< "$state")"
+                if [[ "$state_auto" == "true" || "$state_merged" == "true" ]]; then
+                  echo "OK PR #$number: GitHub accepted the auto-merge request."
+                  break
+                fi
+                if [[ "$state_head" != "$TESTED_HEAD_SHA" || "$state_repo" != "$GITHUB_REPOSITORY" || "$state_base" != "main" || "$state_draft" != "false" ]]; then
+                  echo "SKIP PR #$number: eligibility changed; refusing to retry."
+                  break
+                fi
+              fi
+
+              if ! grep -Eiq 'GraphQL:.*Something went wrong|502 Bad Gateway|503 Service Unavailable|504 Gateway Time-out|HTTP 5(02|03|04)|connection reset|timed out|temporary failure' <<< "$output"; then
+                echo "Auto-merge failed for a non-transient reason; not retrying." >&2
+                exit "$status"
+              fi
+              if (( attempt == 5 )); then
+                echo "Auto-merge unavailable after five attempts." >&2
+                exit "$status"
+              fi
+              delay=$((attempt * 3))
+              echo "::warning::Transient GitHub API failure; retrying in $delay seconds."
+              sleep "$delay"
+              attempt=$((attempt + 1))
+            done
           done <<< "$numbers"
