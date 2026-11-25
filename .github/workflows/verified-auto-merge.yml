@@ -60,6 +60,22 @@ jobs:
 
             attempt=1
             while (( attempt <= 5 )); do
+              # Revalidate immediately before every attempt; CI only authorizes this exact SHA.
+              latest_pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number")"
+              latest_head="$(jq -r '.head.sha' <<< "$latest_pr")"
+              latest_repo="$(jq -r '.head.repo.full_name // ""' <<< "$latest_pr")"
+              latest_base="$(jq -r '.base.ref' <<< "$latest_pr")"
+              latest_draft="$(jq -r '.draft' <<< "$latest_pr")"
+              latest_auto="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$latest_pr")"
+              latest_merged="$(jq -r '.merged' <<< "$latest_pr")"
+              if [[ "$latest_head" != "$TESTED_HEAD_SHA" || "$latest_repo" != "$GITHUB_REPOSITORY" || "$latest_base" != "main" || "$latest_draft" != "false" ]]; then
+                echo "SKIP PR #$number: eligibility changed; refusing to retry."
+                break
+              fi
+              if [[ "$latest_auto" == "true" || "$latest_merged" == "true" ]]; then
+                echo "OK PR #$number: auto-merge is already enabled or the PR is merged."
+                break
+              fi
               set +e
               output="$(gh pr merge "$url" --auto --squash --delete-branch 2>&1)"
               status=$?
