@@ -749,7 +749,93 @@ bool PluginManager::initializePlugin(const std::string& idOrName,
             return false;
         }
         found->initialized = true;
-      PluginResult PluginManager::execute(const std::string& idOrName,
+        found->lastError.clear();
+        return true;
+    } catch (const std::exception& error) {
+        try {
+            const auto failed = std::find_if(entries_.begin(), entries_.end(),
+                [&](const Entry& entry) {
+                    return normalized(entry.descriptor.id) == key;
+                });
+            if (failed != entries_.end()) {
+                failed->initializing = false;
+                failed->lastError = error.what();
+            }
+        } catch (...) {
+        }
+        return false;
+    } catch (...) {
+        try {
+            const auto failed = std::find_if(entries_.begin(), entries_.end(),
+                [&](const Entry& entry) {
+                    return normalized(entry.descriptor.id) == key;
+                });
+            if (failed != entries_.end()) {
+                failed->initializing = false;
+                failed->lastError = "unknown initialization exception";
+            }
+        } catch (...) {
+        }
+        return false;
+    }
+}
+
+bool PluginManager::shutdownPlugin(const std::string& idOrName) noexcept {
+    std::string key;
+    try {
+        key = normalized(idOrName);
+        auto findEntry = [&]() {
+            return std::find_if(entries_.begin(), entries_.end(), [&](const Entry& entry) {
+                return normalized(entry.descriptor.id) == key
+                    || normalized(entry.descriptor.name) == key;
+            });
+        };
+        auto found = findEntry();
+        if (found == entries_.end()) return false;
+        if (!found->initialized) return true;
+        if (found->initializing || found->stopping) return false;
+
+        const PluginLifecycle shutdown = found->onShutdown;
+        const PluginContext callbackContext = found->lifecycleContext;
+        found->stopping = true;
+        if (shutdown) shutdown(callbackContext);
+
+        found = findEntry();
+        if (found == entries_.end()) return false;
+        found->stopping = false;
+        found->initialized = false;
+        found->lastError.clear();
+        return true;
+    } catch (const std::exception& error) {
+        try {
+            const auto failed = std::find_if(entries_.begin(), entries_.end(),
+                [&](const Entry& entry) {
+                    return normalized(entry.descriptor.id) == key;
+                });
+            if (failed != entries_.end()) {
+                failed->stopping = false;
+                failed->lastError = error.what();
+            }
+        } catch (...) {
+        }
+        return false;
+    } catch (...) {
+        try {
+            const auto failed = std::find_if(entries_.begin(), entries_.end(),
+                [&](const Entry& entry) {
+                    return normalized(entry.descriptor.id) == key;
+                });
+            if (failed != entries_.end()) {
+                failed->stopping = false;
+                failed->lastError = "unknown shutdown exception";
+            }
+        } catch (...) {
+        }
+        return false;
+    }
+}
+
+PluginResult PluginManager::execute(const std::string& idOrName,
                                     const PluginContext& context) {
     const auto key = normalized(idOrName);
     auto findEntry = [&]() {
