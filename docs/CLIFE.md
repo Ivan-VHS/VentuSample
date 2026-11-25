@@ -36,4 +36,4 @@ The default archive location is .clife/snapshots/. Build, distribution, version-
 - Maximums: 20,000 files, 128 MiB per file and 1 GiB total uncompressed data.
 - Audio and project files are copied byte-for-byte; they are not rendered, normalized, decoded or modified.
 - A restore is a filesystem copy, not a real-time session recovery or VST/AU/CLAP plugin loader.
-- No 666,666,666-character pseudocode artifact is generated; the archive contains real project files and a compact manifest.
+- No oversized pseudocode dump is generated; the archive contains real project files and a compact manifest.
