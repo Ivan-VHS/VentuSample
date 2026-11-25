@@ -27,7 +27,7 @@ The connected projects remain separate products. A link indicates useful context
 - [Reaper documentation map](https://github.com/Ivan-VHS/Reaper/blob/main/docs/INFORMATION_ARCHITECTURE.md) — language, Studio and runtime integration contracts.
 - [Pytyliki documentation map](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/INFORMATION_ARCHITECTURE.md) — processor systems and DSP migration context.
 - [OPlague documentation map](https://github.com/Ivan-VHS/OPlague/blob/main/docs/INFORMATION_ARCHITECTURE.md) — device and driver inspection boundaries.
-- [DuckOS documentation map](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
+- [DAK documentation map](https://github.com/Ivan-VHS/DAK/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
 
 ## Full document catalog
 
