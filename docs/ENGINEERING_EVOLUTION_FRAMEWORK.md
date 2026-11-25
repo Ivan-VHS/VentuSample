@@ -1,6 +1,6 @@
 # Engineering Evolution Framework
 
-**Canonical shared framework:** [DuckOS — Engineering Evolution Framework](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/ENGINEERING_EVOLUTION_FRAMEWORK.md).
+**Canonical shared framework:** [DAK — Engineering Evolution Framework](https://github.com/Ivan-VHS/DAK/blob/main/docs/ENGINEERING_EVOLUTION_FRAMEWORK.md).
 
 The 20-domain framework, shared practices and cross-project operating model are maintained centrally. This repository retains its own versioned adoption data:
 - [Engineering evolution manifest](../engineering-evolution.v1.json)
@@ -78,7 +78,7 @@ The standard is universal; its implementation is deliberately product-specific:
 
 | Project | Apply completeness to | Preserve this boundary |
 |---|---|---|
-| DuckOS | Mora shell, catalogues, native user-space tools and native-service contracts | Browser features are not proof of a bootable OS, kernel enforcement, compositor, driver stack or system service |
+| DAK | Mora shell, catalogues, native user-space tools and native-service contracts | Browser features are not proof of a bootable OS, kernel enforcement, compositor, driver stack or system service |
 | Pytyliki | C11 processor discovery, bounded analysis, memory, metrics and native ABI | Hardware inspection remains read-only; capabilities absent from the source tree remain incomplete |
 | Reaper | language frontend, reference runtime, IR/VM, tooling and integrations | Native compiler/self-hosting and hardware workbench stages remain partial until code and tests prove otherwise; native loading is explicit |
 | OPlague | device/package inspection, compatibility analysis, reports and optional bridges | Inspection and dry-run planning do not install, enable, unload or modify drivers |
