@@ -1,0 +1,116 @@
+{
+  "schema": "duck.i18n-catalog-set/v1",
+  "sourceLocale": "en",
+  "locales": {
+    "en": {
+      "name": "English",
+      "direction": "ltr",
+      "status": "source",
+      "messages": {
+        "common.action.ok": "OK",
+        "common.action.cancel": "Cancel",
+        "common.action.close": "Close",
+        "common.action.save": "Save",
+        "common.action.open": "Open",
+        "common.action.retry": "Retry",
+        "common.state.loading": "Loading…",
+        "common.state.ready": "Ready",
+        "common.state.error": "An error occurred.",
+        "common.settings.language": "Language",
+        "common.settings.systemLanguage": "Use system language",
+        "common.settings.languageHelp": "Choose a language pack. Missing messages use the configured fallback.",
+        "common.accessibility.closeWindow": "Close window",
+        "common.accessibility.mainMenu": "Main menu",
+        "common.notice.fallback": "Some text is displayed in the fallback language."
+      }
+    },
+    "ru": {
+      "name": "Русский",
+      "direction": "ltr",
+      "status": "complete",
+      "messages": {
+        "common.action.ok": "ОК",
+        "common.action.cancel": "Отмена",
+        "common.action.close": "Закрыть",
+        "common.action.save": "Сохранить",
+        "common.action.open": "Открыть",
+        "common.action.retry": "Повторить",
+        "common.state.loading": "Загрузка…",
+        "common.state.ready": "Готово",
+        "common.state.error": "Произошла ошибка.",
+        "common.settings.language": "Язык",
+        "common.settings.systemLanguage": "Использовать язык системы",
+        "common.settings.languageHelp": "Выберите языковой пакет. Для отсутствующих переводов используется резервный язык.",
+        "common.accessibility.closeWindow": "Закрыть окно",
+        "common.accessibility.mainMenu": "Главное меню",
+        "common.notice.fallback": "Некоторые надписи показаны на резервном языке."
+      }
+    },
+    "uk": {
+      "name": "Українська",
+      "direction": "ltr",
+      "status": "complete",
+      "messages": {
+        "common.action.ok": "Гаразд",
+        "common.action.cancel": "Скасувати",
+        "common.action.close": "Закрити",
+        "common.action.save": "Зберегти",
+        "common.action.open": "Відкрити",
+        "common.action.retry": "Повторити",
+        "common.state.loading": "Завантаження…",
+        "common.state.ready": "Готово",
+        "common.state.error": "Сталася помилка.",
+        "common.settings.language": "Мова",
+        "common.settings.systemLanguage": "Використовувати мову системи",
+        "common.settings.languageHelp": "Виберіть мовний пакет. Для відсутніх перекладів використовується резервна мова.",
+        "common.accessibility.closeWindow": "Закрити вікно",
+        "common.accessibility.mainMenu": "Головне меню",
+        "common.notice.fallback": "Деякі написи показано резервною мовою."
+      }
+    },
+    "zh-Hans": {
+      "name": "简体中文",
+      "direction": "ltr",
+      "status": "complete",
+      "messages": {
+        "common.action.ok": "确定",
+        "common.action.cancel": "取消",
+        "common.action.close": "关闭",
+        "common.action.save": "保存",
+        "common.action.open": "打开",
+        "common.action.retry": "重试",
+        "common.state.loading": "正在加载…",
+        "common.state.ready": "就绪",
+        "common.state.error": "发生错误。",
+        "common.settings.language": "语言",
+        "common.settings.systemLanguage": "使用系统语言",
+        "common.settings.languageHelp": "选择语言包。缺少的文本将使用回退语言显示。",
+        "common.accessibility.closeWindow": "关闭窗口",
+        "common.accessibility.mainMenu": "主菜单",
+        "common.notice.fallback": "部分文本以回退语言显示。"
+      }
+    },
+    "ar": {
+      "name": "العربية",
+      "direction": "rtl",
+      "status": "complete",
+      "messages": {
+        "common.action.ok": "موافق",
+        "common.action.cancel": "إلغاء",
+        "common.action.close": "إغلاق",
+        "common.action.save": "حفظ",
+        "common.action.open": "فتح",
+        "common.action.retry": "إعادة المحاولة",
+        "common.state.loading": "جارٍ التحميل…",
+        "common.state.ready": "جاهز",
+        "common.state.error": "حدث خطأ.",
+        "common.settings.language": "اللغة",
+        "common.settings.systemLanguage": "استخدام لغة النظام",
+        "common.settings.languageHelp": "اختر حزمة لغة. ستُعرض الرسائل غير المترجمة باللغة الاحتياطية.",
+        "common.accessibility.closeWindow": "إغلاق النافذة",
+        "common.accessibility.mainMenu": "القائمة الرئيسية",
+        "common.notice.fallback": "تُعرض بعض النصوص باللغة الاحتياطية."
+      }
+    }
+  }
+}
