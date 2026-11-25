@@ -1,0 +1,51 @@
+name: Reaper offline-render policy
+
+on:
+  push:
+    branches: [main, "feat/**"]
+    paths:
+      - "examples/reaper_offline_render_policy.rpr"
+      - "docs/REAPER_OFFLINE_RENDER_POLICY.md"
+      - ".github/workflows/reaper-policy.yml"
+  pull_request:
+    paths:
+      - "examples/reaper_offline_render_policy.rpr"
+      - "docs/REAPER_OFFLINE_RENDER_POLICY.md"
+      - ".github/workflows/reaper-policy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out VentuSample
+        uses: actions/checkout@v7
+
+      - name: Check out pinned Reaper policy toolchain
+        uses: actions/checkout@v7
+        with:
+          repository: Ivan-VHS/Reaper
+          ref: 23642e50beef68db63ccc5573735fddf885533c8
+          path: _deps/Reaper
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Validate Reaper source
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: python -m reaper --check examples/reaper_offline_render_policy.rpr
+
+      - name: Execute offline-render policy
+        shell: bash
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: |
+          set -euo pipefail
+          python -m reaper examples/reaper_offline_render_policy.rpr | tee reaper-offline-policy.txt
+          grep -qx "VENTUSAMPLE_REAPER_POLICY:PASS" reaper-offline-policy.txt
