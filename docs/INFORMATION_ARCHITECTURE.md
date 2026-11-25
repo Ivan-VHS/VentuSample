@@ -69,7 +69,7 @@ Each Markdown page has a direct catalog entry and a topic-hub entry. The cluster
 - [README VISUAL STANDARD](README_VISUAL_STANDARD.md)
 - [UI MOTION](UI_MOTION.md)
 - [UI UX 2026 CONVERGENCE](UI_UX_2026_CONVERGENCE.md)
-- [UI UX CODEX 40026](UI_UX_CODEX_40026.md)
+- [UI/UX Profile — Stage 0.5](UI_UX_PROFILE_STAGE_0_5.md)
 - [UI UX SYSTEM](UI_UX_SYSTEM.md)
 
 ### Quality, validation and evidence

@@ -1,6 +1,7 @@
-# VentuSample — UI/UX implementation profile
+# VentuSample — UI/UX Profile — Stage 0.5
 
-**Shared standard:** [UI/UX Codex 40026](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/UI_UX_CODEX_40026.md).
+**Stage convention:** [Product Stage Naming Standard](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/STAGE_NAMING_STANDARD.md).  
+**Shared standard:** [Duck UI/UX Foundation — Stage 0.1](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/UI_UX_STAGE_0_1.md).
 
 This file keeps only the Qt workstation toolkit notes and implementation evidence. The shared specification owns common interaction rules, accessibility budgets, theme/component contracts and the definition of done.
 
