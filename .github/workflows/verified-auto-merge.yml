@@ -69,6 +69,10 @@ jobs:
 
               # The mutation may have succeeded despite a lost/transient response.
               state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)"
+              if [[ -z "$state" ]]; then
+                echo "Cannot revalidate PR state after the failed request; refusing to retry." >&2
+                exit "$status"
+              fi
               if [[ -n "$state" ]]; then
                 state_head="$(jq -r '.head.sha' <<< "$state")"
                 state_repo="$(jq -r '.head.repo.full_name // ""' <<< "$state")"
