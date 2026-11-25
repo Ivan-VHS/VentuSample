@@ -40,7 +40,7 @@ flowchart LR
   Q["Optional Qt 6 UI"] --> P
 ~~~
 
-The generator sends seeded settings through the offline DSP core into bounded WAV assets and a versioned pack manifest. The optional Qt interface configures inputs; it does not turn the engine into a real-time audio host.
+生成器将带有固定 seed 的参数传入离线 DSP 核心，输出受限的 WAV 文件和版本化素材包清单。可选 Qt 界面用于配置输入，不会使引擎变成实时音频主机。
 
 ## 环境要求
 
@@ -54,7 +54,7 @@ cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
 ~~~
 
-### Portable core without Qt
+### 不依赖 Qt 的可移植核心
 
 ~~~sh
 cmake -S . -B build-core -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
@@ -79,7 +79,7 @@ ctest --test-dir build-core --output-on-failure
 
 默认离线渲染；音频管线不包含后台录音或网络遥测。导入的 WAV 被视为不可信输入，并受格式、数据块、帧数和文件大小检查限制。不会隐式加载外部原生库。不执行驱动、固件或系统音频控制。
 
-Imported assets must be treated as untrusted data. Validate file sizes, chunk boundaries and declared formats before consuming them.
+导入的素材必须视为不可信数据。处理前请验证文件大小、数据块边界和声明的格式。
 
 ## 质量验证
 
@@ -87,7 +87,7 @@ Imported assets must be treated as untrusted data. Validate file sizes, chunk bo
 ctest --test-dir build --output-on-failure
 ~~~
 
-The test targets exercise deterministic generation, plugin routing, WAV boundaries, resampling, MIDI files, offline spectrum analysis and runtime transactions. Desktop UI tests are registered only when Qt Widgets is available. Coverage and fuzzing percentages are not claimed without published reports.
+测试目标覆盖确定性生成、插件路由、WAV 边界、重采样、MIDI 文件、离线频谱分析和运行时事务。只有检测到 Qt Widgets 时才会注册桌面界面测试。没有公开报告时，不声明覆盖率或模糊测试百分比。
 
 ## 性能证据
 
@@ -109,7 +109,7 @@ CMake 提供可移植核心和可选 Qt 6 Widgets 桌面目标。文档记录了
 
 音频引擎、MIDI/重采样、插件和源码许可文档定义了格式边界与扩展点。
 
-Reaper pack exchange is file-based and versioned. Optional Reaper native expression integration is enabled only when a local Reaper source tree is explicitly supplied to CMake; Pytyliki native metrics remain a planned opt-in path.
+与 Reaper 的素材包交换采用文件和版本化格式。只有在向 CMake 显式提供本地 Reaper 源码树时，才启用可选的 Reaper 原生表达式集成；Pytyliki 原生指标仍属于计划中的可选功能。
 
 ## 参与贡献
 
@@ -119,7 +119,7 @@ Reaper pack exchange is file-based and versioned. Optional Reaper native express
 
 本项目依据 Apache-2.0 许可，软件按许可条款以“按现状”方式提供。第三方名称和商标归其各自权利人所有。
 
-Hosted-service terms, cookies, CORS and OAuth are not applicable to the documented local runtime.
+云服务条款、Cookie、CORS 和 OAuth 不适用于本文档所述的本地运行环境。
 
 ---
 

@@ -40,7 +40,7 @@ flowchart LR
   Q["Optional Qt 6 UI"] --> P
 ~~~
 
-The generator sends seeded settings through the offline DSP core into bounded WAV assets and a versioned pack manifest. The optional Qt interface configures inputs; it does not turn the engine into a real-time audio host.
+Генератор передає параметри з фіксованим seed через offline DSP-ядро, створюючи WAV-файли з визначеними обмеженнями та версіонований маніфест набору. Необов’язковий інтерфейс Qt налаштовує вхідні параметри, але не перетворює рушій на аудіохост реального часу.
 
 ## Вимоги
 
@@ -54,7 +54,7 @@ cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
 ~~~
 
-### Portable core without Qt
+### Переносне ядро без Qt
 
 ~~~sh
 cmake -S . -B build-core -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
@@ -79,7 +79,7 @@ Desktop-ціль створюється лише за наявності Qt 6 Wi
 
 Рендеринг за замовчуванням виконується offline; фонове захоплення аудіо та мережева телеметрія не входять до аудіоконвеєра. Імпортовані WAV вважаються недовіреними й перевіряються за форматом, чанками, кадрами та розміром. Зовнішні нативні бібліотеки не завантажуються неявно. Керування драйверами, прошивкою та системним звуком не виконується.
 
-Imported assets must be treated as untrusted data. Validate file sizes, chunk boundaries and declared formats before consuming them.
+Імпортовані файли слід вважати недовіреними даними. Перед обробкою перевіряйте розміри файлів, межі чанків і заявлені формати.
 
 ## Перевірка якості
 
@@ -87,7 +87,7 @@ Imported assets must be treated as untrusted data. Validate file sizes, chunk bo
 ctest --test-dir build --output-on-failure
 ~~~
 
-The test targets exercise deterministic generation, plugin routing, WAV boundaries, resampling, MIDI files, offline spectrum analysis and runtime transactions. Desktop UI tests are registered only when Qt Widgets is available. Coverage and fuzzing percentages are not claimed without published reports.
+Тести перевіряють детерміновану генерацію, маршрутизацію плагінів, межі WAV, ресемплінг, MIDI-файли, offline-аналіз спектра й транзакції середовища виконання. Тести графічного інтерфейсу реєструються лише за наявності Qt Widgets. Відсотки покриття та fuzzing не заявляються без опублікованих звітів.
 
 ## Докази продуктивності
 
@@ -109,7 +109,7 @@ CMake надає переносне ядро й необов’язкову desk
 
 Документи аудіорушія, MIDI/resampling, плагінів і ліцензування вихідних матеріалів визначають межі форматів і точки розширення.
 
-Reaper pack exchange is file-based and versioned. Optional Reaper native expression integration is enabled only when a local Reaper source tree is explicitly supplied to CMake; Pytyliki native metrics remain a planned opt-in path.
+Обмін наборами з Reaper використовує файли та версіонований формат. Необов’язкова інтеграція з нативними виразами Reaper вмикається лише за умови явного передавання локального дерева вихідного коду Reaper до CMake; нативні метрики Pytyliki залишаються запланованою функцією з явним увімкненням.
 
 ## Участь у розробці
 
@@ -119,7 +119,7 @@ Reaper pack exchange is file-based and versioned. Optional Reaper native express
 
 Поширюється за Apache-2.0. Програмне забезпечення надається «ЯК Є» в межах умов ліцензії. Сторонні назви й торговельні марки належать їхнім власникам.
 
-Hosted-service terms, cookies, CORS and OAuth are not applicable to the documented local runtime.
+Умови хмарного сервісу, cookies, CORS та OAuth не застосовуються до документованого локального середовища виконання.
 
 ---
 
