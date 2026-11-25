@@ -54,6 +54,7 @@ ctest --test-dir build -C Release --output-on-failure
 
 - Preset format: [ventusample.preset.v1 schema](schemas/ventusample.preset.v1.schema.json).
 - [Documentation index](docs/README.md) · [Reaper pack audit](docs/REAPER_PACK_AUDIT.md) · [Release process](docs/RELEASE.md).
-- [Shared ecosystem standards](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md).
+- [Shared ecosystem standards](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md)
+- [Project Evolution Ladder](docs/PROJECT_LADDER.md) · [Machine-readable rung](.github/project-ladder.v1.json).
 
 [Contributing](CONTRIBUTING.md) · [Security policy](SECURITY.md) · [Apache-2.0](LICENSE)

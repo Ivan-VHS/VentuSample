@@ -1,0 +1,34 @@
+{
+  "schema": "ivan-vhs.project-ladder.v1",
+  "version": 1,
+  "project": "VentuSample",
+  "repository": "Ivan-VHS/VentuSample",
+  "current_rung": 4,
+  "current_name": "Ascension",
+  "assessment": "provisional",
+  "assessment_date": "2026-11-25",
+  "assessment_basis": "Static review of the repository README and linked feature, architecture or roadmap documentation. Source-level deep audit and CI/test rerun were not performed for this adoption.",
+  "evidence": [
+    {
+      "path": "docs/FEATURES.md",
+      "claim": "The feature matrix documents an offline generator, DSP routing, manifest exchange, plugin catalogue and bounded analysis.",
+      "verification": "documentation_only"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "claim": "The C++20 renderer, Qt desktop, stochastic router, Quantum DSP kernels, plugin host, manifests and tests are mapped as an integrated system.",
+      "verification": "documentation_only"
+    }
+  ],
+  "limitations": [
+    "The audio pipeline is offline and does not claim real-time DAW hosting or physical audio-device access.",
+    "No test or CI workflow was re-run during ladder adoption."
+  ],
+  "next_rung": 5,
+  "next_gate": [
+    "Verify deterministic golden renders across the declared platform matrix.",
+    "Stress plugin lifecycle, malformed inputs and DSP boundary behavior with repeatable tests.",
+    "Record resource/performance budgets and version-compatibility evidence."
+  ],
+  "semver_independent": true
+}
