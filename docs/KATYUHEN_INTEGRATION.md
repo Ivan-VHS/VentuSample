@@ -22,9 +22,9 @@ VentuSample is Katyuhen's audio workstation. It owns procedural sample-pack gene
 
 ## Workspace and visual identity
 
-Mora is the ecosystem's desktop entry point, not a replacement for VentuSample Studio. The Qt workstation retains its specialist waveform and DSP workflows while native adapters may locally map semantic roles to DuckOS's `mora.theme.v1` tokens.
+Mora is the ecosystem's desktop entry point, not a replacement for VentuSample Studio. The Qt workstation retains its specialist waveform and DSP workflows while native adapters may locally map semantic roles to DAK's `mora.theme.v1` tokens.
 
-The Katyuhen registry is maintained in [DuckOS](https://github.com/Ivan-VHS/DuckOS/blob/main/ecosystem/katyuhen.v1.json). The local declaration is [integrations/katyuhen/manifest.json](../integrations/katyuhen/manifest.json).
+The Katyuhen registry is maintained in [DAK](https://github.com/Ivan-VHS/DAK/blob/main/ecosystem/katyuhen.v1.json). The local declaration is [integrations/katyuhen/manifest.json](../integrations/katyuhen/manifest.json).
 
 ## Validation
 
