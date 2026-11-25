@@ -14,8 +14,7 @@ craft valid_sample_format(format_name) {
 }
 
 craft valid_mix(wet_percent, dry_percent) {
-    yield wet_percent >= 0 and wet_percent <= 100
-        and dry_percent >= 0 and dry_percent <= 100
+    yield wet_percent >= 0 and wet_percent <= 100 and dry_percent >= 0 and dry_percent <= 100
 }
 
 craft valid_buffer_size(frames) {
@@ -26,11 +25,7 @@ craft valid_audio_profile(profile) {
     when size(profile) != 6 {
         yield false
     }
-    yield valid_sample_rate(profile[0])
-        and valid_channel_count(profile[1])
-        and valid_sample_format(profile[2])
-        and valid_buffer_size(profile[3])
-        and valid_mix(profile[4], profile[5])
+    yield valid_sample_rate(profile[0]) and valid_channel_count(profile[1]) and valid_sample_format(profile[2]) and valid_buffer_size(profile[3]) and valid_mix(profile[4], profile[5])
 }
 
 craft wet_gain(percent) {
