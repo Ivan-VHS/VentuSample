@@ -15,7 +15,7 @@ class SupabaseAdapterContractTests(unittest.TestCase):
     project_id = "ventusample"
 
     def run_with_adapter(self, mutate=None):
-        original_load = validator._load
+        original_load = validator.load_json
 
         def load(path):
             value = original_load(path)
@@ -25,7 +25,7 @@ class SupabaseAdapterContractTests(unittest.TestCase):
                     mutate(value)
             return value
 
-        with patch.object(validator, "_load", side_effect=load):
+        with patch.object(validator, "load_json", side_effect=load):
             validator.validate_supabase_adapter(self.project_id)
 
     def test_current_adapter_contract_is_valid(self):
