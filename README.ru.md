@@ -54,6 +54,6 @@ ctest --test-dir build -C Release --output-on-failure
 
 - Формат пресетов: [схема ventusample.preset.v1](schemas/ventusample.preset.v1.schema.json).
 - [Индекс документации](docs/README.md) · [Проверка pack для Reaper](docs/REAPER_PACK_AUDIT.md) · [Релизы](docs/RELEASE.md).
-- [Общие стандарты экосистемы](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/SHARED_STANDARDS.md).
+- [Общие стандарты экосистемы](https://github.com/Ivan-VHS/DAK/blob/main/docs/SHARED_STANDARDS.md).
 
 [Вклад в проект](CONTRIBUTING.md) · [Безопасность](SECURITY.md) · [Apache-2.0](LICENSE)
