@@ -17,6 +17,7 @@
 | 音频输出 | PCM16 WAV，确定性本地渲染 |
 | Pack 格式 | Manifest v1 与 v2 |
 | 许可证 | [Apache-2.0](LICENSE) |
+| 行为准则 | 尚未发布根目录 `CODE_OF_CONDUCT.md` |
 | 文档审核日期 | 2026-11-26 |
 
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample 离线工作站" width="100%"></p>
