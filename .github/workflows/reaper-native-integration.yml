@@ -5,6 +5,7 @@ on:
       - "CMakeLists.txt"
       - "src/reaper_expression.*"
       - "tests/test_reaper_expression.cpp"
+      - "integrations/reaper/**"
       - ".github/workflows/reaper-native-integration.yml"
   push:
     branches: [main]
@@ -15,12 +16,23 @@ jobs:
   reaper-abi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           repository: Ivan-VHS/Reaper
-          ref: 8c84fd6c4213dddd174689d36f22bd7717eaccd3
+          ref: 4450a14e74375b01d915f3d685aeccd660413da2
           path: _deps/Reaper
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Validate and execute Reaper audio contracts
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: |
+          set -euo pipefail
+          python -m reaper --check integrations/reaper/audio_contract.rpr
+          python -m reaper integrations/reaper/audio_contract.rpr | tee reaper-audio-contract.txt
+          grep -qx "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS" reaper-audio-contract.txt
       - name: Configure linked C++20 + C17 build
         run: cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DREAPER_SOURCE_DIR="$GITHUB_WORKSPACE/_deps/Reaper" -DCMAKE_BUILD_TYPE=Release
       - name: Build the linked expression bridge

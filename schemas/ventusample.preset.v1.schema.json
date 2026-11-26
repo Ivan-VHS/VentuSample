@@ -1,0 +1,293 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ivan-vhs:ventusample:preset:v1",
+  "title": "VentuSample preset v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "name",
+    "seed_policy",
+    "parameters"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ventusample.preset.v1"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 80
+    },
+    "seed_policy": {
+      "enum": [
+        "fixed",
+        "keep-current"
+      ]
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "style",
+        "target",
+        "scale",
+        "sampler",
+        "timbre",
+        "bpm",
+        "root_note",
+        "bars",
+        "variations",
+        "swing_percent",
+        "density_percent",
+        "grit_percent",
+        "saturation_percent",
+        "stereo_percent",
+        "high_pass_hz",
+        "low_pass_hz",
+        "snare_offset_ms",
+        "sample_rate",
+        "source_mix_percent",
+        "source_pitch_semitones",
+        "bus_compression_ratio",
+        "tpdf_dither",
+        "normalize_peak",
+        "target_peak_dbfs",
+        "triplet_rolls",
+        "micro_humanize",
+        "vinyl_dust",
+        "stochastic_enabled",
+        "stochastic_intensity_percent",
+        "stochastic_trigger_mode",
+        "stochastic_plugin_mask",
+        "stochastic_topology"
+      ],
+      "properties": {
+        "style": {
+          "enum": [
+            "Boom Bap",
+            "East Coast",
+            "Harlem Dip-Trap",
+            "G-Unit",
+            "Modern Trap",
+            "Atlanta Trap",
+            "UK Drill",
+            "UK Grime",
+            "Memphis",
+            "Jazz Rap",
+            "G-Funk",
+            "Boom Trap",
+            "Cripple Trill",
+            "Billionaire Golden Era"
+          ]
+        },
+        "target": {
+          "enum": [
+            "Full Loop",
+            "Melody",
+            "Drums",
+            "Bass",
+            "One-Shot Kit"
+          ]
+        },
+        "scale": {
+          "enum": [
+            "Natural Minor",
+            "Harmonic Minor",
+            "Dorian",
+            "Phrygian",
+            "Major",
+            "Minor Pentatonic"
+          ]
+        },
+        "sampler": {
+          "enum": [
+            "Clean",
+            "MPC 2500",
+            "MPC 3000XL",
+            "MPC 5000"
+          ]
+        },
+        "timbre": {
+          "enum": [
+            "Keys",
+            "Bell",
+            "Pluck",
+            "Organ",
+            "Brass",
+            "Strings"
+          ]
+        },
+        "bpm": {
+          "type": "integer",
+          "minimum": 60,
+          "maximum": 190
+        },
+        "root_note": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 11
+        },
+        "bars": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        },
+        "variations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "swing_percent": {
+          "type": "integer",
+          "minimum": 50,
+          "maximum": 68
+        },
+        "density_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "grit_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "saturation_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "stereo_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "high_pass_hz": {
+          "type": "integer",
+          "minimum": 20,
+          "maximum": 300
+        },
+        "low_pass_hz": {
+          "type": "integer",
+          "minimum": 2000,
+          "maximum": 20000
+        },
+        "snare_offset_ms": {
+          "type": "integer",
+          "minimum": -30,
+          "maximum": 30
+        },
+        "sample_rate": {
+          "enum": [
+            22050,
+            44100,
+            48000,
+            96000
+          ]
+        },
+        "source_mix_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "source_pitch_semitones": {
+          "type": "integer",
+          "minimum": -12,
+          "maximum": 12
+        },
+        "bus_compression_ratio": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 12
+        },
+        "tpdf_dither": {
+          "type": "boolean"
+        },
+        "normalize_peak": {
+          "type": "boolean"
+        },
+        "target_peak_dbfs": {
+          "type": "number",
+          "minimum": -24,
+          "maximum": -0.3
+        },
+        "triplet_rolls": {
+          "type": "boolean"
+        },
+        "micro_humanize": {
+          "type": "boolean"
+        },
+        "vinyl_dust": {
+          "type": "boolean"
+        },
+        "stochastic_enabled": {
+          "type": "boolean"
+        },
+        "stochastic_intensity_percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "stochastic_trigger_mode": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "stochastic_plugin_mask": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "stochastic_topology": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "seed_policy": {
+                "const": "fixed"
+              }
+            },
+            "required": [
+              "seed_policy"
+            ]
+          },
+          "then": {
+            "required": [
+              "seed"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "seed_policy": {
+                "const": "keep-current"
+              }
+            },
+            "required": [
+              "seed_policy"
+            ]
+          },
+          "then": {
+            "not": {
+              "required": [
+                "seed"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

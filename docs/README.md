@@ -1,38 +1,32 @@
-# Documentation
+# VentuSample documentation
 
-| File | Purpose |
-|---|---|
-| [FEATURES.md](FEATURES.md) | generator, pack, plugin and DSP capability matrix |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | audio pipeline, renderer and parameter boundaries |
-| [PLUGINS.md](PLUGINS.md) | built-in tools, C++20 plugin SDK, metadata-only manifest discovery and lifecycle |
-| [QUANTUM_AUDIO_ENGINE.md](QUANTUM_AUDIO_ENGINE.md) | 133 DSP module catalogue, 21 reusable kernels and offline WAV contract |
-| [USER_GUIDE_RU.md](USER_GUIDE_RU.md) | operation, profile selection and Russian UI labels |
-| [QUALITY_MONOLITH_RHYTHM.md](QUALITY_MONOLITH_RHYTHM.md) | 20×3 quality/cohesion/rhythm acceptance matrix |
-| [SOURCE_INTEGRATION.md](SOURCE_INTEGRATION.md) | WAV constraints and source-rights requirements |
-| [REAPER_PACK_AUDIT.md](REAPER_PACK_AUDIT.md) | manifest-only interoperability with Reaper |
-| [UI_MOTION.md](UI_MOTION.md) | persisted Qt motion preferences, project-BPM indicator and accessibility limits |
-| [ANATIDAE_DESKTOP_DESIGN_SYSTEM.md](ANATIDAE_DESKTOP_DESIGN_SYSTEM.md) | visual tokens and workbench UX |
-| [PROJECT_STEWARDSHIP_STANDARD.md](PROJECT_STEWARDSHIP_STANDARD.md) | release, privacy and communication rules |
-| [schemas/ventusample.pack.v1.schema.json](../schemas/ventusample.pack.v1.schema.json) | pack schema v1 |
-| [schemas/ventusample.pack.v2.schema.json](../schemas/ventusample.pack.v2.schema.json) | tonal metadata schema v2 |
-| [../schemas/ivan-vhs.plugin.v1.schema.json](../schemas/ivan-vhs.plugin.v1.schema.json) | shared plugin manifest schema |
+> **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
 
-The root README contains the live Windows desktop capture and current build commands. Source and tests define actual behavior; a manifest digest does not prove sample ownership. Plugin discovery is metadata-only, and DSP processing is offline.
+Start with the [project README](../README.md) for build options, offline-only processing scope and pack contracts. The [documentation map](INFORMATION_ARCHITECTURE.md) links the full catalogue.
 
-## Publishing standard
+## Key references
 
-[README and visual documentation standard](README_VISUAL_STANDARD.md) — information architecture, Markdown/MDX, diagrams, screenshots, image formats, accessibility, localization and quality gates.
+- [Features and maturity](FEATURES.md) — generator, offline DSP and desktop status.
+- [Architecture](ARCHITECTURE.md) — processing pipeline and data ownership.
+- [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — offline rendering behavior.
+- [MIDI and resampling](MIDI_AND_RESAMPLING.md) — import and conversion boundaries.
+- [Plugin interfaces](PLUGINS.md) — offline DSP extension model.
+- [Source integration](SOURCE_INTEGRATION.md) — asset provenance and licensing rules.
+- [NEXUS audio profile](NEXUS_AUDIO_PROFILE_V1.md) — offline processing ownership and companion-tool integration.
 
+## Browse by topic
 
-## Motion and embedded graphics
+- [Audio pipeline and DSP](clusters/audio-dsp.md)
+- [Studio and plugin workflows](clusters/studio-workflows.md)
+- [Architecture and runtime](clusters/architecture-runtime.md)
+- [UI and accessibility](clusters/ui-visual.md)
+- [Quality and evidence](clusters/quality-engineering.md)
+- [Integration and governance](clusters/integration-governance.md)
 
-[Motion Constitution v2026](MOTION_CONSTITUTION_V2026.md) is the shared source for timing/easing tokens, adaptive motion, reduced-motion precedence, themes, the 2×2/focus-scene lab layout, SVG/Canvas telemetry rules and the four-domain capability matrix. [UI_MOTION.md](UI_MOTION.md) records the native behavior implemented in this repository; planned showcase features are not reported as shipped.
+## Shared engineering rules
 
+- [Unified documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
+- [Engineering evolution framework](ENGINEERING_EVOLUTION_FRAMEWORK.md)
+- [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
-## Bounded 500 UAH allocation reference
-
-- [Multilingual specification](RESOURCE_ALLOCATION_500_UAH.md) — bounded budget model, scenarios and operating rules.
-- [Offline interactive simulator](resource-allocation-500-uah.html) — adjust category amounts and see the remainder or overrun.
-- [Example JSON](../examples/resource-allocation-500-uah.json) and [JSON Schema](../schemas/resource-allocation.v1.schema.json).
-
-This is an illustrative personal-budgeting reference, not a claim that the host project manages payments or live retail prices.
+Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.

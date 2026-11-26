@@ -1,10 +1,12 @@
 #include "generator.hpp"
 #include "stochastic_router.hpp"
+#include "audio_telemetry.hpp"
 
 #include <algorithm>
 #include <array>
 #include <cmath>
 #include <cctype>
+#include <chrono>
 #include <fstream>
 #include <iomanip>
 #include <cctype>
@@ -503,6 +505,8 @@ std::string validate(const Parameters& p) {
         return "Уровень исходного сэмпла должен быть 0–100%, а транспонирование — ±12 полутонов.";
     if (!std::isfinite(p.busCompressionRatio) || p.busCompressionRatio < 1.0 || p.busCompressionRatio > 12.0)
         return "Коэффициент компрессии должен находиться в диапазоне 1:1–12:1.";
+    if (!std::isfinite(p.targetPeakDbfs) || p.targetPeakDbfs < -24.0 || p.targetPeakDbfs > -0.3)
+        return "Целевой пик должен находиться в диапазоне -24.0…-0.3 dBFS.";
     const double durationSeconds = p.target == Target::OneShotKit ? 1.35 : (60.0 / p.bpm) * 4.0 * p.bars;
     const double outputCount = static_cast<double>(p.variations) * (p.target == Target::OneShotKit ? 8.0 : 1.0);
     const double estimatedBytes = durationSeconds * p.sampleRate * 4.0 * outputCount;
@@ -795,22 +799,51 @@ CadenceStats analyzeCadence(const AudioBuffer& audio, int bpm, int swingPercent,
 AudioStats measure(const AudioBuffer& audio) {
     AudioStats stats;
     if (audio.samples.empty()) return stats;
+
     double sum = 0.0;
     double square = 0.0;
-    for (float sample : audio.samples) {
-        const double value = std::isfinite(sample) ? static_cast<double>(sample) : 0.0;
+    double leftSquare = 0.0;
+    double rightSquare = 0.0;
+    double crossProduct = 0.0;
+    for (std::size_t index = 0; index < audio.samples.size(); ++index) {
+        const double value = std::isfinite(audio.samples[index])
+            ? static_cast<double>(audio.samples[index]) : 0.0;
         stats.peak = std::max(stats.peak, std::abs(value));
         sum += value;
         square += value * value;
+
+        if (audio.channels == 2) {
+            if (index % 2u == 0u) {
+                leftSquare += value * value;
+            } else {
+                rightSquare += value * value;
+                const double left = std::isfinite(audio.samples[index - 1u])
+                    ? static_cast<double>(audio.samples[index - 1u]) : 0.0;
+                crossProduct += left * value;
+            }
+        }
     }
+
     stats.rms = std::sqrt(square / static_cast<double>(audio.samples.size()));
-    stats.crestDb = stats.rms > 0.0 && stats.peak > 0.0 ? 20.0 * std::log10(stats.peak / stats.rms) : 0.0;
+    stats.crestDb = stats.rms > 0.0 && stats.peak > 0.0
+        ? 20.0 * std::log10(stats.peak / stats.rms) : 0.0;
+
+    if (audio.channels == 2 && audio.samples.size() % 2u == 0u) {
+        const double frameCount = static_cast<double>(audio.samples.size() / 2u);
+        stats.leftRms = std::sqrt(leftSquare / frameCount);
+        stats.rightRms = std::sqrt(rightSquare / frameCount);
+        const double denominator = std::sqrt(leftSquare * rightSquare);
+        stats.stereoCorrelation = denominator > 0.0
+            ? std::clamp(crossProduct / denominator, -1.0, 1.0) : 0.0;
+        stats.stereoCorrelationValid = true;
+    }
     return stats;
 }
-
-bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std::string& error) {
+bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio,
+               std::string& error, const WavExportOptions& options) {
     error.clear();
-    if (audio.channels != 2 || audio.samples.size() % 2u != 0u || audio.frames() == 0 || audio.sampleRate < 8000 || audio.sampleRate > 192000) {
+    if (audio.channels != 2 || audio.samples.size() % 2u != 0u ||
+        audio.frames() == 0 || audio.sampleRate < 8000 || audio.sampleRate > 192000) {
         error = "Некорректная структура PCM-аудио.";
         return false;
     }
@@ -819,29 +852,73 @@ bool writeWave(const std::filesystem::path& path, const AudioBuffer& audio, std:
         error = "WAV превышает предел RIFF PCM16.";
         return false;
     }
+
     std::ofstream file(path, std::ios::binary | std::ios::trunc);
-    if (!file) { error = "Не удалось открыть файл для записи: " + path.string(); return false; }
-    const auto write16 = [&file](std::uint16_t v) { file.put(static_cast<char>(v & 0xffu)); file.put(static_cast<char>((v >> 8u) & 0xffu)); };
-    const auto write32 = [&file](std::uint32_t v) {
-        for (unsigned shift = 0; shift < 32; shift += 8) file.put(static_cast<char>((v >> shift) & 0xffu));
+    if (!file) {
+        error = "Не удалось открыть файл для записи: " + path.string();
+        return false;
+    }
+    const auto write16 = [&file](std::uint16_t value) {
+        file.put(static_cast<char>(value & 0xffu));
+        file.put(static_cast<char>((value >> 8u) & 0xffu));
     };
+    const auto write32 = [&file](std::uint32_t value) {
+        for (unsigned shift = 0; shift < 32; shift += 8)
+            file.put(static_cast<char>((value >> shift) & 0xffu));
+    };
+    const auto nextRandom = [](std::uint32_t& state) {
+        if (state == 0u) state = 0x6D2B79F5u;
+        state ^= state << 13u;
+        state ^= state >> 17u;
+        state ^= state << 5u;
+        return state;
+    };
+
+    std::uint32_t randomState = options.ditherSeed;
     const auto dataBytes = static_cast<std::uint32_t>(dataBytes64);
-    file.write("RIFF", 4); write32(36u + dataBytes); file.write("WAVEfmt ", 8);
-    write32(16u); write16(1u); write16(2u); write32(static_cast<std::uint32_t>(audio.sampleRate));
-    write32(static_cast<std::uint32_t>(audio.sampleRate * 4)); write16(4u); write16(16u);
-    file.write("data", 4); write32(dataBytes);
+    file.write("RIFF", 4);
+    write32(36u + dataBytes);
+    file.write("WAVEfmt ", 8);
+    write32(16u);
+    write16(1u);
+    write16(2u);
+    write32(static_cast<std::uint32_t>(audio.sampleRate));
+    write32(static_cast<std::uint32_t>(audio.sampleRate * 4));
+    write16(4u);
+    write16(16u);
+    file.write("data", 4);
+    write32(dataBytes);
+
     for (float sample : audio.samples) {
-        const double clean = std::clamp(std::isfinite(sample) ? static_cast<double>(sample) : 0.0, -1.0, 1.0);
-        const auto pcm = static_cast<std::int16_t>(std::lrint(clean * 32767.0));
+        const double clean = std::clamp(
+            std::isfinite(sample) ? static_cast<double>(sample) : 0.0, -1.0, 1.0);
+        double shaped = clean;
+        if (options.tpdfDither) {
+            const double first = static_cast<double>(nextRandom(randomState)) / 4294967295.0;
+            const double second = static_cast<double>(nextRandom(randomState)) / 4294967295.0;
+            shaped += (first - second) / 32767.0;
+        }
+        shaped = std::clamp(shaped, -1.0, 1.0);
+        const auto pcm = static_cast<std::int16_t>(std::lrint(shaped * 32767.0));
         write16(static_cast<std::uint16_t>(pcm));
     }
+
     file.flush();
-    if (!file.good()) { error = "Ошибка записи WAV: " + path.string(); return false; }
+    if (!file.good()) {
+        error = "Ошибка записи WAV: " + path.string();
+        return false;
+    }
     return true;
 }
 
-BatchResult generatePack(const Parameters& p, const std::filesystem::path& outputDirectory) {
+BatchResult generatePack(const Parameters& p, const std::filesystem::path& outputDirectory,
+                          diagnostics::RenderTelemetry* telemetry) {
     BatchResult result;
+    if (telemetry != nullptr) {
+        const std::uint64_t filesPerVariation = p.target == Target::OneShotKit ? 8u : 1u;
+        const auto variations = p.variations > 0 ? static_cast<std::uint64_t>(p.variations) : 0u;
+        telemetry->beginJob(variations * filesPerVariation);
+    }
     if (const auto issue = validate(p); !issue.empty()) { result.error = issue; return result; }
     std::error_code ec;
     std::filesystem::create_directories(outputDirectory, ec);
@@ -916,8 +993,37 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
         }
         return true;
     };
+    struct ExportMetadata {
+        std::uint32_t ditherSeed{0};
+        bool normalized{false};
+        bool normalizationSkipped{false};
+    };
+    const auto prepareExport = [&](AudioBuffer& audio, int variation,
+                                   const std::string& fileName) {
+        ExportMetadata metadata;
+        std::uint32_t seed = static_cast<std::uint32_t>(p.seed)
+            ^ (static_cast<std::uint32_t>(variation + 1) * 0x9E3779B9u);
+        for (unsigned char character : fileName)
+            seed = (seed ^ static_cast<std::uint32_t>(character)) * 16777619u;
+        metadata.ditherSeed = seed == 0u ? 0x6D2B79F5u : seed;
+
+        if (p.normalizePeak) {
+            const double currentPeak = measure(audio).peak;
+            if (currentPeak <= 1e-9) {
+                metadata.normalizationSkipped = true;
+            } else {
+                const double target = std::pow(10.0, p.targetPeakDbfs / 20.0);
+                const double gain = target / currentPeak;
+                for (float& sample : audio.samples)
+                    sample = static_cast<float>(static_cast<double>(sample) * gain);
+                metadata.normalized = true;
+            }
+        }
+        return metadata;
+    };
     std::ostringstream manifest;
     manifest << "{\n  \"schema\": \"ventusample.pack.v2\",\n  \"generator\": \"VentuSample native DSP 0.2.0\",\n  \"audio_format\": \"wav_pcm16_stereo\",\n";
+    manifest << "  \"measurement_basis\": \"sample_domain\",\n";
     manifest << "  \"parameters\": {\"style\": \"" << jsonEscape(toString(p.style)) << "\", \"target\": \"" << jsonEscape(toString(p.target))
              << "\", \"bpm\": " << p.bpm << ", \"key\": \"" << noteNames[static_cast<std::size_t>(p.rootNote)]
              << "\", \"scale\": \"" << toString(p.scale) << "\", \"musical_key\": \"" << jsonEscape(selectedKeyLabel)
@@ -928,6 +1034,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
              << ", \"snare_offset_ms\": " << p.snareOffsetMs << ", \"bus_compression_ratio\": " << p.busCompressionRatio
              << ", \"triplet_rolls\": " << (p.tripletRolls ? "true" : "false")
              << ", \"micro_humanize\": " << (p.microHumanize ? "true" : "false")
+             << ", \"tpdf_dither\": " << (p.tpdfDither ? "true" : "false")
+             << ", \"normalize_peak\": " << (p.normalizePeak ? "true" : "false")
+             << ", \"target_peak_dbfs\": " << p.targetPeakDbfs
              << ", \"vinyl_dust\": " << (p.vinylDust ? "true" : "false")
              << ", \"stochastic_enabled\": " << (p.stochasticEnabled ? "true" : "false")
              << ", \"stochastic_seed\": " << p.seed
@@ -945,21 +1054,49 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
     for (int variation = 0; variation < p.variations; ++variation) {
         if (p.target == Target::OneShotKit) {
             for (const auto* hit : kitNames) {
+                const auto fileStarted = std::chrono::steady_clock::now();
+                if (telemetry != nullptr)
+                    telemetry->setStage(diagnostics::RenderStage::Rendering,
+                                         static_cast<std::uint32_t>(variation + 1));
                 auto audio = render(p, variation, hit);
+                if (telemetry != nullptr) {
+                    telemetry->recordBufferSamples(static_cast<std::uint64_t>(audio.samples.size()));
+                    telemetry->setStage(diagnostics::RenderStage::Processing,
+                                         static_cast<std::uint32_t>(variation + 1));
+                }
                 StochasticResult stochasticReport;
                 if (!applyStochastic(audio, variation, stochasticReport)) return result;
                 const bool pitchedHit = std::string(hit) == "bass" || std::string(hit) == "pluck";
                 const std::string hitKeyTag = pitchedHit ? "_" + std::string(noteNames[static_cast<std::size_t>(p.rootNote)]) : "";
                 const auto path = outputDirectory / (packPrefix + hitKeyTag + "_v" + std::to_string(variation + 1) + "_" + hit + ".wav");
+                if (telemetry != nullptr)
+                    telemetry->setStage(diagnostics::RenderStage::Exporting,
+                                         static_cast<std::uint32_t>(variation + 1));
+                const auto exportMetadata = prepareExport(audio, variation, path.filename().string());
+                const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
                 std::string error;
-                if (!writeWave(path, audio, error)) { result.error = error; return result; }
+                if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
+                if (telemetry != nullptr)
+                    telemetry->setStage(diagnostics::RenderStage::Measuring,
+                                         static_cast<std::uint32_t>(variation + 1));
                 const auto stats = measure(audio);
                 result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
                 result.files.push_back(path);
+                if (telemetry != nullptr) {
+                    const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                        std::chrono::steady_clock::now() - fileStarted).count();
+                    telemetry->recordFileCompleted(elapsed > 0 ? static_cast<std::uint64_t>(elapsed) : 0u);
+                }
                 if (!first) manifest << ",\n";
                 first = false;
                 manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                         << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb
+                         << ", \"left_rms\": " << stats.leftRms << ", \"right_rms\": " << stats.rightRms
+                         << ", \"stereo_correlation\": " << stats.stereoCorrelation << ", \"variation\": " << variation + 1
+                         << ", \"dither\": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
+                         << ", \"dither_seed\": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
+                         << ", \"normalized\": " << (exportMetadata.normalized ? "true" : "false")
+                         << ", \"normalization_skipped_silence\": " << (exportMetadata.normalizationSkipped ? "true" : "false")
                          << ", \"stochastic_routes\": [";
                 for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
                     if (route != 0u) manifest << ", ";
@@ -969,19 +1106,47 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                          << ", \"scale\": null, \"mode_family\": " << (pitchedHit ? "\"pitched_note\"" : "null") << "}";
             }
         } else {
+            const auto fileStarted = std::chrono::steady_clock::now();
+            if (telemetry != nullptr)
+                telemetry->setStage(diagnostics::RenderStage::Rendering,
+                                     static_cast<std::uint32_t>(variation + 1));
             auto audio = render(p, variation, {}, sourcePtr);
+            if (telemetry != nullptr) {
+                telemetry->recordBufferSamples(static_cast<std::uint64_t>(audio.samples.size()));
+                telemetry->setStage(diagnostics::RenderStage::Processing,
+                                     static_cast<std::uint32_t>(variation + 1));
+            }
             StochasticResult stochasticReport;
             if (!applyStochastic(audio, variation, stochasticReport)) return result;
             const auto path = outputDirectory / (packPrefix + "_" + slug(toString(p.target)) + "_v" + std::to_string(variation + 1) + ".wav");
+            if (telemetry != nullptr)
+                telemetry->setStage(diagnostics::RenderStage::Exporting,
+                                     static_cast<std::uint32_t>(variation + 1));
+            const auto exportMetadata = prepareExport(audio, variation, path.filename().string());
+            const WavExportOptions exportOptions{p.tpdfDither, exportMetadata.ditherSeed};
             std::string error;
-            if (!writeWave(path, audio, error)) { result.error = error; return result; }
+            if (!writeWave(path, audio, error, exportOptions)) { result.error = error; return result; }
+            if (telemetry != nullptr)
+                telemetry->setStage(diagnostics::RenderStage::Measuring,
+                                     static_cast<std::uint32_t>(variation + 1));
             const auto stats = measure(audio);
             result.cadence.push_back(analyzeCadence(audio, p.bpm, p.swingPercent));
             result.files.push_back(path);
+            if (telemetry != nullptr) {
+                const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::steady_clock::now() - fileStarted).count();
+                telemetry->recordFileCompleted(elapsed > 0 ? static_cast<std::uint64_t>(elapsed) : 0u);
+            }
             if (!first) manifest << ",\n";
             first = false;
             manifest << "    {\"file\": \"" << jsonEscape(path.filename().string()) << "\", \"peak\": " << std::fixed << std::setprecision(6) << stats.peak
-                     << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb << ", \"variation\": " << variation + 1
+                     << ", \"rms\": " << stats.rms << ", \"crest_db\": " << stats.crestDb
+                         << ", \"left_rms\": " << stats.leftRms << ", \"right_rms\": " << stats.rightRms
+                         << ", \"stereo_correlation\": " << stats.stereoCorrelation << ", \"variation\": " << variation + 1
+                     << ", \"dither\": " << (p.tpdfDither ? "\"tpdf\"" : "\"off\"")
+                     << ", \"dither_seed\": " << (p.tpdfDither ? exportMetadata.ditherSeed : 0u)
+                     << ", \"normalized\": " << (exportMetadata.normalized ? "true" : "false")
+                     << ", \"normalization_skipped_silence\": " << (exportMetadata.normalizationSkipped ? "true" : "false")
                      << ", \"stochastic_routes\": [";
             for (std::size_t route = 0; route < stochasticReport.routes.size(); ++route) {
                 if (route != 0u) manifest << ", ";
@@ -992,6 +1157,9 @@ BatchResult generatePack(const Parameters& p, const std::filesystem::path& outpu
                      << ", \"mode_family\": " << (tonalTarget ? "\"" + modeFamily(p.scale) + "\"" : "null") << "}";
         }
     }
+    if (telemetry != nullptr)
+        telemetry->setStage(diagnostics::RenderStage::Manifest,
+                             static_cast<std::uint32_t>(p.variations));
     manifest << "\n  ]\n}\n";
     std::ofstream json(manifestPath, std::ios::binary | std::ios::trunc);
     if (!json) { result.error = "Не удалось записать manifest.json."; return result; }

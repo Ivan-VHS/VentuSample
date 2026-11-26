@@ -9,6 +9,12 @@ on:
       - "tools/quality_remediation.py"
       - "tests/test_quality_remediation.py"
       - "docs/QUALITY_REMEDIATION_STANDARD.md"
+      - ".architecture/automation-rerun-policy.v1.json"
+      - ".architecture/automation-rerun-policy.v1.schema.json"
+      - "scripts/validate_safe_rerun.py"
+      - "tests/test_safe_rerun.py"
+      - ".github/workflows/safe-ci-recovery.yml"
+      - ".github/ISSUE_TEMPLATE/engineering_improvement.yml"
       - ".github/workflows/quality-remediation.yml"
   pull_request:
     branches: [main]
@@ -18,21 +24,38 @@ on:
       - "tools/quality_remediation.py"
       - "tests/test_quality_remediation.py"
       - "docs/QUALITY_REMEDIATION_STANDARD.md"
+      - ".architecture/automation-rerun-policy.v1.json"
+      - ".architecture/automation-rerun-policy.v1.schema.json"
+      - "scripts/validate_safe_rerun.py"
+      - "tests/test_safe_rerun.py"
+      - ".github/workflows/safe-ci-recovery.yml"
+      - ".github/ISSUE_TEMPLATE/engineering_improvement.yml"
       - ".github/workflows/quality-remediation.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ventusample-quality-remediation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   remediation-profile:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Run remediation-profile regression tests
         run: python -m unittest discover -s tests -p test_quality_remediation.py -v
       - name: Validate all 20 triplets and evidence paths
         run: python tools/quality_remediation.py --format json
+      - name: Test bounded manual CI recovery policy
+        run: python -m unittest discover -s tests -p "test_safe_rerun.py" -v
+      - name: Validate roadmap governance and bounded CI scale
+        run: python tools/validate_delivery_contracts.py --self-test
+      - name: Test governance and CI scale regressions
+        run: python -m unittest discover -s tests -p "test_delivery_contracts.py" -v
