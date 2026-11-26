@@ -28,6 +28,16 @@ Profiles are original procedural patterns, not artist or recording emulations.
 
 Starter files: `examples/hip-hop-presets/`. Full room map and boundaries: [CRATE Production Suite](CRATE_PRODUCTION_SUITE.md) · [Russian edition](CRATE_PRODUCTION_SUITE_RU.md).
 
+## CRATE Hip-Hop Production Suite
+
+- Crate, Chop, Pocket, Drum, Loop, Arrangement, Texture, Beat Routing, Mix and Print rooms mapped to the existing offline audio core.
+- Four starter presets using the current ventusample.preset.v1 contract: East Coast 93, Boom Bap 88, G-Unit 93 and Golden Era 90.
+- Native preset tests load all four JSON examples through the application preset parser.
+- Production checks cover source bounds, chop placement, groove, drum balance, loop roles, texture, mix, WAV print and replay.
+- This is a hip-hop workflow layer, not a real-time DAW, live recorder or VST/AU host.
+
+Starter files: examples/hip-hop-presets/. Full room map and boundaries: [CRATE Production Suite](CRATE_PRODUCTION_SUITE.md) · [Russian edition](CRATE_PRODUCTION_SUITE_RU.md).
+
 ## Stochastic Router
 
 - 8 weighted DSP effects, each independently selectable in the pool.
