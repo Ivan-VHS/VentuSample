@@ -16,7 +16,6 @@ This hub groups the related contracts for the audio workstation. Use each target
 - [QUALITY MONOLITH RHYTHM](../QUALITY_MONOLITH_RHYTHM.md)
 - [QUANTUM AUDIO ENGINE](../QUANTUM_AUDIO_ENGINE.md)
 - [CRATE PRODUCTION SUITE](../CRATE_PRODUCTION_SUITE.md) — sample chops, pocket timing, beat routing and WAV prints.
-- [CRATE PRODUCTION SUITE](../CRATE_PRODUCTION_SUITE.md) — sample chops, pocket timing, beat routing and WAV prints.
 - [REAPER PACK AUDIT](../REAPER_PACK_AUDIT.md)
 
 ## Navigation rules
