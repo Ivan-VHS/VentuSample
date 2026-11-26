@@ -119,6 +119,10 @@ CRATE использует стили, уже присутствующие в Ve
 
 Golden Era-профиль использует фиксированный порядок исходных срезов 0–2–1–3, взвешенный подбор kick/snare и сдержанные hats. Пользовательские BPM, swing и snare offset остаются приоритетными. Это оригинальные процедурные профили, а не имитации артистов или записей.
 
+### Стартовый crate пресетов
+
+Четыре готовых примера используют существующий preset contract: [East Coast Pocket 93](../examples/hip-hop-presets/east-coast-pocket-93.json), [Boom Bap Crate 88](../examples/hip-hop-presets/boom-bap-crate-88.json), [G-Unit Knock 93](../examples/hip-hop-presets/g-unit-knock-93.json) и [Golden Era Chop 90](../examples/hip-hop-presets/golden-era-chop-90.json). В [заметках crate](../examples/hip-hop-presets/README.md) описана загрузка и прослушивание.
+
 ## 8. Beat pack и студийные передачи
 
 В центре каждой передачи CRATE остаются существующие файловые контракты:
