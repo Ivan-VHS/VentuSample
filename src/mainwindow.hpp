@@ -1,6 +1,7 @@
 #pragma once
 
 #include "generator.hpp"
+#include "audio_telemetry.hpp"
 #include "plugin_manager.hpp"
 #include "preset_store.hpp"
 #include "ui_motion.hpp"
@@ -15,6 +16,7 @@
 #include <vector>
 
 class QCloseEvent;
+class QDockWidget;
 class QComboBox;
 class QCheckBox;
 class QDoubleSpinBox;
@@ -46,6 +48,7 @@ private:
     void saveSettings();
     void applyTheme();
     void showMotionSettings();
+    void updateXRayHud();
     void updateBeatSync();
     ventu::Parameters parameters() const;
     void applyParameters(const ventu::Parameters& parameters);
@@ -115,6 +118,14 @@ private:
     QTabWidget* tabs_{};
     ventu::ui_motion::DraperyBanner* draperyBanner_{};
     QTimer* beatTimer_{};
+    QDockWidget* xrayDock_{};
+    QTimer* xrayTimer_{};
+    QLabel* xrayStatusLabel_{};
+    QLabel* xrayStageLabel_{};
+    QLabel* xrayFilesLabel_{};
+    QLabel* xrayBufferLabel_{};
+    QLabel* xrayLatencyLabel_{};
+    ventu::diagnostics::RenderTelemetry renderTelemetry_{};
     ventu::ui_motion::Preferences motionPreferences_{};
     QListWidget* filesList_{};
     QPlainTextEdit* log_{};

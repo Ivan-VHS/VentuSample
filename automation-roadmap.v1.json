@@ -64,7 +64,7 @@
         "Автоматизация"
       ],
       "priority": "P0",
-      "status": "extend",
+      "status": "active",
       "objective": "Version and validate one machine-readable automation roadmap for this repository.",
       "target": "Plan changes through reviewed roadmap updates and contract checks.",
       "trigger": [
@@ -75,13 +75,20 @@
       ],
       "current_controls": [
         "project-contract.json",
-        "docs/DOCUMENTATION_CONTROL.md"
+        "docs/DOCUMENTATION_CONTROL.md",
+        ".architecture/roadmap-governance.v1.json",
+        ".architecture/roadmap-governance.v1.schema.json",
+        "tools/validate_delivery_contracts.py",
+        "tests/test_delivery_contracts.py",
+        "scripts/validate_automation_roadmap.py",
+        ".github/workflows/automation-roadmap.yml",
+        "docs/ROADMAP_GOVERNANCE_CI_SCALE.md"
       ],
       "guardrails": [
         "Roadmap changes are reviewed as versioned source.",
         "Do not represent planned work as implemented."
       ],
-      "acceptance": "The roadmap contract is valid, identifies all 20 workstreams, and its evidence paths exist."
+      "acceptance": "A repository-specific governance policy and Draft 2020-12 schema define evidence-based status maturity, P0/P1/P2 review, semantic change control and release boundaries; CI validates the declaration and negative cases."
     },
     {
       "id": "02-organize-triggers",
@@ -145,7 +152,7 @@
         "Авторазработка"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Make improvement intake traceable by impact, risk, dependencies, and verification cost.",
       "target": "Use conflict and remediation records; require review for priority changes.",
       "trigger": [
@@ -156,7 +163,8 @@
       ],
       "current_controls": [
         ".github/workflows/improvement-conflict.yml",
-        ".github/workflows/quality-remediation.yml"
+        ".github/workflows/quality-remediation.yml",
+        ".github/ISSUE_TEMPLATE/engineering_improvement.yml"
       ],
       "guardrails": [
         "Priority changes require rationale and maintainer review.",
@@ -360,7 +368,7 @@
         "Автооптимизация"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Scale validation through bounded matrices, parallel jobs, and resource-aware test selection.",
       "target": "Cap concurrency and runtime; measure before raising matrix size.",
       "trigger": [
@@ -371,13 +379,20 @@
       ],
       "current_controls": [
         ".github/workflows/quality-repeatability-native.yml",
-        "quality-repeatability-native.v1.json"
+        "quality-repeatability-native.v1.json",
+        ".architecture/ci-scale-policy.v1.json",
+        ".architecture/ci-scale-policy.v1.schema.json",
+        "tools/validate_delivery_contracts.py",
+        "tests/test_delivery_contracts.py",
+        ".github/workflows/ci.yml",
+        ".github/workflows/automation-roadmap.yml",
+        ".github/workflows/quality-remediation.yml"
       ],
       "guardrails": [
         "Bound matrix size, runtime, and concurrency.",
         "Retain all required platform checks."
       ],
-      "acceptance": "Expanded validation stays within declared time and resource budgets without reducing required coverage."
+      "acceptance": "Python 3.10–3.12, Native C++20, Linux Qt and Windows Qt remain required; workflows enforce job ceilings, timeouts, concurrency and matrix parallelism, with negative tests for missing/excessive controls."
     },
     {
       "id": "13-implement-verification",
@@ -414,9 +429,9 @@
         "Автоматическое масштабирование"
       ],
       "priority": "P2",
-      "status": "planned",
-      "objective": "Define environment-aware deployment and scaling only where the repository has a real deployable target.",
-      "target": "Require protected environments and an explicit human approval before external deployment.",
+      "status": "not_applicable",
+      "objective": "Keep production-service deployment out of scope for this local desktop/CLI workstation.",
+      "target": "No production deployment workflow is maintained because the repository has no hosted service, production environment or remote control plane. Local desktop packaging is handled by the separate release workstream.",
       "trigger": [
         "workflow_dispatch",
         "protected-release-review"
@@ -429,7 +444,8 @@
         "External deployment requires a protected environment and human approval.",
         "No production rollout is enabled by this roadmap."
       ],
-      "acceptance": "A deployment workflow is added only with a documented target, rollback path, permissions, and approval gate."
+      "acceptance": "The not_applicable status is valid only while the product remains a local desktop/CLI tool without a hosted runtime. Any approved hosted-service target must replace this status with planned or extend and provide a versioned deployment design, least-privilege permissions, protected approval, health checks and rollback evidence.",
+      "not_applicable_reason": "This project is a local desktop/CLI workstation with bounded local processing and no hosted production service or remote runtime to deploy. Distributing a desktop archive is not production-service deployment. Reconsider only after an approved product decision defines a real deployable target, owner, threat model, rollback path and protected environment."
     },
     {
       "id": "15-consolidate-test-matrix",
@@ -466,7 +482,7 @@
         "Автоверификация"
       ],
       "priority": "P1",
-      "status": "planned",
+      "status": "active",
       "objective": "Add bounded recovery for transient CI and artifact failures with explicit retry ceilings.",
       "target": "Never retry destructive actions or conceal a persistent failure as success.",
       "trigger": [
@@ -475,7 +491,12 @@
       ],
       "current_controls": [
         ".architecture/resilience-policy.json",
-        ".architecture/resilience-policy.schema.json"
+        ".architecture/resilience-policy.schema.json",
+        ".github/workflows/safe-ci-recovery.yml",
+        ".architecture/automation-rerun-policy.v1.json",
+        ".architecture/automation-rerun-policy.v1.schema.json",
+        "scripts/validate_safe_rerun.py",
+        "tests/test_safe_rerun.py"
       ],
       "guardrails": [
         "Retries are idempotent and capped.",
@@ -518,7 +539,7 @@
         "Автовосстановление"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Make workflow health, failed checks, stale branches, and recovery outcomes observable.",
       "target": "Report only sourced workflow and repository state; do not auto-dismiss failures.",
       "trigger": [
@@ -529,7 +550,10 @@
       ],
       "current_controls": [
         ".github/workflows/verified-auto-merge.yml",
-        ".github/workflows/update-behind-pr-branches.yml"
+        ".github/workflows/update-behind-pr-branches.yml",
+        ".github/workflows/safe-ci-recovery.yml",
+        "scripts/validate_safe_rerun.py",
+        "tests/test_safe_rerun.py"
       ],
       "guardrails": [
         "Preserve failed-run and merge-block evidence.",
@@ -545,7 +569,7 @@
         "Автодокументирование"
       ],
       "priority": "P1",
-      "status": "extend",
+      "status": "active",
       "objective": "Keep automation design, evidence, limits, and maintenance ownership documented alongside code.",
       "target": "Generate only deterministic documentation; preserve human review for semantic changes.",
       "trigger": [
@@ -556,7 +580,9 @@
       ],
       "current_controls": [
         "docs/README.md",
-        "docs/DOCUMENTATION_CONTROL.md"
+        "docs/DOCUMENTATION_CONTROL.md",
+        ".github/workflows/safe-ci-recovery.yml",
+        "docs/AUTOMATION_ROADMAP.md"
       ],
       "guardrails": [
         "Generated documentation is deterministic and reviewable.",
@@ -572,22 +598,28 @@
         "Авторазвертывание"
       ],
       "priority": "P2",
-      "status": "planned",
-      "objective": "Prepare reproducible release packaging and publication after release criteria are explicitly defined.",
-      "target": "No unattended publication, signing, firmware installation, or production release.",
+      "status": "extend",
+      "objective": "Prepare a manually approved Windows release candidate with deterministic package inventory and human-controlled publication.",
+      "target": "Build only from an explicitly selected v-prefixed tag, verify the package manifest and archive checksum, and leave the GitHub Release as a draft for maintainer publication.",
       "trigger": [
         "workflow_dispatch",
         "protected-release-review"
       ],
       "current_controls": [
-        ".github/workflows/verified-auto-merge.yml",
-        "project-contract.json"
+        ".github/workflows/release.yml",
+        "tools/create_release_manifest.py",
+        "tests/test_release_manifest.py",
+        "schemas/ventusample.release.v1.schema.json",
+        "docs/RELEASE.md",
+        ".github/workflows/verified-auto-merge.yml"
       ],
       "guardrails": [
-        "Publishing requires a protected release ref and explicit approval.",
-        "No unattended signing, external publication, or deployment."
+        "The workflow must run from a v-prefixed Git tag and require explicit confirm_release=true.",
+        "The release job uses the release-review GitHub Environment; required reviewers must be configured by repository administrators.",
+        "Publishing the draft remains a human action; no automatic publication, production deployment or firmware operation is allowed.",
+        "SHA-256 is an integrity checksum, not a publisher signature; do not claim signed provenance."
       ],
-      "acceptance": "Publication runs only from a protected release ref with verified artifacts and an approved release gate."
+      "acceptance": "A manually dispatched tag build passes Windows CTest and release-manifest tests, validates the versioned manifest schema, verifies the archive checksum and creates only a draft GitHub Release. Promote the workstream to active only after required reviewers are configured on the release-review environment and a maintainer verifies the approval gate."
     }
   ]
 }

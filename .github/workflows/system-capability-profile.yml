@@ -1,0 +1,24 @@
+name: System capability profile
+
+on:
+  pull_request:
+  push:
+    branches: [main, "feat/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate capability profile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate source coverage, status rules and evidence paths
+        run: python tools/validate_system_capability_profile.py
+      - name: Run validator negative-case tests
+        run: python tools/validate_system_capability_profile.py --self-test

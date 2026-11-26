@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/VentuSample/blob/main/schemas/ventusample.release.v1.schema.json",
+  "title": "VentuSample Windows release manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "project", "version", "source", "build", "files"],
+  "properties": {
+    "schema": { "const": "ventusample.release.v1" },
+    "project": { "const": "VentuSample" },
+    "version": { "type": "string", "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+(?:[+-][0-9A-Za-z.-]+)?$" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repository", "ref", "commit"],
+      "properties": {
+        "repository": { "const": "Ivan-VHS/VentuSample" },
+        "ref": { "type": "string", "pattern": "^refs/tags/v" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "compiler", "qt_version", "configuration"],
+      "properties": {
+        "platform": { "const": "windows-x64" },
+        "compiler": { "type": "string", "minLength": 1 },
+        "qt_version": { "type": "string", "minLength": 1 },
+        "configuration": { "const": "Release" }
+      }
+    },
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "size", "sha256"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$" },
+          "size": { "type": "integer", "minimum": 0 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ivan-vhs.github.io/engineering-contracts/resilience-policy-1.0.schema.json",
+  "title": "Distributed Resilience and Trust Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_version",
+    "project",
+    "implementation_status",
+    "architecture",
+    "trust",
+    "resilience",
+    "escalation",
+    "migration",
+    "supply_chain",
+    "observability",
+    "manual_override",
+    "compatibility",
+    "domain_guardrails"
+  ],
+  "properties": {
+    "policy_version": {
+      "const": "1.0"
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "scope"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "implementation_status": {
+      "const": "contract_only"
+    },
+    "architecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deployment_model",
+        "offline_capable",
+        "network_access",
+        "distributed_execution",
+        "external_dependency_policy",
+        "cache_fallback"
+      ],
+      "properties": {
+        "deployment_model": {
+          "enum": [
+            "single_machine",
+            "federated",
+            "centralized",
+            "hybrid"
+          ]
+        },
+        "offline_capable": {
+          "type": "boolean"
+        },
+        "network_access": {
+          "enum": [
+            "disabled",
+            "allowlisted_signed_artifacts_only",
+            "explicitly_scoped"
+          ]
+        },
+        "distributed_execution": {
+          "enum": [
+            "not_exposed",
+            "planned",
+            "enabled"
+          ]
+        },
+        "external_dependency_policy": {
+          "enum": [
+            "verified_only",
+            "pinned_and_verified"
+          ]
+        },
+        "cache_fallback": {
+          "type": "boolean"
+        }
+      }
+    },
+    "trust": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default_decision",
+        "tls_verification_required",
+        "artifact_signature_required",
+        "schema_validation_required",
+        "allow_unverified_upstream",
+        "policy_bypass_allowed",
+        "privileged_actions_require_human_approval"
+      ],
+      "properties": {
+        "default_decision": {
+          "const": "deny"
+        },
+        "tls_verification_required": {
+          "const": true
+        },
+        "artifact_signature_required": {
+          "const": true
+        },
+        "schema_validation_required": {
+          "const": true
+        },
+        "allow_unverified_upstream": {
+          "const": false
+        },
+        "policy_bypass_allowed": {
+          "const": false
+        },
+        "privileged_actions_require_human_approval": {
+          "const": true
+        }
+      }
+    },
+    "resilience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "timeout_ms",
+        "retry",
+        "circuit_breaker",
+        "degraded_mode",
+        "resource_limits_required"
+      ],
+      "properties": {
+        "timeout_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300000
+        },
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "max_attempts",
+            "exponential_backoff",
+            "jitter"
+          ],
+          "properties": {
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "exponential_backoff": {
+              "const": true
+            },
+            "jitter": {
+              "const": true
+            }
+          }
+        },
+        "circuit_breaker": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled",
+            "failure_threshold",
+            "window_seconds",
+            "cooldown_seconds"
+          ],
+          "properties": {
+            "enabled": {
+              "const": true
+            },
+            "failure_threshold": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "window_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "cooldown_seconds": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "degraded_mode": {
+          "enum": [
+            "fail_closed",
+            "safe_read_only",
+            "bounded_local_fallback"
+          ]
+        },
+        "resource_limits_required": {
+          "const": true
+        }
+      }
+    },
+    "escalation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "levels",
+        "hard_stop_on_integrity_failure",
+        "automatic_credential_revocation",
+        "automatic_network_block",
+        "destructive_action_human_approval",
+        "thresholds"
+      ],
+      "properties": {
+        "levels": {
+          "type": "array",
+          "const": [
+            "observe",
+            "throttle",
+            "isolate",
+            "operator_review"
+          ]
+        },
+        "hard_stop_on_integrity_failure": {
+          "const": true
+        },
+        "automatic_credential_revocation": {
+          "const": false
+        },
+        "automatic_network_block": {
+          "const": false
+        },
+        "destructive_action_human_approval": {
+          "const": true
+        },
+        "thresholds": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "window_seconds",
+            "events_before_operator_review"
+          ],
+          "properties": {
+            "window_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "events_before_operator_review": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "migration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "backup_before_migration",
+        "rollback_plan_required",
+        "staged_rollout_required",
+        "api_compatibility_check_required"
+      ],
+      "properties": {
+        "backup_before_migration": {
+          "const": true
+        },
+        "rollback_plan_required": {
+          "const": true
+        },
+        "staged_rollout_required": {
+          "const": true
+        },
+        "api_compatibility_check_required": {
+          "const": true
+        }
+      }
+    },
+    "supply_chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dependency_lock_required",
+        "sbom_required_for_release",
+        "provenance_required",
+        "release_signing_required",
+        "reproducible_builds_targeted",
+        "unverified_sources_rejected"
+      ],
+      "properties": {
+        "dependency_lock_required": {
+          "const": true
+        },
+        "sbom_required_for_release": {
+          "const": true
+        },
+        "provenance_required": {
+          "const": true
+        },
+        "release_signing_required": {
+          "const": true
+        },
+        "reproducible_builds_targeted": {
+          "const": true
+        },
+        "unverified_sources_rejected": {
+          "const": true
+        }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "structured_events",
+        "audit_trail",
+        "secret_redaction",
+        "telemetry_default",
+        "evidence_labels"
+      ],
+      "properties": {
+        "structured_events": {
+          "const": true
+        },
+        "audit_trail": {
+          "const": true
+        },
+        "secret_redaction": {
+          "const": true
+        },
+        "telemetry_default": {
+          "const": "local_only"
+        },
+        "evidence_labels": {
+          "type": "array",
+          "const": [
+            "measured",
+            "derived",
+            "estimated",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "manual_override": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "reason_required",
+        "audit_required",
+        "expiry_seconds",
+        "configuration_drift_detection"
+      ],
+      "properties": {
+        "enabled": {
+          "const": true
+        },
+        "reason_required": {
+          "const": true
+        },
+        "audit_required": {
+          "const": true
+        },
+        "expiry_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "configuration_drift_detection": {
+          "const": true
+        }
+      }
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "api_contract_versioning",
+        "schema_validation",
+        "allow_unreviewed_exceptions",
+        "exception_expiry_required"
+      ],
+      "properties": {
+        "api_contract_versioning": {
+          "const": true
+        },
+        "schema_validation": {
+          "const": true
+        },
+        "allow_unreviewed_exceptions": {
+          "const": false
+        },
+        "exception_expiry_required": {
+          "const": true
+        }
+      }
+    },
+    "domain_guardrails": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 8
+      }
+    }
+  }
+}

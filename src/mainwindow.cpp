@@ -1,8 +1,10 @@
 #include "mainwindow.hpp"
 #include "quantum_audio_lab.hpp"
 #include "ui_ux.hpp"
+#include "mora_theme.hpp"
 #include "budget_planner_dialog.hpp"
 
+#include <QAction>
 #include <QCheckBox>
 #include <QCloseEvent>
 #include <QComboBox>
@@ -13,6 +15,8 @@
 #include <QMenuBar>
 #include <QDoubleSpinBox>
 #include <QFont>
+#include <QFontDatabase>
+#include <QStringList>
 #include <QFileDialog>
 #include <QFrame>
 #include <QFileInfo>
@@ -30,6 +34,9 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QTimer>
+#include <QDockWidget>
+#include <QKeySequence>
+#include <QGridLayout>
 #include <QScrollArea>
 #include <QSettings>
 #include <QSlider>
@@ -45,6 +52,16 @@
 #include <array>
 
 namespace {
+QString preferredInstalledFont(const QStringList& preferred, const QString& fallback) {
+    const QFontDatabase database;
+    const QStringList installed = database.families();
+    for (const QString& candidate : preferred) {
+        for (const QString& family : installed) {
+            if (family.compare(candidate, Qt::CaseInsensitive) == 0) return family;
+        }
+    }
+    return fallback;
+}
 QString q(const std::string& value) { return QString::fromUtf8(value.c_str()); }
 std::filesystem::path pathFromQString(const QString& value) {
     const QByteArray bytes = value.toUtf8();
@@ -158,6 +175,12 @@ void MainWindow::buildUi() {
 
     auto* viewMenu = menuBar()->addMenu("Вид");
     viewMenu->addAction("Настройки движения…", this, &MainWindow::showMotionSettings);
+    auto* xrayAction = viewMenu->addAction("X-Ray Mode — телеметрия рендеринга");
+    xrayAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_X));
+    xrayAction->setShortcutContext(Qt::ApplicationShortcut);
+    connect(xrayAction, &QAction::triggered, this, [this] {
+        if (xrayDock_) xrayDock_->setVisible(!xrayDock_->isVisible());
+    });
     pluginsMenu->addSeparator();
     pluginsMenu->addAction("Менеджер плагинов…", this, [this] { showPlugins(); });
     pluginsMenu->addSeparator();
@@ -173,8 +196,12 @@ void MainWindow::buildUi() {
 
     auto* header = new QHBoxLayout();
     auto* brand = new QVBoxLayout();
+    const QString brandFont = preferredInstalledFont(
+        {QStringLiteral("Lobster"), QStringLiteral("Pacifico")}, QStringLiteral("Georgia"));
+    const QString scriptFont = preferredInstalledFont(
+        {QStringLiteral("Caveat"), QStringLiteral("Marck Script"), QStringLiteral("Bad Script")}, QStringLiteral("Georgia"));
     auto* title = new QLabel("VENTUSAMPLE");
-    title->setFont(QFont("Georgia", 18, QFont::Bold));
+    title->setFont(QFont(brandFont, 18, QFont::Normal));
     title->setObjectName("brandTitle");
     auto* subtitle = new QLabel("ХИП-ХОП-СЭМПЛЫ  /  ЛОКАЛЬНАЯ DSP-СТАНЦИЯ");
     subtitle->setObjectName("brandSubtitle");
@@ -198,7 +225,7 @@ void MainWindow::buildUi() {
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
     auto* heroTitle = new QLabel("Собери собственный звук.");
-    heroTitle->setFont(QFont("Georgia", 18, QFont::Bold));
+    heroTitle->setFont(QFont(scriptFont, 18, QFont::Normal));
     heroTitle->setObjectName("heroTitle");
     auto* heroSub = new QLabel("Создавайте лупы, мелодии, ударные паттерны, басовые партии и наборы одиночных сэмплов по точным параметрам.");
     heroSub->setObjectName("heroSubtitle");
@@ -460,6 +487,45 @@ void MainWindow::buildUi() {
 
     root->addWidget(tabs, 1);
     setCentralWidget(central);
+
+    xrayDock_ = new QDockWidget("X-Ray Mode · render pipeline", this);
+    xrayDock_->setObjectName("renderXRayDock");
+    xrayDock_->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::RightDockWidgetArea);
+    auto* xrayPanel = new QWidget(xrayDock_);
+    auto* xrayLayout = new QGridLayout(xrayPanel);
+    xrayLayout->setContentsMargins(12, 10, 12, 10);
+    xrayLayout->setHorizontalSpacing(18);
+    xrayLayout->setVerticalSpacing(6);
+    xrayStatusLabel_ = new QLabel("Idle · ожидание задания", xrayPanel);
+    xrayStageLabel_ = new QLabel("Stage: idle", xrayPanel);
+    xrayFilesLabel_ = new QLabel("Files: 0 / 0", xrayPanel);
+    xrayBufferLabel_ = new QLabel("Audio buffer: 0 MiB", xrayPanel);
+    xrayLatencyLabel_ = new QLabel("Last / peak file: n/a", xrayPanel);
+    xrayStatusLabel_->setObjectName("xrayStatus");
+    xrayStageLabel_->setObjectName("xrayStage");
+    xrayFilesLabel_->setObjectName("xrayFiles");
+    xrayBufferLabel_->setObjectName("xrayBuffer");
+    xrayLatencyLabel_->setObjectName("xrayLatency");
+    xrayLayout->addWidget(xrayStatusLabel_, 0, 0);
+    xrayLayout->addWidget(xrayStageLabel_, 0, 1);
+    xrayLayout->addWidget(xrayFilesLabel_, 0, 2);
+    xrayLayout->addWidget(xrayBufferLabel_, 1, 0);
+    xrayLayout->addWidget(xrayLatencyLabel_, 1, 1, 1, 2);
+    xrayDock_->setWidget(xrayPanel);
+    addDockWidget(Qt::BottomDockWidgetArea, xrayDock_);
+    xrayDock_->hide();
+
+    xrayTimer_ = new QTimer(this);
+    xrayTimer_->setInterval(100);
+    connect(xrayTimer_, &QTimer::timeout, this, &MainWindow::updateXRayHud);
+    connect(xrayDock_, &QDockWidget::visibilityChanged, this, [this](bool visible) {
+        if (visible) {
+            updateXRayHud();
+            if (xrayTimer_) xrayTimer_->start();
+        } else if (xrayTimer_) {
+            xrayTimer_->stop();
+        }
+    });
 
     connect(browseButton, &QPushButton::clicked, this, [this] {
         const QString initial = outputPath_->text().isEmpty()
@@ -785,40 +851,42 @@ void MainWindow::updateBeatSync() {
 
 void MainWindow::applyTheme() {
     const bool dark = darkThemeCheck_->isChecked();
-    const QString page = dark ? "#071A2D" : "#F4F8FD";
-    const QString surface = dark ? "#0F2A45" : "#FFFFFF";
-    const QString ink = dark ? "#E8EDF2" : "#122C45";
-    const QString secondary = dark ? "#D0DCE8" : "#314B66";
-    const QString muted = dark ? "#B3C4D6" : "#4D6177";
-    const QString border = dark ? "#31516F" : "#CAD8E8";
-    const QString accent = dark ? "#70A5FF" : "#004E98";
-    const QString accentHover = dark ? "#8AB6FF" : "#1A5FDB";
-    const QString onAccent = dark ? "#071A2D" : "#FFFFFF";
-    const QString signal = dark ? "#FF7B86" : "#B5122D";
-    const QString onSignal = dark ? "#071A2D" : "#FFFFFF";
-    const QString selection = dark ? "#244F82" : "#D9E8FF";
+    const auto palette = mora::ui::palette(dark);
+    const QString page = QString::fromLatin1(palette.page);
+    const QString surface = QString::fromLatin1(palette.surface);
+    const QString ink = QString::fromLatin1(palette.ink);
+    const QString secondary = QString::fromLatin1(palette.secondary);
+    const QString muted = QString::fromLatin1(palette.muted);
+    const QString border = QString::fromLatin1(palette.border);
+    const QString accent = QString::fromLatin1(palette.accent);
+    const QString accentHover = QString::fromLatin1(palette.accentHover);
+    const QString onAccent = QString::fromLatin1(palette.onAccent);
+    const QString signal = QString::fromLatin1(palette.signal);
+    const QString onSignal = QString::fromLatin1(palette.onSignal);
+    const QString selection = QString::fromLatin1(palette.selection);
+    const QString focus = QString::fromLatin1(palette.focus);
 
     const QString style = QStringLiteral(R"QSS(
         QWidget { background: %1; color: %2; font-family: "Segoe UI", "Arial", "DejaVu Sans"; font-size: 10pt; }
         QMainWindow { background: %1; }
         QGroupBox {
             background: %3; border: 1px solid %4; border-left: 3px solid %6;
-            border-radius: 8px; margin-top: 13px; padding: 15px 12px 12px; font-weight: 650;
+            border-radius: 12px; margin-top: 14px; padding: 16px 13px 13px; font-weight: 650;
         }
         QGroupBox::title {
-            subcontrol-origin: margin; left: 12px; padding: 0 6px; color: %5;
+            subcontrol-origin: margin; left: 12px; padding: 0 7px; color: %5;
             font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 10pt; font-weight: 700;
         }
         QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QListWidget, QPlainTextEdit {
             min-height: 40px; background: %3; color: %2; border: 1px solid %4;
-            border-radius: 7px; padding: 8px 10px; selection-background-color: %8; selection-color: %2;
+            border-radius: 10px; padding: 8px 10px; selection-background-color: %8; selection-color: %2;
         }
         QPlainTextEdit, QListWidget { padding: 8px; }
         QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus,
         QListWidget:focus, QPlainTextEdit:focus, QPushButton:focus, QCheckBox:focus { border: 2px solid %9; }
         QPushButton {
-            background: %3; color: %2; border: 1px solid %4; border-radius: 7px;
-            padding: 10px 16px; min-height: 28px;
+            background: %3; color: %2; border: 1px solid %4; border-radius: 10px;
+            padding: 10px 16px; min-height: 30px;
         }
         QPushButton:hover { border-color: %10; background: %5; }
         QPushButton:pressed { background: %8; }
@@ -830,28 +898,28 @@ void MainWindow::applyTheme() {
         QSlider::groove:horizontal { height: 5px; background: %4; border-radius: 3px; }
         QSlider::sub-page:horizontal { background: %6; border-radius: 3px; }
         QSlider::handle:horizontal { background: %3; border: 2px solid %6; width: 17px; margin: -7px 0; border-radius: 8px; }
-        QProgressBar { background: %1; color: %2; border: 1px solid %4; border-radius: 5px; min-height: 10px; text-align: center; }
-        QProgressBar::chunk { background: %6; border-radius: 4px; }
-        QLabel#brandTitle { color: %5; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 22px; font-weight: 800; }
+        QProgressBar { background: %1; color: %2; border: 1px solid %4; border-radius: 7px; min-height: 10px; text-align: center; }
+        QProgressBar::chunk { background: %6; border-radius: 6px; }
+        QLabel#brandTitle { color: %6; font-size: 22px; font-weight: 800; }
         QLabel#brandSubtitle, QLabel#fieldLabel { color: %5; font-size: 10px; font-weight: 700; }
-        QLabel#heroTitle { color: %5; font-family: "Georgia", "Cambria", "Times New Roman"; font-size: 20px; font-weight: 750; }
+        QLabel#heroTitle { color: %5; font-size: 20px; font-weight: 750; }
         QLabel#heroSubtitle, QLabel#mutedText { color: %13; }
-        QLabel#statusPill { color: %11; background: %6; border: 1px solid %6; border-radius: 8px; padding: 9px 13px; font-size: 10px; font-weight: 800; }
-        QTabWidget::pane { border: 1px solid %4; border-radius: 8px; top: -1px; }
-        QTabBar::tab { background: %3; color: %5; border: 1px solid %4; padding: 11px 17px; margin-right: 5px; border-top-left-radius: 7px; border-top-right-radius: 7px; }
+        QLabel#statusPill { color: %11; background: %6; border: 1px solid %6; border-radius: 10px; padding: 9px 13px; font-size: 10px; font-weight: 800; }
+        QTabWidget::pane { border: 1px solid %4; border-radius: 12px; top: -1px; }
+        QTabBar::tab { background: %3; color: %5; border: 1px solid %4; padding: 11px 17px; margin-right: 5px; border-top-left-radius: 10px; border-top-right-radius: 10px; }
         QTabBar::tab:hover { border-color: %10; }
         QTabBar::tab:selected { color: %2; background: %1; border-bottom: 3px solid %6; }
         QCheckBox { spacing: 9px; padding: 3px; }
         QCheckBox::indicator { width: 20px; height: 20px; }
-        QCheckBox::indicator:checked { background: %6; border: 2px solid %6; border-radius: 4px; }
+        QCheckBox::indicator:checked { background: %6; border: 2px solid %6; border-radius: 5px; }
         QListWidget::item { padding: 7px; }
         QListWidget::item:selected { background: %8; color: %2; }
-        QToolTip { background: %3; color: %2; border: 1px solid %4; padding: 5px 7px; }
+        QToolTip { background: %3; color: %2; border: 1px solid %4; padding: 6px 8px; }
         QScrollBar:vertical { background: %1; width: 12px; margin: 2px; }
-        QScrollBar::handle:vertical { background: %4; min-height: 28px; border-radius: 5px; }
+        QScrollBar::handle:vertical { background: %4; min-height: 28px; border-radius: 6px; }
         QScrollBar::handle:vertical:hover { background: %10; }
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
-    )QSS").arg(page, ink, surface, border, secondary, accent, signal, selection, accentHover, accentHover)
+    )QSS").arg(page, ink, surface, border, secondary, accent, signal, selection, focus, accentHover)
         .arg(onAccent).arg(onSignal).arg(muted);
     setStyleSheet(style);
 }
@@ -1040,6 +1108,52 @@ void MainWindow::setBusy(bool busy) {
     if (busy) ventu::ui_motion::pulse(statusLabel_, motionPreferences_, 70);
 }
 
+void MainWindow::updateXRayHud() {
+    if (!xrayDock_ || !xrayDock_->isVisible()) return;
+    const auto state = renderTelemetry_.snapshot();
+    const auto stageName = [](ventu::diagnostics::RenderStage stage) -> QString {
+        using ventu::diagnostics::RenderStage;
+        switch (stage) {
+        case RenderStage::Idle: return QStringLiteral("idle");
+        case RenderStage::Preflight: return QStringLiteral("preflight");
+        case RenderStage::Rendering: return QStringLiteral("render");
+        case RenderStage::Processing: return QStringLiteral("DSP processing");
+        case RenderStage::Exporting: return QStringLiteral("WAV export");
+        case RenderStage::Measuring: return QStringLiteral("measure / cadence");
+        case RenderStage::Manifest: return QStringLiteral("manifest");
+        case RenderStage::Complete: return QStringLiteral("complete");
+        case RenderStage::Failed: return QStringLiteral("failed");
+        }
+        return QStringLiteral("unknown");
+    };
+
+    if (state.active) {
+        xrayStatusLabel_->setText(QStringLiteral("ACTIVE · worker running"));
+    } else if (state.stage == ventu::diagnostics::RenderStage::Complete && state.succeeded) {
+        xrayStatusLabel_->setText(QStringLiteral("COMPLETE · render finished"));
+    } else if (state.stage == ventu::diagnostics::RenderStage::Failed) {
+        xrayStatusLabel_->setText(QStringLiteral("FAILED · inspect generation log"));
+    } else {
+        xrayStatusLabel_->setText(QStringLiteral("IDLE · waiting for a job"));
+    }
+    xrayStageLabel_->setText(QStringLiteral("Stage: %1 · variation %2")
+        .arg(stageName(state.stage)).arg(state.currentVariation));
+    xrayFilesLabel_->setText(QStringLiteral("Files: %1 / %2")
+        .arg(state.filesCompleted).arg(state.filesTotal));
+    const double bufferMiB = static_cast<double>(state.currentBufferBytes)
+        / (1024.0 * 1024.0);
+    xrayBufferLabel_->setText(QStringLiteral("Audio buffer: %1 MiB")
+        .arg(bufferMiB, 0, 'f', 2));
+    if (state.lastFileElapsedNs == 0u) {
+        xrayLatencyLabel_->setText(QStringLiteral("Last / peak file: n/a"));
+    } else {
+        const double lastMs = static_cast<double>(state.lastFileElapsedNs) / 1.0e6;
+        const double peakMs = static_cast<double>(state.peakFileElapsedNs) / 1.0e6;
+        xrayLatencyLabel_->setText(QStringLiteral("Last / peak file: %1 / %2 ms")
+            .arg(lastMs, 0, 'f', 2).arg(peakMs, 0, 'f', 2));
+    }
+}
+
 void MainWindow::appendLog(const QString& message) {
     log_->appendPlainText(message);
 }
@@ -1081,12 +1195,13 @@ void MainWindow::startGeneration() {
         worker_ = std::thread([this, p, canonical] {
             ventu::BatchResult result;
             try {
-                result = ventu::generatePack(p, pathFromQString(canonical));
+                result = ventu::generatePack(p, pathFromQString(canonical), &renderTelemetry_);
             } catch (const std::exception& exception) {
                 result.error = std::string("Необработанная ошибка рендеринга: ") + exception.what();
             } catch (...) {
                 result.error = "Неизвестная ошибка рендеринга.";
             }
+            renderTelemetry_.finish(result.error.empty());
             QStringList files;
             for (const auto& file : result.files) files.push_back(pathToQString(file));
             const QString error = QString::fromUtf8(result.error.c_str());

@@ -1,0 +1,50 @@
+name: Safe CI Recovery
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Numeric GitHub Actions run ID to retry (one retry maximum)"
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: safe-ci-recovery-${{ inputs.run_id }}
+  cancel-in-progress: false
+jobs:
+  rerun-failed-validation:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Checkout protected main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Validate rerun request and attempt budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID_INPUT: ${{ inputs.run_id }}
+        run: |
+          if [[ ! "$RUN_ID_INPUT" =~ ^[0-9]{1,20}$ ]]; then
+            echo "::error::run_id must contain only decimal digits"
+            exit 2
+          fi
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID_INPUT" > "$RUNNER_TEMP/run.json"
+          python scripts/validate_safe_rerun.py "$RUNNER_TEMP/run.json" .architecture/automation-rerun-policy.v1.json
+          gh api --method POST "repos/$GITHUB_REPOSITORY/actions/runs/$RUN_ID_INPUT/rerun-failed-jobs"
+          {
+            echo "## Safe CI recovery"
+            echo "- Requester: `$GITHUB_ACTOR`"
+            echo "- Run ID: `$RUN_ID_INPUT`"
+            echo "- Result: one manual rerun of failed jobs requested."
+            echo "- Retry ceiling: two total attempts."
+          } >> "$GITHUB_STEP_SUMMARY"
