@@ -119,6 +119,10 @@ CRATE uses the styles already present in VentuSample rather than inventing a par
 
 The Golden Era profile currently uses a fixed source-slice order of 0–2–1–3, kick/snare-weighted voicing and restrained hats. User BPM, swing and snare offset remain authoritative. These are original procedural profiles, not artist or recording emulations.
 
+### Starter preset crate
+
+Four ready-to-load examples use the current preset contract: [East Coast Pocket 93](../examples/hip-hop-presets/east-coast-pocket-93.json), [Boom Bap Crate 88](../examples/hip-hop-presets/boom-bap-crate-88.json), [G-Unit Knock 93](../examples/hip-hop-presets/g-unit-knock-93.json) and [Golden Era Chop 90](../examples/hip-hop-presets/golden-era-chop-90.json). Their [crate notes](../examples/hip-hop-presets/README.md) explain how to load and audition them.
+
 ## 8. The beat pack and studio hand-offs
 
 The existing file contracts remain the centre of every CRATE hand-off:
