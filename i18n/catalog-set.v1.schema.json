@@ -1,0 +1,19 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Duck ecosystem i18n catalog set",
+  "type":"object",
+  "required":["schema","sourceLocale","locales"],
+  "properties":{
+    "schema":{"const":"duck.i18n-catalog-set/v1"},
+    "sourceLocale":{"type":"string"},
+    "locales":{"type":"object","minProperties":1,"additionalProperties":{
+      "type":"object","required":["name","direction","status","messages"],
+      "properties":{
+        "name":{"type":"string","minLength":1},
+        "direction":{"enum":["ltr","rtl"]},
+        "status":{"enum":["source","complete","partial","machine-draft","needs-review"]},
+        "messages":{"type":"object","minProperties":1,"additionalProperties":{"type":"string"}}
+      },"additionalProperties":false
+    }}
+  },"additionalProperties":false
+}
