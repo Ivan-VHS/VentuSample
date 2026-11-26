@@ -8,6 +8,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 
 - [Features and maturity](FEATURES.md) — generator, offline DSP and desktop status.
 - [CRATE Production Suite](CRATE_PRODUCTION_SUITE.md) — hip-hop beatmaking rooms, production checks and starter presets; [Russian edition](CRATE_PRODUCTION_SUITE_RU.md).
+- [CRATE Production Suite](CRATE_PRODUCTION_SUITE.md) — hip-hop beatmaking rooms, production checks and starter presets; [Russian edition](CRATE_PRODUCTION_SUITE_RU.md).
 - [Architecture](ARCHITECTURE.md) — processing pipeline and data ownership.
 - [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — offline rendering behavior.
 - [MIDI and resampling](MIDI_AND_RESAMPLING.md) — import and conversion boundaries.
