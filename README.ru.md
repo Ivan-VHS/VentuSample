@@ -100,6 +100,8 @@ CMake предоставляет переносимое ядро и необяз
 ## Документация и экосистема
 
 - [Features](docs/FEATURES.md)
+- [CRATE — хип-хоп-комплекс битмейкинга](docs/CRATE_PRODUCTION_SUITE_RU.md)
+- [Хип-хоп-пресеты](examples/hip-hop-presets/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
 - [MIDI and resampling](docs/MIDI_AND_RESAMPLING.md)
