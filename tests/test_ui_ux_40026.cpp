@@ -19,6 +19,11 @@ int main() {
 
     const auto moraDark = mora::ui::palette(true);
     const auto moraLight = mora::ui::palette(false);
+    assert(QColor(moraDark.page) == QColor("#050505"));
+    assert(QColor(moraDark.surface) == QColor("#101010"));
+    assert(QColor(moraDark.ink) == QColor("#FFFFFF"));
+    assert(QColor(moraDark.accent) == QColor("#A78BFA"));
+    assert(QColor(moraDark.signal) == QColor("#FF8EAC"));
     assert(ventu::ui_ux::meetsTextContrast(QColor(moraDark.onAccent), QColor(moraDark.accent)));
     assert(ventu::ui_ux::meetsTextContrast(QColor(moraDark.onSignal), QColor(moraDark.signal)));
     assert(ventu::ui_ux::meetsTextContrast(QColor(moraLight.onAccent), QColor(moraLight.accent)));
