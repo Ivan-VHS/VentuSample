@@ -19,25 +19,45 @@ jobs:
   python-contract:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     strategy:
       fail-fast: false
+      max-parallel: 3
       matrix:
         python-version: ['3.10', '3.11', '3.12']
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Validate translated README structure and links
+        run: python .github/scripts/check_readme_links.py
+      - name: Validate every tracked Markdown document and local anchor
+        run: python tools/validate_markdown_inventory.py
+      - name: Test Markdown integrity validator
+        run: python -m unittest discover -s tests -p "test_markdown_inventory.py" -v
       - name: Compile Python verification tools
         run: |
-          python -m py_compile tools/validate_project_contract.py tools/validate_generated_fixture.py tools/validate_visual_canon.py
+          python -m py_compile scripts/validate_automation_roadmap.py scripts/validate_resilience_policy.py tools/validate_project_contract.py tools/validate_generated_fixture.py tools/validate_visual_canon.py
           python tools/validate_visual_canon.py src/mainwindow.cpp
       - name: Validate engineering evolution contract
         run: python tools/validate_engineering_evolution.py
+      - name: Validate 20-workstream automation roadmap and evidence paths
+        run: python scripts/validate_automation_roadmap.py --strict
+      - name: Validate roadmap governance and bounded CI scale
+        run: python tools/validate_delivery_contracts.py --self-test
+      - name: Test governance and CI scale regressions
+        run: python -m unittest discover -s tests -p "test_delivery_contracts.py" -v
+      - name: Validate offline resilience and trust policy
+        run: python scripts/validate_resilience_policy.py
+      - name: Test resilience and trust policy
+        run: python -m unittest discover -s tests -p "test_resilience_policy.py" -v
       - name: Test engineering evolution contract
         run: python -m unittest discover -s tests -p "test_engineering_evolution.py" -v
+      - name: Test bounded manual CI recovery policy
+        run: python -m unittest discover -s tests -p "test_safe_rerun.py" -v
       - name: Test CLife snapshots
         run: python -m unittest discover -s tests -p "test_clife.py" -v
       - name: Validate project contract and OCTA-8 federation
@@ -50,10 +70,11 @@ jobs:
     # Existing repository rules require this historical status context.
     # The actual compiled product engine is C++20 and is built/tested below.
     name: Native C
+    timeout-minutes: 30
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Configure native C++20 engine
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
       - name: Build native engine
@@ -63,10 +84,11 @@ jobs:
 
   linux-core-and-desktop:
     name: Linux DSP + Qt desktop build
+    timeout-minutes: 40
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install toolchain and Qt 6
         run: |
           sudo apt-get update
@@ -80,12 +102,13 @@ jobs:
 
   windows-native-desktop:
     name: Windows 11 native Qt desktop build
+    timeout-minutes: 40
     runs-on: windows-2022
     permissions:
       contents: write
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.head_ref || github.ref_name }}
       - name: Set up MSVC
@@ -126,7 +149,7 @@ jobs:
             Write-Host "Screenshot is unchanged; no repository commit is needed."
           }
       - name: Upload live desktop screenshot artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ventusample-live-windows-screenshot
           path: assets/screenshots/ventusample-studio.png

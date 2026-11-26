@@ -12,15 +12,20 @@ concurrency:
 jobs:
   contract:
     name: Validate engineering contract
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Test policy validator
         run: python tools/validate_quality_repeatability_native.py --self-test --json
       - name: Validate project evidence and policy
         run: python tools/validate_quality_repeatability_native.py --json
+      - name: Validate roadmap governance and bounded CI scale
+        run: python tools/validate_delivery_contracts.py --self-test
+      - name: Test governance and CI scale regressions
+        run: python -m unittest discover -s tests -p "test_delivery_contracts.py" -v

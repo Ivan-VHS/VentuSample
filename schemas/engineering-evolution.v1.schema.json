@@ -10,6 +10,7 @@
     "purpose",
     "adoption",
     "pillars",
+    "execution_directives",
     "guardrails"
   ],
   "properties": {
@@ -137,6 +138,76 @@
       "items": {
         "type": "string",
         "minLength": 30
+      }
+    },
+    "execution_directives": {
+      "type": "array",
+      "minItems": 20,
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "source_text",
+          "domains",
+          "intent",
+          "acceptance"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]*$"
+          },
+          "source_text": {
+            "type": "string",
+            "minLength": 10
+          },
+          "domains": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 3,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "enum": [
+                "architecture",
+                "impulse",
+                "crystal",
+                "transformation",
+                "orbit",
+                "integration",
+                "algorithm",
+                "mechanism",
+                "evolution",
+                "resonance",
+                "horizon",
+                "molecule",
+                "navigation",
+                "synchronization",
+                "gravity",
+                "protocol",
+                "geometry",
+                "generation",
+                "trajectory",
+                "perspective"
+              ]
+            }
+          },
+          "intent": {
+            "type": "string",
+            "minLength": 40
+          },
+          "acceptance": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "minLength": 20
+            }
+          }
+        }
       }
     }
   }
