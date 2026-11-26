@@ -19,7 +19,7 @@
 | Ліцензія | [Apache-2.0](LICENSE) |
 | Перевірка документації | 2026-11-26 |
 
-<p align="center"><img src="assets/readme/ventusample-workstation.svg" alt="Робоча станція VentuSample" width="100%"></p>
+<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="Робоча станція VentuSample" width="100%"></p>
 
 ## Зміст
 - [Призначення та архітектура](#призначення-та-архітектура)
