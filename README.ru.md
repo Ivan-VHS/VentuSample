@@ -17,6 +17,7 @@
 | Аудиовывод | PCM16 WAV, детерминированный локальный рендеринг |
 | Pack-форматы | Manifest v1 и v2 |
 | Лицензия | [Apache-2.0](LICENSE) |
+| Кодекс поведения | Отдельный `CODE_OF_CONDUCT.md` не опубликован |
 | Проверка документации | 2026-11-26 |
 
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="Рабочая станция VentuSample" width="100%"></p>
