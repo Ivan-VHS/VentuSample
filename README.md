@@ -100,6 +100,8 @@ CMake exposes a portable core and an optional Qt 6 Widgets desktop target. MSVC 
 ## Documentation & ecosystem
 
 - [Features](docs/FEATURES.md)
+- [CRATE Hip-Hop Production Suite](docs/CRATE_PRODUCTION_SUITE.md)
+- [Hip-Hop Preset Crate](examples/hip-hop-presets/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
 - [MIDI and resampling](docs/MIDI_AND_RESAMPLING.md)
