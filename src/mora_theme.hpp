@@ -24,9 +24,9 @@ struct Palette {
 inline Palette palette(bool dark) noexcept {
     if (dark) {
         return {
-            "#10142A", "#191E39", "#F5F4FF", "#D5D6EB", "#A8ADC8",
-            "#3B4262", "#A78BFA", "#C1AEFF", "#1D1730",
-            "#FF8EAC", "#330A1A", "#353054", "#38D4B7"
+            "#050505", "#101010", "#FFFFFF", "#E5E5E5", "#A6A6A6",
+            "#3A3A3A", "#A78BFA", "#C1AEFF", "#1D1730",
+            "#FF8EAC", "#330A1A", "#242039", "#6CD9C2"
         };
     }
     return {
