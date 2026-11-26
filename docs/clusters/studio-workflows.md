@@ -13,6 +13,8 @@ This hub groups the related contracts for the audio workstation. Use each target
 - [FEATURES](../FEATURES.md)
 - [CRATE PRODUCTION SUITE](../CRATE_PRODUCTION_SUITE.md) — hip-hop production workflow and quality checks.
 - [Hip-Hop Preset Crate](../../examples/hip-hop-presets/README.md) — four loadable beatmaking starters.
+- [CRATE PRODUCTION SUITE](../CRATE_PRODUCTION_SUITE.md) — hip-hop production workflow and quality checks.
+- [Hip-Hop Preset Crate](../../examples/hip-hop-presets/README.md) — four loadable beatmaking starters.
 - [PLUGIN FEDERATION](../PLUGIN_FEDERATION.md)
 - [PLUGINS](../PLUGINS.md)
 - [PROGRAM CATALOG 1000](../PROGRAM_CATALOG_1000.md)
