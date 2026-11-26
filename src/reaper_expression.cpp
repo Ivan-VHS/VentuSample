@@ -20,7 +20,7 @@ bool evaluateReaperInteger(const std::string& expression,
                            std::int64_t& result,
                            std::string& error) {
 #ifdef VENTU_HAS_REAPER
-    if (expression.size() > static_cast<std::size_t>(REAPER_MAX_SOURCE_BYTES)) {
+    if (expression.size() > static_cast<std::size_t>(REAPER_V1_MAX_SOURCE_BYTES)) {
         error = "Reaper expression exceeds the 1 MiB native limit";
         return false;
     }

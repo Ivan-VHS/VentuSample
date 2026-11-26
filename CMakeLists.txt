@@ -35,10 +35,16 @@ endif()
 add_library(ventusample_pytyliki_dsp STATIC
     src/compat/pytyliki-dsp/dsp.c
     src/compat/pytyliki-dsp/dsp.h
+    src/compat/pytyliki-dsp/spectrum.c
+    src/compat/pytyliki-dsp/spectrum.h
     src/compat/pytyliki-dsp/dsp_engine.c
     src/compat/pytyliki-dsp/dsp_engine.h
     src/compat/pytyliki-dsp/audio_errors.c
     src/compat/pytyliki-dsp/audio_errors.h
+    src/compat/pytyliki-dsp/resample.c
+    src/compat/pytyliki-dsp/resample.h
+    src/compat/pytyliki-dsp/midi_file.c
+    src/compat/pytyliki-dsp/midi_file.h
 )
 target_include_directories(ventusample_pytyliki_dsp PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/compat/pytyliki-dsp)
 set_target_properties(ventusample_pytyliki_dsp PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)
@@ -73,6 +79,8 @@ add_library(ventusample_core STATIC
     src/careguard.hpp
     src/runtime_transaction.cpp
     src/runtime_transaction.hpp
+    src/audio_telemetry.cpp
+    src/audio_telemetry.hpp
     src/octa8.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -172,6 +180,15 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_audio_error_tests tests/compat/test_audio_errors.c)
     target_link_libraries(ventusample_audio_error_tests PRIVATE ventusample_pytyliki_dsp)
     add_test(NAME ventusample-audio-diagnostics COMMAND ventusample_audio_error_tests)
+    add_executable(ventusample_resample_tests tests/compat/test_resample.c)
+    target_link_libraries(ventusample_resample_tests PRIVATE ventusample_pytyliki_dsp)
+    add_test(NAME ventusample-resample COMMAND ventusample_resample_tests)
+    add_executable(ventusample_midi_file_tests tests/compat/test_midi_file.c)
+    target_link_libraries(ventusample_midi_file_tests PRIVATE ventusample_pytyliki_dsp)
+    add_test(NAME ventusample-midi-file COMMAND ventusample_midi_file_tests)
+    add_executable(ventusample_spectrum_tests tests/compat/test_spectrum.c)
+    target_link_libraries(ventusample_spectrum_tests PRIVATE ventusample_pytyliki_dsp)
+    add_test(NAME ventusample-offline-spectrum COMMAND ventusample_spectrum_tests)
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-generator COMMAND ventusample_tests)
@@ -181,6 +198,10 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_runtime_transaction_tests tests/test_runtime_transaction.cpp)
     target_link_libraries(ventusample_runtime_transaction_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-runtime-transaction COMMAND ventusample_runtime_transaction_tests)
+
+    add_executable(ventusample_audio_telemetry_tests tests/test_audio_telemetry.cpp)
+    target_link_libraries(ventusample_audio_telemetry_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-audio-telemetry COMMAND ventusample_audio_telemetry_tests)
     add_executable(ventusample_octa8_tests tests/test_octa8.cpp)
     target_link_libraries(ventusample_octa8_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-octa8-types COMMAND ventusample_octa8_tests)

@@ -49,5 +49,44 @@ class EngineeringEvolutionTests(unittest.TestCase):
         self.assertIn("untrusted", joined)
         self.assertIn("rollback", joined)
 
+    def test_exactly_twenty_execution_directives_are_required(self) -> None:
+        candidate = copy.deepcopy(self.policy)
+        candidate["execution_directives"].pop()
+        self.assertTrue(any("exactly 20 execution directives" in x for x in validate_policy(candidate, self.schema)))
+
+    def test_canonical_directive_wording_and_order_are_enforced(self) -> None:
+        candidate = copy.deepcopy(self.policy)
+        candidate["execution_directives"][0]["source_text"] = "Разработать всё сразу"
+        self.assertTrue(any("canonical wording and order" in x for x in validate_policy(candidate, self.schema)))
+
+    def test_directive_domain_mapping_is_enforced(self) -> None:
+        candidate = copy.deepcopy(self.policy)
+        candidate["execution_directives"][0]["domains"] = ["perspective"]
+        self.assertTrue(any("canonical domain mapping" in x for x in validate_policy(candidate, self.schema)))
+
+    def test_directives_need_testable_acceptance_checks(self) -> None:
+        candidate = copy.deepcopy(self.policy)
+        candidate["execution_directives"][0]["acceptance"] = ["ok"]
+        self.assertTrue(any("two or three testable checks" in x for x in validate_policy(candidate, self.schema)))
+
+    def test_duplicate_directive_ids_are_rejected(self) -> None:
+        candidate = copy.deepcopy(self.policy)
+        candidate["execution_directives"][1]["id"] = candidate["execution_directives"][0]["id"]
+        self.assertTrue(any("duplicate execution directive id" in x for x in validate_policy(candidate, self.schema)))
+
+
+    def test_capability_completeness_standard_passes(self) -> None:
+        from validate_engineering_evolution import CAPABILITY_STANDARD_PATH, validate_capability_standard
+        self.assertEqual(validate_capability_standard(CAPABILITY_STANDARD_PATH.read_text(encoding="utf-8")), [])
+
+    def test_missing_canonical_capability_triple_is_rejected(self) -> None:
+        from validate_engineering_evolution import CAPABILITY_STANDARD_PATH, validate_capability_standard
+        document = CAPABILITY_STANDARD_PATH.read_text(encoding="utf-8").replace(
+            "| 1 | Расширяемость | Полноценность | Полнофункциональность |",
+            "| 1 | Расширяемость | Полноценность | изменено |",
+        )
+        self.assertTrue(any("missing canonical capability triple #1" in error for error in validate_capability_standard(document)))
+
+
 if __name__ == "__main__":
     unittest.main()
