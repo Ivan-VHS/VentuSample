@@ -1,18 +1,22 @@
 #pragma once
 
 #include "generator.hpp"
+#include "audio_telemetry.hpp"
 #include "plugin_manager.hpp"
+#include "preset_store.hpp"
 #include "ui_motion.hpp"
 
 #include <QMainWindow>
 
 #include <array>
+#include <optional>
 #include <QSettings>
 #include <QString>
 #include <thread>
 #include <vector>
 
 class QCloseEvent;
+class QDockWidget;
 class QComboBox;
 class QCheckBox;
 class QDoubleSpinBox;
@@ -44,8 +48,15 @@ private:
     void saveSettings();
     void applyTheme();
     void showMotionSettings();
+    void updateXRayHud();
     void updateBeatSync();
     ventu::Parameters parameters() const;
+    void applyParameters(const ventu::Parameters& parameters);
+    void savePreset();
+    void loadPreset();
+    void capturePresetA();
+    void capturePresetB();
+    void switchPresetSlots();
     void startGeneration();
     void setBusy(bool busy);
     void appendLog(const QString& message);
@@ -84,6 +95,9 @@ private:
     QCheckBox* humanizeCheck_{};
     QCheckBox* dustCheck_{};
     QCheckBox* stochasticCheck_{};
+    QCheckBox* tpdfDitherCheck_{};
+    QCheckBox* normalizePeakCheck_{};
+    QDoubleSpinBox* targetPeakSpin_{};
     QSlider* stochasticIntensitySlider_{};
     QLabel* stochasticIntensityValue_{};
     QComboBox* stochasticTriggerBox_{};
@@ -103,10 +117,21 @@ private:
     QLabel* beatIndicator_{};
     QTabWidget* tabs_{};
     QTimer* beatTimer_{};
+    QDockWidget* xrayDock_{};
+    QTimer* xrayTimer_{};
+    QLabel* xrayStatusLabel_{};
+    QLabel* xrayStageLabel_{};
+    QLabel* xrayFilesLabel_{};
+    QLabel* xrayBufferLabel_{};
+    QLabel* xrayLatencyLabel_{};
+    ventu::diagnostics::RenderTelemetry renderTelemetry_{};
     ventu::ui_motion::Preferences motionPreferences_{};
     QListWidget* filesList_{};
     QPlainTextEdit* log_{};
     ventu::PluginManager pluginManager_;
     std::thread worker_;
+    std::optional<ventu::Parameters> presetA_;
+    std::optional<ventu::Parameters> presetB_;
+    bool presetShowsA_{true};
     QString lastOutputDirectory_;
 };

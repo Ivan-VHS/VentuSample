@@ -1,89 +1,126 @@
-# VentuSample — 程序化采样工作站
+# 🎛️ VentuSample — 程序化音频工作站
 
-[CI](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) · C++20 · Qt 6 Widgets · Windows/Linux · 离线 · Apache-2.0
+<p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
-VentuSample 是一款用于确定性生成嘻哈采样包的原生工作站。标量渲染器可导出 PCM16 立体声 WAV 和带版本号的 JSON 清单，无需 DAW、音频设备或网络连接。
+[![CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/release.yml?branch=main&label=Release)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/release.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 
-[English](README.md) · [Русский](README.ru.md) · [Українська](README.uk.md) · [简体中文](README.zh-CN.md)
+> **确定性采样生成与离线 DSP。不虚称实时音频引擎。**
 
-## Windows 实际运行截图
-<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="运行于 Windows 11 的 VentuSample" width="100%"></p>
-<sub>应用实际截屏 · 原始图像为 1920×1080 · 保留原始像素，不进行人为放大。</sub>
+**项目状态:** 开发中 · 离线音频核心已实现 · Qt 桌面端部分完成 · **版本:** 0.2.0 · **License:** Apache-2.0 · **README 标准:** Psychoporter 666 v1.0 · **审阅日期:** 2026-11-25 UTC · **Source:** [Ivan-VHS/VentuSample](https://github.com/Ivan-VHS/VentuSample)
 
-## 音频生成与处理流程
+<p align="center"><img src="assets/readme/dashboard.svg" alt="VentuSample project overview" width="100%"></p>
+<p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample desktop application screenshot" width="100%"></a></p>
 
-第一张图展示当前离线路径：从带种子的生成开始，经可选随机路由，最终输出 WAV 和清单。
+## 快速导航
 
-```mermaid
-flowchart TD
-    A[随机种子与生成参数] --> B[程序化渲染器]
-    B --> C[生成的音频缓冲区]
-    C --> D{是否启用随机路由？}
-    D -- 否 --> E[立体声 PCM16 WAV]
-    D -- 是 --> F[离线随机路由处理器]
-    F --> E
-    E --> G[带版本号的 JSON 清单]
-    H[导入的受支持 WAV] --> I[Quantum Audio Engine]
-    I --> J[处理后的 PCM16 WAV]
-```
+[🚀 Demo: Studio screenshot](assets/screenshots/ventusample-studio.png) · [Documentation](docs/README.md) · [Source](https://github.com/Ivan-VHS/VentuSample) · [Issues](https://github.com/Ivan-VHS/VentuSample/issues)
 
-## 插件发现与执行边界
+## 目标与范围
 
-插件 manifest 仅作为元数据读取。发现条目必须显式关联经过审查的原生处理器后才可执行。
+原生程序化采样工作站，采用 C++20 核心、C11 DSP 兼容层和可选 Qt 6 Widgets 桌面应用。渲染为离线处理。它不是实时 DAW、VST/AU 主机、云服务或音频驱动。
 
-```mermaid
+## 功能
+
+- 基于固定随机种子的程序化立体声生成，覆盖 14 种已记录的嘻哈及相邻风格配置。
+- 黄金时代采样素材重组、加权鼓组音色选择和确定性变化。
+- 有界 PCM16 WAV 导入/导出、四切片编排和半音重采样。
+- 离线 DSP 路由图，限制 wet/feedback，支持 RMS 匹配和采样峰值保护。
+- 使用版本化 ventusample.pack.v1 和 v2 清单进行显式采样包交换。
+- 可选 Qt 6 Widgets 工作站；桌面构建受 Qt SDK 可用性单独控制。
+
+## 架构与数据流
+
+~~~mermaid
 flowchart LR
-    A[本地 plugin.json] --> B[仅发现元数据]
-    B --> C[条目保持禁用]
-    C --> D[关联经过审查的原生处理器]
-    D --> E[有界调度或一个小节的预览]
-```
+  P["Seed / profile / parameters"] --> G["Deterministic generator"]
+  G --> D["Offline C11 DSP layer"]
+  D --> X["C++20 audio core"]
+  X --> W["PCM16 WAV assets"]
+  X --> M["Versioned pack manifest"]
+  Q["Optional Qt 6 UI"] --> P
+~~~
 
-## 生成器
-| 输出 | 内容 |
-|---|---|
-| Full Loop | 鼓组、旋律、低音和可选源素材切片 |
-| Melody | 和弦与带固定 seed 的音符变化 |
-| Drums | kick、snare、hats、percussion 和 rolls |
-| Bass | 生成的低音模式和可选 glide |
-| One-Shot Kit | 8 个采样；仅为有音高的声音标注音名 |
+生成器将带有固定 seed 的参数传入离线 DSP 核心，输出受限的 WAV 文件和版本化素材包清单。可选 Qt 界面用于配置输入，不会使引擎变成实时音频主机。
 
-包含 14 种配置：Boom Bap、Billionaire Golden Era、East Coast、Harlem Dip-Trap、G-Unit、Modern Trap、Atlanta Trap、UK Drill、UK Grime、Memphis、Jazz Rap、G-Funk、Boom Trap 和 Cripple Trill。主要范围：BPM 60–190；1–16 小节；1–32 种变化；6 个音阶系列；Swing 50–68%；密度/grit/饱和度/立体声 0–100%；high-pass 20–300 Hz；low-pass 2–20 kHz；snare 偏移 ±30 ms；总线压缩 1:1–12:1；采样率 22.05/44.1/48/96 kHz。源 WAV 为 PCM16 mono/stereo、8–192 kHz、≤128 MiB、≤2000 万帧。Chop 音高 ±12 半音，混合 0–100%。
+## 环境要求
 
-## 内置插件平台
-原生 PluginManager 包含 19 个内置工具。**Плагины → Менеджер плагинов** 支持检查、启用/禁用和有界 dispatch。公开 C++20 SDK 提供经过审核的处理器注册、延迟初始化、关闭回调和诊断接口。本地 `plugin.json` 清单可递归发现，但只读取元数据；条目在明确附加经过审核的原生处理器前保持禁用。不支持自动加载 DLL/SO、按清单执行代码、marketplace 安装或声称提供 sandbox。清单契约：[ivan-vhs.plugin.v1](schemas/ivan-vhs.plugin.v1.schema.json)。详见[插件平台与 SDK](docs/PLUGINS.md)。
+需要 CMake 3.21+、C++20 编译器和用于 C11 DSP 层的 C 编译器。桌面应用可选 Qt 6 Widgets；可移植核心及其测试可在无 Qt 环境下构建。Linux 推荐使用 Ninja。
 
-## Quantum Audio Engine — 133 个 DSP 模块
-**Плагины → Quantum Audio Engine — 133 DSP** 打开独立离线实验室：五个系列共 133 个稳定 ID，通过 21 个可复用且经过测试的 C++ DSP 内核处理信号。载入 WAV、组装处理链、调整 Amount / Tone / Rate / Wet-Dry 并导出立体声 PCM16 WAV。它是创意信号处理系统，不是物理量子计算，也不是实时音频引擎、DAW、VST/AU 主机或任意原生库加载器。详见 [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)。
+## 构建
 
-## Atomic-Quantum 133
-独立的 C++20 研究库注册 133 个原子/量子操作 ID，并实现有界子集：状态验证、归一化、Hadamard/phase/Pauli/CNOT/SWAP 门、Bell/GHZ 制备、带 seed 的投影测量、随机噪声轨迹和纯态保真度。它与音频目录相互独立，并非物理量子计算。高级功能在数值模型经过独立实现和测试前仅保留在目录中。详见 [Atomic-Quantum 133](docs/ATOMIC_QUANTUM_133.md)。
-
-## 随机路由
-可选的 **Stochastic Router** 在 WAV 导出前处理已渲染音频缓冲区。加权池包含 low-pass、high-pass、saturator、bitcrusher、delay、reverb、ring modulation 和 stereo width。支持 hybrid/serial/parallel 拓扑、按文件/小节/事件触发、intensity 0–100%、wet ≤65%、feedback ≤72%、淡入淡出 5–20 ms、RMS compensation 0.5–2× 和 sample peak ≤−0.3 dBFS。路由由 seed、变化项、拓扑、触发方式和效果掩码决定。此选项默认关闭；处理在 PCM16 编码前离线执行，manifest v2 记录路由参数。它不是实时回调、播放热切换系统、VST/AU 主机或第三方插件加载器。
-
-## 构建与测试
-要求 CMake 3.21+、C++20 编译器；桌面应用还需要 Qt 6 Widgets。
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
-cmake --build build --parallel
+~~~sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
+cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
-```
-没有 Qt 时，仍可构建可移植 DSP 核心和测试；CI 会检查 Python 契约、原生 C++20 代码，并在 Linux 和 Windows 上构建 Qt 桌面应用。
+~~~
 
-## 导出与限制
-- 固定 seed 和设置会产生可重复渲染；处理在工作线程中执行。
-- Manifest v2 记录设置、`musical_key`、`mode_family`、`scale` 和 peak/RMS/crest；manifest v1 仍可读取。
-- Full Loop、Melody 和 Bass 可附带调性/调式标签；无音高鼓组不会添加标签。不会自动检测导入 WAV 的调性。
-- Master ceiling 约为 −0.3 dBFS sample peak；它不是过采样 true-peak limiter。
-- 半音重采样会同时改变音高和播放速度；它不是 time-stretching。
-- 没有网络遥测、后台音频捕获、实时回调或隐式原生库加载。
-- 导入和导出必须拥有源素材使用权。哈希只能证明字节一致，不能证明所有权。
+### 不依赖 Qt 的可移植核心
 
-[Apache-2.0](LICENSE)
+~~~sh
+cmake -S . -B build-core -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
+cmake --build build-core --parallel
+ctest --test-dir build-core --output-on-failure
+~~~
 
+## 运行
 
-## 预算分配参考
-这是一个 500 UAH 预算模型示例，包含 JSON 契约和离线模拟器。它属于文档示例，并非宿主应用运行时功能。
+只有检测到 Qt 6 Widgets 时才会生成桌面目标；否则请使用 portable core 构建。
 
-[多语言指南](docs/RESOURCE_ALLOCATION_500_UAH.md) · [交互式模拟器](docs/resource-allocation-500-uah.html) · [JSON 示例](examples/resource-allocation-500-uah.json) · [JSON Schema](schemas/resource-allocation.v1.schema.json)
+## 接口
+
+| Surface | Contract | Boundary |
+|---|---|---|
+| Presets | `ventusample.preset.v1` | Schema-validated settings |
+| Pack exchange | `ventusample.pack.v1 / v2` | JSON manifest plus WAV assets |
+| Audio output | `RIFF PCM16 stereo WAV` | Bounded local file output with peak/RMS metadata |
+| Plugin layer | Native offline DSP graph | No real-time VST/AU hosting |
+
+## 安全与信任边界
+
+默认离线渲染；音频管线不包含后台录音或网络遥测。导入的 WAV 被视为不可信输入，并受格式、数据块、帧数和文件大小检查限制。不会隐式加载外部原生库。不执行驱动、固件或系统音频控制。
+
+导入的素材必须视为不可信数据。处理前请验证文件大小、数据块边界和声明的格式。
+
+## 质量验证
+
+~~~sh
+ctest --test-dir build --output-on-failure
+~~~
+
+测试目标覆盖确定性生成、插件路由、WAV 边界、重采样、MIDI 文件、离线频谱分析和运行时事务。只有检测到 Qt Widgets 时才会注册桌面界面测试。没有公开报告时，不声明覆盖率或模糊测试百分比。
+
+## 性能证据
+
+生成器和 DSP 测试验证确定性与有界处理，而非实时播放延迟。此处不声明固定微秒延迟、RAM 占用或采样率兼容矩阵。
+
+## 兼容性
+
+CMake 提供可移植核心和可选 Qt 6 Widgets 桌面目标。文档记录了 MSVC 与 GCC/Clang 构建路径；桌面目标是否可用取决于兼容的 Qt 6 SDK。
+
+## 文档与生态
+
+- [Features](docs/FEATURES.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
+- [MIDI and resampling](docs/MIDI_AND_RESAMPLING.md)
+- [Plugins](docs/PLUGINS.md)
+- [Source integration and licensing](docs/SOURCE_INTEGRATION.md)
+- [Documentation index](docs/README.md)
+
+音频引擎、MIDI/重采样、插件和源码许可文档定义了格式边界与扩展点。
+
+与 Reaper 的素材包交换采用文件和版本化格式。只有在向 CMake 显式提供本地 Reaper 源码树时，才启用可选的 Reaper 原生表达式集成；Pytyliki 原生指标仍属于计划中的可选功能。
+
+## 参与贡献
+
+修改代码或格式契约前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。保持改动可审查，添加确定性测试，并按贡献指南使用 Conventional Commits。
+
+## 许可证与法律说明
+
+本项目依据 Apache-2.0 许可，软件按许可条款以“按现状”方式提供。第三方名称和商标归其各自权利人所有。
+
+云服务条款、Cookie、CORS 和 OAuth 不适用于本文档所述的本地运行环境。
+
+---
+
+<p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 UTC</sub></p>
