@@ -19,7 +19,7 @@
 | Лицензия | [Apache-2.0](LICENSE) |
 | Проверка документации | 2026-11-26 |
 
-<p align="center"><img src="assets/readme/ventusample-workstation.svg" alt="Рабочая станция VentuSample" width="100%"></p>
+<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="Рабочая станция VentuSample" width="100%"></p>
 
 ## Содержание
 - [Назначение и архитектура](#назначение-и-архитектура)
