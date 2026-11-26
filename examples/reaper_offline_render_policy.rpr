@@ -5,12 +5,15 @@
 #                offline_mode, execute_plugin_code].
 
 craft render_config_valid(config) {
-    when size(config) != 8 { yield false }
-    when config[0] < 48000 or config[0] > 96000 { yield false }
-    when config[1] < 1 or config[1] > 2 { yield false }
+    when kind(config) != "list" or size(config) != 8 { yield false }
+    when kind(config[0]) != "number" or kind(config[1]) != "number" or kind(config[2]) != "text" { yield false }
+    when kind(config[3]) != "number" or kind(config[4]) != "number" or kind(config[5]) != "number" { yield false }
+    when kind(config[6]) != "boolean" or kind(config[7]) != "boolean" { yield false }
+    when config[0] % 1 != 0 or config[0] < 48000 or config[0] > 96000 { yield false }
+    when config[1] % 1 != 0 or config[1] < 1 or config[1] > 2 { yield false }
     when config[2] != "pcm16" { yield false }
-    when config[3] <= 0 or config[3] > 57600000 { yield false }
-    when config[4] < 0 { yield false }
+    when config[3] % 1 != 0 or config[3] <= 0 or config[3] > 57600000 { yield false }
+    when config[4] % 1 != 0 or config[4] < 0 { yield false }
     when config[5] < 0 or config[5] > 65 { yield false }
     when not config[6] or config[7] { yield false }
     yield true
@@ -18,11 +21,12 @@ craft render_config_valid(config) {
 
 craft pack_metadata_valid(pack) {
     # [schema, render_config, payload_bytes, digest, manifest_seed, deterministic]
-    when size(pack) != 6 { yield false }
+    when kind(pack) != "list" or size(pack) != 6 { yield false }
+    when kind(pack[0]) != "text" or kind(pack[2]) != "number" or kind(pack[3]) != "text" or kind(pack[4]) != "number" or kind(pack[5]) != "boolean" { yield false }
     when pack[0] != "ventusample.pack.v1" { yield false }
     when not render_config_valid(pack[1]) { yield false }
-    when pack[2] <= 0 or pack[2] > 134217728 { yield false }
-    when pack[3] == "" or pack[4] < 0 { yield false }
+    when pack[2] % 1 != 0 or pack[2] <= 0 or pack[2] > 134217728 { yield false }
+    when size(pack[3]) == 0 or size(pack[3]) > 256 or pack[4] % 1 != 0 or pack[4] < 0 { yield false }
     when pack[4] != pack[1][4] or not pack[5] { yield false }
     yield true
 }
@@ -42,11 +46,22 @@ make config := [48000, 2, "pcm16", 480000, 20261125, 65, true, false]
 make pack := ["ventusample.pack.v1", config, 1048576, "sha256:fixture", 20261125, true]
 make invalid_realtime := [48000, 2, "pcm16", 480000, 20261125, 65, false, false]
 make mismatched_seed := ["ventusample.pack.v1", config, 1048576, "sha256:fixture", 7, true]
+make wrong_frames_type := [48000, 2, "pcm16", "480000", 20261125, 65, true, false]
+make fractional_sample_rate := [48000.5, 2, "pcm16", 480000, 20261125, 65, true, false]
+make invalid_channel_count := [48000, 0, "pcm16", 480000, 20261125, 65, true, false]
+make malformed_pack := ["ventusample.pack.v1", config, "large", "sha256:fixture", 20261125, true]
+make non_deterministic_pack := ["ventusample.pack.v1", config, 1048576, "sha256:fixture", 20261125, false]
 
 assert(render_config_valid(config), "valid bounded offline render configuration")
 assert(pack_metadata_valid(pack), "deterministic pack metadata")
 assert(not render_config_valid(invalid_realtime), "realtime mode is not part of this product contract")
 assert(not pack_metadata_valid(mismatched_seed), "manifest seed must match render seed")
 assert(not realtime_execution_allowed(), "offline renderer does not claim realtime execution")
+assert(not render_config_valid("malformed-config"), "non-list render configuration is rejected")
+assert(not render_config_valid(wrong_frames_type), "non-numeric frame count is rejected")
+assert(not render_config_valid(fractional_sample_rate), "fractional sample rate is rejected")
+assert(not render_config_valid(invalid_channel_count), "unsupported channel count is rejected")
+assert(not pack_metadata_valid(malformed_pack), "non-numeric payload size is rejected")
+assert(not pack_metadata_valid(non_deterministic_pack), "non-deterministic packs are rejected")
 
 emit "VENTUSAMPLE_REAPER_POLICY:PASS"
