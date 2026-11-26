@@ -13,7 +13,7 @@ VentuSample owns procedural sound generation, preset and pack metadata, WAV/MIDI
 - Exchange generated assets and metadata through the existing versioned VentuSample pack/preset schemas.
 - Keep deterministic seed, variation, render settings, sample rate, channel layout and format metadata attached to generated outputs.
 - Reaper may validate pack manifests and compare metadata read-only; it must not rewrite or reinterpret the audio payload.
-- DuckOS may display pack and render metadata through a future user-space application.
+- DAK may display pack and render metadata through a future user-space application.
 - Pytyliki may provide independent bounded metrics where a genuine API and workload make that useful; do not create a direct dependency merely to increase integration count.
 
 ## NEXUS application consumer
@@ -24,7 +24,7 @@ VentuSample owns procedural sound generation, preset and pack metadata, WAV/MIDI
 
 ## Real-time audio is a separate project
 
-A future real-time audio service requires an independent DuckOS design covering device ownership, sample-format negotiation, bounded ring buffers, callback/work scheduling, priority inversion, underrun recovery, clock drift and hardware-specific latency measurements. Offline DSP code may be reused only through an explicit real-time-safe API; allocation, locks, file I/O and unbounded work are prohibited in a real-time callback.
+A future real-time audio service requires an independent DAK design covering device ownership, sample-format negotiation, bounded ring buffers, callback/work scheduling, priority inversion, underrun recovery, clock drift and hardware-specific latency measurements. Offline DSP code may be reused only through an explicit real-time-safe API; allocation, locks, file I/O and unbounded work are prohibited in a real-time callback.
 
 Do not publish a target such as end-to-end latency below 1 ms until reproducible tests identify hardware, driver/provider, buffer size, sample rate, scheduling mode and measured percentile distribution.
 
