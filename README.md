@@ -17,6 +17,7 @@
 | Audio output | PCM16 WAV, deterministic local render |
 | Pack formats | Manifest v1 and v2 |
 | License | [Apache-2.0](LICENSE) |
+| Code of Conduct | Not published (no root `CODE_OF_CONDUCT.md`) |
 | Last documentation review | 2026-11-26 |
 
 <p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample offline workstation" width="100%"></p>
