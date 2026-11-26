@@ -78,6 +78,8 @@ add_library(ventusample_core STATIC
     src/careguard.hpp
     src/runtime_transaction.cpp
     src/runtime_transaction.hpp
+    src/audio_telemetry.cpp
+    src/audio_telemetry.hpp
     src/octa8.hpp
 )
 target_include_directories(ventusample_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -195,6 +197,10 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_runtime_transaction_tests tests/test_runtime_transaction.cpp)
     target_link_libraries(ventusample_runtime_transaction_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-runtime-transaction COMMAND ventusample_runtime_transaction_tests)
+
+    add_executable(ventusample_audio_telemetry_tests tests/test_audio_telemetry.cpp)
+    target_link_libraries(ventusample_audio_telemetry_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-audio-telemetry COMMAND ventusample_audio_telemetry_tests)
     add_executable(ventusample_octa8_tests tests/test_octa8.cpp)
     target_link_libraries(ventusample_octa8_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-octa8-types COMMAND ventusample_octa8_tests)

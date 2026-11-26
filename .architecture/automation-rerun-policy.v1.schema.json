@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Ivan-VHS/VentuSample/schemas/safe-ci-rerun.v1.schema.json",
+  "title": "ANATIDAE Safe CI Rerun Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "repository",
+    "max_attempts",
+    "allowed_events",
+    "allowed_conclusions",
+    "allowed_workflow_names",
+    "same_repository_only"
+  ],
+  "properties": {
+    "schema": {
+      "const": "anatidae.safe-ci-rerun.v1"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "max_attempts": {
+      "const": 2
+    },
+    "allowed_events": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "push",
+          "pull_request",
+          "schedule",
+          "workflow_dispatch"
+        ]
+      }
+    },
+    "allowed_conclusions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "failure",
+          "timed_out"
+        ]
+      }
+    },
+    "allowed_workflow_names": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "same_repository_only": {
+      "const": true
+    }
+  }
+}

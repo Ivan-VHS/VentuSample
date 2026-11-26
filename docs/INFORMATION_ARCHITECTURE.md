@@ -27,7 +27,7 @@ The connected projects remain separate products. A link indicates useful context
 - [Reaper documentation map](https://github.com/Ivan-VHS/Reaper/blob/main/docs/INFORMATION_ARCHITECTURE.md) — language, Studio and runtime integration contracts.
 - [Pytyliki documentation map](https://github.com/Ivan-VHS/Pytyliki/blob/main/docs/INFORMATION_ARCHITECTURE.md) — processor systems and DSP migration context.
 - [OPlague documentation map](https://github.com/Ivan-VHS/OPlague/blob/main/docs/INFORMATION_ARCHITECTURE.md) — device and driver inspection boundaries.
-- [DuckOS documentation map](https://github.com/Ivan-VHS/DuckOS/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
+- [DAK documentation map](https://github.com/Ivan-VHS/DAK/blob/main/docs/INFORMATION_ARCHITECTURE.md) — repository entry-point map.
 
 ## Full document catalog
 
@@ -62,6 +62,7 @@ Each Markdown page has a direct catalog entry and a topic-hub entry. The cluster
 - [ENGINEERING BASELINE](ENGINEERING_BASELINE.md)
 - [MOTION CONSTITUTION V2026](MOTION_CONSTITUTION_V2026.md)
 - [TRANSACTIONAL RUNTIME](TRANSACTIONAL_RUNTIME.md)
+- [RESILIENCE POLICY](RESILIENCE_POLICY.md)
 
 ### UI, accessibility and visual system
 
@@ -83,6 +84,7 @@ Each Markdown page has a direct catalog entry and a topic-hub entry. The cluster
 - [QUALITY COMMERCIAL STANDARD](QUALITY_COMMERCIAL_STANDARD.md)
 - [QUALITY REMEDIATION STANDARD](QUALITY_REMEDIATION_STANDARD.md)
 - [QUALITY REPEATABILITY NATIVE](QUALITY_REPEATABILITY_NATIVE.md)
+- [ROADMAP GOVERNANCE AND CI SCALE](ROADMAP_GOVERNANCE_CI_SCALE.md)
 - [REPORT ENVELOPE](REPORT_ENVELOPE.md)
 
 ### Integration, governance and planning

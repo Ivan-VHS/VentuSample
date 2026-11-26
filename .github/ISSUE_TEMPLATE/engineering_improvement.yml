@@ -1,0 +1,60 @@
+name: Engineering improvement
+description: Propose a measurable, reviewable engineering improvement.
+title: "[improvement]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: Select urgency from user impact and operational risk, not enthusiasm.
+      options:
+        - P0 — safety, data integrity, release blocker
+        - P1 — core workflow, compatibility, or recurring defect
+        - P2 — improvement with a bounded workaround
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: User and system impact
+      description: Identify affected workflows, users, platforms, modules, and observable consequences.
+    validations:
+      required: true
+  - type: textarea
+    id: current_evidence
+    attributes:
+      label: Current evidence and reproduction
+      description: Include a failing test, log, package/sample fixture, source path, or exact reproduction steps.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: List observable outcomes and positive, negative, and boundary tests.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks, dependencies, and compatibility
+      description: Identify security, data, ABI, schema, platform, and cross-repository risks.
+    validations:
+      required: true
+  - type: textarea
+    id: rollback
+    attributes:
+      label: Verification and rollback
+      description: State verification commands, required CI gates, and a reversible rollback path.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety boundaries
+      options:
+        - label: This proposal does not require unreviewed destructive actions, privilege escalation, firmware/driver writes, or execution of untrusted payloads.
+          required: true
+        - label: Any new external side effect is explicit, least-privileged, auditable, and requires human approval.
+          required: true
