@@ -19,7 +19,7 @@
 | License | [Apache-2.0](LICENSE) |
 | Last documentation review | 2026-11-26 |
 
-<p align="center"><img src="assets/readme/ventusample-workstation.svg" alt="VentuSample offline workstation" width="100%"></p>
+<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample offline workstation" width="100%"></p>
 
 ## Contents
 - [Purpose and architecture](#purpose-and-architecture)
