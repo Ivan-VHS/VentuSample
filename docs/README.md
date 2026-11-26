@@ -1,32 +1,37 @@
 # VentuSample documentation
 
-> **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
+**Documentation baseline:** 2026-11-26 · **Project version:** 0.2.0 · **Runtime:** offline C++20 audio core.
 
-Start with the [project README](../README.md) for build options, offline-only processing scope and pack contracts. The [documentation map](INFORMATION_ARCHITECTURE.md) links the full catalogue.
+Start with the [root README](../README.md) for build commands, supported file formats, size limits and offline-only behavior. The [Information Architecture](INFORMATION_ARCHITECTURE.md) page catalogs the complete library.
 
-## Key references
+## Core technical references
 
-- [Features and maturity](FEATURES.md) — generator, offline DSP and desktop status.
-- [Architecture](ARCHITECTURE.md) — processing pipeline and data ownership.
-- [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — offline rendering behavior.
-- [MIDI and resampling](MIDI_AND_RESAMPLING.md) — import and conversion boundaries.
-- [Plugin interfaces](PLUGINS.md) — offline DSP extension model.
-- [Source integration](SOURCE_INTEGRATION.md) — asset provenance and licensing rules.
-- [NEXUS audio profile](NEXUS_AUDIO_PROFILE_V1.md) — offline processing ownership and companion-tool integration.
+- [Feature matrix](FEATURES.md) — implemented capabilities and unsupported workflows.
+- [Architecture and audio contract](ARCHITECTURE.md) — renderer, routing, file bounds and manifest behavior.
+- [Plugins](PLUGINS.md) — plugin registration, lifecycle and parameter boundaries.
+- [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — module catalogue and reusable kernels.
+- [MIDI and resampling](MIDI_AND_RESAMPLING.md) — imported material and pitch behavior.
+- [Quality Monolith Rhythm](QUALITY_MONOLITH_RHYTHM.md) — generator cohesion and regression parameters.
+- [Reaper pack audit](REAPER_PACK_AUDIT.md) — metadata-only integration.
+- [User guide](USER_GUIDE_RU.md) — workstation workflow.
+- [Documentation control](DOCUMENTATION_CONTROL.md) — publication and evidence gates.
 
 ## Browse by topic
 
 - [Audio pipeline and DSP](clusters/audio-dsp.md)
-- [Studio and plugin workflows](clusters/studio-workflows.md)
-- [Architecture and runtime](clusters/architecture-runtime.md)
-- [UI and accessibility](clusters/ui-visual.md)
-- [Quality and evidence](clusters/quality-engineering.md)
-- [Integration and governance](clusters/integration-governance.md)
+- [Studio, presets and plugin workflows](clusters/studio-workflows.md)
+- [Architecture and runtime contracts](clusters/architecture-runtime.md)
+- [UI and visual system](clusters/ui-visual.md)
+- [Quality and engineering evidence](clusters/quality-engineering.md)
+- [Integration, governance and planning](clusters/integration-governance.md)
 
-## Shared engineering rules
+## Shared standards
 
 - [Unified documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
-- [Engineering evolution framework](ENGINEERING_EVOLUTION_FRAMEWORK.md)
-- [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
+- [Engineering baseline](ENGINEERING_BASELINE.md)
+- [Contributing](../CONTRIBUTING.md)
+- [Security](../SECURITY.md)
 
-Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.
+## Evidence and rights
+
+Distinguish deterministic generation from objective audio quality, output peak/RMS metrics from subjective sound, and a manifest audit from waveform verification. Imported audio remains untrusted and subject to input bounds. Users remain responsible for rights to samples and generated packs.
