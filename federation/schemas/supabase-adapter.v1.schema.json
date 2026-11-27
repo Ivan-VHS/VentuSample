@@ -25,7 +25,7 @@
     },
     "project": {
       "enum": [
-        "duckos",
+        "dakos",
         "reaper",
         "pytyliki",
         "ventusample",
@@ -34,7 +34,7 @@
     },
     "repository": {
       "type": "string",
-      "pattern": "^Ivan-VHS/(DuckOS|Reaper|Pytyliki|VentuSample|OPlague)$"
+      "pattern": "^Ivan-VHS/(DAKOS|Reaper|Pytyliki|VentuSample|OPlague)$"
     },
     "role": {
       "enum": [
