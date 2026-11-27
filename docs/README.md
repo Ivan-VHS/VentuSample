@@ -8,6 +8,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 
 - [Features and maturity](FEATURES.md) — generator, offline DSP and desktop status.
 - [Architecture](ARCHITECTURE.md) — processing pipeline and data ownership.
+- [Rhythmic Pattern Exploration v1](RHYTHMIC_PATTERN_EXPLORATION_V1.md) — proposed offline audio profile for repetition, grouping, pulse and duration.
 - [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — offline rendering behavior.
 - [MIDI and resampling](MIDI_AND_RESAMPLING.md) — import and conversion boundaries.
 - [Plugin interfaces](PLUGINS.md) — offline DSP extension model.
