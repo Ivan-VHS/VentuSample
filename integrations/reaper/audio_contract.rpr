@@ -116,8 +116,14 @@ craft iron_audio_origin_admission(schema, version, canonical_owner, execution_pe
     yield "ACCEPT_OFFLINE_METADATA"
 }
 
-assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", false, false, 20) == "ACCEPT_OFFLINE_METADATA"
-assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", true, "offline_worker", false, false, 20) == "REJECT_EXECUTION"
-assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "audio_callback", false, false, 20) == "REJECT_CONTEXT"
-assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", true, false, 20) == "REJECT_REALTIME_CALLBACK"
-assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", false, true, 20) == "REJECT_EXTERNAL_UPLOAD"
+make iron_origin_valid := iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", false, false, 20)
+make iron_origin_executed := iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", true, "offline_worker", false, false, 20)
+make iron_origin_realtime := iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "audio_callback", false, false, 20)
+make iron_origin_callback := iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", true, false, 20)
+make iron_origin_upload := iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", false, true, 20)
+
+assert(iron_origin_valid == "ACCEPT_OFFLINE_METADATA", "valid Iron source origin must pass")
+assert(iron_origin_executed == "REJECT_EXECUTION", "executed AST must be rejected")
+assert(iron_origin_realtime == "REJECT_CONTEXT", "realtime worker context must be rejected")
+assert(iron_origin_callback == "REJECT_REALTIME_CALLBACK", "audio callback use must be rejected")
+assert(iron_origin_upload == "REJECT_EXTERNAL_UPLOAD", "external upload must be rejected")
