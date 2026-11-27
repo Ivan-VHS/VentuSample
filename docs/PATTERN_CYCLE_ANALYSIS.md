@@ -8,10 +8,9 @@ Inputs are a non-decreasing list of event frame positions, the total frame count
 
 The first cycle is the reference motif. Every following cycle is compared by its event offsets relative to that cycle's start. A cycle matches only when its ordered offsets (including repeated positions) are identical.
 
-[
-\text{repeat accuracy} =
-100 \cdot \frac{\text{matching cycles}}{\text{all cycles}}
-]
+The reported percentage is:
+
+repeatAccuracyPercent = 100 * matchingCycles / cycleCount
 
 A structurally valid input with fewer than two cycles or no events is marked as not analyzed rather than being assigned a misleading score. The analysis is deterministic and reports only; it does not modify audio, move notes, render a file, open an audio device, or make a real-time callback.
 
