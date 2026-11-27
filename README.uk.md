@@ -2,60 +2,48 @@
 
 [English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)
 
-> Детермінована робоча станція C++20 для генерації семплів і offline DSP з обмеженим імпортом/експортом PCM16 WAV, версіонованими pack-manifest і необов’язковою оболонкою Qt 6.
+[![CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) [![Release workflow](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/release.yml?branch=main&label=Release)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/release.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 
-**Специфікація**
+> Детермінована генерація семплів на C++20 та offline DSP з обмеженим WAV I/O, відтворюваною маршрутизацією й версіонованими manifest наборів.
 
-| Поле | Поточний запис |
-|---|---|
-| Репозиторій | [Ivan-VHS/VentuSample](https://github.com/Ivan-VHS/VentuSample) |
-| Версія проєкту | 0.2.0 (контракт проєкту та CMake) |
-| Стан проєкту | Розробка; offline-аудіоядро |
-| Ядро | C++20; C11 DSP compatibility layer |
-| Desktop | Необов’язкова оболонка Qt 6 Widgets |
-| Збірка | CMake 3.21+ |
-| Аудіовихід | PCM16 WAV, детермінований локальний рендеринг |
-| Pack-формати | Manifest v1 та v2 |
-| Ліцензія | [Apache-2.0](LICENSE) |
-| Кодекс поведінки | Окремий `CODE_OF_CONDUCT.md` не опубліковано |
-| Перевірка документації | 2026-11-26 |
+**Відомості про проєкт:** розробка · версія 0.2.0 · ядро C++20 та DSP compatibility layer на C11 · необов’язковий desktop Qt 6 Widgets · offline-рендеринг · Apache-2.0 · **Документацію перевірено:** 2026-11-27 UTC
 
-<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="Робоча станція VentuSample" width="100%"></p>
-
-## Зміст
-- [Призначення та архітектура](#призначення-та-архітектура)
-- [Збірка та перевірка](#збірка-та-перевірка)
-- [Аудіо- та файлові контракти](#аудіо-та-файлові-контракти)
-- [DSP і система плагінів](#dsp-і-система-плагінів)
-- [Інтеграції](#інтеграції)
-- [Обмеження та права](#обмеження-та-права)
-- [Документація та версії](#документація-та-версії)
+<p align="center"><img src="assets/screenshots/ventusample-studio.png" alt="Офлайн робоча станція VentuSample" width="100%"></p>
 
 ## Призначення та архітектура
 
-VentuSample генерує відтворювані sample packs і локально обробляє аудіофайли. Ядро C++20 відповідає за перевірку параметрів, детерміновану генерацію патернів, stereo float processing, offline DSP-маршрутизацію, WAV I/O та створення manifest. Desktop-ціль Qt 6 Widgets необов’язкова й збирається лише за наявності SDK.
+VentuSample створює відтворювані набори семплів і локально обробляє аудіофайли. Ядро C++20 відповідає за перевірку параметрів, генерацію патернів із seed, стереообробку, offline DSP-маршрутизацію, імпорт/експорт WAV і формування manifest. Сумісний шар C11 надає низькорівневі DSP- та MIDI/file-примітиви. Необов’язковий застосунок Qt 6 Widgets забезпечує desktop-інтерфейс, але не є real-time аудіохостом.
 
 ~~~mermaid
 flowchart TB
-  U["Параметри / seed / variation"] --> V["Перевірка та ресурсні обмеження"]
-  V --> G["Планувальник патернів і рендерер"]
-  G --> F["Stereo float buffer"]
-  F --> D["Offline DSP / stochastic router"]
-  D --> M["Master і peak guard"]
-  M --> W["PCM16 WAV assets"]
+  U["Профіль / seed / параметри"] --> V["Перевірка й ресурсні межі"]
+  V --> G["Планувальник патернів і renderer"]
+  G --> F["Стерео float processing"]
+  F --> D["Offline DSP і stochastic routing"]
+  D --> M["Master / RMS і peak guard"]
+  M --> W["Обмежені PCM16 WAV assets"]
   V --> J["Версіонований pack manifest v1/v2"]
-  W --> P["Каталог пакета"]
+  W --> P["Локальний sample pack"]
   J --> P
   Q["Необов’язковий Qt 6 desktop"] --> U
 ~~~
 
-Рендеринг виконується offline у робочому потоці. Real-time audio callback і доступ до аудіопристрою не надаються.
+## Можливості
 
-## Збірка та перевірка
+- **Процедурна генерація:** детерміновані стереопатерни із seed за 14 документованими hip-hop і суміжними профілями, включно з редагованим профілем Billionaire Golden Era.
+- **Golden-era crate workflow:** детерміноване компонування чотирьох зрізів у порядку 0–2–1–3, зважений добір kick/snare, стримані hats, спільний swing і відтворювані переходи.
+- **Імпорт і нарізка WAV:** обмежений PCM16 mono/stereo input (8–192 kHz, до 128 MiB і 20 млн кадрів), розміщення чотирьох зрізів і ресемплінг на ±12 півтонів. Зміна висоти тону також змінює швидкість; time-stretch зі збереженням темпу не реалізовано.
+- **Offline DSP:** фільтри, saturation, обробка зв’язаної стереошини, RMS matching, захист sample peak та обмежена маршрутизація ефектів.
+- **Stochastic router:** вісім зважених ефектів у serial, parallel і hybrid-графах; тригери file/bar/generator-onset; детермінована маршрутизація за seed/variation; обмежені wet/feedback, fades і захист виходу. Інтегрований в offline export.
+- **Аналіз:** peak, RMS і crest factor для файлів; offline FFT peak, centroid і rolloff на 85%. Доступ до аудіопристроїв не потрібен.
+- **Тональні метадані:** key/mode додаються лише до тонального матеріалу; ударним без визначеної висоти не призначається вигадана тональність.
+- **Обмін наборами:** manifest `ventusample.pack.v1` і `ventusample.pack.v2` з WAV assets. Поточний Reaper consumer перевіряє й порівнює метадані manifest v1, не аналізуючи та не змінюючи waveform.
 
-Потрібні CMake 3.21+ і компілятор C++20. Для desktop-виконуваного файла встановіть Qt 6 Widgets.
+Профілі — оригінальні процедурні патерни, а не записи й не заява про відтворення конкретного артиста. За імпортоване аудіо відповідає користувач; програма не встановлює авторських прав чи ліцензійної чистоти матеріалу.
 
-### Ядро та доступні тести
+## Збирання та перевірка
+
+Потрібні CMake 3.21+, компілятор C++20 і компілятор C для DSP-шару C11. Qt 6 Widgets необов’язковий. Переносне ядро й тести можна збирати без Qt.
 
 ~~~sh
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=ON -DVENTU_BUILD_TESTS=ON
@@ -63,7 +51,7 @@ cmake --build build --parallel 2
 ctest --test-dir build --output-on-failure
 ~~~
 
-Без Qt 6 окремо зберіть ядро та його тести:
+Переносне ядро без Qt:
 
 ~~~sh
 cmake -S . -B build-core -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
@@ -71,58 +59,39 @@ cmake --build build-core --parallel
 ctest --test-dir build-core --output-on-failure
 ~~~
 
-UI-тести Qt доступні лише коли налаштовано Qt Widgets target. Пропуск desktop-target не означає успішну збірку desktop-застосунку.
+Desktop-ціль створюється лише за наявності Qt 6 Widgets. Без SDK переносне ядро й доступні тести все одно можна зібрати.
 
-## Аудіо- та файлові контракти
+## Межі аудіо та файлів
 
-| Поверхня | Контракт |
-|---|---|
-| Створені assets | RIFF/WAVE PCM16 |
-| Імпортоване джерело | PCM16 mono/stereo WAV |
-| Частота джерела | 8–192 кГц |
-| Межі джерела | ≤128 MiB і ≤20 000 000 frames |
-| Chop | Імпорт чотирьох зрізів і розміщення за beat |
-| Pitch shift | ±12 півтонів через resampling; тривалість/швидкість змінюється |
-| Частоти експорту | 22,05; 44,1; 48 або 96 кГц |
-| Pack manifests | v1 і v2; v2 додає необов’язкові tonal/routing metadata |
-| Reaper audit | Читає metadata manifest; WAV-файли не змінюються |
+| Поверхня | Контракт | Межа |
+|---|---|---|
+| Presets | `ventusample.preset.v1` | Перевірені локальні налаштування |
+| Pack exchange | `ventusample.pack.v1 / v2` | JSON manifest і WAV assets |
+| Audio output | RIFF PCM16 stereo WAV | Обмежений локальний render з peak/RMS metadata |
+| DSP graph | Native offline DSP | Без real-time VST/AU hosting |
+| Analysis | Offline FFT і метрики файлів | Локальні дані; без захоплення з аудіопристрою |
 
-Усе імпортоване аудіо є недовіреним вводом і проходить перевірку формату, чанків, кількості кадрів і розміру. Тональні мітки описують налаштування генератора, а не автоматичне визначення тональності імпортованого матеріалу. Drum assets не отримують вигаданих key labels.
+Рендеринг виконується offline. Наразі проєкт не надає real-time playback, аудіорушія з доступом до пристроїв, VST/AU-хоста, time-stretch зі збереженням темпу або GPU dispatch. Не заявляються фіксована real-time затримка, обсяг RAM або універсальна продуктивність для всіх sample rate.
 
-## DSP і система плагінів
+## Тести та докази продуктивності
 
-Поточний проєкт містить seed-based процедурні профілі, спільний swing/timing schedule, Golden Era arrangement, обмежений stereo mastering, восьмиефектний stochastic offline router і каталог Quantum Audio Engine зі 133 іменованими module identities на основі 21 повторно використовуваного DSP kernel.
+CTest перевіряє детерміновану генерацію, WAV boundaries, ресемплінг, MIDI-файли, offline spectrum analysis, маршрутизацію плагінів і runtime-транзакції. UI-тести Qt реєструються лише за наявності Qt 6 Widgets. Відсотки coverage або fuzzing не заявляються без опублікованих звітів.
 
-Stochastic router обробляє вже відрендерений аудіобуфер перед кодуванням WAV. Onset-trigger використовує event frames рендерера; він не виявляє транзієнти у довільному імпортованому аудіо. Quantum Audio Engine — offline DSP-каталог і ланцюжок обробки, а не фізичний квантовий комп’ютер чи real-time DAW engine.
+Тести підтверджують детерміновану й обмежену поведінку, а не затримку real-time playback чи універсальний рейтинг обладнання.
 
-Див. [Features](docs/FEATURES.md), [Architecture](docs/ARCHITECTURE.md), [Plugins](docs/PLUGINS.md), [Quality Monolith Rhythm](docs/QUALITY_MONOLITH_RHYTHM.md) та [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md).
+## Інтеграції та документація
 
-## Інтеграції
+Обмін із Reaper використовує файли й версіоновані формати. Поточний Reaper consumer читає метадані manifest v1 і не змінює WAV assets. Необов’язкова інтеграція нативних виразів Reaper вмикається лише за явного передавання локального дерева вихідного коду Reaper до CMake. Прямий адаптер нативних метрик/DSP Pytyliki поки запланований.
 
-VentuSample експортує manifest v1/v2 і WAV assets. Поточний Reaper consumer перевіряє та порівнює metadata pack; він не аналізує, не переписує і не рендерить waveform WAV. Прямий native metrics adapter Pytyliki запланований і має бути opt-in та пройти ABI differential tests перед заявою про доступність.
-
-Міст Reaper у CMake вимкнений, доки явно не вказано локальний каталог вихідного коду Reaper. Зовнішня native-бібліотека автоматично не завантажується.
-
-## Обмеження та права
-
-> VentuSample — offline-робоча станція, а не real-time audio engine і не DAW plugin host.
-
-Real-time playback, захоплення аудіопристрою, DAW plugin hosting, tempo-preserving time-stretch і GPU dispatch не реалізовані. Транспонування джерела використовує resampling, тому зміна висоти тону також змінює тривалість відтворення. Рендерер використовує portable scalar path; універсальні показники latency або throughput не заявляються.
-
-Користувачі відповідають за права на імпортовані семпли, створені outputs і розповсюджувані packs. Репозиторій не заявляє права власності чи ліцензійної чистоти стороннього аудіоматеріалу. Не додавайте приватні sample paths або неліцензовані записи до публічних fixture.
-
-## Документація та версії
-
-Почніть з [індексу документації](docs/README.md) та [інформаційної архітектури](docs/INFORMATION_ARCHITECTURE.md).
-
-- [Матриця функцій](docs/FEATURES.md)
-- [Архітектура й аудіоконтракт](docs/ARCHITECTURE.md)
-- [Посібник користувача](docs/USER_GUIDE_RU.md)
-- [Manifest і Reaper pack audit](docs/REAPER_PACK_AUDIT.md)
-- [Plugin API та lifecycle](docs/PLUGINS.md)
-- [MIDI та resampling](docs/MIDI_AND_RESAMPLING.md)
-- [Quality Monolith Rhythm](docs/QUALITY_MONOLITH_RHYTHM.md)
-- [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
+- [Матриця функцій](docs/FEATURES.md) · [Архітектура](docs/ARCHITECTURE.md)
+- [CRATE production suite](docs/CRATE_PRODUCTION_SUITE.md) · [Hip-hop preset crate](examples/hip-hop-presets/README.md)
+- [Quality Monolith Rhythm](docs/QUALITY_MONOLITH_RHYTHM.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
+- [Плагіни та lifecycle](docs/PLUGINS.md) · [MIDI та ресемплінг](docs/MIDI_AND_RESAMPLING.md)
+- [Інтеграція вихідного коду та ліцензії](docs/SOURCE_INTEGRATION.md) · [Індекс документації](docs/README.md)
 - [Контроль документації](docs/DOCUMENTATION_CONTROL.md)
 
-Контракт проєкту та CMake декларують версію 0.2.0; це саме собою не підтверджує стабільний реліз. Зміни публічного pack-формату потребують оновлення схем, тестів сумісності й приміток щодо міграції. Перед зміною DSP-input, плагінів або pack-контрактів прочитайте [CONTRIBUTING.md](CONTRIBUTING.md) і [SECURITY.md](SECURITY.md). Ліцензія — [Apache-2.0](LICENSE); зберігайте повідомлення сторонніх компонентів.
+## Безпека, внесок і ліцензія
+
+Вважайте імпортовані WAV і preset packs недовіреними даними. Перед обробкою перевіряйте розмір файлу, RIFF chunks, кількість кадрів і заявлені формати. Зовнішні native-бібліотеки не завантажуються неявно. Керування драйверами, прошивкою та системним аудіо не виконується.
+
+Перед зміною DSP-поведінки, форматів файлів або plugin-контрактів прочитайте [CONTRIBUTING.md](CONTRIBUTING.md). Ліцензія проєкту — [Apache-2.0](LICENSE); зберігайте повідомлення сторонніх компонентів.
