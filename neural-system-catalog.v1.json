@@ -1,0 +1,128 @@
+{
+  "schema": "ivan-vhs.neural-system-catalog.v1",
+  "version": 1,
+  "owner": "Ivan-VHS/DAK",
+  "description": "Canonical twenty-profile taxonomy for neural-system types, neural contracts and engineering directions. DAK owns the catalogue; repositories carry synchronized local snapshots for offline use.",
+  "profiles": [
+    {
+      "id": "nscf-01",
+      "system_type": "Искусственная нейронная сеть",
+      "neural_contract": "Нейросетевой контракт",
+      "engineering_domain": "Системное проектирование"
+    },
+    {
+      "id": "nscf-02",
+      "system_type": "Нейронная сеть",
+      "neural_contract": "Нейросетевое соглашение",
+      "engineering_domain": "Системное конструирование"
+    },
+    {
+      "id": "nscf-03",
+      "system_type": "ИНС",
+      "neural_contract": "Сетевой нейродоговор",
+      "engineering_domain": "Системное программирование"
+    },
+    {
+      "id": "nscf-04",
+      "system_type": "Нейронная модель",
+      "neural_contract": "Нейронный контракт",
+      "engineering_domain": "Комплексная разработка"
+    },
+    {
+      "id": "nscf-05",
+      "system_type": "Искусственный интеллект",
+      "neural_contract": "Цифровой нейроконтракт",
+      "engineering_domain": "Архитектурная разработка"
+    },
+    {
+      "id": "nscf-06",
+      "system_type": "Интеллектуальная система",
+      "neural_contract": "Интеллектуальный контракт",
+      "engineering_domain": "Инженерная разработка"
+    },
+    {
+      "id": "nscf-07",
+      "system_type": "Машинная модель",
+      "neural_contract": "Когнитивный контракт",
+      "engineering_domain": "Комплексное проектирование"
+    },
+    {
+      "id": "nscf-08",
+      "system_type": "Вычислительная сеть",
+      "neural_contract": "Искусственно-интеллектуальный контракт",
+      "engineering_domain": "Разработка систем"
+    },
+    {
+      "id": "nscf-09",
+      "system_type": "Когнитивная система",
+      "neural_contract": "Автономный нейроконтракт",
+      "engineering_domain": "Создание систем"
+    },
+    {
+      "id": "nscf-10",
+      "system_type": "Интеллектуальная модель",
+      "neural_contract": "Распределённый нейроконтракт",
+      "engineering_domain": "Системная инженерия"
+    },
+    {
+      "id": "nscf-11",
+      "system_type": "Обучаемая система",
+      "neural_contract": "Децентрализованный нейроконтракт",
+      "engineering_domain": "Архитектурное проектирование"
+    },
+    {
+      "id": "nscf-12",
+      "system_type": "Самообучающаяся модель",
+      "neural_contract": "Машинный нейроконтракт",
+      "engineering_domain": "Технологическая разработка"
+    },
+    {
+      "id": "nscf-13",
+      "system_type": "Алгоритмическая сеть",
+      "neural_contract": "Нейросетевой договор",
+      "engineering_domain": "Интеграционная разработка"
+    },
+    {
+      "id": "nscf-14",
+      "system_type": "Цифровой интеллект",
+      "neural_contract": "Интеллектуальное соглашение",
+      "engineering_domain": "Модульная разработка"
+    },
+    {
+      "id": "nscf-15",
+      "system_type": "Машинный интеллект",
+      "neural_contract": "Цифровой нейродоговор",
+      "engineering_domain": "Многоуровневая разработка"
+    },
+    {
+      "id": "nscf-16",
+      "system_type": "Генеративная модель",
+      "neural_contract": "Нейросетевое обязательство",
+      "engineering_domain": "Платформенная разработка"
+    },
+    {
+      "id": "nscf-17",
+      "system_type": "Нейрокомпьютерная система",
+      "neural_contract": "Сетевой интеллектуальный договор",
+      "engineering_domain": "Инфраструктурная разработка"
+    },
+    {
+      "id": "nscf-18",
+      "system_type": "Программный интеллект",
+      "neural_contract": "Автономное нейросетевое соглашение",
+      "engineering_domain": "Системное моделирование"
+    },
+    {
+      "id": "nscf-19",
+      "system_type": "Адаптивная модель",
+      "neural_contract": "Распределённое нейросетевое соглашение",
+      "engineering_domain": "Проектирование архитектуры"
+    },
+    {
+      "id": "nscf-20",
+      "system_type": "Искусственный разум",
+      "neural_contract": "Программируемый нейроконтракт",
+      "engineering_domain": "Комплексная системная инженерия"
+    }
+  ]
+}

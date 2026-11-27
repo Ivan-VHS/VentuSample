@@ -1,0 +1,154 @@
+{
+  "schema": "ivan-vhs.neural-system-contract.v1",
+  "version": 1,
+  "repository": {
+    "full_name": "Ivan-VHS/VentuSample",
+    "project_id": "ventusample",
+    "role": "Offline audio-feature and deterministic sample-generation participant",
+    "domain": "Offline hip-hop sample-pack generation, bounded audio inspection, DSP metadata and reproducible audio assets",
+    "implementation_track": "Existing C++20/Qt 6 workstation and C11 DSP compatibility boundary; offline deterministic processing only"
+  },
+  "catalog": {
+    "source_repository": "Ivan-VHS/DAK",
+    "source_path": "neural-system-catalog.v1.json",
+    "version": 1,
+    "profile_count": 20,
+    "local_snapshot": true
+  },
+  "adoption": {
+    "mode": "planned",
+    "planned_primary_profile_ids": [
+      "nscf-04",
+      "nscf-05",
+      "nscf-12",
+      "nscf-14",
+      "nscf-16"
+    ],
+    "planned_supporting_profile_ids": [
+      "nscf-06",
+      "nscf-07",
+      "nscf-18",
+      "nscf-20"
+    ],
+    "all_profiles_available": true
+  },
+  "integration": {
+    "responsibilities": [
+      "Define future typed audio-feature descriptors and generation metadata without changing the current offline audio contract.",
+      "Preserve seeded generation, reproducible rendering, source provenance and bounded import validation.",
+      "Keep any future model-assisted classification or recommendation advisory and separate from the deterministic DSP renderer.",
+      "Export versioned, inspectable metadata for optional Reaper consumption without mutating WAV assets."
+    ],
+    "non_goals": [
+      "No real-time audio callback path, DAW/VST/AU hosting or background audio capture is introduced.",
+      "No imported sample is used for training unless its rights, purpose and retention are explicitly approved.",
+      "No model output changes generator or DSP semantics without dedicated deterministic audio regression tests."
+    ],
+    "proposed_interfaces": [
+      {
+        "id": "ventusample.audio-feature-evidence.v1",
+        "direction": "provides",
+        "status": "planned",
+        "summary": "Proposed offline audio feature descriptors with source and processing provenance."
+      },
+      {
+        "id": "ventusample.offline-generation-metadata.v1",
+        "direction": "provides",
+        "status": "planned",
+        "summary": "Proposed deterministic generation metadata and seed lineage."
+      },
+      {
+        "id": "reaper.neural-typed-ir.v1",
+        "direction": "consumes",
+        "status": "planned",
+        "summary": "Future typed feature request/result envelope from Reaper."
+      },
+      {
+        "id": "pytyliki.neural-validation.v1",
+        "direction": "consumes",
+        "status": "planned",
+        "summary": "Future deterministic numerical validation adapter."
+      }
+    ]
+  },
+  "runtime": {
+    "state": "not_implemented",
+    "engine": "none",
+    "execution": "disabled",
+    "training": "disabled",
+    "inference": "disabled",
+    "external_data_transfer": "deny_by_default",
+    "telemetry": "disabled",
+    "resource_policy": "explicit_budgets_required_before_execution"
+  },
+  "io_contract": {
+    "input_required_fields": [
+      "contract_id",
+      "contract_version",
+      "request_id",
+      "profile_id",
+      "purpose",
+      "data_origin",
+      "payload_schema",
+      "payload_digest",
+      "created_at",
+      "rights_reference"
+    ],
+    "output_required_fields": [
+      "contract_id",
+      "contract_version",
+      "request_id",
+      "profile_id",
+      "model_id",
+      "model_version",
+      "result",
+      "uncertainty",
+      "evidence_refs",
+      "input_digest",
+      "created_at"
+    ],
+    "failure_codes": [
+      "NSCF-E1001-SCHEMA-INVALID",
+      "NSCF-E1002-PROVENANCE-MISSING",
+      "NSCF-E1003-RIGHTS-NOT-VERIFIED",
+      "NSCF-E1004-PROFILE-UNSUPPORTED",
+      "NSCF-E1005-RUNTIME-DISABLED",
+      "NSCF-E1006-RESOURCE-LIMIT",
+      "NSCF-E1007-REPLAY-MISMATCH"
+    ],
+    "semantic_guarantees": [
+      "Unknown, missing or unavailable measurements remain explicit and are never silently coerced to zero.",
+      "Every request carries a stable request identifier, source provenance and a content digest.",
+      "Every future model result records its profile, model version, input digest, uncertainty and evidence references.",
+      "Determinism is claimed only for execution paths covered by reproducible tests and explicit seed/version controls.",
+      "Model output is advisory; side effects require a separately validated adapter and explicit policy or human approval.",
+      "Raw datasets, secrets and personal data are excluded from diagnostic logs."
+    ]
+  },
+  "governance": {
+    "human_review_required": true,
+    "training_requires_explicit_approval": true,
+    "external_data_export": false,
+    "telemetry": "disabled",
+    "secret_access": "denied",
+    "autonomous_main_branch_writes": false,
+    "rollback_plan_required": true
+  },
+  "quality_gates": [
+    "Validate the local catalogue and repository contract against the versioned JSON Schema.",
+    "Record dataset provenance, licence, consent, purpose limitation, retention and deletion rules before training.",
+    "Separate training, validation and test data by source and prevent leakage across correlated samples.",
+    "Measure a documented non-neural baseline before claiming model benefit.",
+    "Test accuracy, calibration, uncertainty, out-of-domain inputs and failure behavior on representative fixtures.",
+    "Record model identity, training recipe, data snapshot digest, seeds and build/runtime versions for reproducibility.",
+    "Enforce explicit memory, CPU/GPU, queue, timeout and latency budgets before enabling execution.",
+    "Threat-model untrusted inputs, imported model artifacts, deserialization and model-output side effects.",
+    "Require human review, a feature branch, CI evidence and a rollback plan for model or contract changes.",
+    "Keep local/offline execution as the default and verify that no data leaves the repository or host without explicit approval."
+  ],
+  "status": {
+    "architecture": "specified",
+    "implementation": "not_implemented",
+    "validation": "not_run"
+  }
+}
