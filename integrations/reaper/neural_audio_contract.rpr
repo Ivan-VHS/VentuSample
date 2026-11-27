@@ -1,0 +1,140 @@
+# VentuSample Reaper neural audio execution contract v1.
+# Offline inference/training only; never run neural work in an audio callback.
+
+make AUDIO_SCHEMA := "ventusample.neural-audio-profile.v1"
+make MAX_FRAMES := 8192
+
+craft valid_integer(value, minimum, maximum) {
+    yield kind(value) == "number" and value % 1 == 0 and value >= minimum and value <= maximum
+}
+
+craft validate_audio_profile(profile) {
+    when kind(profile) != "list" or size(profile) != 10 {
+        yield "VENTU-NN-AUDIO-0001: profile must contain 10 fields"
+    }
+    when profile[0] != AUDIO_SCHEMA {
+        yield "VENTU-NN-AUDIO-0002: unsupported neural audio profile schema"
+    }
+    when not contains([48000, 96000], profile[1]) {
+        yield "VENTU-NN-AUDIO-0003: sample rate must be 48 or 96 kHz"
+    }
+    when not contains([1, 2], profile[2]) {
+        yield "VENTU-NN-AUDIO-0004: channel count must be mono or stereo"
+    }
+    when not contains(["s24le", "f32le"], profile[3]) {
+        yield "VENTU-NN-AUDIO-0005: sample format must be PCM24 or Float32"
+    }
+    when not valid_integer(profile[4], 64, MAX_FRAMES) or profile[4] % 16 != 0 {
+        yield "VENTU-NN-AUDIO-0006: frame block must be 64..8192 and divisible by 16"
+    }
+    when not valid_integer(profile[5], 0, 4294967295) {
+        yield "VENTU-NN-AUDIO-0007: deterministic seed must be a u32"
+    }
+    when profile[6] != "offline_worker" {
+        yield "VENTU-NN-AUDIO-0008: neural execution must use an offline worker"
+    }
+    when not contains(["inference", "offline_batch"], profile[7]) {
+        yield "VENTU-NN-AUDIO-0009: unsupported neural execution mode"
+    }
+    when profile[8] != false {
+        yield "VENTU-NN-AUDIO-0010: external audio upload is denied"
+    }
+    when profile[9] != false {
+        yield "VENTU-NN-AUDIO-0011: real-time audio callback execution is denied"
+    }
+    yield ""
+}
+
+craft approve_audio_profile(profile) {
+    make failure := validate_audio_profile(profile)
+    when failure != "" {
+        yield ["REJECT", failure]
+    }
+    yield ["ALLOW_OFFLINE", "deterministic", "worker_thread", "no_audio_callback", "no_external_upload"]
+}
+
+make studio_profile := [
+    AUDIO_SCHEMA,
+    48000,
+    2,
+    "s24le",
+    512,
+    1337,
+    "offline_worker",
+    "inference",
+    false,
+    false
+]
+make mastering_profile := [
+    AUDIO_SCHEMA,
+    96000,
+    2,
+    "f32le",
+    1024,
+    2026,
+    "offline_worker",
+    "offline_batch",
+    false,
+    false
+]
+make invalid_rate := [
+    AUDIO_SCHEMA,
+    44100,
+    2,
+    "s24le",
+    512,
+    1337,
+    "offline_worker",
+    "inference",
+    false,
+    false
+]
+make realtime_profile := [
+    AUDIO_SCHEMA,
+    48000,
+    2,
+    "f32le",
+    512,
+    1337,
+    "audio_callback",
+    "inference",
+    false,
+    true
+]
+make upload_profile := [
+    AUDIO_SCHEMA,
+    48000,
+    2,
+    "f32le",
+    512,
+    1337,
+    "offline_worker",
+    "offline_batch",
+    true,
+    false
+]
+make unaligned_frames := [
+    AUDIO_SCHEMA,
+    48000,
+    2,
+    "s24le",
+    513,
+    1337,
+    "offline_worker",
+    "inference",
+    false,
+    false
+]
+
+make approved := approve_audio_profile(studio_profile)
+assert(approved[0] == "ALLOW_OFFLINE", "valid offline inference profile must pass")
+assert(approve_audio_profile(mastering_profile)[0] == "ALLOW_OFFLINE", "valid batch profile must pass")
+assert(approve_audio_profile(invalid_rate)[0] == "REJECT", "unsupported sample rate must fail")
+assert(approve_audio_profile(realtime_profile)[0] == "REJECT", "real-time callback must be rejected")
+assert(approve_audio_profile(upload_profile)[0] == "REJECT", "external upload must be rejected")
+assert(approve_audio_profile(unaligned_frames)[0] == "REJECT", "unaligned frame block must fail")
+assert(approved[1] == "deterministic", "execution must stay deterministic")
+assert(approved[2] == "worker_thread" and approved[3] == "no_audio_callback", "execution must stay outside audio callback")
+assert(approved[4] == "no_external_upload", "audio input must remain local")
+
+emit "VENTUSAMPLE_REAPER_NEURAL_AUDIO:PASS"
