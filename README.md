@@ -84,7 +84,7 @@ The tests establish deterministic and bounded behavior, not real-time playback l
 Reaper pack exchange is file-based. The current Reaper consumer reads v1 manifest metadata and leaves WAV assets untouched. Optional Reaper native expression integration is enabled only when a local Reaper source tree is explicitly supplied to CMake. A direct Pytyliki native metrics/DSP adapter remains planned.
 
 - [Feature matrix](docs/FEATURES.md) · [Architecture](docs/ARCHITECTURE.md)
-- [CRATE production suite](docs/CRATE_PRODUCTION_SUITE.md) · [Hip-hop preset crate](examples/hip-hop-presets/README.md)
+- [CRATE feature details](docs/FEATURES.md) · [Hip-hop preset examples](examples/hip-hop-presets/)
 - [Quality Monolith Rhythm](docs/QUALITY_MONOLITH_RHYTHM.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
 - [Plugins and lifecycle](docs/PLUGINS.md) · [MIDI and resampling](docs/MIDI_AND_RESAMPLING.md)
 - [Source integration and licensing](docs/SOURCE_INTEGRATION.md) · [Documentation index](docs/README.md)
