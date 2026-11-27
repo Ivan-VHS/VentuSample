@@ -27,7 +27,7 @@ jobs:
           python-version: "3.12"
       - name: Validate and execute Reaper audio contracts
         env:
-          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
         run: |
           set -euo pipefail
           python -m reaper --check integrations/reaper/audio_contract.rpr
@@ -35,7 +35,7 @@ jobs:
           grep -qx "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS" reaper-audio-contract.txt
       - name: Validate and execute offline neural audio contract
         env:
-          PYTHONPATH: \${{ github.workspace }}/_deps/Reaper
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
         run: |
           set -euo pipefail
           python -m reaper --check integrations/reaper/neural_audio_contract.rpr
