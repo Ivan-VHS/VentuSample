@@ -100,6 +100,8 @@ CMake 提供可移植核心和可选 Qt 6 Widgets 桌面目标。文档记录了
 ## 文档与生态
 
 - [Features](docs/FEATURES.md)
+- [CRATE Hip-Hop Production Suite](docs/CRATE_PRODUCTION_SUITE.md)
+- [Hip-Hop Preset Crate](examples/hip-hop-presets/README.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
 - [MIDI and resampling](docs/MIDI_AND_RESAMPLING.md)
