@@ -192,6 +192,16 @@ void testManifestReaderRejectsOversizedAndSpecialInputs() {
         oversized << "\"}";
     }
 
+    fs::create_directories(root / "invalid-utf8", ec);
+    require(!ec, "invalid UTF-8 fixture directory should be created");
+    {
+        std::string malformed = R"json({"schema":"ivan-vhs.plugin.v1","id":"invalid-utf8","name":"bad)json";
+        malformed.push_back(static_cast<char>(0xC0));
+        malformed += R"json(","version":"1.0.0","api_version":1,"host":{"id":"ventu"},"domain":"tests","description":"invalid UTF-8","capabilities":["commands"],"entrypoint":"ignored"})json";
+        std::ofstream file(root / "invalid-utf8" / "plugin.json", std::ios::binary);
+        file.write(malformed.data(), static_cast<std::streamsize>(malformed.size()));
+    }
+
     fs::create_directories(root / "symlinked", ec);
     require(!ec, "symlink fixture directory should be created");
     fs::create_symlink(validManifest, root / "symlinked" / "plugin.json", ec);
@@ -216,6 +226,8 @@ void testManifestReaderRejectsOversizedAndSpecialInputs() {
             oversizedReported = true;
     }
     require(oversizedReported, "oversized manifest should produce a bounded diagnostic");
+    require(manager.find("invalid-utf8") == nullptr,
+            "manifest files with malformed UTF-8 must never enter the plugin registry");
     if (symlinkCreated) {
         require(manager.find("safe-reader-valid") != nullptr,
                 "symlinked manifest must not cause duplicate metadata registration");
@@ -304,6 +316,100 @@ void testTopLevelManifestFieldsAreNotShadowedByNestedKeys() {
     fs::remove_all(root, ec);
 }
 
+void testLifecycleCallbacksMayRegisterPlugins() {
+    ventu::PluginManager manager;
+    ventu::PluginDescriptor descriptor{
+        "reentrant-host", "Reentrant Host", "Tests", "1.0.0",
+        "Callbacks may extend the registry.", "test", {"reentrancy"}
+    };
+    ventu::PluginDescriptor fromInitialize{
+        "created-in-init", "Created In Init", "Tests", "1.0.0",
+        "Registered during initialization.", "test", {"registration"}
+    };
+    ventu::PluginDescriptor fromHandler{
+        "created-in-handler", "Created In Handler", "Tests", "1.0.0",
+        "Registered during dispatch.", "test", {"registration"}
+    };
+    require(manager.registerPlugin(
+        descriptor,
+        [&](const ventu::PluginContext&) {
+            require(manager.registerPlugin(
+                fromHandler,
+                [](const ventu::PluginContext&) {
+                    return ventu::PluginResult{true, "handler child", {}};
+                },
+                false), "handler callback should safely register another plugin");
+            return ventu::PluginResult{true, "reentrant dispatch completed", {}};
+        },
+        false,
+        [&](const ventu::PluginContext&) {
+            require(manager.registerPlugin(
+                fromInitialize,
+                [](const ventu::PluginContext&) {
+                    return ventu::PluginResult{true, "init child", {}};
+                },
+                false), "initialization callback should safely register another plugin");
+        }), "reentrant host plugin should register");
+
+    require(manager.setEnabled("reentrant-host", true), "reentrant host should enable");
+    const auto result = manager.execute("reentrant-host", {});
+    require(result.success && result.summary == "reentrant dispatch completed",
+            "dispatch should survive vector growth in lifecycle and handler callbacks");
+    require(manager.find("created-in-init") != nullptr,
+            "initialization callback registration should persist");
+    require(manager.find("created-in-handler") != nullptr,
+            "handler callback registration should persist");
+}
+
+void testShutdownCallbackMayRegisterPlugins() {
+    ventu::PluginManager manager;
+    ventu::PluginDescriptor host{
+        "shutdown-host", "Shutdown Host", "Tests", "1.0.0",
+        "Shutdown callback may extend the registry.", "test", {"reentrancy"}
+    };
+    ventu::PluginDescriptor child{
+        "created-in-shutdown", "Created In Shutdown", "Tests", "1.0.0",
+        "Registered during shutdown.", "test", {"registration"}
+    };
+    bool nestedShutdownRejected = false;
+    int shutdownCalls = 0;
+
+    require(manager.registerPlugin(
+        host,
+        [](const ventu::PluginContext&) {
+            return ventu::PluginResult{true, "host executed", {}};
+        },
+        true,
+        {},
+        [&](const ventu::PluginContext&) {
+            ++shutdownCalls;
+            nestedShutdownRejected = !manager.shutdownPlugin("shutdown-host");
+            require(manager.registerPlugin(
+                child,
+                [](const ventu::PluginContext&) {
+                    return ventu::PluginResult{true, "shutdown child", {}};
+                },
+                false), "shutdown callback should safely register another plugin");
+        }), "shutdown host should register");
+
+    require(manager.execute("shutdown-host", {}).success,
+            "host should initialize before shutdown");
+    require(manager.setEnabled("shutdown-host", false),
+            "host should complete its outer shutdown transition");
+    require(shutdownCalls == 1, "shutdown callback should execute exactly once");
+    require(nestedShutdownRejected,
+            "recursive shutdown of the same plugin must be rejected");
+    require(manager.find("created-in-shutdown") != nullptr,
+            "shutdown callback registration should persist");
+    bool hostStopped = false;
+    for (const auto& status : manager.statuses()) {
+        if (status.descriptor.id == "shutdown-host") {
+            hostStopped = !status.enabled && !status.initialized;
+        }
+    }
+    require(hostStopped, "host state should be stopped after callback-driven registry growth");
+}
+
 void testInvalidAndUnknownPlugin() {
     ventu::PluginManager manager;
     ventu::PluginContext context;
@@ -322,6 +428,8 @@ int main() {
     testManifestDiscoveryAndLifecycle();
     testManifestReaderRejectsOversizedAndSpecialInputs();
     testTopLevelManifestFieldsAreNotShadowedByNestedKeys();
+    testLifecycleCallbacksMayRegisterPlugins();
+    testShutdownCallbackMayRegisterPlugins();
     testInvalidAndUnknownPlugin();
     std::cout << "VentuSample plugin tests passed.\n";
     return 0;

@@ -281,6 +281,10 @@ bool saveToFile(const QString& path, const QString& name, const Parameters& para
         return false;
     }
     const QFileInfo info(path);
+    if (info.isSymLink() || (info.exists() && !info.isFile())) {
+        error = QStringLiteral("Preset destination must be a regular file, not a symbolic link or special path.");
+        return false;
+    }
     if (!QDir().mkpath(info.absolutePath())) {
         error = QStringLiteral("Cannot create the preset directory.");
         return false;
@@ -309,6 +313,11 @@ bool saveToFile(const QString& path, const QString& name, const Parameters& para
 bool loadFromFile(const QString& path, const Parameters& current,
                   Parameters& restored, QString& name, QString& error) {
     error.clear();
+    const QFileInfo info(path);
+    if (info.isSymLink() || !info.exists() || !info.isFile()) {
+        error = QStringLiteral("Preset source must be an existing regular file, not a symbolic link.");
+        return false;
+    }
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly)) {
         error = file.errorString();
@@ -319,7 +328,8 @@ bool loadFromFile(const QString& path, const Parameters& current,
         return false;
     }
     const QByteArray bytes = file.read(MaxPresetBytes + 1);
-    if (bytes.size() > MaxPresetBytes || file.error() != QFileDevice::NoError) {
+    if (bytes.size() > MaxPresetBytes || file.error() != QFileDevice::NoError
+        || (file.size() > MaxPresetBytes)) {
         error = QStringLiteral("Could not read the preset within the file limit.");
         return false;
     }

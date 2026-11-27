@@ -87,6 +87,8 @@ private:
         PluginLifecycle onShutdown;
         bool enabled{true};
         bool initialized{false};
+        bool initializing{false};
+        bool stopping{false};
         std::string lastError;
         PluginContext lifecycleContext;
     };
