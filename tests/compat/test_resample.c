@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 static double rms(const pl_audio_buffer *audio) {
     double sum = 0.0;
@@ -111,6 +112,32 @@ static void test_sinc_preserves_passband_and_stereo_channels(void) {
     pl_audio_free(&output);
 }
 
+
+static void test_sinc_identity_conversion_is_bit_exact(void) {
+    pl_audio_buffer input = {0};
+    pl_audio_buffer output = {0};
+    const float expected[] = {
+        0.125f, -0.33333334f, 0.875f, -0.0625f,
+        0.0009765625f, -0.999f, 0.5f, -0.25f
+    };
+
+    input.frames = 4u;
+    input.sample_rate = 44100u;
+    input.channels = 2u;
+    input.samples = (float *)malloc(sizeof(expected));
+    assert(input.samples != NULL);
+    memcpy(input.samples, expected, sizeof(expected));
+
+    assert(ventu_audio_resample_sinc(&input, input.sample_rate, &output) == 0);
+    assert(output.frames == input.frames);
+    assert(output.sample_rate == input.sample_rate);
+    assert(output.channels == input.channels);
+    assert(memcmp(output.samples, input.samples, sizeof(expected)) == 0);
+
+    pl_audio_free(&input);
+    pl_audio_free(&output);
+}
+
 static void test_sinc_rejects_invalid_inputs_without_publishing_output(void) {
     pl_audio_buffer input = {0};
     pl_audio_buffer output = {0};
@@ -135,6 +162,7 @@ int main(void) {
     test_linear_preview_contract();
     test_sinc_downsampling_rejects_aliasing();
     test_sinc_preserves_passband_and_stereo_channels();
+    test_sinc_identity_conversion_is_bit_exact();
     test_sinc_rejects_invalid_inputs_without_publishing_output();
     return 0;
 }
