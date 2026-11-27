@@ -81,9 +81,9 @@ assert(not invalid_gain_type[0] and invalid_gain_type[2] == "RPR-A0001", "invali
 emit "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS"
 
 
-// Pytyliki Iron Syntax v1 provenance contract.
-// Reaper validates syntax upstream; the DSP engine consumes only safe,
-// offline source-origin metadata. This contract defines no DSP operation.
+# Pytyliki Iron Syntax v1 provenance contract.
+# Reaper validates syntax upstream; the DSP engine consumes only safe,
+# offline source-origin metadata. This contract defines no DSP operation.
 
 craft iron_audio_origin_admission(schema, version, canonical_owner, execution_performed, worker_context, audio_callback, external_upload, record_count) {
     when schema != "pytyliki.iron-syntax-ast.v1" {
