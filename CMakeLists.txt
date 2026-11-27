@@ -68,6 +68,7 @@ add_library(ventusample_core STATIC
     src/stochastic_router.cpp
     src/builtin_plugins.cpp
     src/quantum_audio.cpp
+    src/gaming_audio_profile.cpp
     src/quantum_audio.hpp
     src/atomic_quantum.cpp
     src/atomic_quantum.hpp
@@ -214,6 +215,9 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_quantum_audio_tests tests/test_quantum_audio.cpp)
     target_link_libraries(ventusample_quantum_audio_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-quantum-audio COMMAND ventusample_quantum_audio_tests)
+    add_executable(ventusample_gaming_audio_profile_tests tests/test_gaming_audio_profile.cpp)
+    target_link_libraries(ventusample_gaming_audio_profile_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-gaming-audio-profile COMMAND ventusample_gaming_audio_profile_tests)
     add_executable(ventusample_budget_tests tests/test_budget_planner.cpp)
     target_link_libraries(ventusample_budget_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-budget-planner COMMAND ventusample_budget_tests)
