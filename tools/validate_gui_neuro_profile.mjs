@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { appendFileSync, existsSync, readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { dirname, resolve, sep } from "node:path";
+import { resolve } from "node:path";
 
 const root = process.cwd();
 const profilePath = resolve(root, "gui-neuro-profile.v1.json");
@@ -24,11 +24,14 @@ const expectedRepo = process.env.GITHUB_REPOSITORY;
 if (expectedRepo && profile.repository !== expectedRepo)
   fail("profile repository does not match GITHUB_REPOSITORY");
 
+if (!Array.isArray(profile.ui_stack) || profile.ui_stack.length === 0)
+  fail("ui_stack must be a non-empty array");
 if (!Array.isArray(profile.primary_ui_surfaces) || profile.primary_ui_surfaces.length === 0)
   fail("primary_ui_surfaces must be a non-empty array");
 
 for (const item of profile.primary_ui_surfaces) {
-  if (typeof item !== "string" || item.startsWith("/") || item.includes("..") || item.includes("\\\\"))
+  if (typeof item !== "string" || item.startsWith("/") ||
+      item.includes("..") || item.includes(String.fromCharCode(92)))
     fail("unsafe primary UI surface: " + String(item));
   if (!existsSync(resolve(root, item)))
     fail("declared primary UI surface does not exist: " + item);
@@ -51,13 +54,13 @@ const privacy = profile.privacy ?? {};
 if (privacy.external_model_data !== "deny_by_default" ||
     privacy.telemetry !== "disabled" ||
     privacy.secret_access !== "deny")
-  fail("privacy defaults must deny external data transfer, telemetry and secret access");
+  fail("privacy defaults must deny external data transfer, telemetry and secrets");
 
 const normalizeRules = (rules, label) => {
   if (!Array.isArray(rules) || rules.length === 0) fail(label + " must be a non-empty array");
   for (const rule of rules) {
     if (typeof rule !== "string" || rule.length === 0 || rule.startsWith("/") ||
-        rule.includes("..") || rule.includes("\\\\"))
+        rule.includes("..") || rule.includes(String.fromCharCode(92)))
       fail("unsafe " + label + " entry: " + String(rule));
   }
   return rules;
@@ -80,7 +83,7 @@ if (baseRef) {
     const raw = execFileSync("git", ["diff", "--name-only", "-z", "origin/" + baseRef + "...HEAD"], {
       cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"],
     });
-    changed = raw.split("\\0").filter(Boolean);
+    changed = raw.split(String.fromCharCode(0)).filter(Boolean);
   } catch (error) {
     fail("cannot calculate PR diff safely: " + error.message);
   }
@@ -98,7 +101,7 @@ if (baseRef) {
 const summary = [
   "### GUI neuro-autoimprovement profile",
   "",
-  "- Repository: \`" + profile.repository + "\`",
+  "- Repository: " + profile.repository,
   "- UI stack: " + profile.ui_stack.join(", "),
   "- Primary UI surfaces verified: " + profile.primary_ui_surfaces.length,
   "- Changed files checked: " + changed.length,
@@ -108,7 +111,7 @@ const summary = [
   "",
   "This gate validates scope and safety policy; it does not execute or train a neural model.",
   "",
-].join("\\n");
+].join(String.fromCharCode(10));
 
 if (process.env.GITHUB_STEP_SUMMARY) {
   try { appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary, "utf8"); } catch {}
