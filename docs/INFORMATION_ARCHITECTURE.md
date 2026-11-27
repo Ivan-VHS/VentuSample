@@ -46,6 +46,9 @@ Each Markdown page has a direct catalog entry and a topic-hub entry. The cluster
 
 ### Studio, presets and plugin workflows
 
+- [CRATE PRODUCTION SUITE](CRATE_PRODUCTION_SUITE.md)
+- [CRATE PRODUCTION SUITE RU](CRATE_PRODUCTION_SUITE_RU.md)
+- [HIP-HOP PRESET CRATE](../examples/hip-hop-presets/README.md)
 - [CARE GUARD V1](CARE_GUARD_V1.md)
 - [CLIFE](CLIFE.md)
 - [FEATURES](FEATURES.md)

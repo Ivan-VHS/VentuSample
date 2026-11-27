@@ -2,6 +2,7 @@
 
 #include "generator.hpp"
 
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -65,6 +66,22 @@ struct QuantumAudioProcessReport {
     AudioStats after;
 };
 
+// Stable, syntax-neutral target for a frontend-compiled DSP chain.
+struct QuantumAudioChainStep {
+    std::string pluginId;
+    QuantumAudioParameters parameters;
+};
+
+struct QuantumAudioChainReport {
+    bool success{false};
+    std::string message;
+    std::size_t completedSteps{0};
+    std::string failedStepId;
+    std::vector<std::string> processedPluginIds;
+    AudioStats before;
+    AudioStats after;
+};
+
 const std::vector<QuantumAudioPlugin>& quantumAudioPlugins() noexcept;
 const QuantumAudioPlugin* findQuantumAudioPlugin(std::string_view idOrName) noexcept;
 std::string_view quantumAudioCategoryName(QuantumAudioCategory category) noexcept;
@@ -74,6 +91,12 @@ QuantumAudioProcessReport processQuantumAudio(
     std::string_view pluginId,
     AudioBuffer& audio,
     const QuantumAudioParameters& parameters
+);
+
+// Processes the full sequence on a private copy and commits only on success.
+QuantumAudioChainReport processQuantumAudioChain(
+    const std::vector<QuantumAudioChainStep>& chain,
+    AudioBuffer& audio
 );
 
 } // namespace ventu
