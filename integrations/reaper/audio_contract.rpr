@@ -38,11 +38,22 @@ craft valid_audio_profile(profile) {
         valid_mix(profile[4], profile[5])
 }
 
-craft wet_gain(percent) {
-    when kind(percent) != "number" or percent < 0 or percent > 100 {
-        yield [false, nothing, "RPR-A0001"]
+craft wet_gain_valid(percent) {
+    yield kind(percent) == "number" and percent >= 0 and percent <= 100
+}
+
+craft normalized_wet_gain(percent) {
+    when not wet_gain_valid(percent) {
+        yield 0
     }
-    yield [true, percent / 100, ""]
+    yield percent / 100
+}
+
+craft wet_gain_error(percent) {
+    when wet_gain_valid(percent) {
+        yield ""
+    }
+    yield "RPR-A0001"
 }
 
 make studio_profile := [48000, 2, "s24le", 512, 35, 65]
@@ -71,11 +82,13 @@ assert(not valid_audio_profile(unbalanced_mix), "wet/dry percentages must sum to
 assert(not valid_audio_profile(invalid_mix_type), "wet/dry value types must be checked")
 assert(not valid_audio_profile(malformed_profile), "profile container type must be checked")
 
-make valid_gain := wet_gain(50)
-make invalid_gain := wet_gain(101)
-make invalid_gain_type := wet_gain("50")
-assert(valid_gain[0] and valid_gain[1] == 0.5, "wet gain must return a normalized success result")
-assert(not invalid_gain[0] and invalid_gain[2] == "RPR-A0001", "invalid wet gain must return a stable error")
-assert(not invalid_gain_type[0] and invalid_gain_type[2] == "RPR-A0001", "invalid gain type must return a stable error")
+assert(wet_gain_valid(50), "valid wet gain input must pass")
+assert(normalized_wet_gain(50) == 0.5, "valid wet gain must normalize to 0.5")
+assert(wet_gain_valid(0), "zero percent is a valid wet gain")
+assert(not wet_gain_valid(101), "out-of-range wet gain must fail")
+assert(not wet_gain_valid("50"), "wet gain must reject text input")
+assert(wet_gain_error(50) == "", "valid wet gain must not report an error")
+assert(wet_gain_error(101) == "RPR-A0001", "invalid wet gain must return a stable error")
+assert(wet_gain_error("50") == "RPR-A0001", "invalid gain type must return a stable error")
 
 emit "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS"
