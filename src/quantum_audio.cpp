@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <utility>
 
 namespace ventu {
 namespace {
@@ -858,6 +859,46 @@ QuantumAudioProcessReport processQuantumAudio(std::string_view pluginId, AudioBu
     report.success = true;
     report.message = "Processed with " + std::string(plugin->name) + " (" +
         std::string(quantumDspModelName(plugin->model)) + ").";
+    return report;
+}
+
+QuantumAudioChainReport processQuantumAudioChain(
+    const std::vector<QuantumAudioChainStep>& chain,
+    AudioBuffer& audio
+) {
+    QuantumAudioChainReport report;
+    report.before = measure(audio);
+    report.after = report.before;
+
+    if (chain.size() > quantumAudioPlugins().size()) {
+        report.message = "DSP chain exceeds the registered module count.";
+        return report;
+    }
+
+    // Keep the caller's buffer untouched until every processor succeeds.
+    AudioBuffer candidate = audio;
+    report.processedPluginIds.reserve(chain.size());
+
+    for (const auto& step : chain) {
+        const auto result = processQuantumAudio(
+            step.pluginId, candidate, step.parameters
+        );
+        if (!result.success) {
+            report.failedStepId = step.pluginId;
+            report.after = report.before;
+            report.message = "DSP chain stopped at '" + step.pluginId + "': " + result.message;
+            return report;
+        }
+        report.processedPluginIds.push_back(step.pluginId);
+        ++report.completedSteps;
+    }
+
+    report.after = measure(candidate);
+    report.success = true;
+    report.message = chain.empty()
+        ? "Empty DSP chain; input was left unchanged."
+        : "DSP chain processed successfully.";
+    audio = std::move(candidate);
     return report;
 }
 
