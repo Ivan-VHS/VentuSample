@@ -14,6 +14,10 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [Source integration](SOURCE_INTEGRATION.md) — asset provenance and licensing rules.
 - [NEXUS audio profile](NEXUS_AUDIO_PROFILE_V1.md) — offline processing ownership and companion-tool integration.
 
+## Pattern and sequence tools
+
+- [Repeating pattern-cycle analysis](PATTERN_CYCLE_ANALYSIS.md) — deterministic offline comparison of scheduled event patterns.
+
 ## Browse by topic
 
 - [Audio pipeline and DSP](clusters/audio-dsp.md)
