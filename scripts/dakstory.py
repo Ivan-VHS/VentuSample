@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DuckStory: careful, read-only quality checks for an application repository."""
+"""DakStory: careful, read-only quality checks for an application repository."""
 from __future__ import annotations
 
 import argparse
@@ -15,7 +15,7 @@ from typing import Any
 
 VERSION = "1.0.0"
 ROOT = Path(__file__).resolve().parent.parent
-CONFIG_PATH = ".duckstory/config.json"
+CONFIG_PATH = ".dakstory/config.json"
 MAX_FILE_BYTES = 1_000_000
 MAX_SOURCE_LINES = 1_200
 SKIP_DIRS = {
@@ -68,7 +68,7 @@ def load_profile(root: Path, findings: list[Finding]) -> dict[str, Any]:
     if not path.is_file():
         add_finding(
             findings, root, "DS-CONFIG-001", "product_quality", "warning",
-            "Не найден профиль DuckStory", f"Отсутствует {CONFIG_PATH}; используется нейтральный профиль.",
+            "Не найден профиль DakStory", f"Отсутствует {CONFIG_PATH}; используется нейтральный профиль.",
             "Добавьте профиль проекта, чтобы уточнить стек и границы проверок.", path,
         )
         return {}
@@ -77,15 +77,15 @@ def load_profile(root: Path, findings: list[Finding]) -> dict[str, Any]:
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
         add_finding(
             findings, root, "DS-CONFIG-002", "product_quality", "error",
-            "Профиль DuckStory не читается", str(error),
-            "Исправьте JSON в .duckstory/config.json.", path,
+            "Профиль DakStory не читается", str(error),
+            "Исправьте JSON в .dakstory/config.json.", path,
         )
         return {}
-    if not isinstance(profile, dict) or profile.get("schema") != "duckstory.config.v1":
+    if not isinstance(profile, dict) or profile.get("schema") != "dakstory.config.v1":
         add_finding(
             findings, root, "DS-CONFIG-003", "product_quality", "error",
-            "Неизвестная схема профиля", "Ожидается schema=duckstory.config.v1.",
-            "Верните профиль к поддерживаемой схеме DuckStory.", path,
+            "Неизвестная схема профиля", "Ожидается schema=dakstory.config.v1.",
+            "Верните профиль к поддерживаемой схеме DakStory.", path,
         )
         return {}
     return profile
@@ -151,7 +151,7 @@ def inspect_source(root: Path, files: list[Path], findings: list[Finding]) -> tu
             add_finding(
                 findings, root, "DS-FILE-001", "maintainability", "warning",
                 "Файл не удалось прочитать как UTF-8", str(error),
-                "Проверьте кодировку; DuckStory не переписывает этот файл.", path,
+                "Проверьте кодировку; DakStory не переписывает этот файл.", path,
             )
             continue
         if suffix == ".py":
@@ -274,7 +274,7 @@ def audit(root: Path) -> dict[str, Any]:
             add_finding(
                 findings, root, "DS-SEC-004", "security_privacy", "warning",
                 "Потенциально чувствительный файл в дереве проекта",
-                "Проверено только имя файла; DuckStory не читает значения секретов.",
+                "Проверено только имя файла; DakStory не читает значения секретов.",
                 "Проверьте, что в файле нет закрытого ключа или рабочего секрета и что он должен находиться в Git.", path,
             )
 
@@ -288,7 +288,7 @@ def audit(root: Path) -> dict[str, Any]:
     add_finding(
         findings, root, "DS-PERF-001", "performance", "review",
         "Производительность требует измерений",
-        "DuckStory не выводит скорость и потребление памяти из исходного кода.",
+        "DakStory не выводит скорость и потребление памяти из исходного кода.",
         "Добавьте воспроизводимые измерения времени, памяти и нагрузки для реальных сценариев.",
     )
     add_finding(
@@ -316,8 +316,8 @@ def audit(root: Path) -> dict[str, Any]:
     reviews = sum(item.severity == "review" for item in findings)
     overall = "blocked" if errors else "improvements_available" if warnings else "human_review_required" if reviews else "baseline_ready"
     return {
-        "schema": "duckstory.report.v1",
-        "tool": {"name": "DuckStory", "version": VERSION},
+        "schema": "dakstory.report.v1",
+        "tool": {"name": "DakStory", "version": VERSION},
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "project": profile.get("project", root.name),
         "profile": profile.get("profile", "auto"),
@@ -326,7 +326,7 @@ def audit(root: Path) -> dict[str, Any]:
         "limitations": [
             "Отчёт не является сертификатом соответствия стандартам.",
             "Сборка, runtime-поведение, безопасность зависимостей и доступность требуют профильных тестов.",
-            "DuckStory не запускает команды проекта, не обращается к сети и не переписывает исходники.",
+            "DakStory не запускает команды проекта, не обращается к сети и не переписывает исходники.",
         ],
         "counts": {
             "files_scanned": len(files), "large_files_skipped": skipped_large,
@@ -342,7 +342,7 @@ def audit(root: Path) -> dict[str, Any]:
 def render_markdown(report: dict[str, Any]) -> str:
     counts = report["counts"]
     lines = [
-        f"# DuckStory · {report['project']}", "",
+        f"# DakStory · {report['project']}", "",
         f"**Результат:** `{report['overall']}`  ",
         f"**Профиль:** `{report['profile']}`  ",
         f"**Стек:** {', '.join(report['detected_stacks'])}", "",
@@ -378,7 +378,7 @@ def safe_fix(root: Path) -> None:
     """Create a missing editor policy, but never overwrite an existing one."""
     path = root / ".editorconfig"
     if path.exists():
-        print("DuckStory: .editorconfig уже существует; изменений нет.")
+        print("DakStory: .editorconfig уже существует; изменений нет.")
         return
     content = (
         "root = true\n\n[*]\ncharset = utf-8\nend_of_line = lf\ninsert_final_newline = true\n"
@@ -388,16 +388,16 @@ def safe_fix(root: Path) -> None:
         "\n[Makefile]\nindent_style = tab\n\n[*.md]\ntrim_trailing_whitespace = false\n"
     )
     path.write_text(content, encoding="utf-8", newline="\n")
-    print("DuckStory: добавлен .editorconfig; исходный код не менялся.")
+    print("DakStory: добавлен .editorconfig; исходный код не менялся.")
 
 
 def self_test() -> None:
     """Check the pipeline in a disposable project without touching the repository."""
-    with tempfile.TemporaryDirectory(prefix="duckstory-") as folder:
+    with tempfile.TemporaryDirectory(prefix="dakstory-") as folder:
         root = Path(folder)
-        (root / ".duckstory").mkdir()
-        (root / ".duckstory/config.json").write_text(json.dumps({
-            "schema": "duckstory.config.v1", "project": "DuckStory test",
+        (root / ".dakstory").mkdir()
+        (root / ".dakstory/config.json").write_text(json.dumps({
+            "schema": "dakstory.config.v1", "project": "DakStory test",
             "profile": "test", "ui": False,
         }), encoding="utf-8")
         workflow_dir = root / ".github/workflows"
@@ -410,17 +410,17 @@ def self_test() -> None:
             "def test_smoke():\n    assert 2 + 2 == 4\n", encoding="utf-8"
         )
         for name in ("README.md", "SECURITY.md", "LICENSE"):
-            (root / name).write_text("DuckStory test\n", encoding="utf-8")
+            (root / name).write_text("DakStory test\n", encoding="utf-8")
         report = audit(root)
-        assert report["schema"] == "duckstory.report.v1"
+        assert report["schema"] == "dakstory.report.v1"
         assert len(report["pillars"]) == 8
         assert report["counts"]["python_files_parsed"] == 1
         assert report["counts"]["findings_error"] == 0
-    print(f"DuckStory {VERSION}: self-test passed.")
+    print(f"DakStory {VERSION}: self-test passed.")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="DuckStory — бережная система улучшения качества проекта.")
+    parser = argparse.ArgumentParser(description="DakStory — бережная система улучшения качества проекта.")
     commands = parser.add_subparsers(dest="command", required=True)
     audit_command = commands.add_parser("audit", help="аудит без изменения прикладного кода")
     audit_command.add_argument("--root", type=Path, default=ROOT)
@@ -430,7 +430,7 @@ def main() -> int:
     audit_command.add_argument("--fail-on", choices=("none", "warning", "error"), default="none")
     fix_command = commands.add_parser("safe-fix", help="добавить .editorconfig, если его ещё нет")
     fix_command.add_argument("--root", type=Path, default=ROOT)
-    commands.add_parser("self-test", help="проверить DuckStory во временной папке")
+    commands.add_parser("self-test", help="проверить DakStory во временной папке")
     args = parser.parse_args()
 
     if args.command == "self-test":

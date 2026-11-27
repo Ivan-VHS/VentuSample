@@ -1,4 +1,4 @@
-# Anatidae desktop design — VentuSample
+# Dak desktop design — VentuSample
 
 Qt 6 Widgets desktop workstation with a scrollable generator and native light/dark appearance. The canonical palette and accessibility rules now live in [UI_UX_2026_CONVERGENCE.md](UI_UX_2026_CONVERGENCE.md).
 

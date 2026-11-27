@@ -1,4 +1,4 @@
-name: DuckStory
+name: DakStory
 
 on:
   push:
@@ -13,12 +13,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: duckstory-${{ github.workflow }}-${{ github.ref }}
+  group: dakstory-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   quality-review:
-    name: DuckStory quality review
+    name: DakStory quality review
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -27,13 +27,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check DuckStory itself
-        run: python3 scripts/duckstory.py self-test
+      - name: Check DakStory itself
+        run: python3 scripts/dakstory.py self-test
 
       - name: Review project quality
         run: |
-          python3 scripts/duckstory.py audit \
-            --json "$RUNNER_TEMP/duckstory-report.json" \
-            --markdown "$RUNNER_TEMP/duckstory-report.md" \
+          python3 scripts/dakstory.py audit \
+            --json "$RUNNER_TEMP/dakstory-report.json" \
+            --markdown "$RUNNER_TEMP/dakstory-report.md" \
             --summary "$GITHUB_STEP_SUMMARY" \
             --fail-on error
