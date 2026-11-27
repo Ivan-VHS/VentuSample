@@ -84,7 +84,7 @@ CTest проверяет детерминированную генерацию, 
 Обмен с Reaper использует файлы и версионированные форматы. Текущий Reaper consumer читает метаданные manifest v1 и оставляет WAV assets нетронутыми. Необязательная интеграция нативных выражений Reaper включается только при явной передаче локального дерева исходников Reaper в CMake. Прямой адаптер нативных метрик/DSP Pytyliki пока запланирован.
 
 - [Матрица функций](docs/FEATURES.md) · [Архитектура](docs/ARCHITECTURE.md)
-- [CRATE production suite](docs/CRATE_PRODUCTION_SUITE.md) · [Hip-hop preset crate](examples/hip-hop-presets/README.md)
+- [CRATE feature details](docs/FEATURES.md) · [Hip-hop preset examples](examples/hip-hop-presets/)
 - [Quality Monolith Rhythm](docs/QUALITY_MONOLITH_RHYTHM.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
 - [Плагины и lifecycle](docs/PLUGINS.md) · [MIDI и ресэмплинг](docs/MIDI_AND_RESAMPLING.md)
 - [Интеграция исходников и лицензии](docs/SOURCE_INTEGRATION.md) · [Индекс документации](docs/README.md)
