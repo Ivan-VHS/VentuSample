@@ -1,0 +1,42 @@
+name: Native audio engine build evidence
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ["automation/verified-build-artifacts-2026-11-28"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ventusample-native-evidence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-engine:
+    name: C++20 DSP and deterministic audio tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - name: Configure native engine without optional Qt desktop
+        run: cmake -S . -B build-native -DCMAKE_BUILD_TYPE=Release -DVENTU_BUILD_DESKTOP=OFF -DVENTU_BUILD_TESTS=ON
+      - name: Compile DSP and sample engine
+        run: cmake --build build-native --parallel 2
+      - name: Run deterministic generator, DSP and manifest tests
+        run: ctest --test-dir build-native --output-on-failure --output-junit build-native/ctest-results.xml
+      - name: Publish tested native engine and test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ventusample-native-audio-linux
+          if-no-files-found: warn
+          path: |
+            build-native/ctest-results.xml
+            build-native/libventusample_core.a
+            build-native/libventusample_pytyliki_dsp.a
+            build-native/ventusample_*_tests
