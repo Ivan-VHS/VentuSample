@@ -1,6 +1,8 @@
 #include "preset_store.hpp"
 
 #include <QCoreApplication>
+#include <QFile>
+#include <QFileInfo>
 #include <QJsonObject>
 #include <QTemporaryDir>
 
@@ -91,6 +93,23 @@ int main(int argc, char** argv) {
             "saved preset should reload");
     require(loaded.seed == source.seed && loaded.bpm == source.bpm,
             "saved preset values should remain intact");
+
+    const QString linkedPath = directory.filePath("linked-preset.json");
+    if (QFile::link(path, linkedPath) && QFileInfo(linkedPath).isSymLink()) {
+        ventu::Parameters untouched;
+        QString untouchedName = "unchanged";
+        require(!ventu::presets::loadFromFile(linkedPath, source, untouched, untouchedName, error),
+                "preset loading must refuse symbolic links");
+        require(untouchedName == "unchanged",
+                "rejected preset paths must not mutate output parameters");
+        require(!ventu::presets::saveToFile(linkedPath, "Replacement", source, true, error),
+                "preset saving must refuse symbolic-link destinations");
+        require(ventu::presets::loadFromFile(path, source, loaded, name, error),
+                "refusing a symbolic link must leave its target untouched");
+    }
+
+    require(!ventu::presets::loadFromFile(directory.path(), source, loaded, name, error),
+            "preset loading must reject directories and non-regular paths");
 
     std::cout << "VentuSample preset tests passed.\\n";
     return 0;
