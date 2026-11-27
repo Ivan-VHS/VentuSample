@@ -14,7 +14,7 @@ This hub groups the related contracts for the audio workstation. Use each target
 - [VNT A0109](../audio-errors/VNT-A0109.md)
 - [AUTOMATION ROADMAP](../AUTOMATION_ROADMAP.md)
 - [DUCK SOVEREIGN CANON](../DUCK_SOVEREIGN_CANON.md)
-- [DUCKSTORY](../DUCKSTORY.md)
+- [DUCKSTORY](../DAKSTORY.md)
 - [COCKOS REAPER](../integrations/COCKOS_REAPER.md)
 - [MARKET DEVELOPMENT STANDARD](../MARKET_DEVELOPMENT_STANDARD.md)
 - [MICROBUDGET PLANNER](../MICROBUDGET_PLANNER.md)
