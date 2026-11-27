@@ -1,0 +1,87 @@
+{
+  "schema": "dak.gui-neuro-profile.v1",
+  "version": 1,
+  "repository": "Ivan-VHS/VentuSample",
+  "ui_stack": [
+    "C++20 workstation",
+    "Qt 6 Widgets UI",
+    "C11 DSP compatibility layer",
+    "Offline deterministic audio generation"
+  ],
+  "primary_ui_surfaces": [
+    "src/mainwindow.cpp",
+    "src/mainwindow.hpp",
+    "src/ui_ux.cpp",
+    "src/ui_ux.hpp",
+    "src/ui_motion.cpp",
+    "src/ui_motion.hpp",
+    "src/mora_theme.hpp",
+    "tests/test_ui_ux_40026.cpp"
+  ],
+  "automation": {
+    "agent_mode": "supervised-neuro-agent",
+    "stages": [
+      "observe",
+      "measure",
+      "diagnose",
+      "propose",
+      "sandbox",
+      "validate",
+      "feature-branch",
+      "human-review"
+    ],
+    "target_branch_policy": "feature-branch-only",
+    "human_review_required": true,
+    "allow_main_branch_writes": false,
+    "allow_auto_merge": false,
+    "model_runtime": "operator-configured; not invoked by this workflow",
+    "change_budget": {
+      "max_files_per_pr": 20,
+      "prefer_small_reviewable_changes": true,
+      "require_rollback_plan": true
+    }
+  },
+  "privacy": {
+    "external_model_data": "deny_by_default",
+    "telemetry": "disabled",
+    "secret_access": "deny",
+    "local_artifacts_only": true
+  },
+  "allowed_write_paths": [
+    "gui-neuro-profile.v1.json",
+    "docs/GUI_NEURO_AUTOIMPROVEMENT.md",
+    "tools/validate_gui_neuro_profile.mjs",
+    ".github/workflows/gui-neuro-profile.yml",
+    "src/mainwindow.cpp",
+    "src/mainwindow.hpp",
+    "src/ui_ux.cpp",
+    "src/ui_ux.hpp",
+    "src/ui_motion.cpp",
+    "src/ui_motion.hpp",
+    "src/mora_theme.hpp",
+    "tests/",
+    "docs/"
+  ],
+  "protected_write_paths": [
+    "src/compat/",
+    "src/generator.cpp",
+    "src/generator.hpp",
+    "src/quantum_audio.cpp",
+    "src/quantum_audio.hpp",
+    "src/stochastic_router.cpp",
+    "security/"
+  ],
+  "quality_gates": [
+    "C++20 core build and CTest",
+    "Qt 6 desktop build and widget tests",
+    "Accessibility-name, focus and contrast tests",
+    "Audio determinism and offline-render tests"
+  ],
+  "success_metrics": [
+    "UI remains responsive during offline generation",
+    "no DSP work is moved onto the GUI thread",
+    "audio results remain deterministic for fixed seeds",
+    "reduced-motion and accessibility preferences are respected"
+  ],
+  "implementation_boundary": "VentuSample is an offline audio-pack workstation, not a real-time DAW or plugin host. UI work must not imply real-time audio processing or alter DSP output without dedicated deterministic audio tests."
+}

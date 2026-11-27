@@ -10,6 +10,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [CRATE Production Suite](CRATE_PRODUCTION_SUITE.md) — hip-hop beatmaking rooms, production checks and starter presets; [Russian edition](CRATE_PRODUCTION_SUITE_RU.md).
 - [Hip-Hop Preset Crate](../examples/hip-hop-presets/README.md) — four loadable beatmaking starters.
 - [Architecture](ARCHITECTURE.md) — processing pipeline and data ownership.
+- [Rhythmic Pattern Exploration v1](RHYTHMIC_PATTERN_EXPLORATION_V1.md) — proposed offline audio profile for repetition, grouping, pulse and duration.
 - [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — offline rendering behavior.
 - [MIDI and resampling](MIDI_AND_RESAMPLING.md) — import and conversion boundaries.
 - [Plugin interfaces](PLUGINS.md) — offline DSP extension model.

@@ -1,0 +1,41 @@
+name: GUI neuro-profile
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/mainwindow.*"
+      - "src/ui_ux.*"
+      - "src/ui_motion.*"
+      - "src/mora_theme.hpp"
+      - "tests/**"
+      - "gui-neuro-profile.v1.json"
+      - "docs/GUI_NEURO_AUTOIMPROVEMENT.md"
+      - "tools/validate_gui_neuro_profile.mjs"
+      - ".github/workflows/gui-neuro-profile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    name: Validate GUI automation scope and guardrails
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate repository-specific neuro-GUI profile
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_STEP_SUMMARY: ${{ github.step_summary }}
+        run: node tools/validate_gui_neuro_profile.mjs
