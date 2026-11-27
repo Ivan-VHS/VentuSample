@@ -97,7 +97,7 @@ Each Markdown page has a direct catalog entry and a topic-hub entry. The cluster
 - [VNT A0108](audio-errors/VNT-A0108.md)
 - [VNT A0109](audio-errors/VNT-A0109.md)
 - [AUTOMATION ROADMAP](AUTOMATION_ROADMAP.md)
-- [DUCK SOVEREIGN CANON](DUCK_SOVEREIGN_CANON.md)
+- [DUCK SOVEREIGN CANON](DAK_DESIGN_CANON.md)
 - [DUCKSTORY](DAKSTORY.md)
 - [COCKOS REAPER](integrations/COCKOS_REAPER.md)
 - [MARKET DEVELOPMENT STANDARD](MARKET_DEVELOPMENT_STANDARD.md)
