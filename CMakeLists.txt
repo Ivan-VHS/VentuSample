@@ -59,6 +59,7 @@ endif()
 
 add_library(ventusample_core STATIC
     src/generator.cpp
+    src/pattern_cycle.cpp
     src/generator.hpp
     src/plugin_manager.cpp
     src/plugin_manager.hpp
@@ -190,6 +191,10 @@ if(VENTU_BUILD_TESTS)
     add_executable(ventusample_tests tests/test_generator.cpp)
     target_link_libraries(ventusample_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-generator COMMAND ventusample_tests)
+
+    add_executable(ventusample_pattern_cycle_tests tests/test_pattern_cycle.cpp)
+    target_link_libraries(ventusample_pattern_cycle_tests PRIVATE ventusample_core)
+    add_test(NAME ventusample-pattern-cycle-analysis COMMAND ventusample_pattern_cycle_tests)
     add_executable(ventusample_plugin_tests tests/test_plugins.cpp)
     target_link_libraries(ventusample_plugin_tests PRIVATE ventusample_core)
     add_test(NAME ventusample-plugin-host COMMAND ventusample_plugin_tests)
