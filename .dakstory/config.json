@@ -1,5 +1,5 @@
 {
-  "schema": "duckstory.config.v1",
+  "schema": "dakstory.config.v1",
   "project": "VentuSample",
   "repository": "Ivan-VHS/VentuSample",
   "profile": "cpp20-qt6-audio-workstation",
