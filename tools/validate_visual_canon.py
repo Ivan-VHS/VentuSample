@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate UI source colors against the Duck Sovereign Canon."""
+"""Validate UI source colors against the DAK Sovereign Canon."""
 
 from __future__ import annotations
 
