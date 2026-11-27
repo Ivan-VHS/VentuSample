@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Backend Engineering Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "project",
+    "scope",
+    "standard",
+    "schema_file",
+    "status_policy",
+    "controls"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ivan-vhs.backend-engineering.v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "standard": {
+      "const": "docs/BACKEND_ENGINEERING_STANDARD.md"
+    },
+    "schema_file": {
+      "const": ".architecture/backend-engineering.v1.schema.json"
+    },
+    "status_policy": {
+      "type": "object",
+      "required": [
+        "allowed_statuses",
+        "rule"
+      ],
+      "properties": {
+        "allowed_statuses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "implemented",
+              "partial",
+              "planned",
+              "not_applicable",
+              "not_assessed"
+            ]
+          }
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 12,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "title",
+          "status",
+          "assessment",
+          "evidence",
+          "verification",
+          "limitations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "enum": [
+              "implemented",
+              "partial",
+              "planned",
+              "not_applicable",
+              "not_assessed"
+            ]
+          },
+          "assessment": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "verification": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

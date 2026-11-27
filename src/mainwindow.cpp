@@ -38,6 +38,7 @@
 #include <QKeySequence>
 #include <QGridLayout>
 #include <QScrollArea>
+#include <QShortcut>
 #include <QSettings>
 #include <QSlider>
 #include <QSpinBox>
@@ -46,6 +47,14 @@
 #include <QVBoxLayout>
 #include <QUrl>
 #include <QWidget>
+
+#ifdef Q_OS_WIN
+#include <QLibrary>
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 #include <QDir>
 #include <QMetaObject>
 #include <algorithm>
@@ -88,6 +97,29 @@ QStringList timbreNames() { return {"Keys", "Bell", "Pluck", "Organ", "Brass", "
 QStringList keyNames() { return {"C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"}; }
 QStringList rateNames() { return {"22050", "44100", "48000", "96000"}; }
 
+void applyNativeWindowMaterial(QWidget* window) noexcept {
+#ifdef Q_OS_WIN
+    if (window == nullptr) return;
+    QLibrary dwm(QStringLiteral("dwmapi"));
+    if (!dwm.load()) return;
+    using SetWindowAttribute = HRESULT (WINAPI *)(HWND, DWORD, LPCVOID, DWORD);
+    const auto setAttribute = reinterpret_cast<SetWindowAttribute>(
+        dwm.resolve("DwmSetWindowAttribute")
+    );
+    if (setAttribute == nullptr) {
+        dwm.unload();
+        return;
+    }
+    const DWORD material = mora::ui::nativeBackdropMainWindow;
+    const HWND handle = reinterpret_cast<HWND>(window->winId());
+    (void)setAttribute(handle, mora::ui::nativeBackdropAttribute,
+                       &material, sizeof(material));
+    dwm.unload();
+#else
+    (void)window;
+#endif
+}
+
 void setCombo(QComboBox* combo, const QString& value) {
     const int index = combo->findText(value, Qt::MatchFixedString);
     if (index >= 0) combo->setCurrentIndex(index);
@@ -102,11 +134,12 @@ QWidget* makeCard(const QString& title, QLayout* content) {
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     setWindowTitle("VentuSample — рабочая станция аудиопаков");
-    setMinimumSize(900, 640);
+    setMinimumSize(800, 560);
     resize(1320, 900);
     buildUi();
     ventu::ui_ux::applyAccessibleDefaults(this);
     loadSettings();
+    if (draperyBanner_) draperyBanner_->setMotionPreferences(motionPreferences_);
 
     const QString moraTheme = qEnvironmentVariable("MORA_THEME_MODE").trimmed().toLower();
     if (moraTheme == QStringLiteral("dark"))
@@ -115,6 +148,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         darkThemeCheck_->setChecked(false);
 
     applyTheme();
+    applyNativeWindowMaterial(this);
     updateBeatSync();
 }
 
@@ -217,6 +251,9 @@ void MainWindow::buildUi() {
     beatIndicator_->setStyleSheet("QLabel#beatIndicator { background: #0039A6; color: #FFFFFF; border: 1px solid #0039A6; border-radius: 5px; padding: 5px 8px; }");
     header->addWidget(beatIndicator_, 0, Qt::AlignVCenter);
     root->addLayout(header);
+
+    draperyBanner_ = new ventu::ui_motion::DraperyBanner(central);
+    root->addWidget(draperyBanner_);
 
     auto* hero = new QHBoxLayout();
     auto* heroText = new QVBoxLayout();
@@ -551,6 +588,27 @@ void MainWindow::buildUi() {
     });
     connect(darkThemeCheck_, &QCheckBox::toggled, this, [this] { applyTheme(); saveSettings(); });
     connect(swingSlider_, &QSlider::valueChanged, this, [this](int) { saveSettings(); });
+
+    const auto bindShortcut = [this](const QKeySequence& sequence, const auto& action) {
+        auto* shortcut = new QShortcut(sequence, this);
+        shortcut->setContext(Qt::WindowShortcut);
+        connect(shortcut, &QShortcut::activated, this, action);
+    };
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Plus), [this] { adjustInterfaceFont(1); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Equal), [this] { adjustInterfaceFont(1); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Minus), [this] { adjustInterfaceFont(-1); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_0), [this] { resetInterfaceFont(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Comma), [this] { showMotionSettings(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_S), [this] { savePreset(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_O), [this] { loadPreset(); });
+    bindShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return), [this] {
+        if (generateButton_ && generateButton_->isEnabled()) generateButton_->click();
+    });
+    for (int index = 0; index < 3; ++index) {
+        bindShortcut(QKeySequence(QString("Ctrl+%1").arg(index + 1)), [this, index] {
+            if (tabs_ && index < tabs_->count()) tabs_->setCurrentIndex(index);
+        });
+    }
 }
 
 void MainWindow::showPlugins(const QString& selected) {
@@ -738,6 +796,9 @@ void MainWindow::loadSettings() {
             pluginManager_.setEnabled(plugin.id, settings.value(QString::fromStdString(plugin.id)).toBool());
     }
     settings.endGroup();
+    settings.beginGroup("ui");
+    interfaceFontSize_ = ventu::ui_ux::clampFontSize(settings.value("font_size", 10).toInt());
+    settings.endGroup();
 }
 
 void MainWindow::saveSettings() {
@@ -793,6 +854,9 @@ void MainWindow::saveSettings() {
     settings.setValue("sync_to_bpm", motionPreferences_.syncToBpm);
     settings.setValue("expressive_motion", motionPreferences_.expressiveMotion);
     settings.endGroup();
+    settings.beginGroup("ui");
+    settings.setValue("font_size", interfaceFontSize_);
+    settings.endGroup();
     settings.sync();
 }
 
@@ -825,6 +889,7 @@ void MainWindow::showMotionSettings() {
     motionPreferences_.ecoVisuals = eco->isChecked();
     motionPreferences_.expressiveMotion = expressive->isChecked();
     motionPreferences_.syncToBpm = sync->isChecked();
+    if (draperyBanner_) draperyBanner_->setMotionPreferences(motionPreferences_);
     saveSettings();
     updateBeatSync();
 }
@@ -916,7 +981,24 @@ void MainWindow::applyTheme() {
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }
     )QSS").arg(page, ink, surface, border, secondary, accent, signal, selection, focus, accentHover)
         .arg(onAccent).arg(onSignal).arg(muted);
-    setStyleSheet(style);
+    QString scalableStyle = style;
+    scalableStyle.replace(QStringLiteral("font-size: 10pt"),
+                          QString("font-size: %1pt").arg(interfaceFontSize_));
+    setStyleSheet(scalableStyle);
+}
+
+void MainWindow::adjustInterfaceFont(int delta) {
+    interfaceFontSize_ = ventu::ui_ux::clampFontSize(interfaceFontSize_ + delta);
+    applyTheme();
+    saveSettings();
+    statusLabel_->setText(QString("Размер интерфейса: %1 pt").arg(interfaceFontSize_));
+}
+
+void MainWindow::resetInterfaceFont() {
+    interfaceFontSize_ = 10;
+    applyTheme();
+    saveSettings();
+    statusLabel_->setText("Размер интерфейса сброшен: 10 pt");
 }
 
 ventu::Parameters MainWindow::parameters() const {

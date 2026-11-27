@@ -15,6 +15,25 @@
 | Plugin host | 19 versioned built-in plugins, enable/disable lifecycle, bounded handlers and public registration API |
 | Tests | validation, repeatability, variations, WAV round-trip, stochastic DSP, schemas, plugin lifecycle and Quantum DSP checks |
 
+## CRATE hip-hop production route
+
+CRATE (Crate, Rhythm, Arrangement, Texture, Export) maps the existing audio core to a hip-hop beatmaking session. It is a workflow and preset layer, not a new real-time engine.
+
+| Studio room | Existing VentuSample path |
+|---|---|
+| Crate Scout | Bounded PCM16 WAV import and versioned pack metadata |
+| Chop Bench | Four-slice placement and semitone resampling |
+| Pocket Engine | BPM, swing, snare offset, triplet rolls and micro-humanization |
+| Drum Room | Seeded drum generation and weighted drum voicing |
+| Loop Lab | Full Loop, Melody, Drums, Bass and One-Shot Kit generation |
+| Arrangement Grid | Bar-based phrases and seeded variations; no full song timeline is implied |
+| Texture Rack | 133 typed DSP module identities over 21 reusable kernels |
+| Beat Router | Eight-effect deterministic offline routing |
+| Mix Booth | Filters, saturation, linked bus compression and peak/RMS/crest checks |
+| Pressing Plant | PCM16 WAV output and pack manifests v1/v2 |
+
+CRATE starter presets are stored in `examples/hip-hop-presets/` and use the existing `ventusample.preset.v1` loader. The desktop preset test loads each starter file through the native parser. The suite does not claim automatic BPM/key/transient detection, live recording, VST/AU hosting, LUFS certification or a multitrack song-arrangement timeline.
+
 ## Stochastic routing
 
 The offline router mutates a rendered stereo buffer before WAV encoding. It draws weighted effect entries from the configured pool without replacement and creates serial, parallel or hybrid routes. Its eight built-in processors are low-pass, high-pass, saturator, bitcrusher, delay, reverb, ring modulation and stereo width.
