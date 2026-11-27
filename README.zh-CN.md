@@ -85,7 +85,7 @@ CTest 覆盖确定性生成、WAV 边界、重采样、MIDI 文件、离线频�
 与 Reaper 的素材包交换采用文件和版本化格式。当前 Reaper 消费端只读取 v1 manifest 元数据，不会修改 WAV 资产。只有在向 CMake 显式提供本地 Reaper 源码树时，才启用可选的 Reaper 原生表达式集成。直接的 Pytyliki 原生指标/DSP 适配器仍属计划功能。
 
 - [功能矩阵](docs/FEATURES.md) · [架构](docs/ARCHITECTURE.md)
-- [CRATE 制作套件](docs/CRATE_PRODUCTION_SUITE.md) · [Hip-hop 预设包](examples/hip-hop-presets/README.md)
+- [CRATE 制作套件](docs/FEATURES.md) · [Hip-hop 预设包](examples/compare_packs.py)
 - [Quality Monolith Rhythm](docs/QUALITY_MONOLITH_RHYTHM.md) · [Quantum Audio Engine](docs/QUANTUM_AUDIO_ENGINE.md)
 - [插件与生命周期](docs/PLUGINS.md) · [MIDI 与重采样](docs/MIDI_AND_RESAMPLING.md)
 - [源码集成与许可](docs/SOURCE_INTEGRATION.md) · [文档索引](docs/README.md)
