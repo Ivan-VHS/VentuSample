@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ivan-vhs.github.io/VentuSample/schemas/quantum-audio-chain.v1.schema.json",
+  "title": "VentuSample syntax-neutral Quantum Audio chain",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "steps"],
+  "properties": {
+    "schema": {"const": "ventusample.quantum-audio-chain.v1"},
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["syntax_id", "source_sha256"],
+      "properties": {
+        "syntax_id": {"enum": ["reaper", "python", "pipeline", "lisp", "forth", "brainfuck", "befunge93"]},
+        "source_sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+        "validation_report_sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"}
+      }
+    },
+    "steps": {
+      "type": "array",
+      "maxItems": 133,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["plugin_id", "parameters"],
+        "properties": {
+          "plugin_id": {"type": "string", "minLength": 1, "maxLength": 96},
+          "parameters": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["amount", "tone", "rate", "mix"],
+            "properties": {
+              "amount": {"type": "number", "minimum": 0, "maximum": 1},
+              "tone": {"type": "number", "minimum": 0, "maximum": 1},
+              "rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "mix": {"type": "number", "minimum": 0, "maximum": 1}
+            }
+          }
+        }
+      }
+    }
+  }
+}

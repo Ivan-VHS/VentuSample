@@ -48,6 +48,8 @@ private:
     void saveSettings();
     void applyTheme();
     void showMotionSettings();
+    void adjustInterfaceFont(int delta);
+    void resetInterfaceFont();
     void updateXRayHud();
     void updateBeatSync();
     ventu::Parameters parameters() const;
@@ -116,6 +118,7 @@ private:
     QLabel* summaryLabel_{};
     QLabel* beatIndicator_{};
     QTabWidget* tabs_{};
+    ventu::ui_motion::DraperyBanner* draperyBanner_{};
     QTimer* beatTimer_{};
     QDockWidget* xrayDock_{};
     QTimer* xrayTimer_{};
@@ -126,6 +129,7 @@ private:
     QLabel* xrayLatencyLabel_{};
     ventu::diagnostics::RenderTelemetry renderTelemetry_{};
     ventu::ui_motion::Preferences motionPreferences_{};
+    int interfaceFontSize_{10};
     QListWidget* filesList_{};
     QPlainTextEdit* log_{};
     ventu::PluginManager pluginManager_;
