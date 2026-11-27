@@ -34,8 +34,9 @@ flowchart TB
 - **Golden-era crate workflow:** deterministic four-slice 0–2–1–3 reassembly, weighted kick/snare voicing, restrained hats, shared swing and repeatable turnarounds.
 - **WAV import and chop:** bounded PCM16 mono/stereo input (8–192 kHz, up to 128 MiB and 20 million frames), four-slice placement and semitone resampling over ±12 semitones. Pitch changes also change playback speed; tempo-preserving time-stretch is not implemented.
 - **Offline DSP:** filters, saturation, linked stereo-bus processing, RMS matching, sample-peak guarding and bounded effect routing.
-- **Stochastic router:** eight weighted effects across serial, parallel and hybrid graphs; file, bar and generator-onset triggers; deterministic seed/variation routing; bounded wet/feedback, fades and output guards. Integrated into offline export.
+- **Stochastic router:** eight weighted effects across serial, parallel and hybrid graphs; file, bar and generator-onset triggers; deterministic seed/variation routing; wet ≤65%, feedback ≤72%, 5–20 ms fades, bounded RMS compensation and −0.3 dBFS sample-peak protection. Integrated into offline WAV export and exposed as the 19th built-in plugin.
 - **Analysis:** per-file peak, RMS and crest factor; offline FFT peak, centroid and 85% rolloff. No audio-device access is needed.
+- **QMR-20:** 20 quality, cohesion and rhythm controls with regression gates; these are deterministic engineering checks, not a universal or subjective sound-quality score.
 - **Tonal metadata:** key/mode labels are attached to pitched material only; unpitched drums are not assigned fabricated keys.
 - **Pack exchange:** versioned `ventusample.pack.v1` and `ventusample.pack.v2` manifests with WAV assets. Reaper's current consumer validates and compares v1 manifest metadata; it does not audit or modify waveform data.
 
