@@ -19,8 +19,72 @@ def load_json(relative: str) -> dict:
     return value
 
 
+def validate_supabase_adapter(project_id: str) -> None:
+    schema = load_json("federation/schemas/supabase-adapter.v1.schema.json")
+    if (schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema"
+            or schema.get("$id") != "https://schemas.ivan-vhs.dev/supabase-adapter.v1.schema.json"
+            or schema.get("title") != "Ivan-VHS Supabase Adapter Contract v1"):
+        raise ValueError("Supabase adapter schema identity is invalid")
+
+    adapter = load_json("federation/supabase-adapter.v1.json")
+    expected_fields = {
+        "schema", "project", "repository", "role", "status", "default_mode",
+        "supabase", "network_policy", "local_first", "contracts",
+        "data_domains", "excluded_data", "security",
+    }
+    if set(adapter) != expected_fields:
+        raise ValueError("Supabase adapter fields do not match v1")
+    if adapter["schema"] != "ivan-vhs.supabase-adapter.v1":
+        raise ValueError("unknown Supabase adapter contract")
+    if project_id != "ventusample" or adapter["project"] != project_id:
+        raise ValueError("Supabase adapter project does not match VentuSample")
+    if adapter["repository"] != "Ivan-VHS/VentuSample":
+        raise ValueError("Supabase adapter repository does not match VentuSample")
+    if adapter["role"] not in {"producer", "consumer", "producer-consumer"}:
+        raise ValueError("Supabase adapter role is invalid")
+    if adapter["status"] != "contract-only" or adapter["default_mode"] != "offline-only":
+        raise ValueError("Supabase adapter maturity and default mode are invalid")
+    if adapter["supabase"] != {
+        "deployment": "not-configured",
+        "url_env": "SUPABASE_URL",
+        "publishable_key_env": "SUPABASE_PUBLISHABLE_KEY",
+        "service_role_key_in_client": False,
+    }:
+        raise ValueError("Supabase hosted access or client secret policy is not safe by default")
+    if adapter["network_policy"] != {
+        "enabled_by_default": False,
+        "background_sync": False,
+        "requires_user_action": True,
+    }:
+        raise ValueError("Supabase network policy must remain explicitly user-initiated")
+    if adapter["local_first"] != {
+        "local_data_authoritative": True,
+        "sync_model": "append-only-event-log",
+        "conflict_resolution": "domain-specific-versioned",
+    }:
+        raise ValueError("Supabase local-first contract is invalid")
+    if adapter["contracts"] != {
+        "event_envelope": "ivan-vhs.ecosystem-event.v1",
+        "artifact_manifest": "ivan-vhs.ecosystem-artifact.v1",
+    }:
+        raise ValueError("Supabase shared contract IDs are invalid")
+    for field in ("data_domains", "excluded_data"):
+        values = adapter[field]
+        if (not isinstance(values, list) or not values
+                or any(not isinstance(value, str) or not value.strip() for value in values)
+                or len(values) != len(set(values))):
+            raise ValueError(f"Supabase adapter {field} must be a unique non-empty string array")
+    if adapter["security"] != {
+        "rls_required": True,
+        "service_role_key_never_in_client": True,
+        "explicit_upload_consent": True,
+        "telemetry_default": "disabled",
+    }:
+        raise ValueError("Supabase adapter security policy is not safe by default")
+
 def validate_contract() -> None:
     data = load_json("project-contract.json")
+    validate_supabase_adapter(data["project"]["id"])
     required = {"schema", "project", "implementation", "capabilities", "interfaces", "integrations", "safety_boundaries", "extension_points"}
     if set(data) != required:
         raise ValueError(f"project-contract.json root keys differ: {sorted(set(data) ^ required)}")
