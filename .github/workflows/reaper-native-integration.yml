@@ -25,14 +25,6 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Validate and execute Reaper audio contracts
-        env:
-          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
-        run: |
-          set -euo pipefail
-          python -m reaper --check integrations/reaper/audio_contract.rpr
-          python -m reaper integrations/reaper/audio_contract.rpr | tee reaper-audio-contract.txt
-          grep -qx "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS" reaper-audio-contract.txt
       - name: Validate and execute offline neural audio contract
         env:
           PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
@@ -41,6 +33,14 @@ jobs:
           python -m reaper --check integrations/reaper/neural_audio_contract.rpr
           python -m reaper integrations/reaper/neural_audio_contract.rpr | tee reaper-neural-audio.txt
           grep -qx "VENTUSAMPLE_REAPER_NEURAL_AUDIO:PASS" reaper-neural-audio.txt
+      - name: Validate and execute Reaper audio contracts
+        env:
+          PYTHONPATH: ${{ github.workspace }}/_deps/Reaper
+        run: |
+          set -euo pipefail
+          python -m reaper --check integrations/reaper/audio_contract.rpr
+          python -m reaper integrations/reaper/audio_contract.rpr | tee reaper-audio-contract.txt
+          grep -qx "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS" reaper-audio-contract.txt
       - name: Configure linked C++20 + C17 build
         run: cmake -S . -B build -DVENTU_BUILD_DESKTOP=OFF -DREAPER_SOURCE_DIR="$GITHUB_WORKSPACE/_deps/Reaper" -DCMAKE_BUILD_TYPE=Release
       - name: Build the linked expression bridge
