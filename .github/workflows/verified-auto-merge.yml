@@ -1,167 +1,237 @@
 name: Verified Mainline Auto-Merge
 
 on:
-  workflow_run:
-    workflows: ["VentuSample CI"]
-    types: [completed]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
 
 permissions:
   actions: read
+  checks: read
   contents: write
   pull-requests: write
 
 concurrency:
-  group: ventusample-verified-auto-merge-${{ github.event.workflow_run.id }}
+  group: verified-mainline-auto-merge-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  enable-auto-merge:
-    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.head_repository.full_name == github.repository
-    name: Enable squash auto-merge after complete CI
+  verify-and-enable:
+    name: Verify CI, independent review and merge eligibility
+    if: >
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      checks: read
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      REQUIRED_WORKFLOWS: '["System capability profile","Quality, Repeatability and Native Contract","Prose quality","DuckStory","Beelzebul security gate","Backend engineering contract","Repository completeness gate","CodeQL","VentuSample CI"]'
     steps:
-      - name: Verify the tested PR head and enable native auto-merge
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TESTED_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          PULL_REQUESTS_JSON: ${{ toJSON(github.event.workflow_run.pull_requests) }}
+      - name: Wait for every PR workflow on the exact head
         shell: bash
         run: |
           set -euo pipefail
 
-          numbers="$(jq -r '.[].number // empty' <<< "$PULL_REQUESTS_JSON")"
-          if [[ -z "$numbers" ]]; then
-            echo "No associated pull request; nothing to merge."
-            exit 0
-          fi
+          ready_streak=0
+          last_fingerprint=""
+          ready=false
 
-          while IFS= read -r number; do
-            [[ -n "$number" ]] || continue
-            pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number")"
-            head_sha="$(jq -r '.head.sha' <<< "$pr")"
+          for attempt in $(seq 1 90); do
+            pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+            state="$(jq -r '.state' <<< "$pr")"
+            merged="$(jq -r '.merged' <<< "$pr")"
+            current_head="$(jq -r '.head.sha' <<< "$pr")"
             head_repo="$(jq -r '.head.repo.full_name // ""' <<< "$pr")"
             base_ref="$(jq -r '.base.ref' <<< "$pr")"
             draft="$(jq -r '.draft' <<< "$pr")"
-            url="$(jq -r '.html_url' <<< "$pr")"
-            auto_merge="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$pr")"
 
-            if [[ "$head_repo" != "$GITHUB_REPOSITORY" || "$base_ref" != "main" || "$draft" != "false" ]]; then
-              echo "SKIP PR #$number: not an eligible same-repository, non-draft main PR."
-              continue
+            if [[ "$state" != "open" ]]; then
+              echo "::notice::PR is no longer open."
+              exit 0
             fi
-            if [[ "$head_sha" != "$TESTED_HEAD_SHA" ]]; then
-              echo "SKIP PR #$number: CI result is for an older commit."
-              continue
+            if [[ "$merged" == "true" ]]; then
+              echo "::notice::PR is already merged."
+              exit 0
             fi
-            if [[ "$auto_merge" == "true" ]]; then
-              echo "OK PR #$number: native auto-merge is already enabled."
-              continue
-            fi
-
-            # Do not enable auto-merge until every independent PR workflow has
-            # completed successfully for this exact head SHA.
-            required_workflows='["CodeQL","Beelzebul security gate","Repository completeness gate"]'
-            assurance_ready=false
-            for check_attempt in $(seq 1 54); do
-              runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$TESTED_HEAD_SHA&per_page=100")"
-              assurance_state="$(jq -r \
-                --arg sha "$TESTED_HEAD_SHA" \
-                --argjson required "$required_workflows" '
-                  [.workflow_runs[]
-                    | select(.event == "pull_request" and .head_sha == $sha)]
-                  | sort_by(.updated_at)
-                  | group_by(.name)
-                  | map(.[-1]) as $latest
-                  | [$required[] as $name | select(([ $latest[].name ] | index($name)) == null)] as $missing
-                  | [$required[] as $name
-                      | select(([ $latest[] | select(.name == $name and .status == "completed" and .conclusion == "success") ] | length) == 0
-                          and ([ $latest[] | select(.name == $name and .status == "completed") ] | length) > 0)] as $required_failed
-                  | [$latest[] | select(.status == "completed"
-                      and (.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral"))] as $failed
-                  | [$latest[] | select(.status != "completed")] as $pending
-                  | if ($missing | length) > 0 then
-                      "missing:" + ($missing | join(","))
-                    elif ($required_failed | length) > 0 then
-                      "required-failed:" + ($required_failed | join(","))
-                    elif ($failed | length) > 0 then
-                      "failed:" + ([ $failed[] | "\(.name)=\(.conclusion)" ] | join(","))
-                    elif ($pending | length) > 0 then
-                      "pending:" + ([ $pending[] | "\(.name)=\(.status)" ] | join(","))
-                    else "ready"
-                    end
-                ' <<< "$runs")"
-              echo "PR #$number assurance attempt $check_attempt/54: $assurance_state"
-              case "$assurance_state" in
-                ready) assurance_ready=true; break ;;
-                failed:*) echo "::error::A pull-request workflow failed: $assurance_state"; exit 1 ;;
-                *) sleep 10 ;;
-              esac
-            done
-            if [[ "$assurance_ready" != true ]]; then
-              echo "::error::Timed out waiting for all pull-request assurance workflows."
+            if [[ "$current_head" != "$EXPECTED_HEAD_SHA" || "$head_repo" != "$GITHUB_REPOSITORY" || "$base_ref" != "main" || "$draft" != "false" ]]; then
+              echo "::error::PR eligibility or exact head SHA changed during validation."
               exit 1
             fi
 
-            attempt=1
-            while (( attempt <= 5 )); do
-              # Revalidate immediately before every attempt; CI only authorizes this exact SHA.
-              latest_pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number")"
-              latest_head="$(jq -r '.head.sha' <<< "$latest_pr")"
-              latest_repo="$(jq -r '.head.repo.full_name // ""' <<< "$latest_pr")"
-              latest_base="$(jq -r '.base.ref' <<< "$latest_pr")"
-              latest_draft="$(jq -r '.draft' <<< "$latest_pr")"
-              latest_auto="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$latest_pr")"
-              latest_merged="$(jq -r '.merged' <<< "$latest_pr")"
-              if [[ "$latest_head" != "$TESTED_HEAD_SHA" || "$latest_repo" != "$GITHUB_REPOSITORY" || "$latest_base" != "main" || "$latest_draft" != "false" ]]; then
-                echo "SKIP PR #$number: eligibility changed; refusing to retry."
-                break
-              fi
-              if [[ "$latest_auto" == "true" || "$latest_merged" == "true" ]]; then
-                echo "OK PR #$number: auto-merge is already enabled or the PR is merged."
-                break
-              fi
-              set +e
-              output="$(gh pr merge "$url" --auto --squash --delete-branch 2>&1)"
-              status=$?
-              set -e
-              printf '%s\n' "$output"
-              if [[ "$status" -eq 0 ]]; then break; fi
+            runs="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$EXPECTED_HEAD_SHA&per_page=100")"
+            state="$(jq -r \
+              --arg self "$GITHUB_WORKFLOW" \
+              --arg sha "$EXPECTED_HEAD_SHA" \
+              --argjson required "$REQUIRED_WORKFLOWS" '
+                [.workflow_runs[]
+                  | select((.event == "pull_request" or .event == "pull_request_review")
+                    and .head_sha == $sha and .name != $self)] as $current
+                | ($current | sort_by(.updated_at) | group_by(.name) | map(.[-1])) as $latest
+                | [$required[] as $name | select(([$latest[] | select(.name == $name)] | length) == 0)] as $missing
+                | [$latest[] | select(.status == "completed" and .conclusion != "success")] as $failed
+                | [$latest[] | select(.status != "completed")] as $pending
+                | if ($failed | length) > 0 then
+                    "failed:" + ([$failed[] | "\(.name)=\(.conclusion)"] | join(","))
+                  elif ($missing | length) > 0 then
+                    "missing:" + ($missing | join(","))
+                  elif ($pending | length) > 0 then
+                    "pending:" + ([$pending[] | "\(.name)=\(.status)"] | join(","))
+                  else "ready"
+                  end
+              ' <<< "$runs")"
 
-              # The mutation may have succeeded despite a lost/transient response.
-              state="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$number" 2>/dev/null || true)"
-              if [[ -z "$state" ]]; then
-                echo "Cannot revalidate PR state after the failed request; refusing to retry." >&2
-                exit "$status"
-              fi
-              if [[ -n "$state" ]]; then
-                state_head="$(jq -r '.head.sha' <<< "$state")"
-                state_repo="$(jq -r '.head.repo.full_name // ""' <<< "$state")"
-                state_base="$(jq -r '.base.ref' <<< "$state")"
-                state_draft="$(jq -r '.draft' <<< "$state")"
-                state_auto="$(jq -r 'if .auto_merge == null then "false" else "true" end' <<< "$state")"
-                state_merged="$(jq -r '.merged' <<< "$state")"
-                if [[ "$state_auto" == "true" || "$state_merged" == "true" ]]; then
-                  echo "OK PR #$number: GitHub accepted the auto-merge request."
+            echo "PR assurance attempt $attempt/90: $state"
+            case "$state" in
+              failed:*)
+                echo "::error::A pull-request workflow failed on this exact head: $state"
+                exit 1
+                ;;
+              ready)
+                fingerprint="$(jq -c --arg self "$GITHUB_WORKFLOW" --arg sha "$EXPECTED_HEAD_SHA" '
+                  [.workflow_runs[]
+                    | select((.event == "pull_request" or .event == "pull_request_review")
+                      and .head_sha == $sha and .name != $self)
+                    | {id, name, status, conclusion, updated_at}]
+                  | sort_by(.name)
+                ' <<< "$runs")"
+                if [[ "$fingerprint" == "$last_fingerprint" ]]; then
+                  ready_streak=$((ready_streak + 1))
+                else
+                  last_fingerprint="$fingerprint"
+                  ready_streak=1
+                fi
+                if (( ready_streak >= 2 )); then
+                  ready=true
                   break
                 fi
-                if [[ "$state_head" != "$TESTED_HEAD_SHA" || "$state_repo" != "$GITHUB_REPOSITORY" || "$state_base" != "main" || "$state_draft" != "false" ]]; then
-                  echo "SKIP PR #$number: eligibility changed; refusing to retry."
-                  break
-                fi
-              fi
+                ;;
+              *)
+                ready_streak=0
+                last_fingerprint=""
+                ;;
+            esac
+            sleep 10
+          done
 
-              if ! grep -Eiq 'GraphQL:.*Something went wrong|502 Bad Gateway|503 Service Unavailable|504 Gateway Time-out|HTTP 5(02|03|04)|connection reset|timed out|temporary failure' <<< "$output"; then
-                echo "Auto-merge failed for a non-transient reason; not retrying." >&2
-                exit "$status"
-              fi
-              if (( attempt == 5 )); then
-                echo "Auto-merge unavailable after five attempts." >&2
-                exit "$status"
-              fi
-              delay=$((attempt * 3))
-              echo "::warning::Transient GitHub API failure; retrying in $delay seconds."
-              sleep "$delay"
-              attempt=$((attempt + 1))
-            done
-          done <<< "$numbers"
+          if [[ "$ready" != "true" ]]; then
+            echo "::error::All required PR workflows did not reach a stable successful state."
+            exit 1
+          fi
+
+      - name: Require a current non-author human approval and resolved threads
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+          author="$(jq -r '.user.login' <<< "$pr")"
+          head_sha="$(jq -r '.head.sha' <<< "$pr")"
+          if [[ "$head_sha" != "$EXPECTED_HEAD_SHA" ]]; then
+            echo "::error::PR head changed before review verification."
+            exit 1
+          fi
+
+          reviews="$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews?per_page=100" | jq 'add')"
+          review_state="$(jq -r --arg author "$author" --arg sha "$EXPECTED_HEAD_SHA" '
+            [
+              .[]
+              | select(.submitted_at != null)
+              | {
+                  login: (.user.login // ""),
+                  user_type: (.user.type // ""),
+                  state: (.state // ""),
+                  commit_id: (.commit_id // "")
+                }
+            ]
+            | sort_by(.login, .submitted_at)
+            | group_by(.login)
+            | map(.[-1]) as $latest
+            | if any($latest[]; .login != $author and .user_type != "Bot" and .state == "CHANGES_REQUESTED") then
+                "changes-requested"
+              elif any($latest[]; .login != $author and .user_type != "Bot" and .state == "APPROVED" and .commit_id == $sha) then
+                "approved"
+              else
+                "missing-current-head-human-approval"
+              end
+          ' <<< "$reviews")"
+
+          if [[ "$review_state" != "approved" ]]; then
+            echo "::error::A non-author human approval on the exact current head is required: $review_state."
+            exit 1
+          fi
+
+          owner="${GITHUB_REPOSITORY%%/*}"
+          repo_name="${GITHUB_REPOSITORY#*/}"
+          threads_query='query($owner: String!, $name: String!, $number: Int!, $cursor: String) {
+            repository(owner: $owner, name: $name) {
+              pullRequest(number: $number) {
+                reviewThreads(first: 100, after: $cursor) {
+                  nodes { isResolved }
+                  pageInfo { hasNextPage endCursor }
+                }
+              }
+            }
+          }'
+
+          cursor=""
+          unresolved=0
+          while true; do
+            if [[ -n "$cursor" ]]; then
+              page="$(gh api graphql -f query="$threads_query" -F owner="$owner" -F name="$repo_name" -F number="$PR_NUMBER" -F cursor="$cursor")"
+            else
+              page="$(gh api graphql -f query="$threads_query" -F owner="$owner" -F name="$repo_name" -F number="$PR_NUMBER")"
+            fi
+            if ! jq -e '.data.repository.pullRequest.reviewThreads' >/dev/null <<< "$page"; then
+              echo "::error::Could not read review threads; refusing auto-merge."
+              exit 1
+            fi
+            page_unresolved="$(jq '[.data.repository.pullRequest.reviewThreads.nodes[] | select(.isResolved == false)] | length' <<< "$page")"
+            unresolved=$((unresolved + page_unresolved))
+            has_next="$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.hasNextPage' <<< "$page")"
+            if [[ "$has_next" != "true" ]]; then
+              break
+            fi
+            cursor="$(jq -r '.data.repository.pullRequest.reviewThreads.pageInfo.endCursor' <<< "$page")"
+            if [[ -z "$cursor" || "$cursor" == "null" ]]; then
+              echo "::error::Could not paginate review threads safely."
+              exit 1
+            fi
+          done
+
+          if (( unresolved > 0 )); then
+            echo "::error::Unresolved review threads remain: $unresolved."
+            exit 1
+          fi
+
+      - name: Revalidate exact head and enable squash auto-merge
+        shell: bash
+        run: |
+          set -euo pipefail
+          pr="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER")"
+          state="$(jq -r '.state' <<< "$pr")"
+          merged="$(jq -r '.merged' <<< "$pr")"
+          head="$(jq -r '.head.sha' <<< "$pr")"
+          base="$(jq -r '.base.ref' <<< "$pr")"
+          head_repo="$(jq -r '.head.repo.full_name // ""' <<< "$pr")"
+          draft="$(jq -r '.draft' <<< "$pr")"
+          mergeable="$(jq -r '.mergeable // "unknown"' <<< "$pr")"
+
+          if [[ "$merged" == "true" ]]; then
+            echo "::notice::PR is already merged."
+            exit 0
+          fi
+          if [[ "$state" != "open" || "$head" != "$EXPECTED_HEAD_SHA" || "$base" != "main" || "$head_repo" != "$GITHUB_REPOSITORY" || "$draft" != "false" || "$mergeable" != "true" ]]; then
+            echo "::error::PR state, head, repository, draft status or mergeability changed; refusing auto-merge."
+            exit 1
+          fi
+
+          gh pr merge "https://github.com/$GITHUB_REPOSITORY/pull/$PR_NUMBER" --auto --squash --delete-branch
