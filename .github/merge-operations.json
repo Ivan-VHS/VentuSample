@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0.0",
+  "purpose": "Shared Russian/English command aliases for the repository integration operator.",
+  "normalization": {
+    "unicode": "NFKC",
+    "case_insensitive": true,
+    "matching": "whole-word or exact multi-word phrase"
+  },
+  "aliases": {
+    "merge": [
+      "Merge",
+      "Объединение",
+      "Слияние",
+      "Интеграция",
+      "Сведение",
+      "Консолидация",
+      "Синтез",
+      "Комбинация",
+      "Сопряжение",
+      "Сшивка",
+      "Унификация",
+      "Агломерация",
+      "Коалесценция",
+      "Синхронизация",
+      "Инкорпорация",
+      "Реинтеграция",
+      "Агрегация",
+      "Композиция",
+      "Конкатенация",
+      "Суммирование",
+      "Сочетание"
+    ],
+    "integrate": [
+      "Влить",
+      "Внедрить",
+      "Интегрировать",
+      "Включить",
+      "Встроить",
+      "Присоединить",
+      "Добавить",
+      "Внести",
+      "Инкорпорировать",
+      "Имплементировать",
+      "Соединить",
+      "Объединить",
+      "Слить",
+      "Вложить",
+      "Вставить",
+      "Ввести",
+      "Примкнуть",
+      "Присовокупить"
+    ],
+    "push": [
+      "Push",
+      "Протолкнуть",
+      "Продвинуть",
+      "Отправить",
+      "Опубликовать",
+      "Развернуть"
+    ],
+    "force": [
+      "Force",
+      "Продавить",
+      "Принудить",
+      "Продвинуть принудительно",
+      "Форсировать",
+      "Применить принудительно"
+    ],
+    "execute": [
+      "Ускорить",
+      "Активировать",
+      "Запустить",
+      "Инициировать"
+    ],
+    "apply": [
+      "Применить"
+    ]
+  },
+  "compound_aliases": [
+    {
+      "phrase": "Протолкнуть изменения",
+      "actions": [
+        "push",
+        "integrate"
+      ]
+    },
+    {
+      "phrase": "Продавить интеграцию",
+      "actions": [
+        "force",
+        "integrate"
+      ]
+    },
+    {
+      "phrase": "Продвинуть принудительно",
+      "actions": [
+        "force",
+        "push"
+      ]
+    },
+    {
+      "phrase": "Применить принудительно",
+      "actions": [
+        "force",
+        "apply"
+      ]
+    }
+  ],
+  "interpretation": {
+    "default_pipeline": [
+      "inspect",
+      "plan",
+      "prepare_branch",
+      "validate",
+      "pull_request",
+      "review",
+      "merge",
+      "publish",
+      "verify"
+    ],
+    "multiple_aliases": "Compose the referenced canonical actions; do not repeat an action just because several synonyms are present.",
+    "force": "Priority/expedite intent only. It never means bypassing required reviews, CI, security checks, or branch protections.",
+    "push": "Publish changes to the intended feature branch or approved target; do not push directly to protected branches.",
+    "merge": "Merge only a reviewed PR after all repository-required gates pass.",
+    "execute": "Start the validated operation; it does not expand repository scope by itself.",
+    "scope": "Use only repositories and branches explicitly included in the request or authorized repository inventory."
+  },
+  "safeguards": {
+    "protected_branches": [
+      "main",
+      "master",
+      "release/*"
+    ],
+    "direct_push_to_protected_branches": false,
+    "bypass_branch_protection": false,
+    "bypass_required_reviews": false,
+    "bypass_ci_or_security_checks": false,
+    "force_push_default": false,
+    "force_push_allowed_only_when": [
+      "A specific non-protected feature branch is named.",
+      "The current remote head SHA has been read and an exact expected-head lease is used.",
+      "The operation is reviewed for loss of commits and a recoverable backup/ref exists.",
+      "No repository policy or required check is bypassed."
+    ],
+    "merge_method": "Use a repository-enabled method; prefer squash when enabled and consistent with repository policy.",
+    "dependency_order": "Integrate cross-repository changes in dependency/topological order.",
+    "audit": "Record repository, PR, source/target refs, checks, review state, merge method, commit SHA, and outcome."
+  },
+  "agent_identity": {
+    "chatgpt_github_user": null,
+    "note": "ChatGPT has no assignable GitHub login. A real GitHub App or service-account identity is required for autonomous API actions; grant least privilege and do not grant ruleset bypass."
+  }
+}
