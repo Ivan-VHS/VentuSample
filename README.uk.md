@@ -34,8 +34,9 @@ flowchart TB
 - **Golden-era crate workflow:** детерміноване компонування чотирьох зрізів у порядку 0–2–1–3, зважений добір kick/snare, стримані hats, спільний swing і відтворювані переходи.
 - **Імпорт і нарізка WAV:** обмежений PCM16 mono/stereo input (8–192 kHz, до 128 MiB і 20 млн кадрів), розміщення чотирьох зрізів і ресемплінг на ±12 півтонів. Зміна висоти тону також змінює швидкість; time-stretch зі збереженням темпу не реалізовано.
 - **Offline DSP:** фільтри, saturation, обробка зв’язаної стереошини, RMS matching, захист sample peak та обмежена маршрутизація ефектів.
-- **Stochastic router:** вісім зважених ефектів у serial, parallel і hybrid-графах; тригери file/bar/generator-onset; детермінована маршрутизація за seed/variation; обмежені wet/feedback, fades і захист виходу. Інтегрований в offline export.
+- **Stochastic router:** вісім зважених ефектів у serial, parallel і hybrid-графах; тригери file/bar/generator-onset; детермінована маршрутизація за seed/variation; wet ≤65%, feedback ≤72%, fades 5–20 ms, обмежена RMS-компенсація та sample-peak-захист −0,3 dBFS. Інтегрований в offline WAV export і представлений як 19-й вбудований плагін.
 - **Аналіз:** peak, RMS і crest factor для файлів; offline FFT peak, centroid і rolloff на 85%. Доступ до аудіопристроїв не потрібен.
+- **QMR-20:** 20 параметрів якості, cohesion і ритміки з regression gates; це детерміновані інженерні перевірки, а не універсальна чи суб’єктивна оцінка звучання.
 - **Тональні метадані:** key/mode додаються лише до тонального матеріалу; ударним без визначеної висоти не призначається вигадана тональність.
 - **Обмін наборами:** manifest `ventusample.pack.v1` і `ventusample.pack.v2` з WAV assets. Поточний Reaper consumer перевіряє й порівнює метадані manifest v1, не аналізуючи та не змінюючи waveform.
 
