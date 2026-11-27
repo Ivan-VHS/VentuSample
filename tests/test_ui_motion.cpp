@@ -27,5 +27,10 @@ int main(int argc, char** argv) {
     eco.ecoVisuals = true;
     assert(ventu::ui_motion::boundedDuration(eco, 380) == 80);
 
+    auto expressiveFold = expressive;
+    expressiveFold.reduceMotion = false;
+    expressiveFold.ecoVisuals = false;
+    assert(ventu::ui_motion::boundedDuration(expressiveFold, 180) == 243);
+
     return 0;
 }
