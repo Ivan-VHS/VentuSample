@@ -1,0 +1,218 @@
+{
+  "schema": "ivan-vhs.backend-engineering.v1",
+  "version": 1,
+  "project": "VentuSample",
+  "scope": "Offline native C++20 procedural audio workstation with bounded file processing, WAV/JSON exchange, preset storage, local plugins and optional Qt desktop UI; not a hosted service or real-time audio-device host.",
+  "standard": "docs/BACKEND_ENGINEERING_STANDARD.md",
+  "schema_file": ".architecture/backend-engineering.v1.schema.json",
+  "status_policy": {
+    "allowed_statuses": [
+      "implemented",
+      "partial",
+      "planned",
+      "not_applicable",
+      "not_assessed"
+    ],
+    "rule": "Use implemented or partial only when repository code and focused verification paths support the exact statement. Record limits explicitly. A design document, capability catalog or profile-validation job does not prove runtime behavior."
+  },
+  "controls": [
+    {
+      "id": "boundaries-contracts",
+      "title": "Module boundaries and versioned contracts",
+      "status": "partial",
+      "assessment": "The native core, preset store and versioned interchange formats define local component boundaries with dedicated C++ tests.",
+      "evidence": [
+        "src/preset_store.hpp",
+        "src/preset_store.cpp",
+        "docs/ARCHITECTURE.md"
+      ],
+      "verification": [
+        "tests/test_preset_store.cpp"
+      ],
+      "limitations": [
+        "The current interfaces do not establish a stable third-party plugin ABI or hosted service contract."
+      ]
+    },
+    {
+      "id": "input-validation-idempotency",
+      "title": "Input validation and idempotent state changes",
+      "status": "partial",
+      "assessment": "WAV inspection and DSP compatibility tests cover selected file-boundary and buffer validation paths.",
+      "evidence": [
+        "src/quantum_audio.cpp",
+        "src/compat/pytyliki-dsp/dsp_engine.c",
+        "docs/FEATURES.md"
+      ],
+      "verification": [
+        "tests/test_quantum_audio.cpp",
+        "tests/compat/test_pytyliki_wav_boundaries.c"
+      ],
+      "limitations": [
+        "Offline file validation does not create a general request-idempotency protocol; file size and output policy remain format-specific."
+      ]
+    },
+    {
+      "id": "io-transport",
+      "title": "Low-level I/O and transport boundaries",
+      "status": "partial",
+      "assessment": "The application processes local WAV/MIDI and preset data through offline file adapters; no network playback or remote transport is part of the product.",
+      "evidence": [
+        "src/compat/pytyliki-dsp/dsp_engine.c",
+        "docs/MIDI_AND_RESAMPLING.md"
+      ],
+      "verification": [
+        "tests/test_ventu_wav_inspect.py",
+        "tests/compat/test_pytyliki_wav_boundaries.c"
+      ],
+      "limitations": [
+        "The file-processing path is not a network streaming service or audio-device transport implementation."
+      ]
+    },
+    {
+      "id": "concurrency-backpressure",
+      "title": "Concurrency, scheduling and backpressure",
+      "status": "partial",
+      "assessment": "RuntimeTransaction supports a bounded asynchronous commit API with a focused test; this does not establish a general scheduler or real-time DSP worker architecture.",
+      "evidence": [
+        "src/runtime_transaction.cpp",
+        "docs/TRANSACTIONAL_RUNTIME.md"
+      ],
+      "verification": [
+        "tests/test_runtime_transaction.cpp"
+      ],
+      "limitations": [
+        "The asynchronous transaction contract is not used as permission to block or allocate in a real-time DSP callback."
+      ]
+    },
+    {
+      "id": "memory-resource-lifecycle",
+      "title": "Memory ownership and resource lifetime",
+      "status": "not_assessed",
+      "assessment": "Buffer processing is covered by functional tests, but a complete process-wide memory budget, allocator policy and lifetime audit have not been established.",
+      "evidence": [
+        "src/quantum_audio.cpp",
+        "src/compat/pytyliki-dsp/dsp_engine.c"
+      ],
+      "verification": [],
+      "limitations": [
+        "Do not infer a global memory ceiling or zero-allocation real-time guarantee from bounded format tests."
+      ]
+    },
+    {
+      "id": "data-integrity-transactions",
+      "title": "Data integrity and transactions",
+      "status": "partial",
+      "assessment": "Preset storage and RuntimeTransaction cover versioned local state, bounded staged payloads and rollback with focused tests.",
+      "evidence": [
+        "src/preset_store.cpp",
+        "src/runtime_transaction.cpp",
+        "docs/TRANSACTIONAL_RUNTIME.md"
+      ],
+      "verification": [
+        "tests/test_preset_store.cpp",
+        "tests/test_runtime_transaction.cpp"
+      ],
+      "limitations": [
+        "Transaction snapshots are local application state; no database or cloud durability is claimed."
+      ]
+    },
+    {
+      "id": "failure-recovery-lifecycle",
+      "title": "Failure handling, recovery and lifecycle",
+      "status": "partial",
+      "assessment": "The transaction API exposes guarded failures and rollback; audio error codes have dedicated compatibility tests.",
+      "evidence": [
+        "src/runtime_transaction.cpp",
+        "src/compat/pytyliki-dsp/audio_errors.c",
+        "docs/TRANSACTIONAL_RUNTIME.md"
+      ],
+      "verification": [
+        "tests/test_runtime_transaction.cpp",
+        "tests/compat/test_audio_errors.c"
+      ],
+      "limitations": [
+        "Rollback applies to staged in-memory state, not the audio device, project filesystem or operating system."
+      ]
+    },
+    {
+      "id": "security-privilege-secrets",
+      "title": "Security, privileges and secret handling",
+      "status": "partial",
+      "assessment": "Plugin metadata and local project boundaries are covered by the documented feature scope and plugin tests; remote trust and secret handling are not product features.",
+      "evidence": [
+        "src/plugin_manager.cpp",
+        "docs/FEATURES.md"
+      ],
+      "verification": [
+        "tests/test_plugins.cpp"
+      ],
+      "limitations": [
+        "Manifest discovery does not authorize dynamic code loading; no privileged device or network control is claimed."
+      ]
+    },
+    {
+      "id": "observability-diagnostics",
+      "title": "Observability and diagnostics",
+      "status": "partial",
+      "assessment": "The DSP compatibility layer has typed audio error reporting and documented error cases with regression tests.",
+      "evidence": [
+        "src/compat/pytyliki-dsp/audio_errors.c",
+        "docs/audio-errors/VNT-A0107.md"
+      ],
+      "verification": [
+        "tests/compat/test_audio_errors.c"
+      ],
+      "limitations": [
+        "Typed error reporting is not end-to-end tracing or production latency telemetry."
+      ]
+    },
+    {
+      "id": "performance-capacity",
+      "title": "Performance budgets and capacity",
+      "status": "not_assessed",
+      "assessment": "No repeatable end-to-end render-latency, memory-pressure or throughput baseline is recorded as a backend capacity contract.",
+      "evidence": [
+        "docs/QUALITY_MONOLITH_RHYTHM.md"
+      ],
+      "verification": [],
+      "limitations": [
+        "Offline DSP benchmarks must be measured separately from service throughput and real-time device deadlines."
+      ]
+    },
+    {
+      "id": "configuration-extensibility",
+      "title": "Configuration, extensibility and integration",
+      "status": "partial",
+      "assessment": "Preset formats, the plugin manager and local host-side integrations provide controlled extension points with compatibility tests.",
+      "evidence": [
+        "src/plugin_manager.cpp",
+        "src/preset_store.cpp",
+        "docs/PLUGINS.md"
+      ],
+      "verification": [
+        "tests/test_plugins.cpp",
+        "tests/test_preset_store.cpp"
+      ],
+      "limitations": [
+        "Plugin metadata and script integrations do not imply unrestricted native extension loading."
+      ]
+    },
+    {
+      "id": "verification-delivery",
+      "title": "Verification and delivery gate",
+      "status": "implemented",
+      "assessment": "This PR adds a machine-readable backend engineering profile, safe-path/status validator, negative self-tests and a dedicated CI gate.",
+      "evidence": [
+        "docs/BACKEND_ENGINEERING_STANDARD.md",
+        "tools/validate_backend_engineering.py",
+        ".github/workflows/backend-engineering.yml"
+      ],
+      "verification": [
+        ".github/workflows/backend-engineering.yml"
+      ],
+      "limitations": [
+        "The gate validates profile integrity and evidence paths; it does not certify audio quality, real-time safety or production readiness."
+      ]
+    }
+  ]
+}

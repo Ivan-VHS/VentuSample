@@ -1,0 +1,48 @@
+{
+  "schema": "ivan-vhs.supabase-adapter.v1",
+  "project": "ventusample",
+  "repository": "Ivan-VHS/VentuSample",
+  "role": "producer",
+  "status": "contract-only",
+  "default_mode": "offline-only",
+  "supabase": {
+    "deployment": "not-configured",
+    "url_env": "SUPABASE_URL",
+    "publishable_key_env": "SUPABASE_PUBLISHABLE_KEY",
+    "service_role_key_in_client": false
+  },
+  "network_policy": {
+    "enabled_by_default": false,
+    "background_sync": false,
+    "requires_user_action": true
+  },
+  "local_first": {
+    "local_data_authoritative": true,
+    "sync_model": "append-only-event-log",
+    "conflict_resolution": "domain-specific-versioned"
+  },
+  "contracts": {
+    "event_envelope": "ivan-vhs.ecosystem-event.v1",
+    "artifact_manifest": "ivan-vhs.ecosystem-artifact.v1"
+  },
+  "data_domains": [
+    "sample_pack_manifests",
+    "preset_metadata",
+    "render_summaries",
+    "user_selected_artifact_hashes"
+  ],
+  "excluded_data": [
+    "raw_audio_payloads_by_default",
+    "unselected_wav_assets",
+    "private_recordings",
+    "source_project_paths",
+    "credentials",
+    "service_role_keys"
+  ],
+  "security": {
+    "rls_required": true,
+    "service_role_key_never_in_client": true,
+    "explicit_upload_consent": true,
+    "telemetry_default": "disabled"
+  }
+}

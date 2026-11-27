@@ -5,6 +5,12 @@
 #include <QElapsedTimer>
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
+#include <QLinearGradient>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPaintEvent>
+#include <QPen>
+#include <QSizePolicy>
 #include <QTimer>
 
 #include <algorithm>
@@ -12,6 +18,113 @@
 #include <memory>
 
 namespace ventu::ui_motion {
+
+
+DraperyBanner::DraperyBanner(QWidget* parent)
+    : QWidget(parent), timer_(new QTimer(this)) {
+    setObjectName(QStringLiteral("moraDraperyBanner"));
+    setAccessibleName(QStringLiteral("Mora amber drapery accent"));
+    setMinimumHeight(52);
+    setMaximumHeight(52);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    timer_->setInterval(100);
+    timer_->setTimerType(Qt::CoarseTimer);
+    connect(timer_, &QTimer::timeout, this, [this] { advance(); });
+    if (motionAllowed()) timer_->start();
+}
+
+void DraperyBanner::setMotionPreferences(const Preferences& preferences) {
+    preferences_ = preferences;
+    if (motionAllowed()) {
+        if (!timer_->isActive()) timer_->start();
+    } else {
+        timer_->stop();
+        phase_ = 0.0;
+    }
+    update();
+}
+
+bool DraperyBanner::motionAllowed() const {
+    const QString override = qEnvironmentVariable("UI_REDUCED_MOTION").trimmed().toLower();
+    const bool environmentReduced = override == QStringLiteral("1")
+        || override == QStringLiteral("true")
+        || override == QStringLiteral("yes")
+        || override == QStringLiteral("on");
+    return !preferences_.reduceMotion && !preferences_.ecoVisuals && !environmentReduced;
+}
+
+void DraperyBanner::advance() {
+    if (!motionAllowed()) {
+        timer_->stop();
+        phase_ = 0.0;
+        update();
+        return;
+    }
+    phase_ = std::fmod(phase_ + 0.055, 2.0 * 3.14159265358979323846);
+    update();
+}
+
+void DraperyBanner::paintEvent(QPaintEvent* event) {
+    Q_UNUSED(event);
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing, true);
+    const qreal width = static_cast<qreal>(this->width());
+    const qreal height = static_cast<qreal>(this->height());
+    if (width <= 0.0 || height <= 0.0) return;
+
+    QLinearGradient cloth(0.0, 0.0, 0.0, height);
+    cloth.setColorAt(0.0, QColor(QStringLiteral("#E9C58C")));
+    cloth.setColorAt(0.18, QColor(QStringLiteral("#B7773F")));
+    cloth.setColorAt(0.52, QColor(QStringLiteral("#6A3C25")));
+    cloth.setColorAt(0.82, QColor(QStringLiteral("#C28A50")));
+    cloth.setColorAt(1.0, QColor(QStringLiteral("#4B281B")));
+    painter.fillRect(rect(), cloth);
+
+    const int foldCount = std::clamp(static_cast<int>(width / 68.0), 8, 30);
+    const qreal spacing = width / static_cast<qreal>(foldCount);
+    const qreal amplitude = motionAllowed()
+        ? (preferences_.expressiveMotion ? 2.5 : 1.35)
+        : 0.0;
+
+    for (int index = 0; index <= foldCount; ++index) {
+        const qreal baseX = static_cast<qreal>(index) * spacing
+            + std::sin(static_cast<qreal>(index) * 1.73) * spacing * 0.13;
+        const qreal sway = std::sin(phase_ + static_cast<qreal>(index) * 0.61);
+        const qreal offset = sway * amplitude;
+        QPainterPath valley;
+        valley.moveTo(baseX, -2.0);
+        valley.cubicTo(baseX + offset * 0.7, height * 0.28,
+                       baseX - offset * 0.55, height * 0.72,
+                       baseX + offset, height + 2.0);
+        painter.setPen(QPen(QColor(56, 27, 16, 105),
+                            std::max(3.0, spacing * 0.16),
+                            Qt::SolidLine, Qt::RoundCap));
+        painter.drawPath(valley);
+
+        QPainterPath ridge;
+        const qreal ridgeX = baseX + spacing * 0.17;
+        ridge.moveTo(ridgeX, -2.0);
+        ridge.cubicTo(ridgeX + offset * 0.48, height * 0.3,
+                      ridgeX - offset * 0.32, height * 0.72,
+                      ridgeX + offset * 0.65, height + 2.0);
+        painter.setPen(QPen(QColor(255, 221, 161, 115),
+                            std::max(1.0, spacing * 0.035),
+                            Qt::SolidLine, Qt::RoundCap));
+        painter.drawPath(ridge);
+
+        QPainterPath softLight;
+        softLight.moveTo(ridgeX + spacing * 0.08, -2.0);
+        softLight.cubicTo(ridgeX + spacing * 0.08, height * 0.35,
+                          ridgeX + spacing * 0.08, height * 0.68,
+                          ridgeX + spacing * 0.08, height + 2.0);
+        painter.setPen(QPen(QColor(255, 239, 204, 35), 1.0));
+        painter.drawPath(softLight);
+    }
+
+    painter.fillRect(QRect(0, 0, width, 2), QColor(255, 231, 190, 130));
+    painter.fillRect(QRect(0, static_cast<int>(height) - 3, width, 3),
+                     QColor(54, 28, 18, 190));
+}
 
 int boundedDuration(const Preferences& preferences, int requestedMs) {
     const int safeDuration = std::clamp(requestedMs, 0, 380);

@@ -13,6 +13,9 @@ int main() {
     assert(ventu::ui_ux::meetsTextContrast(grey, white, true));
     assert(ventu::ui_ux::contrastRatio(QColor(), white) == 0.0);
     assert(std::isfinite(ventu::ui_ux::contrastRatio(white, navy)));
+    assert(ventu::ui_ux::clampFontSize(10) == 10);
+    assert(ventu::ui_ux::clampFontSize(2) == 9);
+    assert(ventu::ui_ux::clampFontSize(30) == 18);
 
     const auto moraDark = mora::ui::palette(true);
     const auto moraLight = mora::ui::palette(false);

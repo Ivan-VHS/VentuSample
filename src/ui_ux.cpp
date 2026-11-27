@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QProgressBar>
+#include <QAbstractSpinBox>
 
 #include <algorithm>
 #include <cmath>
@@ -43,6 +44,10 @@ bool meetsTextContrast(const QColor& foreground, const QColor& background, bool 
     return contrastRatio(foreground, background) >= (largeText ? 3.0 : 4.5);
 }
 
+int clampFontSize(int value) {
+    return std::clamp(value, 9, 18);
+}
+
 void applyAccessibleDefaults(QWidget* root) {
     if (!root) return;
     for (auto* label : root->findChildren<QLabel*>()) {
@@ -55,22 +60,27 @@ void applyAccessibleDefaults(QWidget* root) {
         if (auto* button = qobject_cast<QAbstractButton*>(widget)) {
             setNameIfMissing(button, button->text());
             if (button->minimumHeight() < 44) button->setMinimumHeight(44);
+            button->setFocusPolicy(Qt::StrongFocus);
             if (button->toolTip().isEmpty() && !button->text().isEmpty())
                 button->setToolTip(button->text());
         } else if (auto* edit = qobject_cast<QLineEdit*>(widget)) {
             setNameIfMissing(edit, edit->placeholderText());
-            if (edit->minimumHeight() < 40) edit->setMinimumHeight(40);
+            if (edit->minimumHeight() < 44) edit->setMinimumHeight(44);
+            edit->setFocusPolicy(Qt::StrongFocus);
         } else if (auto* combo = qobject_cast<QComboBox*>(widget)) {
             setNameIfMissing(combo, combo->currentText().isEmpty()
                 ? QStringLiteral("Выбор параметра")
                 : QStringLiteral("Выбор: %1").arg(combo->currentText()));
-            if (combo->minimumHeight() < 40) combo->setMinimumHeight(40);
+            if (combo->minimumHeight() < 44) combo->setMinimumHeight(44);
+            combo->setFocusPolicy(Qt::StrongFocus);
         } else if (auto* spin = qobject_cast<QAbstractSpinBox*>(widget)) {
             setNameIfMissing(spin, QStringLiteral("Числовой параметр"));
-            if (spin->minimumHeight() < 40) spin->setMinimumHeight(40);
+            if (spin->minimumHeight() < 44) spin->setMinimumHeight(44);
+            spin->setFocusPolicy(Qt::StrongFocus);
         } else if (auto* slider = qobject_cast<QAbstractSlider*>(widget)) {
             setNameIfMissing(slider, QStringLiteral("Параметр"));
-            if (slider->minimumHeight() < 40) slider->setMinimumHeight(40);
+            if (slider->minimumHeight() < 44) slider->setMinimumHeight(44);
+            slider->setFocusPolicy(Qt::StrongFocus);
         } else if (auto* progress = qobject_cast<QProgressBar*>(widget)) {
             setNameIfMissing(progress, QStringLiteral("Ход выполнения операции"));
         }
