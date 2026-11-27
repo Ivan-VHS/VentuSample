@@ -16,6 +16,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [Plugin interfaces](PLUGINS.md) — offline DSP extension model.
 - [Source integration](SOURCE_INTEGRATION.md) — asset provenance and licensing rules.
 - [NEXUS audio profile](NEXUS_AUDIO_PROFILE_V1.md) — offline processing ownership and companion-tool integration.
+- [Reaper neural audio contract v1](REAPER_NEURAL_AUDIO_CONTRACT_V1.md) — deterministic offline worker profiles; no callback execution or audio upload.
 
 ## Browse by topic
 

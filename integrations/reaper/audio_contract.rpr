@@ -40,9 +40,9 @@ craft valid_audio_profile(profile) {
 
 craft wet_gain(percent) {
     when kind(percent) != "number" or percent < 0 or percent > 100 {
-        yield [false, nothing, "RPR-A0001"]
+        yield ["ERR", "", "RPR-A0001"]
     }
-    yield [true, percent / 100, ""]
+    yield ["OK", text(percent / 100), ""]
 }
 
 make studio_profile := [48000, 2, "s24le", 512, 35, 65]
@@ -74,8 +74,8 @@ assert(not valid_audio_profile(malformed_profile), "profile container type must 
 make valid_gain := wet_gain(50)
 make invalid_gain := wet_gain(101)
 make invalid_gain_type := wet_gain("50")
-assert(valid_gain[0] and valid_gain[1] == 0.5, "wet gain must return a normalized success result")
-assert(not invalid_gain[0] and invalid_gain[2] == "RPR-A0001", "invalid wet gain must return a stable error")
-assert(not invalid_gain_type[0] and invalid_gain_type[2] == "RPR-A0001", "invalid gain type must return a stable error")
+assert(valid_gain[0] == "OK" and valid_gain[1] == "0.5", "wet gain must return a normalized success result")
+assert(invalid_gain[0] == "ERR" and invalid_gain[2] == "RPR-A0001", "invalid wet gain must return a stable error")
+assert(invalid_gain_type[0] == "ERR" and invalid_gain_type[2] == "RPR-A0001", "invalid gain type must return a stable error")
 
 emit "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS"
