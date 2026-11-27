@@ -34,8 +34,9 @@ flowchart TB
 - **Golden-era crate 工作流：** 按 0–2–1–3 顺序确定性重组四个切片，加权 kick/snare 音色选择、克制的 hats、共享 swing 和可复现的过门。
 - **WAV 导入与切片：** 有界 PCM16 mono/stereo 输入（8–192 kHz、最大 128 MiB、最多 2000 万帧）、四切片放置和 ±12 半音重采样。改变音高也会改变播放速度；尚未实现保持节奏的 time-stretch。
 - **离线 DSP：** 滤波、饱和、立体声联动总线处理、RMS 匹配、sample peak 保护和有界效果路由。
-- **随机路由器：** 八种加权效果，可组成 serial、parallel 和 hybrid 图；支持 file、bar 和 generator-onset 触发；根据 seed/variation 确定性路由，并限制 wet/feedback、淡入淡出和输出峰值。已集成到离线导出流程。
+- **随机路由器：** 八种加权效果，可组成 serial、parallel 和 hybrid 图；支持 file、bar 和 generator-onset 触发；根据 seed/variation 确定性路由；wet ≤65%、feedback ≤72%、淡入淡出 5–20 ms，并限制 RMS 补偿和 −0.3 dBFS sample-peak。已集成到离线 WAV 导出，并作为第 19 个内置插件提供。
 - **分析：** 每个文件的 peak、RMS 与 crest factor；离线 FFT peak、centroid 和 85% rolloff。不需要访问音频设备。
+- **QMR-20：** 20 项质量、cohesion 与节奏控制及回归门禁；它们是确定性的工程检查，不是通用或主观的音质评分。
 - **调性元数据：** 仅为有音高的素材添加 key/mode 标签；不会为无调性鼓组虚构调性。
 - **采样包交换：** 使用 `ventusample.pack.v1` 和 `ventusample.pack.v2` manifest 及 WAV 资产。当前 Reaper 消费端验证并比较 v1 manifest 元数据，不审计或修改波形数据。
 
