@@ -79,3 +79,45 @@ assert(not invalid_gain[0] and invalid_gain[2] == "RPR-A0001", "invalid wet gain
 assert(not invalid_gain_type[0] and invalid_gain_type[2] == "RPR-A0001", "invalid gain type must return a stable error")
 
 emit "VENTUSAMPLE_REAPER_AUDIO_CONTRACT:PASS"
+
+
+// Pytyliki Iron Syntax v1 provenance contract.
+// Reaper validates syntax upstream; the DSP engine consumes only safe,
+// offline source-origin metadata. This contract defines no DSP operation.
+
+craft iron_audio_origin_admission(schema, version, canonical_owner, execution_performed, worker_context, audio_callback, external_upload, record_count) {
+    when schema != "pytyliki.iron-syntax-ast.v1" {
+        yield "REJECT_SCHEMA"
+    }
+    when version != "1.0.0" {
+        yield "REJECT_VERSION"
+    }
+    when canonical_owner != "Pytyliki" {
+        yield "REJECT_OWNER"
+    }
+    when execution_performed == true {
+        yield "REJECT_EXECUTION"
+    }
+    when worker_context != "offline_worker" {
+        yield "REJECT_CONTEXT"
+    }
+    when audio_callback == true {
+        yield "REJECT_REALTIME_CALLBACK"
+    }
+    when external_upload == true {
+        yield "REJECT_EXTERNAL_UPLOAD"
+    }
+    when record_count < 1 {
+        yield "REJECT_EMPTY_DOCUMENT"
+    }
+    when record_count > 4096 {
+        yield "REJECT_RECORD_LIMIT"
+    }
+    yield "ACCEPT_OFFLINE_METADATA"
+}
+
+assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", false, false, 20) == "ACCEPT_OFFLINE_METADATA"
+assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", true, "offline_worker", false, false, 20) == "REJECT_EXECUTION"
+assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "audio_callback", false, false, 20) == "REJECT_CONTEXT"
+assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", true, false, 20) == "REJECT_REALTIME_CALLBACK"
+assert iron_audio_origin_admission("pytyliki.iron-syntax-ast.v1", "1.0.0", "Pytyliki", false, "offline_worker", false, true, 20) == "REJECT_EXTERNAL_UPLOAD"
