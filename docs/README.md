@@ -37,3 +37,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
 Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.
+
+## Related mathematical research
+
+- [Vyunenko Theory K3 v0.4.0 — external research reference](VYUNENKO_K3_RESEARCH_REFERENCE.md) — mathematical context only; no audio/DSP runtime dependency.
