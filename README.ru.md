@@ -2,11 +2,15 @@
 
 <p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
+> **Psychoporter 666** — точность архитектора × энергия исследователя × прослеживаемые доказательства. [Общий стандарт документации](https://github.com/Ivan-VHS/DAK/blob/main/docs/PSYCHOPORTER_DOCUMENTATION_STYLE_V1.md).  
+> **Редакционная редакция · 2026-11-28:** обновлены подача и навигация; авторство, условия лицензий и сторонняя атрибуция сохранены.
+
+
 [![CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/release.yml?branch=main&label=Release)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/release.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 
 > **Детерминированная генерация сэмплов и offline DSP. Без имитации real-time-движка.**
 
-**Состояние:** Разработка · офлайн-аудиоядро реализовано · Qt desktop частично · **Версия:** 0.2.0 · **License:** Apache-2.0 · **Стандарт README:** Psychoporter 666 v1.0 · **Дата проверки:** 2026-11-25 UTC · **Source:** [Ivan-VHS/VentuSample](https://github.com/Ivan-VHS/VentuSample)
+**Состояние:** Разработка · офлайн-аудиоядро реализовано · Qt desktop частично · **Версия:** 0.2.0 · **License:** Apache-2.0 · **Стандарт README:** Psychoporter 666 v1.1 · **Дата проверки:** 2026-11-25 UTC · **Source:** [Ivan-VHS/VentuSample](https://github.com/Ivan-VHS/VentuSample)
 
 <p align="center"><img src="assets/readme/dashboard.svg" alt="VentuSample project overview" width="100%"></p>
 <p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample desktop application screenshot" width="100%"></a></p>
@@ -126,3 +130,7 @@ CMake предоставляет переносимое ядро и необяз
 ---
 
 <p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 UTC</sub></p>
+
+## Связанное математическое исследование
+
+[Предложение Теории Вьюненко K3 v0.4.0](https://github.com/Ivan-VHS/Kaskad/pull/36) документирует CRT-разложение пополнения с основанием 1000 и единственные бесконечные позиционные последовательности коэффициентов. Это внешняя математическая ссылка: она не меняет аудиопредставление VentuSample, форматы PCM, алгоритмы DSP, офлайн-модель обработки, манифесты пакетов или контракты плагинов. Подробнее — [в локальной справке](docs/VYUNENKO_K3_RESEARCH_REFERENCE.md).

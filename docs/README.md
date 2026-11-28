@@ -1,5 +1,9 @@
 # VentuSample documentation
 
+> **Editorial revision · 2026-11-28:** Documentation navigation and editorial presentation refreshed; existing authorship, licenses and upstream notices remain unchanged.
+> **Shared editorial profile:** [Psychoporter 666 Documentation Style v1.1](https://github.com/Ivan-VHS/DAK/blob/main/docs/PSYCHOPORTER_DOCUMENTATION_STYLE_V1.md) — presentation is shared; VentuSample's audio and DSP contracts remain specific to this repository.
+
+
 > **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
 
 Start with the [project README](../README.md) for build options, offline-only processing scope and pack contracts. The [documentation map](INFORMATION_ARCHITECTURE.md) links the full catalogue.
@@ -33,3 +37,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
 Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.
+
+## Related mathematical research
+
+- [Vyunenko Theory K3 v0.4.0 — external research reference](VYUNENKO_K3_RESEARCH_REFERENCE.md) — mathematical context only; no audio/DSP runtime dependency.
