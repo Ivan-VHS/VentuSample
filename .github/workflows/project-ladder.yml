@@ -1,0 +1,26 @@
+name: Project maturity gates
+
+on:
+  push:
+    branches: [main, "feat/**", "integration/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  maturity:
+    name: Validate cumulative maturity gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate stage record and evidence paths
+        run: node tools/validate_project_ladder.mjs
+      - name: Test maturity gate regressions
+        run: node --test tests/project-ladder.test.mjs

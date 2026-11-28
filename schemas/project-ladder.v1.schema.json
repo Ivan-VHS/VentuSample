@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/Ivan-VHS/DAK/main/schemas/project-ladder.v1.schema.json",
+  "title": "DAK Engineering Maturity Record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "project",
+    "repository",
+    "current_stage",
+    "current_name",
+    "assessment",
+    "assessment_date",
+    "assessment_basis",
+    "stages",
+    "next_stage",
+    "next_gate",
+    "semver_independent"
+  ],
+  "properties": {
+    "schema": { "const": "dak.project-maturity.v1" },
+    "version": { "const": 1 },
+    "project": { "type": "string", "minLength": 1 },
+    "repository": { "type": "string", "pattern": "^Ivan-VHS/[A-Za-z0-9._-]+$" },
+    "current_stage": { "type": "integer", "minimum": 1, "maximum": 10 },
+    "current_name": {
+      "enum": ["Genesis", "Foundation", "Evolution", "Ascension", "Vanguard", "Frontier", "Dominion", "Apex", "Zenith", "Singularity"]
+    },
+    "assessment": { "enum": ["provisional", "verified"] },
+    "assessment_date": { "type": "string", "format": "date" },
+    "assessment_basis": { "type": "string", "minLength": 20 },
+    "stages": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["number", "name", "status", "evidence"],
+        "properties": {
+          "number": { "type": "integer", "minimum": 1, "maximum": 10 },
+          "name": {
+            "enum": ["Genesis", "Foundation", "Evolution", "Ascension", "Vanguard", "Frontier", "Dominion", "Apex", "Zenith", "Singularity"]
+          },
+          "status": { "enum": ["met", "pending", "not_applicable"] },
+          "rationale": { "type": "string", "minLength": 20 },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["kind", "path", "claim", "verification"],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "scope", "architecture", "policy", "build", "ci", "source", "tests", "runtime",
+                    "integration", "contract_tests", "target_build", "resource_budget", "platform_coverage",
+                    "threat_model", "security_tests", "fuzz_or_fault_tests", "accessibility", "core_acceptance",
+                    "compatibility", "migration", "release_candidate", "provenance", "recovery", "support_policy",
+                    "operations", "release_regression", "deprecation", "reproducible_rebuild", "audit_chain",
+                    "independent_integration"
+                  ]
+                },
+                "path": { "type": "string", "minLength": 1 },
+                "claim": { "type": "string", "minLength": 12 },
+                "verification": {
+                  "enum": ["documentation_only", "source_reviewed", "tests_passed", "ci_passed", "artifact_verified"]
+                }
+              }
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "status": { "const": "met" } }, "required": ["status"] },
+            "then": { "properties": { "evidence": { "minItems": 1 } } }
+          },
+          {
+            "if": { "properties": { "status": { "const": "not_applicable" } }, "required": ["status"] },
+            "then": { "required": ["rationale"] }
+          }
+        ]
+      }
+    },
+    "next_stage": { "type": ["integer", "null"], "minimum": 2, "maximum": 10 },
+    "next_gate": { "type": "array", "items": { "type": "string", "minLength": 12 } },
+    "semver_independent": { "const": true },
+    "verification_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "workflow", "environment", "run_url"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[0-9a-fA-F]{40}$" },
+        "workflow": { "type": "string", "minLength": 1 },
+        "environment": { "type": "string", "minLength": 1 },
+        "run_url": { "type": "string", "format": "uri" }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "assessment": { "const": "verified" } }, "required": ["assessment"] },
+      "then": { "required": ["verification_run"] }
+    }
+  ]
+}
