@@ -146,6 +146,23 @@ int ventu_audio_resample_sinc(
     output_samples = output_frames * input->channels;
     if (output_samples > SIZE_MAX / sizeof(*converted.samples)) return -1;
 
+    if (target_sample_rate == input->sample_rate) {
+        converted.samples = (float *)malloc(
+            output_samples * sizeof(*converted.samples)
+        );
+        if (converted.samples == NULL) return -2;
+        memcpy(
+            converted.samples,
+            input->samples,
+            output_samples * sizeof(*converted.samples)
+        );
+        converted.frames = output_frames;
+        converted.sample_rate = target_sample_rate;
+        converted.channels = input->channels;
+        *output = converted;
+        return 0;
+    }
+
     converted.samples = (float *)malloc(output_samples * sizeof(*converted.samples));
     if (converted.samples == NULL) return -2;
     converted.frames = output_frames;

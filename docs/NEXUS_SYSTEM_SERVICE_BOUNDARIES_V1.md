@@ -8,12 +8,12 @@ VentuSample remains an independent C++20/Qt 6 procedural sample workstation with
 
 ## AudioSubsys relationship
 
-AudioSubsys is a DuckOS-owned future device/session service. VentuSample may provide offline render jobs, generated assets and versioned pack/preset metadata through explicit user-space interfaces. It does not implement AudioSubsys or own DuckOS audio devices.
+AudioSubsys is a DAK-owned future device/session service. VentuSample may provide offline render jobs, generated assets and versioned pack/preset metadata through explicit user-space interfaces. It does not implement AudioSubsys or own DAK audio devices.
 
 Permitted consumers:
 
 - PulseLab may inspect offline render parameters, peak/RMS data, waveform summaries, pack manifests and asset provenance.
-- DuckOS may display validated render metadata through an application surface after its user-space integration contract exists.
+- DAK may display validated render metadata through an application surface after its user-space integration contract exists.
 - Reaper may validate supported manifest metadata; it must not rewrite or reinterpret audio payloads.
 - Pytyliki may supply independent bounded metrics only where a useful workload-specific interface exists. Do not add a dependency solely to increase federation count.
 
@@ -28,7 +28,7 @@ Permitted consumers:
 
 ## Real-time audio is a separate OS capability
 
-A future DuckOS real-time audio service requires its own design for device discovery and ownership, format negotiation, bounded ring buffers, callback scheduling, priority-inversion analysis, underrun recovery, clock drift and hardware-specific latency measurements. Allocation, locks, filesystem I/O and unbounded work are prohibited in a real-time callback.
+A future DAK real-time audio service requires its own design for device discovery and ownership, format negotiation, bounded ring buffers, callback scheduling, priority-inversion analysis, underrun recovery, clock drift and hardware-specific latency measurements. Allocation, locks, filesystem I/O and unbounded work are prohibited in a real-time callback.
 
 Do not claim sub-millisecond latency or hardware support until reproducible tests name the device, driver/provider, sample rate, buffer size, scheduling policy and measured latency distribution.
 

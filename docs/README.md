@@ -1,17 +1,21 @@
 # VentuSample documentation
 
-Start with the [project README](../README.md) for the product overview, build steps and current limits. The [documentation map](INFORMATION_ARCHITECTURE.md) links the full catalogue.
+> **Psychoporter 666 documentation profile v1.0** · Reviewed 2026-11-25 (UTC)
 
-## Key pages
-- [NEXUS system-service boundaries](NEXUS_SYSTEM_SERVICE_BOUNDARIES_V1.md) — AudioSubsys ownership and offline-processing limits.
+Start with the [project README](../README.md) for build options, offline-only processing scope and pack contracts. The [documentation map](INFORMATION_ARCHITECTURE.md) links the full catalogue.
 
-- [Features and maturity](FEATURES.md)
-- [Architecture](ARCHITECTURE.md)
-- [Audio engine](QUANTUM_AUDIO_ENGINE.md)
-- [MIDI and resampling](MIDI_AND_RESAMPLING.md)
-- [Plugin interfaces](PLUGINS.md)
+## Key references
+
+- [Features and maturity](FEATURES.md) — generator, offline DSP and desktop status.
+- [CRATE Production Suite](CRATE_PRODUCTION_SUITE.md) — hip-hop beatmaking rooms, production checks and starter presets; [Russian edition](CRATE_PRODUCTION_SUITE_RU.md).
+- [Hip-Hop Preset Crate](../examples/hip-hop-presets/README.md) — four loadable beatmaking starters.
+- [Architecture](ARCHITECTURE.md) — processing pipeline and data ownership.
+- [Rhythmic Pattern Exploration v1](RHYTHMIC_PATTERN_EXPLORATION_V1.md) — proposed offline audio profile for repetition, grouping, pulse and duration.
+- [Quantum Audio Engine](QUANTUM_AUDIO_ENGINE.md) — offline rendering behavior.
+- [MIDI and resampling](MIDI_AND_RESAMPLING.md) — import and conversion boundaries.
+- [Plugin interfaces](PLUGINS.md) — offline DSP extension model.
+- [Source integration](SOURCE_INTEGRATION.md) — asset provenance and licensing rules.
 - [NEXUS audio profile](NEXUS_AUDIO_PROFILE_V1.md) — offline processing ownership and companion-tool integration.
-- [Source and licensing rules](SOURCE_INTEGRATION.md)
 
 ## Browse by topic
 
@@ -22,10 +26,12 @@ Start with the [project README](../README.md) for the product overview, build st
 - [Quality and evidence](clusters/quality-engineering.md)
 - [Integration and governance](clusters/integration-governance.md)
 
-## Shared rules
+## Shared engineering rules
 
-- [Documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
+- [Unified documentation standard](UNIFIED_DOCUMENTATION_STANDARD.md)
 - [Engineering evolution framework](ENGINEERING_EVOLUTION_FRAMEWORK.md)
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
-DSP processing is offline. Source ownership, format limits and implemented behavior must be checked against the relevant contracts, source and tests.
+Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.
+
+- [PROJECT LADDER](PROJECT_LADDER.md) — project evolution and maturity reference.

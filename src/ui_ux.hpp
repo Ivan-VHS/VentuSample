@@ -9,5 +9,6 @@ double contrastRatio(const QColor& foreground, const QColor& background);
 bool meetsTextContrast(const QColor& foreground, const QColor& background,
                        bool largeText = false);
 void applyAccessibleDefaults(QWidget* root);
+int clampFontSize(int value);
 
 } // namespace ventu::ui_ux
