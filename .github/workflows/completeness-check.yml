@@ -230,6 +230,7 @@ jobs:
 
           if [[ -f project-contract.json ]]; then
             python tools/validate_project_contract.py
+            python -m unittest discover -s tests -p "test_supabase_adapter_contract.py" -v
           else
             echo "::notice::No project-contract.json is declared; the shared engineering and system capability contracts remain mandatory."
           fi

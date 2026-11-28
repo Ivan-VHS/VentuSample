@@ -92,6 +92,30 @@ int main(int argc, char** argv) {
     require(loaded.seed == source.seed && loaded.bpm == source.bpm,
             "saved preset values should remain intact");
 
+    struct HipHopPresetExpectation {
+        const char* file;
+        ventu::Style style;
+        int bpm;
+    };
+    const HipHopPresetExpectation hipHopPresets[] = {
+        {"east-coast-pocket-93.json", ventu::Style::EastCoast, 93},
+        {"boom-bap-crate-88.json", ventu::Style::BoomBap, 88},
+        {"g-unit-knock-93.json", ventu::Style::GUnit, 93},
+        {"golden-era-chop-90.json", ventu::Style::BillionaireGoldenEra, 90}
+    };
+    for (const auto& expected : hipHopPresets) {
+        ventu::Parameters currentPreset;
+        ventu::Parameters loadedPreset;
+        QString loadedPresetName;
+        const QString path = QStringLiteral("examples/hip-hop-presets/")
+            + QString::fromLatin1(expected.file);
+        require(ventu::presets::loadFromFile(
+                    path, currentPreset, loadedPreset, loadedPresetName, error),
+                "hip-hop starter preset should validate and load");
+        require(loadedPreset.style == expected.style && loadedPreset.bpm == expected.bpm,
+                "hip-hop starter preset should preserve its style and pocket");
+    }
+
     std::cout << "VentuSample preset tests passed.\\n";
     return 0;
 }

@@ -107,10 +107,7 @@ private:
     std::vector<float> peaks_;
 };
 
-struct ChainStep {
-    std::string id;
-    QuantumAudioParameters parameters;
-};
+using ChainStep = QuantumAudioChainStep;
 
 void setControl(QDoubleSpinBox* control, double value) {
     control->setValue(std::clamp(value, 0.0, 1.0));
@@ -312,7 +309,7 @@ void showQuantumAudioLab(QWidget* parent) {
         QStringList saved;
         for (const auto& step : chain) {
             saved.push_back(QStringList{
-                QString::fromStdString(step.id),
+                QString::fromStdString(step.pluginId),
                 QString::number(step.parameters.amount, 'g', 12),
                 QString::number(step.parameters.tone, 'g', 12),
                 QString::number(step.parameters.rate, 'g', 12),
@@ -351,12 +348,12 @@ void showQuantumAudioLab(QWidget* parent) {
     const auto refreshChain = [&] {
         chainList->clear();
         for (const auto& step : chain) {
-            const auto* plugin = findQuantumAudioPlugin(step.id);
+            const auto* plugin = findQuantumAudioPlugin(step.pluginId);
             if (!plugin) continue;
             auto* item = new QListWidgetItem(
                 q(plugin->name) + QString("   ·   wet %1%").arg(step.parameters.mix * 100.0, 0, 'f', 0),
                 chainList);
-            item->setData(Qt::UserRole, QString::fromStdString(step.id));
+            item->setData(Qt::UserRole, QString::fromStdString(step.pluginId));
         }
         removeButton->setEnabled(!chain.empty());
         clearButton->setEnabled(!chain.empty());
@@ -430,17 +427,15 @@ void showQuantumAudioLab(QWidget* parent) {
     QObject::connect(renderButton, &QPushButton::clicked, &dialog, [&] {
         if (!hasAudio) return;
         AudioBuffer candidate = original;
-        for (const auto& step : chain) {
-            const auto result = processQuantumAudio(step.id, candidate, step.parameters);
-            if (!result.success) {
-                QMessageBox::warning(&dialog, "DSP-обработка остановлена",
-                    QString::fromStdString(result.message));
-                return;
-            }
+        const auto result = processQuantumAudioChain(chain, candidate);
+        if (!result.success) {
+            QMessageBox::warning(&dialog, "DSP-обработка остановлена",
+                QString::fromStdString(result.message));
+            return;
         }
         rendered = std::move(candidate);
         scope->setBuffer(rendered);
-        showStats(status, rendered, QString("Обработано · %1 модулей").arg(chain.size()));
+        showStats(status, rendered, QString("Обработано · %1 модулей").arg(result.completedSteps));
     });
 
     QObject::connect(resetButton, &QPushButton::clicked, &dialog, [&] {

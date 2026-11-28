@@ -1,0 +1,51 @@
+{
+  "schema": "ivan-vhs.ecosystem-cloud-adapter.v1",
+  "version": 1,
+  "project": "ventusample",
+  "project_key": "ventusample",
+  "shared_contract": "ivan-vhs.ecosystem-cloud.v1",
+  "shared_contract_version": 1,
+  "status": "contract-only",
+  "runtime": {
+    "default_network_mode": "disabled",
+    "user_opt_in_required": true,
+    "core_requires_network": false,
+    "supabase_transport": "not-implemented",
+    "secret_source": "external-secret-store-only"
+  },
+  "publish_allowlist": [
+    "pack-manifests",
+    "preset-manifests",
+    "user-published-preset-packs",
+    "release-artifact-metadata"
+  ],
+  "denylist": [
+    "audio-recordings-by-default",
+    "source-sessions",
+    "raw-waveform-captures",
+    "plugin-binaries",
+    "private-plugin-state",
+    "access-tokens",
+    "service-role-keys",
+    "local-render-cache"
+  ],
+  "media": {
+    "local_rendering": "always-available",
+    "cloud_rendering": "not-implemented",
+    "upload_audio": "explicit-publish-only",
+    "private_storage_only": true
+  },
+  "synchronization": {
+    "local_source_of_truth": true,
+    "upload_requires_user_action": true,
+    "retry": "bounded-idempotent",
+    "idempotency": "actor_id+client_instance_id+event_id",
+    "conflicts": "preset-pack-versioned"
+  },
+  "compatibility": {
+    "native_engine": "C++20",
+    "desktop": "Qt 6 optional",
+    "sdk_dependency": false,
+    "offline_dsp_unchanged": true
+  }
+}

@@ -15,6 +15,7 @@ This hub groups the related contracts for the audio workstation. Use each target
 - [PYTYLIKI DSP MIGRATION](../PYTYLIKI_DSP_MIGRATION.md)
 - [QUALITY MONOLITH RHYTHM](../QUALITY_MONOLITH_RHYTHM.md)
 - [QUANTUM AUDIO ENGINE](../QUANTUM_AUDIO_ENGINE.md)
+- [CRATE PRODUCTION SUITE](../CRATE_PRODUCTION_SUITE.md) — sample chops, pocket timing, beat routing and WAV prints.
 - [REAPER PACK AUDIT](../REAPER_PACK_AUDIT.md)
 
 ## Navigation rules
