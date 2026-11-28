@@ -1,17 +1,23 @@
-## What changed
+This PR explains one focused improvement to VentuSample's audio, DSP, plugin or desktop workflow.
 
-Describe the sound-engine, export-format or desktop workflow improvement.
+## What changed
+Describe what a user or downstream module can now do. Name the affected processing path, format or interface.
+
+## Why
+What limitation does this change address?
+
+## Audio and implementation details
+- [ ] Buffer, channel, sample-rate and format assumptions are explicit.
+- [ ] Failure paths preserve the documented signal and state guarantees.
+- [ ] Plugin and preset lifecycle behavior is safe under the supported call patterns.
+- [ ] Offline processing is not described as real-time playback.
+- [ ] Any performance claim is backed by a repeatable benchmark on named conditions.
 
 ## Verification
+List exact CMake, CTest, format, DSP and UI checks that were run. Include relevant edge cases and mark pending work honestly.
 
-- [ ] DSP core tests pass.
-- [ ] Preset/manifest/WAV format tests pass when relevant.
-- [ ] CMake and CTest pass on a Qt-enabled host for UI changes.
-- [ ] Deterministic seed behaviour and output bounds are preserved.
+## Compatibility and privacy
+Explain affected project formats, APIs, sample/preset handling and migration behavior. Do not add private samples, machine-specific paths or hidden network behavior.
 
-## Audio and privacy review
-
-- [ ] No hidden network access or realtime audio side effects were added.
-- [ ] Imported source paths and local machine details are not exported unintentionally.
-- [ ] Hashes are described as byte identity, not proof of authorship or rights.
-- [ ] No large generated audio assets or private samples were committed.
+## Dependencies
+Link related DSP, Reaper integration and cross-repository PRs. State merge order where work is stacked.
