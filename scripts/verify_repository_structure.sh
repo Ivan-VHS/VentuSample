@@ -50,7 +50,7 @@ case "$repo" in
     for path in CMakeLists.txt project-contract.json; do require_file "$path"; done
     ;;
   DAK)
-    for path in duckos kernel desktop core boot; do require_dir "$path"; done
+    for path in duckos kernel desktop foundation boot; do require_dir "$path"; done
     for path in CMakeLists.txt package.json engineering-evolution.v1.json; do require_file "$path"; done
     ;;
   Kaskad)
