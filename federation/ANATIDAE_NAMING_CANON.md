@@ -14,7 +14,7 @@ The formal umbrella is **Anatidae**. Existing application names remain canonical
 
 Repeated entries in the source list are intentionally normalized here; spelling variants are preserved as distinct forms where supplied.
 
-### Duck and duckling family
+### DAK and dakling family
 Утёнок · Утка · Утёныш · Утеночек · Уточка · Уточёнок · Утёночек · Утеныш · Утёнушка · Утюша · Утя · Утюня · Утюняш · Утюняшка · Утяшка
 
 ### Quack and waterfowl family

@@ -1,10 +1,10 @@
 {
   "$schema":"https://json-schema.org/draft/2020-12/schema",
-  "title":"Duck ecosystem i18n catalog set",
+  "title":"DAK ecosystem i18n catalog set",
   "type":"object",
   "required":["schema","sourceLocale","locales"],
   "properties":{
-    "schema":{"const":"duck.i18n-catalog-set/v1"},
+    "schema":{"const":"dak.i18n-catalog-set/v1"},
     "sourceLocale":{"type":"string"},
     "locales":{"type":"object","minProperties":1,"additionalProperties":{
       "type":"object","required":["name","direction","status","messages"],

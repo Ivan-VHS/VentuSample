@@ -11,7 +11,7 @@ const record = (value) => value !== null && typeof value === "object" && !Array.
 try {
   const manifest = await readJson("i18n/manifest.v1.json");
   const set = await readJson("i18n/catalogs.v1.json");
-  if (manifest.schema !== "duck.i18n-manifest/v1" || set.schema !== "duck.i18n-catalog-set/v1") fail("unsupported schema");
+  if (manifest.schema !== "dak.i18n-manifest/v1" || set.schema !== "dak.i18n-catalog-set/v1") fail("unsupported schema");
   if (manifest.sourceLocale !== set.sourceLocale) fail("source locale mismatch");
   if (manifest.languageTags?.acceptAnyWellFormedTag !== true) fail("open BCP-47 policy is required");
   if (!Array.isArray(manifest.fallback) || manifest.fallback.at(-1) !== manifest.sourceLocale) fail("fallback must end at source locale");

@@ -39,6 +39,6 @@ Example:
 
 ## Current integration boundary
 
-The typed chain API and the existing Quantum Audio Lab use the same processing function. Reaper remains the owner of syntax validation and execution; DuckOS is the desktop bridge; Pytyliki provides the cross-repository syntax conformance corpus. The optional Reaper C ABI expression bridge remains a separate build-time feature. No implicit code execution, dynamic library discovery or shell command is introduced by the chain API.
+The typed chain API and the existing Quantum Audio Lab use the same processing function. Reaper remains the owner of syntax validation and execution; DAKOS is the desktop bridge; Pytyliki provides the cross-repository syntax conformance corpus. The optional Reaper C ABI expression bridge remains a separate build-time feature. No implicit code execution, dynamic library discovery or shell command is introduced by the chain API.
 
 The JSON schema is an interchange contract for frontend adapters. This milestone does not yet ship a JSON file importer or claim that all seven language frontends compile directly into DSP chains.

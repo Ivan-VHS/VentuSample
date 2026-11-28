@@ -1,5 +1,5 @@
 {
-  "schema": "duck.i18n-manifest/v1",
+  "schema": "dak.i18n-manifest/v1",
   "project": "VentuSample",
   "sourceLocale": "en",
   "catalogSet": "catalogs.v1.json",
