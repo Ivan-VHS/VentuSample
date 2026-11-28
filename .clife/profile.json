@@ -1,0 +1,27 @@
+{
+  "schema": "clife.profile.v1",
+  "name": "CLife",
+  "purpose": "Controlled source savepoints, reversible rethreading and explicit legacy revival",
+  "repository": "VentuSample",
+  "operations": {
+    "savepoint": "Capture only explicitly selected regular files with SHA-256 content addressing",
+    "rethread": "Compare and optionally restore selected files from a verified savepoint",
+    "second_life": "Revive one selected archived path without loading or executing it",
+    "integrity": "Verify the manifest and every stored object before recovery"
+  },
+  "limits": {
+    "max_file_bytes": 67108864,
+    "max_savepoint_bytes": 536870912
+  },
+  "safety": {
+    "explicit_paths_only": true,
+    "apply_requires_confirmation_flag": true,
+    "checkpoint_current_files_before_overwrite": true,
+    "reject_symlinks": true,
+    "reject_path_traversal": true,
+    "never_delete_preexisting_project_files": true,
+    "rollback_may_remove_only_transaction_created_files": true,
+    "never_execute_revived_code": true,
+    "state_is_local_and_gitignored": true
+  }
+}
