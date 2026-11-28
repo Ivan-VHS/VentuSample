@@ -130,3 +130,7 @@ CMake 提供可移植核心和可选 Qt 6 Widgets 桌面目标。文档记录了
 ---
 
 <p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 UTC</sub></p>
+
+## 相关数学研究
+
+[维尤年科 K3 理论 v0.4.0 提案](https://github.com/Ivan-VHS/Kaskad/pull/36)记录了基数 1000 完备化的 CRT 分解及唯一的无限位置系数序列。这只是外部数学参考；不会改变 VentuSample 的音频表示、PCM 格式、DSP 算法、离线处理模型、资源包清单或插件契约。详见[本地研究说明](docs/VYUNENKO_K3_RESEARCH_REFERENCE.md)。
