@@ -122,6 +122,17 @@
         "docs/PLUGINS.md",
         "schemas/ventusample.pack.v2.schema.json"
       ]
+    },
+    {
+      "id": "audio.pattern-cycle-analysis",
+      "status": "implemented",
+      "summary": "A bounded offline analyzer compares scheduled event offsets across fixed-length musical cycles and reports repeated or changed motifs without modifying samples, rendering audio or accessing real-time devices.",
+      "evidence": [
+        "src/pattern_cycle.hpp",
+        "src/pattern_cycle.cpp",
+        "tests/test_pattern_cycle.cpp",
+        "docs/PATTERN_CYCLE_ANALYSIS.md"
+      ]
     }
   ],
   "interfaces": [
