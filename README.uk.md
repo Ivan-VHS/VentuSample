@@ -2,11 +2,15 @@
 
 <p align="center">[English](README.md) · [Українська](README.uk.md) · [Русский](README.ru.md) · [简体中文](README.zh-CN.md)</p>
 
+> **Psychoporter 666** — точність архітектора × енергія дослідника × простежувані докази. [Спільний стандарт документації](https://github.com/Ivan-VHS/DAK/blob/main/docs/PSYCHOPORTER_DOCUMENTATION_STYLE_V1.md).  
+> **Редакційна редакція · 2026-11-28:** оновлено подачу й навігацію; авторство, умови ліцензій і сторонню атрибуцію збережено.
+
+
 [![CI](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/ci.yml?branch=main&label=CI)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/actions/workflow/status/Ivan-VHS/VentuSample/release.yml?branch=main&label=Release)](https://github.com/Ivan-VHS/VentuSample/actions/workflows/release.yml) [![Apache-2.0](https://img.shields.io/github/license/Ivan-VHS/VentuSample)](LICENSE)
 
 > **Детермінована генерація семплів та offline DSP. Без імітації real-time-рушія.**
 
-**Стан:** Розробка · офлайн-аудіоядро реалізовано · Qt desktop частково · **Версія:** 0.2.0 · **License:** Apache-2.0 · **Стандарт README:** Psychoporter 666 v1.0 · **Дата перевірки:** 2026-11-25 UTC · **Source:** [Ivan-VHS/VentuSample](https://github.com/Ivan-VHS/VentuSample)
+**Стан:** Розробка · офлайн-аудіоядро реалізовано · Qt desktop частково · **Версія:** 0.2.0 · **License:** Apache-2.0 · **Стандарт README:** Psychoporter 666 v1.1 · **Дата перевірки:** 2026-11-25 UTC · **Source:** [Ivan-VHS/VentuSample](https://github.com/Ivan-VHS/VentuSample)
 
 <p align="center"><img src="assets/readme/dashboard.svg" alt="VentuSample project overview" width="100%"></p>
 <p align="center"><a href="assets/screenshots/ventusample-studio.png"><img src="assets/screenshots/ventusample-studio.png" alt="VentuSample desktop application screenshot" width="100%"></a></p>
