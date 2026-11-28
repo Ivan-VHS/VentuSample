@@ -1,0 +1,150 @@
+{
+  "schema": "dak.project-maturity.v1",
+  "version": 1,
+  "project": "VentuSample",
+  "repository": "Ivan-VHS/VentuSample",
+  "current_stage": 4,
+  "current_name": "Ascension",
+  "assessment": "provisional",
+  "assessment_date": "2026-11-25",
+  "assessment_basis": "Repository README, architecture, implementation entry points, interface documentation and CI definitions were inspected for the recorded gates. The full target build and test matrix was not re-run during this adoption; this is not a new CI certification.",
+  "stages": [
+    {
+      "number": 1,
+      "name": "Genesis",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "scope",
+          "path": "README.md",
+          "claim": "Defines the native sample-workstation purpose, offline audio scope, supported targets and explicit non-goals.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "name": "Foundation",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "architecture",
+          "path": "docs/ARCHITECTURE.md",
+          "claim": "Documents the C++20 audio core, optional Qt desktop and offline processing boundaries.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "policy",
+          "path": "SECURITY.md",
+          "claim": "Provides repository security and vulnerability-reporting guidance.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "build",
+          "path": "CMakeLists.txt",
+          "claim": "Defines the native C++20 engine, optional desktop and test build targets.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "ci",
+          "path": ".github/workflows/ci.yml",
+          "claim": "Builds and tests the native engine and desktop targets across declared CI runners.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "name": "Evolution",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "source",
+          "path": "src/mainwindow.cpp",
+          "claim": "Contains the native Qt desktop implementation and its connected application panels.",
+          "verification": "source_reviewed"
+        },
+        {
+          "kind": "tests",
+          "path": "tests",
+          "claim": "Contains regression tests for native audio, import/export and application contracts.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "runtime",
+          "path": "CMakeLists.txt",
+          "claim": "Defines the compiled C++20 engine and desktop targets used by the native build path.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "name": "Ascension",
+      "status": "met",
+      "evidence": [
+        {
+          "kind": "integration",
+          "path": "docs/SOURCE_INTEGRATION.md",
+          "claim": "Defines the source-import and optional versioned Reaper runtime integration boundaries.",
+          "verification": "source_reviewed"
+        },
+        {
+          "kind": "contract_tests",
+          "path": "tests",
+          "claim": "Contains regression coverage for the audio engine, manifests and integration behavior.",
+          "verification": "documentation_only"
+        },
+        {
+          "kind": "ci",
+          "path": ".github/workflows/ci.yml",
+          "claim": "Exercises native engine, desktop and contract checks in CI.",
+          "verification": "documentation_only"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "name": "Vanguard",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 6,
+      "name": "Frontier",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 7,
+      "name": "Dominion",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 8,
+      "name": "Apex",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 9,
+      "name": "Zenith",
+      "status": "pending",
+      "evidence": []
+    },
+    {
+      "number": 10,
+      "name": "Singularity",
+      "status": "pending",
+      "evidence": []
+    }
+  ],
+  "next_stage": 5,
+  "next_gate": [
+    "Run deterministic golden renders on each declared native target.",
+    "Stress plugin lifecycle, invalid inputs, import/export and DSP failure handling.",
+    "Record repeatable latency, memory and compatibility budgets for the offline renderer."
+  ],
+  "semver_independent": true
+}
