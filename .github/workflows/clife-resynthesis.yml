@@ -1,0 +1,40 @@
+name: CLife Catalytic Resynthesis
+
+on:
+  push:
+    branches: [main, "feat/**", "integration/**"]
+    paths:
+      - ".clife/**"
+      - "schemas/clife-resynthesis.v1.schema.json"
+      - "tools/validate_clife_resynthesis.py"
+      - "tests/test_clife_resynthesis.py"
+      - "docs/CLIFE_CATALYTIC_RESYNTHESIS.md"
+      - ".github/workflows/clife-resynthesis.yml"
+  pull_request:
+    paths:
+      - ".clife/**"
+      - "schemas/clife-resynthesis.v1.schema.json"
+      - "tools/validate_clife_resynthesis.py"
+      - "tests/test_clife_resynthesis.py"
+      - "docs/CLIFE_CATALYTIC_RESYNTHESIS.md"
+      - ".github/workflows/clife-resynthesis.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clife-contract:
+    name: Validate reversible resynthesis contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate policy, schema link and repository evidence
+        run: python tools/validate_clife_resynthesis.py --strict --audit
+      - name: Test clean checkpoints, rejected dirty checkpoints and recovery branches
+        run: python -m unittest discover -s tests -p "test_clife_resynthesis.py" -v

@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema": "clife.catalytic-resynthesis.v1",
+  "version": 1,
+  "project": {
+    "name": "VentuSample",
+    "repository": "Ivan-VHS/VentuSample",
+    "stack": "C++20 offline audio/DSP engine, Qt desktop layer and versioned media packs"
+  },
+  "catalytic_model": {
+    "substrate": {
+      "role": "Preserve the verified project core, public contracts, build system and test fixtures as the stable monolith; treat changes to these paths as high-impact migrations.",
+      "protected_paths": [
+        "src",
+        "CMakeLists.txt",
+        "tests"
+      ]
+    },
+    "washcoat": {
+      "role": "Add capabilities through existing tools, tests, workflow gates and documented extension points; do not couple every feature directly to the core.",
+      "extension_points": [
+        "tools",
+        "tests",
+        ".github/workflows"
+      ]
+    },
+    "active_sites": {
+      "role": "Permit a transformation only when its inputs, expected behavior, acceptance criteria and regression checks are explicit and reproducible.",
+      "quality_gates": [
+        "tests",
+        "tools/validate_engineering_evolution.py",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    "oxygen_buffer": {
+      "checkpoint_mode": "annotated_git_tag",
+      "recovery_mode": "new_branch_only",
+      "checkpoint_requires_clean_worktree": true,
+      "automatic_remote_push": false
+    }
+  },
+  "lambda_window": {
+    "baseline_required": true,
+    "tests_required": true,
+    "compatibility_required": true,
+    "security_review_required": true
+  },
+  "diagnostics": {
+    "signals": [
+      "test_pass_rate",
+      "API_or_ABI_compatibility",
+      "dependency_provenance",
+      "change_surface_size",
+      "build_and_runtime_regressions",
+      "checkpoint_recoverability"
+    ],
+    "measurement_boundary": "Read CI outcomes and Git metadata only. Do not collect source contents, credentials, device telemetry or personal data."
+  },
+  "mega_projection": {
+    "horizons_days": [
+      30,
+      90,
+      180,
+      365
+    ],
+    "indicators": [
+      "CI stability trend",
+      "age of last verified checkpoint",
+      "dependency and interface drift",
+      "recurring regression count",
+      "recovery-branch readiness"
+    ],
+    "forecast_policy": "measured_evidence_only",
+    "baseline_status": "pending_initial_measurement"
+  },
+  "safety": {
+    "automatic_source_rewrite": false,
+    "force_push": false,
+    "automatic_merge": false,
+    "destructive_rollback": false,
+    "manual_review_required_for_acceptance": true,
+    "telemetry": "local_only"
+  },
+  "adoption": {
+    "status": "pilot",
+    "stages": [
+      "inventory",
+      "baseline",
+      "checkpoint",
+      "isolate",
+      "transform",
+      "validate",
+      "compare",
+      "accept_or_recover"
+    ]
+  },
+  "evidence_paths": [
+    "docs/ENGINEERING_EVOLUTION_FRAMEWORK.md",
+    "docs/ENGINEERING.md",
+    "tests",
+    "tools"
+  ]
+}
