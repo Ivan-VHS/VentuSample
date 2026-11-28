@@ -1,0 +1,21 @@
+name: Repository structure
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    name: Validate canonical repository layout
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Check validator syntax
+        run: bash -n scripts/verify_repository_structure.sh
+      - name: Validate required structure
+        run: bash scripts/verify_repository_structure.sh

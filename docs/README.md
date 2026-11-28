@@ -33,3 +33,7 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
 Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.
+
+## Repository structure
+
+- [Repository structure profile](REPOSITORY_STRUCTURE_PROFILE.md) — maps the standard to the native C++20 audio/DSP source, compatibility layer, examples and tests.
