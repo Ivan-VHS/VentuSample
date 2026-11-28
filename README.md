@@ -130,3 +130,7 @@ Hosted-service terms, cookies, CORS and OAuth are not applicable to the document
 ---
 
 <p align="center"><sub>Psychoporter 666 README Standard v1.0 · Ivan-VHS · 2026-11-25 UTC</sub></p>
+
+## Related mathematical research
+
+The [Vyunenko Theory K3 v0.4.0 proposal](https://github.com/Ivan-VHS/Kaskad/pull/36) documents CRT splitting of the radix-1000 completion and unique infinite positional coefficient sequences. This is an external mathematical reference only; it does not change VentuSample's audio representation, PCM formats, DSP algorithms, offline processing model, pack manifests or plugin contracts. See [the local research note](docs/VYUNENKO_K3_RESEARCH_REFERENCE.md).
