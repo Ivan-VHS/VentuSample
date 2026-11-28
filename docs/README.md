@@ -33,3 +33,5 @@ Start with the [project README](../README.md) for build options, offline-only pr
 - [Repository evolution directives](REPOSITORY_EVOLUTION_DIRECTIVES.md)
 
 Offline DSP, asset ownership, format limits and implemented behavior must be checked against source, schemas and tests. The index is navigation, not proof of implementation.
+
+- [PROJECT LADDER](PROJECT_LADDER.md) — project evolution and maturity reference.
